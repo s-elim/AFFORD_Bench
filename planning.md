@@ -1,136 +1,140 @@
-# AFFORD-PRO-150: Benchmark, Dataset Generator & Generalization Evaluation Suite for Robot Foundation Models
+# AFFORD-Bench: Master Strategic Roadmap & Reviewer Action Plan
+
+**Target Conference**: Robotics: Science and Systems (RSS) 2027 (Athens, Greece)  
+**Track**: Two-Stage Shepherding Process (Stage 1 Extended Abstract $\rightarrow$ Stage 2 Extension Charter)  
+**Paper Title**: *AFFORD-Bench: An Affordance-Grounded Benchmark and Generalization Evaluation for Robot Learning*  
+**Paper ID**: `[RSS-2027-0150]` (Anonymized)
 
 ---
 
-## 1. Top-Venue Publication Strategy
+## 1. Key Deadlines & The Two-Stage Shepherding Process
 
-### Target Venues
-- **CoRL 2026** (Conference on Robot Learning)
-- **RSS 2026** (Robotics: Science and Systems)
-- **NeurIPS 2026** (Datasets & Benchmarks Track)
-- **ICRA 2027** (IEEE International Conference on Robotics and Automation)
+RSS 2027 replaces the traditional single-deadline model with a **two-stage collaborative development cycle**:
 
-### Proposed Paper Titles
-1. **Primary Candidate**:  
-   > **"AFFORD-PRO: Benchmarking Generalization in Vision-Language-Action Models Across 150 Diverse Manipulation Tasks Beyond Memorization"**
-2. **Alternative A (Affordance Understanding Focus)**:  
-   > **"Beyond Memorization: AFFORD-PRO-150 for Stress-Testing Generalization and Affordance Robustness in Robot Foundation Models"**
-3. **Alternative B (Fundamental Question)**:  
-   > **"Do VLAs Truly Understand Affordances? AFFORD-PRO-150: A Systematic Out-of-Distribution Manipulation Benchmark"**
-
----
-
-## 2. Why AFFORD-PRO-150 is Significantly Better than LIBERO-PRO
-
-| Capability | LIBERO-PRO (Existing Baseline) | **AFFORD-PRO-150 (Our Benchmark)** | Why It Matters for Top Venues |
-| :--- | :--- | :--- | :--- |
-| **Task Count** | ~10–40 tasks (mostly small table toys) | **150 Unique Tasks** across 5 distinct domains | 4$\times$ larger coverage; proves generalist capabilities rather than narrow overfit. |
-| **Domain Diversity** | Single domestic/kitchen tabletop | **5 Real-World Industrial & Scientific Domains** (Industrial Mfg, Commercial Kitchen, Domestic Tabletop, Laboratory Life-Sciences, Long-Horizon Multi-Stage) | Evaluates transferable cross-domain physical affordances beyond toy kitchen objects. |
-| **Sensor Suite** | Single third-person view | **Synchronized Dual-Camera Suite** (Agentic Workcell Overview + Eye-in-Hand Wrist Cam + Metric Depth) | Standardizes realistic multi-view perception used in real Franka Panda / mobile VLA systems. |
-| **Perturbation Axes** | 4 dimensions (Object, Position, Semantic, Environment) | **5-Axis Systematic OOD Suite** (+ Physical Dynamics, Adversarial Clutter, Continuous Viewpoint Jitter, Photometric Lighting) | Isolates precisely *where* and *why* VLA policies fail (Visual vs Spatial vs Dynamic). |
-| **Kinematics & Speeds** | Abstract velocity steps | **Realistic Franka Panda Dynamics (60 FPS, S-Curve Interpolation)** | Preserves physical realism for sim-to-real transfer. |
-| **Data Generation** | Manual human teleoperation or rigid replay | **100% Local Simulation Algorithmic Oracles (500+ FPS)** | Zero external API calls, $0.00 cost, instant batch demo generation on standard hardware. |
-| **VLA Compatibility** | Robomimic HDF5 (LIBERO specific) | **Universal Robomimic / LIBERO / OpenVLA Standard HDF5** | Plug-and-play with OpenVLA, Octo, $\pi_0$, Diffusion Policy, and ACT. |
+| Milestone | Date (AoE) | Objectives & Deliverables |
+| :--- | :--- | :--- |
+| **Stage 1 Submission** | **December 4, 2026** | Strict 6-page Extended Abstract (up to 5 content pages + 1 reference page). Fully fleshed out problem statement, hypotheses, benchmark formulation, and preliminary calibration. |
+| **Stage 1 Decision** | **February 5, 2027** | Reject or Invitation to Rebuttal. |
+| **Rebuttal Deadline** | **February 12, 2027** | 1-week response to Area Chair (AC) and reviewer feedback. |
+| **Stage 2 Charter Notification**| **February 26, 2027** | Finalized **Extension Charter** issued by AC outlining mandatory experiments and analyses. |
+| **Final Paper Submission** | **April 16, 2027** | Strict 8-page full paper (excluding references) reporting all charter executions. |
+| **Final Acceptance** | **April 30, 2027** | Formal notification of acceptance. |
+| **Camera-Ready Copy** | **May 14, 2027** | De-anonymized final PDF with public reviewer/chair signatures. |
+| **Conference Presentation**| **July 6–11, 2027** | In-person presentation in Athens, Greece. |
 
 ---
 
-## 3. The 150-Task Taxonomy Matrix (5 Domains $\times$ 30 Tasks)
+## 2. Reviewer Perspective: Honest Pre-Submission Assessment
+
+### Strengths That Boost the Score
+1. **Unrivaled Timeliness**: Directly addresses the evaluation crisis exposed by LIBERO-PRO and LIBERO-X (overfitting to visual landmarks, lack of physical grounding).
+2. **Benchmark Scale**: 210 physical tasks across 7 specialized domains $\times$ 35 evaluation suites (10,500 demonstrations, $>2.2\times 10^6$ timesteps).
+3. **Policy-Agnostic Design**: Built for *any* policy paradigm—not just Diffusion Policy (DP) or Vision-Language-Action (VLA) models:
+   - Classical Imitation Learning & Behavior Cloning (MLP BC, BeT, IBC)
+   - Action-Chunking Visuomotor Policies (Diffusion Policy, ACT)
+   - 3D Spatial & Point-Cloud Policies (DP3 via aligned 3D metric depth)
+   - Vision-Language-Action Models (OpenVLA, SmolVLA, AtomVLA, Octo)
+   - Offline Reinforcement Learning (CQL, IQL, TD3+BC)
+4. **Hierarchical 5-Level Perturbation Framework (L1–L5)**: Progressive difficulty ladder isolating spatial, physical, visual, and compound chaining breakdown frontiers.
+5. **Zero External API Cost**: Local C++ MuJoCo physical engine running at 40–50 FPS on standard workstations.
+
+---
+
+### The 3 Critical Reviewer Vulnerabilities (And How We Overcome Them)
+
+| # | Vulnerability Identified | Reviewer Critique | Preemptive Defense & Mitigation Strategy |
+| :-: | :--- | :--- | :--- |
+| **1** | **Simulation Grasping Mechanics** | *"Gripper closure welds the object to the TCP. If objects are kinematically attached, Coulomb friction $\mu$ cannot cause physical grasp slippage during transport."* | **Transparent Physics Boundary**: State explicitly that kinematic attachment ensures deterministic demonstration generation across all 210 tasks, whereas **docking, peg insertion, gear meshing, sliding, drawer articulation, and collision constraints are fully governed by MuJoCo contact physics**. In the Stage 2 Charter, commit to compliance wrench thresholds and dynamic slip evaluations. |
+| **2** | **Stage 1 Baseline Data** | *"Table II has 100% Oracle and 0% Random, but lists 'Calibrating' for BC and Diffusion Policy. Where is empirical proof that policies learn?"* | **Preliminary Baseline Training**: Train a lightweight State BC and State Diffusion Policy on **Domain 1 (Industrial)** and **Domain 3 (Tabletop)** for 20 epochs. Report real numbers (e.g., 60–80% nominal, dropping to 10–20% OOD) in Table II. |
+| **3** | **Sim-to-Real Hardware Transfer** | *"Is there real-world robot hardware transfer, or is this purely synthetic?"* | **Dedicated Extension Charter Work-Package**: Frame the physical Franka Emika Panda workstation pilot (gear meshing & pipette docking) as the centerpiece of the Stage 2 Extension Charter. |
+
+---
+
+## 3. Step-by-Step Action Roadmap to Publication
 
 ```
-                                  AFFORD-PRO-150 TASK TAXONOMY
+                                  MASTER EXECUTION ROADMAP
                                   
-  ┌───────────────────────┬───────────────────────┬───────────────────────┬───────────────────────┬───────────────────────┐
-  │ 1. Industrial & Mfg   │ 2. Culinary & Kitchen │ 3. Tabletop & Domestic│ 4. Lab & Life-Science │ 5. Long-Horizon Tasks │
-  │   (Tasks 001 - 030)   │   (Tasks 031 - 060)   │   (Tasks 061 - 090)   │   (Tasks 091 - 120)   │   (Tasks 121 - 150)   │
-  ├───────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┤
-  │ 001. Shaft into bore  │ 031. Patty onto bun   │ 061. Sort red block   │ 091. Pick pipette     │ 121. Coffee brew end  │
-  │ 002. Gear spline mesh │ 032. Cheese on patty  │ 062. Sort blue block  │ 092. Transfer testtube│ 122. Multi-layer burger│
-  │ 003. Dowel pin press  │ 033. Tomato slice add │ 063. Sort green block │ 093. Tube to rack slot│ 123. 8-stage assembly │
-  │ 004. Bearing insertion│ 034. Lettuce top crown│ 064. Open upper drawer│ 094. Uncap tube vial  │ 124. Multi-bin kitting│
-  │ 005. Bolt pick & place│ 035. Bun lid placement│ 065. Open lower drawer│ 095. Place centrifuge │ 125. Package boxing   │
-  │ 006. Nut threading    │ 036. Mug to espresso  │ 066. Push drawer shut │ 096. Latch centrifuge │ 126. Table clear-off  │
-  │ 007. PCB chip insert  │ 037. Press brew button│ 067. Pick ceramic mug │ 097. Pipette to well  │ 127. Table wipe & stow│
-  │ 008. Fuse socket seat │ 038. Remove brewed mug│ 068. Mug onto tray    │ 098. Eject pipette tip│ 128. Multi-tool swap  │
-  │ 009. Cable harness plug│ 039. Decanter pouring│ 069. Pick flat plate  │ 099. Transfer petri   │ 129. Breakfast prep   │
-  │ 010. Relay switch plug│ 040. Water pitcher    │ 070. Stack bowl       │ 100. Open incubator   │ 130. Industrial inspect│
-  │ ... (up to 030)       │ ... (up to 060)       │ ... (up to 090)       │ ... (up to 120)       │ ... (up to 150)       │
-  └───────────────────────┴───────────────────────┴───────────────────────┴───────────────────────┴───────────────────────┘
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ PHASE 1: STAGE 1 SUBMISSION READINESS (Current Priority - Dec 4, 2026)                                 │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ [x] 1.1 Complete 210-task dataset synthesis (10,500 demonstrations, Robomimic HDF5 format)             │
+  │ [x] 1.2 Verify dataset integrity (shapes, dual RGB, 3D metric depth, proprioception)                   │
+  │ [x] 1.3 Implement 5-level hierarchical perturbation engine (L1-L5) & 35 evaluation suites              │
+  │ [x] 1.4 Redesign main.tex to strict 6-page RSS format (5 pages content + 1 page references)            │
+  │ [x] 1.5 Preserve strict anonymity (Author names omitted, Paper ID [RSS-2027-0150], zero external links)│
+  │ [x] 1.6 Launch interactive project page (docs/index.html) with 7-domain video demonstrations           │
+  │ [ ] 1.7 Train preliminary State-BC & State-Diffusion baselines on Domain 1 (Industrial) & 3 (Tabletop) │
+  │ [ ] 1.8 Run evaluate_id.py & evaluate_ood.py to populate preliminary empirical numbers in Table II     │
+  │ [ ] 1.9 Recompile final publication-grade main.pdf and freeze Stage 1 submission package               │
+  └────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+                                                     │
+                                                     ▼
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ PHASE 2: REBUTTAL & CHARTER SHAPING (Feb 5 – Feb 26, 2027)                                             │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ [ ] 2.1 Analyze Stage 1 Metareview and reviewer comments                                               │
+  │ [ ] 2.2 Submit targeted rebuttal addressing contact dynamics, asset variety, and protocol clarity      │
+  │ [ ] 2.3 Receive and agree upon finalized Area Chair Extension Charter                                   │
+  └────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+                                                     │
+                                                     ▼
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ PHASE 3: STAGE 2 EXTENSION CHARTER EXECUTION (Feb 26 – April 16, 2027)                                 │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ [ ] 3.1 Full Empirical Scaling: Evaluate DP, ACT, OpenVLA, SmolVLA, and DP3 across 35 benchmark suites │
+  │ [ ] 3.2 Disentangled Ablations: Plot individual degradation frontiers for spatial, physics, and visual │
+  │ [ ] 3.3 Sim-to-Real Pilot: Deploy policies onto physical Franka Emika Panda workstation                 │
+  │ [ ] 3.4 Expand manuscript to final 8-page RSS format with comprehensive findings & qualitative failure │
+  │ [ ] 3.5 Submit Final Paper by April 16, 2027                                                           │
+  └────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 4. LIBERO-PRO Style 5-Axis Systematic Perturbation Protocol
+## 4. Immediate Concrete Next Steps (Phase 1.7 – 1.9)
 
-Every task has one In-Distribution split and five Out-of-Distribution evaluation splits:
+### Step 1: Train Quick State Baseline Policies
+Run fast, lightweight state-based training on CPU/GPU for Domain 1 (Industrial) and Domain 3 (Tabletop):
+```bash
+# 1. Train Diffusion Policy on Industrial domain (10-20 epochs)
+python scripts/train_policy.py --policy diffusion --modality state --domain industrial --epochs 20 --batch-size 64
 
+# 2. Train Behavior Cloning (BC) on Industrial domain
+python scripts/train_policy.py --policy bc --modality state --domain industrial --epochs 25 --batch-size 64
+
+# 3. Train Diffusion Policy on Domestic Tabletop domain
+python scripts/train_policy.py --policy diffusion --modality state --domain tabletop --epochs 20 --batch-size 64
+
+# 4. Train Behavior Cloning (BC) on Domestic Tabletop domain
+python scripts/train_policy.py --policy bc --modality state --domain tabletop --epochs 25 --batch-size 64
 ```
-                            5 SYSTEMATIC GENERALIZATION DIMENSIONS
-                                              │
-    ┌─────────────────┬───────────────────────┼───────────────────────┬─────────────────┐
-    ▼                 ▼                       ▼                       ▼                 ▼
-[Object (P1)]   [Spatial (P2)]          [Visual (P3)]           [Clutter (P4)]    [Semantic (P5)]
-• Color shifts  • Continuous (x,y)      • Procedural lighting   • 2-4 distractor  • Paraphrasing
-• Mesh scaling  • Random yaw (±180°)    • 12 table textures     • False targets   • Multilingual
-• Aspect ratio  • Swapped placements    • Specular reflections  • Visual noise    • High/Low level
+
+### Step 2: Evaluate In-Distribution & Out-of-Distribution Baselines
+```bash
+# Evaluate Industrial domain checkpoints under Nominal (ID)
+python scripts/evaluate_id.py --checkpoint checkpoints/diffusion_state_industrial_best.pt --domain industrial --num-episodes 10
+python scripts/evaluate_id.py --checkpoint checkpoints/bc_state_industrial_best.pt --domain industrial --num-episodes 10
+
+# Evaluate Industrial domain checkpoints under Spatial OOD
+python scripts/evaluate_ood.py --checkpoint checkpoints/diffusion_state_industrial_best.pt --domain industrial --perturbation p2_spatial --num-episodes 10
+python scripts/evaluate_ood.py --checkpoint checkpoints/bc_state_industrial_best.pt --domain industrial --perturbation p2_spatial --num-episodes 10
 ```
+
+### Step 3: Update Table II in `main.tex` & Recompile
+- Replace `"Calibrating"` entries for D1 and D3 in Table II with the empirical numbers measured above.
+- Leave D2, D4, D5, D6, D7 designated as *"Stage 2 Charter Execution"*.
+- Compile `main.tex` with `pdflatex` to produce the final, unassailable 6-page submission PDF.
 
 ---
 
-## 5. System Architecture (100% Local, Zero Cost)
+## 5. Summary of Benchmark Assets & Verified Files
 
-```
-                            AFFORD-PRO-150 ENGINE PIPELINE
-                            
-    [Task Specification] ──► [Perturbation Engine] ──► [Franka Panda MuJoCo Scene]
-                                                               │
-                                ┌──────────────────────────────┴──────────────────────────────┐
-                                ▼                                                             ▼
-                   [Local Algorithmic Oracle]                                    [Local VLA Policy Under Test]
-                   • Deterministic Waypoint IK                                   • OpenVLA / Octo / Pi0
-                   • Zero API calls ($0.00 cost)                                 • Local PyTorch GPU checkpoint
-                   • 500+ FPS headless rollout                                   • env.step(action)
-                                │                                                             │
-                                ▼                                                             ▼
-                   [Robomimic HDF5 Dataset]                                      [Benchmark Metrics (SR, GDI)]
-```
-
----
-
-## 6. Project Directory Layout
-
-```text
-AFFORD-PRO-150/
-├── planning.md                         # Master research plan & publication blueprint
-├── README.md                           # Documentation & quickstart
-├── setup.py                            # Pip installable package (afford_pro)
-├── afford_pro/
-│   ├── __init__.py
-│   ├── envs/                           # Gymnasium environments
-│   │   ├── base_franka_env.py          # Unified Franka Panda MuJoCo base env
-│   │   ├── industrial/                 # Domain 1: Industrial Precision Assembly (30 tasks)
-│   │   ├── kitchen/                    # Domain 2: Culinary Operations (30 tasks)
-│   │   ├── tabletop/                   # Domain 3: Domestic Manipulation (30 tasks)
-│   │   ├── lab/                        # Domain 4: Laboratory Sciences (30 tasks)
-│   │   └── long_horizon/               # Domain 5: Multi-Stage Contact (30 tasks)
-│   ├── assets/                         # Self-contained MuJoCo XML components & fixtures
-│   ├── oracles/                        # 100% Local Algorithmic Demonstration Solvers
-│   │   ├── base_oracle.py
-│   │   └── industrial_oracle.py
-│   ├── perturbations/                  # LIBERO-PRO style perturbation engine
-│   │   └── engine.py                   # P1-P5 OOD randomizer
-│   ├── datasets/                       # Dataset writers & utilities
-│   │   └── hdf5_writer.py              # Universal Robomimic / LIBERO HDF5 exporter
-│   └── evaluation/                     # VLA & Policy Evaluation Harness
-├── datasets/                           # Output HDF5 demonstration datasets
-└── scripts/
-    ├── generate_demos.py               # Batch generate demonstrations (headless, fast)
-    └── evaluate_policy.py              # Benchmark VLA / policy checkpoint across OOD splits
-```
-
----
-
-## 7. Next Implementation Milestones
-
-1. **Task Suites Expansion**: Implement remaining Domain 1 tasks (gear mesh, dowel pin insertion) and Domain 2 (burger stacking, coffee brewing).
-2. **Batch Demo Generation Engine**: Generate 50 demonstrations per task across all splits.
-3. **Automated Benchmark Leaderboard Generator**: Script that runs OpenVLA/Octo/Diffusion Policy checkpoints and renders the paper's comparison table automatically.
+- **Core Package**: [`afford_pro/`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-PRO-150/afford_pro) (Gymnasium envs, MuJoCo C++, 210 task definitions, perturbation engine).
+- **HDF5 Datasets**: [`datasets/*.hdf5`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-PRO-150/datasets) (210 tasks $\times$ 50 demos = 10,500 demos, 2,296,400 steps, ~387 GB).
+- **Paper LaTeX Source**: [`AFFORD-PRO_RSS'27/paper-template-latex/main.tex`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-PRO-150/AFFORD-PRO_RSS'27/paper-template-latex/main.tex).
+- **Compiled Paper PDF**: [`AFFORD-PRO_RSS'27/paper-template-latex/main.pdf`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-PRO-150/AFFORD-PRO_RSS'27/paper-template-latex/main.pdf) (Strict 6 pages, 0 overfull boxes).
+- **Interactive Project Website**: [`docs/index.html`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-PRO-150/docs/index.html).
+- **Showcase Videos**: [`docs/videos/*.mp4`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-PRO-150/docs/videos) (7 domain video demos).
+- **Master README**: [`README.md`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-PRO-150/README.md).
+- **Remote Git Repository**: `https://github.com/s-elim/AFFORD_Bench.git` (`main`).
