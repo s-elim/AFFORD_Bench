@@ -138,8 +138,8 @@ Evaluated over 20 test rollouts per task under **Nominal (In-Distribution)** and
 
 ### Installation
 ```bash
-git clone https://github.com/s-elim/AFFORD_PRO_150_Robot_Dataset.git
-cd AFFORD_PRO_150_Robot_Dataset
+git clone https://github.com/s-elim/AFFORD_Bench.git
+cd AFFORD_Bench
 pip install -e .
 ```
 
@@ -168,7 +168,7 @@ python scripts/evaluate_policy.py --task industrial_gear_mesh --model diffusion_
 ## 8. Repository Layout
 
 ```text
-AFFORD_PRO_150_Robot_Dataset/
+AFFORD_Bench/
 ├── README.md                           # Master documentation & protocols
 ├── setup.py                            # Pip installable package (afford_pro)
 ├── afford_pro/
