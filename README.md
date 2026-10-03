@@ -7,26 +7,30 @@
 [![Suites: 35 Benchmark Suites](https://img.shields.io/badge/Suites-35%20Benchmark%20Suites-darkblue.svg)]()
 [![Zero External Cost](https://img.shields.io/badge/External%20Cost-%240.00%20Zero-success.svg)]()
 
-**AFFORD-Bench** is a large-scale, affordance-grounded robot manipulation benchmark and dataset suite engineered to stress-test the out-of-distribution (OOD) generalization of **Vision-Language-Action (VLA) foundation models** (OpenVLA, SmolVLA, AtomVLA, Octo, $\pi_0$) and **visuomotor policy learning representations** (Diffusion Policy, ACT, DP3).
+**AFFORD-Bench** is a large-scale, **policy-agnostic**, affordance-grounded robot manipulation benchmark and dataset suite engineered to stress-test the out-of-distribution (OOD) physical generalization of any robot learning policy---ranging from **Classical Imitation Learning (BC, BeT)** and **Visuomotor Action Chunking (Diffusion Policy, ACT)** to **3D Point-Cloud Policies (DP3)**, **Vision-Language-Action (VLA) Foundation Models (OpenVLA, SmolVLA, AtomVLA, Octo)**, and **Offline Reinforcement Learning (CQL, IQL)**.
 
-Operating on a 7-DoF Franka Emika Panda manipulator simulated with contact physics in MuJoCo, AFFORD-Bench provides **210 formally defined physical manipulation tasks** across **7 distinct domains**, backed by **10,500 demonstration episodes** (>2.2M physical timesteps), synchronized dual-camera RGB perception ($640\times 660$ workcell and $300\times 420$ wrist), and **true physical 3D metric depth** ($D_{3D}$).
+Operating on a 7-DoF Franka Emika Panda manipulator simulated with contact physics in MuJoCo, AFFORD-Bench provides **210 formally defined physical manipulation tasks** across **7 distinct domains**, backed by **10,500 demonstration episodes** (>2.2M physical timesteps), synchronized dual-camera RGB perception ($640\times 660$ workcell and $300\times 420$ wrist), and **true physical 3D metric depth** ($D_{\text{3D}}$).
+
+> 🌐 **Interactive Project Page**: Explore multi-modal videos, interactive domain tabs, perturbation hierarchies, and dataset schemas in [`docs/index.html`](docs/index.html).
 
 ---
 
-## 1. Overview: Physical Affordances & Benchmark Architecture
+## 1. Overview: Physical Affordances & Policy-Agnostic Benchmark Architecture
 
 Recent investigations by **LIBERO-PRO** and **LIBERO-X** revealed that seemingly high success rates on existing imitation learning benchmarks often reflect rote memorization of nominal camera views and initial poses rather than generalized physical understanding. When exposed to minor spatial displacements, policy performance degrades precipitously.
 
-AFFORD-Bench grounds robot learning in **ecological contact mechanics**:
+AFFORD-Bench grounds robot learning in **ecological contact mechanics** across a **policy-agnostic** architecture:
+- **Universal Policy Support**: Directly ingestible by BC, ACT, Diffusion Policy, 3D Point-Cloud policies (DP3), VLAs (OpenVLA, SmolVLA, AtomVLA), and Offline RL (CQL, IQL).
 - **Coulomb Friction Variation ($\mu \in [0.10, 1.20]$)**: Grasping forces must prevent slippage without crushing objects.
 - **Dynamic Payload Scaling ($0.5\times$--$3.0\times$)**: Transport dynamics require inertial compensation.
 - **Sub-Millimeter Clearances ($\pm 1.5\,\text{mm} \le \epsilon \le \pm 20.0\,\text{mm}$)**: Assembly requires compliance along insertion manifolds.
 - **Compound Multi-Subtask Prompt Chaining**: Chaining 2–3 sequential manipulation steps within continuous instructions (analogous to multi-step long-horizon suites like LIBERO-10).
-- **Synchronized Multi-Modal Perception**: Dual-view RGB ($640\times 660$ and $300\times 420$) aligned with true metric depth ($D_{3D}$).
+- **Synchronized Multi-Modal Perception**: Dual-view RGB ($640\times 660$ and $300\times 420$) aligned with true metric depth ($D_{\text{3D}}$).
 
-### Benchmark Scaling: LIBERO-PRO (20 Suites) vs. AFFORD-Bench (35 Suites)
-- **LIBERO-PRO**: 4 base suites (40 tabletop tasks) $\times$ 5 perturbation types (Object, Position, Language, Task, Environment) = **20 Evaluation Suites** ($128\times 128$ RGB only, zero depth, no friction/mass variation).
-- **AFFORD-Bench**: 7 manipulation domains (210 tasks) $\times$ 5 perturbation regimes (Nominal, Spatial, Physical, Visual, Composite OOD) = **35 Comprehensive Benchmark Suites** ($5.25\times$ scale, contact physics, 3D metric depth, chained multi-subtask prompts).
+### Benchmark Scaling: LIBERO-PRO (20 Suites) vs. LIBERO-X vs. AFFORD-Bench (35 Suites)
+- **LIBERO-PRO**: 4 base suites (40 tabletop tasks) $\times$ 5 perturbation types = **20 Evaluation Suites** ($128\times 128$ RGB only, zero depth, no friction/mass variation).
+- **LIBERO-X**: Hierarchical evaluation protocol (L1--L5) across domestic tabletop scenes.
+- **AFFORD-Bench**: 7 manipulation domains (210 tasks) $\times$ 5 hierarchical perturbation regimes (Nominal, Spatial, Physical, Visual, Composite OOD) = **35 Comprehensive Benchmark Suites** ($5.25\times$ scale, contact physics, 3D metric depth, chained multi-subtask prompts, policy-agnostic design).
 
 ---
 

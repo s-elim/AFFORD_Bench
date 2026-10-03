@@ -146,6 +146,7 @@ def evaluate_task(
 def main():
     parser = argparse.ArgumentParser(description="Evaluate policies on AFFORD-Bench In-Distribution (Nominal) tasks.")
     parser.add_argument("--checkpoint", type=str, default=None, help="Path to trained policy .pt checkpoint")
+    parser.add_argument("--policy", type=str, default="checkpoint", choices=["checkpoint", "oracle", "random"])
     parser.add_argument(
         "--domain",
         type=str,
