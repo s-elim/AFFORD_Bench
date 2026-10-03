@@ -1,11 +1,11 @@
-# AFFORD-PRO-150: Benchmark, Dataset Generator & OOD Generalization Suite for Robot Foundation Models
+# AFFORD-PRO: An Affordance-Grounded Benchmark and  Generalization Evaluation for Robot Learning
 
 [![Target Venues: CoRL / RSS / NeurIPS 2026](https://img.shields.io/badge/Target%20Venues-CoRL%20%7C%20RSS%20%7C%20NeurIPS%202026-blue)](planning.md)
 [![100% Simulation Native](https://img.shields.io/badge/MuJoCo-100%25%20Simulation-brightgreen)](https://mujoco.org)
 [![Zero External API Cost](https://img.shields.io/badge/API%20Cost-%240.00%20Zero-success)]()
 [![Dataset Standard: Robomimic HDF5](https://img.shields.io/badge/Dataset-Robomimic%20HDF5-orange)](https://robomimic.github.io)
 
-**AFFORD-PRO-150** is a next-generation robotics benchmark and demonstration dataset suite specifically engineered to stress-test the out-of-distribution (OOD) generalization and physical affordance understanding of **Vision-Language-Action (VLA) models** (OpenVLA, Octo, $\pi_0$) and imitation learning policies (Diffusion Policy, ACT).
+**AFFORD-PRO** is a next-generation robotics benchmark and demonstration dataset suite specifically engineered to stress-test the out-of-distribution (OOD) generalization and physical affordance understanding of **Vision-Language-Action (VLA) models** (OpenVLA, Octo, $\pi_0$) and imitation learning policies (Diffusion Policy, ACT).
 
 ---
 
