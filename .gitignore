@@ -38,3 +38,7 @@ Thumbs.db
 *.toc
 *.fls
 *.fdb_latexmk
+
+# Scratch files
+libero_pro_full_text.txt
+*.tmp
