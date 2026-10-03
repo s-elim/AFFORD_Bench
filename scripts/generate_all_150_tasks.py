@@ -47,7 +47,7 @@ def generate_task_demos(
     hdf5_path = output_dir / f"{task_id}_{perturbation}.hdf5"
 
     if is_task_already_done(hdf5_path, num_demos):
-        print(f"  [SKIP] Task #{entry.task_number:03d} '{task_id}' already has {num_demos} demos.")
+        print(f"  [SKIP] Task #{entry.task_number:03d} '{task_id}' already has {num_demos} demos.", flush=True)
         return num_demos, 0, 0.0
 
     env = afford_pro.make(task_id, perturbation_mode=perturbation)
@@ -74,10 +74,10 @@ def generate_task_demos(
             writer.add_demonstration(actions, observations, rewards, dones)
             collected += 1
             total_steps += len(actions)
-            if collected % 10 == 0 or collected == num_demos:
+            if collected % 5 == 0 or collected == num_demos:
                 elapsed = time.monotonic() - t0
                 fps = total_steps / max(0.001, elapsed)
-                print(f"    -> [{collected:2d}/{num_demos}] Demos collected ({total_steps:5d} steps, {fps:.0f} FPS)")
+                print(f"    -> [{collected:2d}/{num_demos}] Demos collected ({total_steps:5d} steps, {fps:.0f} FPS)", flush=True)
 
     writer.close()
     duration = time.monotonic() - t0
