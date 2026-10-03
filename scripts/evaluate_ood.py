@@ -147,7 +147,12 @@ def main():
     parser = argparse.ArgumentParser(description="Evaluate policies across AFFORD-Bench OOD Perturbation Suites.")
     parser.add_argument("--checkpoint", type=str, default=None, help="Path to trained policy .pt checkpoint")
     parser.add_argument("--policy", type=str, default="checkpoint", choices=["checkpoint", "oracle", "random"])
-    parser.add_argument("--domain", type=str, default="industrial", choices=["all", "industrial", "kitchen", "tabletop", "lab", "long_horizon"])
+    parser.add_argument(
+        "--domain",
+        type=str,
+        default="industrial",
+        choices=["all", "industrial", "kitchen", "tabletop", "lab", "long_horizon", "chain_precision", "chain_service"],
+    )
     parser.add_argument("--task", type=str, default=None, help="Evaluate specifically on a single task ID")
     parser.add_argument(
         "--perturbation",
@@ -188,6 +193,8 @@ def main():
             "tabletop": "Tabletop",
             "lab": "Laboratory",
             "long_horizon": "Long-Horizon",
+            "chain_precision": "Precision Chaining",
+            "chain_service": "Service & Culinary",
         }
         target_dom = domain_match[args.domain]
         selected_tasks = [t for t in all_tasks if target_dom in afford_pro.get_task_entry(t).domain]

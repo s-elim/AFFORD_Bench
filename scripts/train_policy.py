@@ -315,7 +315,12 @@ def main():
     parser = argparse.ArgumentParser(description="Train robot learning policies on AFFORD-Bench datasets.")
     parser.add_argument("--policy", type=str, default="diffusion", choices=["diffusion", "bc"])
     parser.add_argument("--modality", type=str, default="state", choices=["state", "visual"])
-    parser.add_argument("--domain", type=str, default="industrial", choices=["all", "industrial", "kitchen", "tabletop", "lab", "long_horizon"])
+    parser.add_argument(
+        "--domain",
+        type=str,
+        default="industrial",
+        choices=["all", "industrial", "kitchen", "tabletop", "lab", "long_horizon", "chain_precision", "chain_service"],
+    )
     parser.add_argument("--task", type=str, default=None, help="Train specifically on a single task ID")
     parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--batch-size", type=int, default=64)
@@ -346,6 +351,8 @@ def main():
             "tabletop": "tabletop_",
             "lab": "lab_",
             "long_horizon": "long_horizon_",
+            "chain_precision": "chain_",
+            "chain_service": "chain_",
         }
         pfx = domain_prefix_map[args.domain]
         target_files = sorted(list(data_dir.glob(f"{pfx}*_nominal.hdf5")))

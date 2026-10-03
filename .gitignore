@@ -48,3 +48,5 @@ checkpoints/*.bin
 # Scratch files
 libero_pro_full_text.txt
 *.tmp
+scratch/
+

@@ -3,13 +3,13 @@
 [![Target Venue: RSS 2027](https://img.shields.io/badge/Submission-RSS%202027%20Stage%201-blue.svg)](AFFORD-PRO_RSS'27/paper-template-latex/main.pdf)
 [![Physics: MuJoCo Native](https://img.shields.io/badge/MuJoCo-3.x%20C%2B%2B%20Native-brightgreen.svg)](https://mujoco.org)
 [![Dataset Standard: Robomimic HDF5](https://img.shields.io/badge/Dataset-Robomimic%20HDF5-orange.svg)](https://robomimic.github.io)
-[![Scale: 150 Tasks / 7,500 Demos](https://img.shields.io/badge/Scale-150%20Tasks%20%7C%207%2C500%20Demos-purple.svg)]()
-[![Suites: 25 Benchmark Suites](https://img.shields.io/badge/Suites-25%20Benchmark%20Suites-darkblue.svg)]()
+[![Scale: 210 Tasks / 10,500 Demos](https://img.shields.io/badge/Scale-210%20Tasks%20%7C%2010%2C500%20Demos-purple.svg)]()
+[![Suites: 35 Benchmark Suites](https://img.shields.io/badge/Suites-35%20Benchmark%20Suites-darkblue.svg)]()
 [![Zero External Cost](https://img.shields.io/badge/External%20Cost-%240.00%20Zero-success.svg)]()
 
 **AFFORD-Bench** is a large-scale, affordance-grounded robot manipulation benchmark and dataset suite engineered to stress-test the out-of-distribution (OOD) generalization of **Vision-Language-Action (VLA) foundation models** (OpenVLA, SmolVLA, AtomVLA, Octo, $\pi_0$) and **visuomotor policy learning representations** (Diffusion Policy, ACT, DP3).
 
-Operating on a 7-DoF Franka Emika Panda manipulator simulated with contact physics in MuJoCo, AFFORD-Bench provides **150 formally defined physical manipulation tasks** across **5 distinct domains**, backed by **7,500 demonstration episodes** (>1.5M physical timesteps), synchronized dual-camera RGB perception ($640\times 660$ workcell and $300\times 420$ wrist), and **true physical 3D metric depth** ($D_{3D}$).
+Operating on a 7-DoF Franka Emika Panda manipulator simulated with contact physics in MuJoCo, AFFORD-Bench provides **210 formally defined physical manipulation tasks** across **7 distinct domains**, backed by **10,500 demonstration episodes** (>2.2M physical timesteps), synchronized dual-camera RGB perception ($640\times 660$ workcell and $300\times 420$ wrist), and **true physical 3D metric depth** ($D_{3D}$).
 
 ---
 
@@ -21,11 +21,12 @@ AFFORD-Bench grounds robot learning in **ecological contact mechanics**:
 - **Coulomb Friction Variation ($\mu \in [0.10, 1.20]$)**: Grasping forces must prevent slippage without crushing objects.
 - **Dynamic Payload Scaling ($0.5\times$--$3.0\times$)**: Transport dynamics require inertial compensation.
 - **Sub-Millimeter Clearances ($\pm 1.5\,\text{mm} \le \epsilon \le \pm 20.0\,\text{mm}$)**: Assembly requires compliance along insertion manifolds.
+- **Compound Multi-Subtask Prompt Chaining**: Chaining 2–3 sequential manipulation steps within continuous instructions (analogous to multi-step long-horizon suites like LIBERO-10).
 - **Synchronized Multi-Modal Perception**: Dual-view RGB ($640\times 660$ and $300\times 420$) aligned with true metric depth ($D_{3D}$).
 
-### Benchmark Scaling: LIBERO-PRO (20 Suites) vs. AFFORD-Bench (25 Suites)
+### Benchmark Scaling: LIBERO-PRO (20 Suites) vs. AFFORD-Bench (35 Suites)
 - **LIBERO-PRO**: 4 base suites (40 tabletop tasks) $\times$ 5 perturbation types (Object, Position, Language, Task, Environment) = **20 Evaluation Suites** ($128\times 128$ RGB only, zero depth, no friction/mass variation).
-- **AFFORD-Bench**: 5 manipulation domains (150 tasks) $\times$ 5 perturbation regimes (Nominal, Spatial, Physical, Visual, Composite OOD) = **25 Comprehensive Benchmark Suites** ($3.75\times$ scale, contact physics, 3D metric depth).
+- **AFFORD-Bench**: 7 manipulation domains (210 tasks) $\times$ 5 perturbation regimes (Nominal, Spatial, Physical, Visual, Composite OOD) = **35 Comprehensive Benchmark Suites** ($5.25\times$ scale, contact physics, 3D metric depth, chained multi-subtask prompts).
 
 ---
 
@@ -57,11 +58,13 @@ python scripts/generate_all_150_tasks.py --domain kitchen --num-demos 50
 python scripts/generate_all_150_tasks.py --domain tabletop --num-demos 50
 python scripts/generate_all_150_tasks.py --domain lab --num-demos 50
 python scripts/generate_all_150_tasks.py --domain long_horizon --num-demos 50
+python scripts/generate_all_150_tasks.py --domain chain_precision --num-demos 50
+python scripts/generate_all_150_tasks.py --domain chain_service --num-demos 50
 
-# Or generate all 150 tasks (7,500 demonstrations) across all domains
+# Or generate all 210 tasks (10,500 demonstrations) across all domains
 python scripts/generate_all_150_tasks.py --domain all --num-demos 50
 
-# Verify dataset integrity (shapes, channels, metric depth, and episode counts)
+# Verify dataset integrity (shapes, channels, metric depth, and step counts in <1s)
 python scripts/verify_dataset_integrity.py
 ```
 
@@ -81,6 +84,9 @@ python scripts/train_policy.py --policy diffusion --modality state --domain indu
 # Train Behavioral Cloning (BC) policy on Kitchen domain
 python scripts/train_policy.py --policy bc --modality state --domain kitchen --epochs 25 --batch-size 64
 
+# Train Diffusion Policy on Multi-Stage Precision Chaining domain
+python scripts/train_policy.py --policy diffusion --modality state --domain chain_precision --epochs 25 --batch-size 64
+
 # Train on a single specific task
 python scripts/train_policy.py --policy diffusion --modality state --task industrial_shaft_assembly --epochs 20
 ```
@@ -99,7 +105,7 @@ python scripts/train_policy.py --policy bc --modality visual --domain lab --epoc
 **Training CLI Options**:
 - `--policy`: Policy architecture (`diffusion` or `bc`).
 - `--modality`: Observation input modality (`state` or `visual`).
-- `--domain`: Target domain (`industrial`, `kitchen`, `tabletop`, `lab`, `long_horizon`, or `all`).
+- `--domain`: Target domain (`industrial`, `kitchen`, `tabletop`, `lab`, `long_horizon`, `chain_precision`, `chain_service`, or `all`).
 - `--task`: Optional single task ID (e.g. `industrial_shaft_assembly`).
 - `--epochs`: Total training epochs (default: `20`).
 - `--batch-size`: Batch size (default: `64`).
@@ -179,7 +185,7 @@ python scripts/generate_ood_eval_suites.py --domain all --perturbation combined_
 
 ---
 
-## 8. Benchmark Taxonomy (5 Domains $\times$ 30 Tasks = 150 Tasks)
+## 8. Benchmark Taxonomy (7 Domains $\times$ 30 Tasks = 210 Tasks)
 
 | Domain | Task Numbers | Tasks | Dominant Physics & Affordances | Clearances |
 | :--- | :---: | :---: | :--- | :---: |
@@ -188,6 +194,9 @@ python scripts/generate_ood_eval_suites.py --domain all --perturbation combined_
 | **D3: Domestic Tabletop** | 061–090 | 30 | Color block sorting, drawer slide actuation, caddy packing, cup stacking | $\pm 8.0\text{--}20.0\,\text{mm}$ |
 | **D4: Cleanroom Laboratory** | 091–120 | 30 | Micropipette tip pickup, centrifuge vial docking, reagent mixing, tube transfer | $\pm 1.5\text{--}4.0\,\text{mm}$ |
 | **D5: Long-Horizon Sequences**| 121–150 | 30 | Multi-stage assembly, sequential tool acquisition, unlatching, sub-assembly chaining | $\pm 3.0\text{--}10.0\,\text{mm}$ |
+| **D6: Precision Chaining** | 151–180 | 30 | Chained 2–3 step industrial operations: shaft-bearing-clamp, gasket-bolt-torque | $\pm 1.8\text{--}4.5\,\text{mm}$ |
+| **D7: Service Assembly** | 181–210 | 30 | Chained 2–3 step culinary service: patty-cheese-bun, mug-brew-serve, plate-fork | $\pm 4.0\text{--}10.0\,\text{mm}$ |
+| **Total Benchmark Scope** | **001–210** | **210** | **7 Domains $\times$ 30 Tasks = 210 Tasks (35 Evaluation Suites)** | $\pm 1.5\text{--}20.0\,\text{mm}$ |
 
 ---
 
@@ -199,14 +208,15 @@ AFFORD_Bench/
 ├── setup.py                            # Pip installable package (afford_pro)
 ├── afford_pro/
 │   ├── __init__.py                     # API: make(), list_tasks(), get_oracle()
-│   ├── registry.py                     # Master 150-task & oracle registry
+│   ├── registry.py                     # Master 210-task & oracle registry
+│   ├── task_definitions.py            # Formal definitions for all 210 manipulation tasks
 │   ├── envs/                           # Gymnasium environments
 │   │   ├── base_franka_env.py          # Franka Panda MuJoCo base env with 3D metric depth
 │   │   ├── industrial/                 # Domain 1: Industrial Precision Assembly (Tasks 001–030)
 │   │   ├── kitchen/                    # Domain 2: Culinary Operations (Tasks 031–060)
 │   │   ├── tabletop/                   # Domain 3: Domestic Manipulation (Tasks 061–090)
 │   │   ├── lab/                        # Domain 4: Laboratory Sciences (Tasks 091–120)
-│   │   └── long_horizon/               # Domain 5: Long-Horizon Sequences (Tasks 121–150)
+│   │   └── long_horizon/               # Domain 5, 6, 7: Long-Horizon & Chained Sequences (Tasks 121–210)
 │   ├── oracles/                        # Deterministic Closed-Loop Algorithmic Solvers
 │   ├── perturbations/                  # Affordance-Grounded Perturbation Engine (Spatial, Physics, Visual)
 │   └── datasets/                       # Universal Robomimic HDF5 dataset writer

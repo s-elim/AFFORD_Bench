@@ -30,7 +30,12 @@ from scripts.generate_all_150_tasks import generate_task_demos
 
 def main():
     parser = argparse.ArgumentParser(description="Generate OOD evaluation suites for AFFORD-Bench.")
-    parser.add_argument("--domain", type=str, default="industrial", choices=["all", "industrial", "kitchen", "tabletop", "lab", "long_horizon"])
+    parser.add_argument(
+        "--domain",
+        type=str,
+        default="industrial",
+        choices=["all", "industrial", "kitchen", "tabletop", "lab", "long_horizon", "chain_precision", "chain_service"],
+    )
     parser.add_argument(
         "--perturbation",
         type=str,
@@ -51,6 +56,8 @@ def main():
         "tabletop": "Tabletop",
         "lab": "Laboratory",
         "long_horizon": "Long-Horizon",
+        "chain_precision": "Precision Chaining",
+        "chain_service": "Service & Culinary",
     }
 
     for tid in all_task_ids:
