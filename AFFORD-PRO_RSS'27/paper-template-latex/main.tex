@@ -54,7 +54,7 @@ However, measuring whether these models exhibit true physical generalizability r
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[
-    scale=0.88, every node/.style={transform shape},
+    scale=0.84, every node/.style={transform shape},
     domainbox/.style={rectangle, rounded corners=3pt, draw=brandblue!80, fill=boxbg, inner sep=3pt, text width=2.4cm, align=center, font=\scriptsize\bfseries},
     corebox/.style={rectangle, rounded corners=4pt, draw=brandred!80, fill=white, inner sep=4pt, text width=5.0cm, align=center, font=\scriptsize},
     axisbox/.style={rectangle, rounded corners=3pt, draw=brandgreen!80, fill=boxbg, inner sep=3pt, text width=1.5cm, align=center, font=\tiny\bfseries},
@@ -257,10 +257,10 @@ We measure policy competence using four formal metrics: (i)~\textbf{Task Success
 \caption{\textbf{Benchmark Success Rates (\%) Across Domains.} Evaluated over 20 test rollouts per task under Nominal and Composite OOD ($\mathcal{P}_{\text{comp}}$) perturbation conditions.}
 \label{tab:prelim_results}
 \scriptsize
-\setlength{\tabcolsep}{3pt}
+\setlength{\tabcolsep}{2pt}
 \begin{tabular}{lcccccc}
 \toprule
-\textbf{Task Domain} & \multicolumn{2}{c}{\textbf{Diffusion Policy}} & \multicolumn{2}{c}{\textbf{OpenVLA (7B)}} & \multicolumn{2}{c}{\textbf{SmolVLA (450M)}} \\
+\textbf{Task Domain} & \multicolumn{2}{c}{\textbf{Diffusion Pol.}} & \multicolumn{2}{c}{\textbf{OpenVLA-7B}} & \multicolumn{2}{c}{\textbf{SmolVLA-450M}} \\
 \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
 & \textbf{Nom.} & \textbf{OOD} & \textbf{Nom.} & \textbf{OOD} & \textbf{Nom.} & \textbf{OOD} \\
 \midrule
