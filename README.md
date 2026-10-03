@@ -32,6 +32,47 @@ However, real-world robotic manipulation is fundamentally governed by **physical
 | **Synthesis Pipeline**| Human teleoperation (expensive) | Manual demonstration replay | **Analytical Closed-Loop Kinematic Oracles** (40–50 FPS, $0.00 external cost) |
 | **Benchmark Standard**| Custom formats | Custom evaluation scripts | **Standard Robomimic HDF5** out-of-the-box compatibility |
 
+### 1.1 Understanding the Benchmark Architecture: LIBERO-PRO (20 Suites) vs. AFFORD-Bench (25 Suites)
+
+#### How LIBERO-PRO Formulates its 20 Suites:
+In the original LIBERO benchmark, tasks are partitioned into **4 task suites** of 10 tasks each (40 tasks total):
+1. `LIBERO-Spatial` (10 tasks)
+2. `LIBERO-Object` (10 tasks)
+3. `LIBERO-Goal` (10 tasks)
+4. `LIBERO-10` / `LIBERO-Long` (10 tasks)
+
+**LIBERO-PRO** leaves training demonstrations unaltered and systematically perturbs test evaluations along **5 orthogonal dimensions**:
+1. **Object Perturbation ($\text{PRO-Obj}$)**: Replacing manipulated objects with out-of-distribution instances.
+2. **Initial Position Perturbation ($\text{PRO-Pos}$)**: Displacing or exchanging object coordinates on the table.
+3. **Instruction Perturbation ($\text{PRO-Lang}$)**: Paraphrasing natural-language instructions.
+4. **Task Perturbation ($\text{PRO-Task}$)**: Modifying task goals or compounding subtask sequences.
+5. **Environment Perturbation ($\text{PRO-Env}$)**: Altering visual context (textures, room backgrounds).
+
+By applying all 5 perturbation types across the 4 base suites, LIBERO-PRO creates:
+$$\mathbf{4 \text{ Base Suites}} \times \mathbf{5 \text{ Perturbation Regimes}} = \mathbf{20 \text{ Evaluation Suites}} \quad (40 \text{ tasks total})$$
+
+**Limitations of LIBERO-PRO**: While this exposed memorization shortcuts in OpenVLA and $\pi_0$, LIBERO-PRO remains confined to 40 tabletop tasks in toy domestic scenes, captures only single-camera $128\times 128$ RGB with zero depth, and completely ignores physical contact dynamics (Coulomb friction, payload mass, contact forces, and tight kinematic clearances).
+
+---
+
+#### How AFFORD-Bench Scales to 25 Benchmark Suites Across 150 Tasks:
+AFFORD-Bench establishes a substantially larger and physically grounded evaluation suite spanning **5 real-world manipulation domains** $\times$ **30 tasks = 150 tasks** ($3.75\times$ the scale of LIBERO):
+- **D1: Industrial Precision & Manufacturing** (30 tasks, $\pm 2.0\text{--}5.0\,\text{mm}$ clearances)
+- **D2: Culinary Operations & Commercial Kitchen** (30 tasks, deformable contact & slipping)
+- **D3: Domestic Tabletop Manipulation** (30 tasks, multi-body clutter & toppling)
+- **D4: Cleanroom Laboratory Sciences** (30 tasks, $\pm 1.5\text{--}4.0\,\text{mm}$ fragile docking)
+- **D5: Long-Horizon Multi-Stage Sequences** (30 tasks, sequential tool acquisition & unlatching)
+
+Each domain is evaluated across **5 standardized affordance perturbation regimes**:
+1. **Nominal Suite ($\mathcal{P}_{\mathrm{nom}}$)**: In-distribution baselines.
+2. **Spatial-Kinematic Suite ($\mathcal{P}_{\mathrm{spatial}}$)**: Coordinate offsets $\pm 6\,\text{cm}$, yaw $\pm 30^\circ$, tolerance contraction to $1.5\,\text{mm}$.
+3. **Physical-Dynamic Suite ($\mathcal{P}_{\mathrm{physics}}$)**: Coulomb friction variations $\mu \in [0.10, 1.20]$, object mass scaling $0.5\times$--$3.0\times$.
+4. **Visual-Photometric Suite ($\mathcal{P}_{\mathrm{visual}}$)**: Illumination intensity $[0.4, 2.2] I_0$, light directions, and camera pose jitter.
+5. **Composite Multi-Axis OOD Suite ($\mathcal{P}_{\mathrm{comp}}$)**: Compounded joint perturbation across spatial, dynamic, and visual axes.
+
+This creates a complete combinatorial evaluation matrix:
+$$\mathbf{5 \text{ Domains}} \times \mathbf{5 \text{ Perturbation Regimes}} = \mathbf{25 \text{ Comprehensive Benchmark Suites}} \quad (\mathbf{150 \text{ tasks total}})$$
+
 ---
 
 ## 2. The 150-Task Domain Taxonomy (5 Domains $\times$ 30 Tasks)
