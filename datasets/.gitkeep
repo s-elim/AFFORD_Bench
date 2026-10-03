@@ -1,0 +1,3 @@
+# Placeholder to preserve datasets directory in git repository.
+# Demonstration datasets (.hdf5) are generated locally using:
+#   python scripts/generate_demos.py --task <task_id> --num-demos 50

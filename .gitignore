@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Large Datasets & Media (>100MB GitHub limit)
+datasets/*.hdf5
+datasets/*.h5
+*.mp4
+*.avi
+*.mov
+!datasets/.gitkeep
+
+# Virtual Environments
+.venv/
+env/
+venv/
+ENV/
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.log
