@@ -39,6 +39,12 @@ Thumbs.db
 *.fls
 *.fdb_latexmk
 
+# Model Checkpoints
+checkpoints/*.pt
+checkpoints/*.pth
+checkpoints/*.bin
+!checkpoints/.gitkeep
+
 # Scratch files
 libero_pro_full_text.txt
 *.tmp
