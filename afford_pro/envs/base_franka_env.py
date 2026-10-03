@@ -155,10 +155,10 @@ class BaseFrankaEnv(gym.Env):
         mujoco.mj_forward(self.model, self.data)
 
         self.renderer_agentic.update_scene(self.data, camera=self.cam_agentic_id)
-        agentic_rgb = self.renderer_agentic.render()
+        agentic_rgb = self.renderer_agentic.render().copy()
 
         self.renderer_wrist.update_scene(self.data, camera=self.cam_wrist_id)
-        wrist_rgb = self.renderer_wrist.render()
+        wrist_rgb = self.renderer_wrist.render().copy()
 
         obs: dict[str, Any] = {
             "agentic_rgb": agentic_rgb,
@@ -171,8 +171,14 @@ class BaseFrankaEnv(gym.Env):
 
         if self.render_depth:
             self.renderer_agentic.enable_depth_rendering()
-            obs["agentic_depth"] = self.renderer_agentic.render()
+            self.renderer_agentic.update_scene(self.data, camera=self.cam_agentic_id)
+            obs["agentic_depth"] = self.renderer_agentic.render().copy()
             self.renderer_agentic.disable_depth_rendering()
+
+            self.renderer_wrist.enable_depth_rendering()
+            self.renderer_wrist.update_scene(self.data, camera=self.cam_wrist_id)
+            obs["wrist_depth"] = self.renderer_wrist.render().copy()
+            self.renderer_wrist.disable_depth_rendering()
 
         return obs
 
