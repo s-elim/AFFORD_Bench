@@ -95,9 +95,12 @@ def verify_file(hdf5_path: Path, expected_demos: int = 50) -> dict:
                         if np.isnan(depth_sample).any() or np.isinf(depth_sample).any():
                             result["errors"].append("agentic_depth contains NaN or Inf")
 
-            # Sum all steps
-            for k in demo_keys:
-                total_steps += len(data_grp[k]["actions"])
+            # Fast step count from attributes if available
+            if "total" in data_grp.attrs:
+                total_steps = int(data_grp.attrs["total"])
+            else:
+                for k in demo_keys:
+                    total_steps += len(data_grp[k]["actions"])
             result["total_steps"] = total_steps
 
             if not result["errors"] and result["num_demos"] >= expected_demos:
@@ -169,17 +172,17 @@ def main():
         else:
             print(f"  [ISSUE] {res['file']}: {', '.join(res['errors'])} ({res['num_demos']}/{args.expected_demos} demos)", flush=True)
 
-    print("\n" + "-" * 80)
-    print(" SUMMARY BY DOMAIN:")
+    print("\n" + "-" * 80, flush=True)
+    print(" SUMMARY BY DOMAIN:", flush=True)
     for dom, cnt in sorted(domain_counts.items()):
-        print(f"  - {dom:<30}: {cnt:2d} completed tasks")
-    print("-" * 80)
+        print(f"  - {dom:<30}: {cnt:2d} completed tasks", flush=True)
+    print("-" * 80, flush=True)
 
-    print(f"\n Verified Completed Tasks : {valid_count} / {len(all_tasks)} tasks ({valid_count/len(all_tasks)*100:.1f}%)")
-    print(f" Total Demonstrations     : {total_demos:,} demos")
-    print(f" Total Physical Steps     : {total_steps:,} steps")
-    print(f" Total Disk Storage       : {total_mb/1024:.2f} GB ({total_mb:,.1f} MB)")
-    print("=" * 80 + "\n")
+    print(f"\n Verified Completed Tasks : {valid_count} / {len(all_tasks)} tasks ({valid_count/len(all_tasks)*100:.1f}%)", flush=True)
+    print(f" Total Demonstrations     : {total_demos:,} demos", flush=True)
+    print(f" Total Physical Steps     : {total_steps:,} steps", flush=True)
+    print(f" Total Disk Storage       : {total_mb/1024:.2f} GB ({total_mb:,.1f} MB)", flush=True)
+    print("=" * 80 + "\n", flush=True)
 
 
 if __name__ == "__main__":
