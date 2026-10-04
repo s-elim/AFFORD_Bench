@@ -64,6 +64,7 @@ RSS 2027 replaces the traditional single-deadline model with a **two-stage colla
   │ [x] 1.4 Redesign main.tex to strict 6-page RSS format (5 pages content + 1 page references)            │
   │ [x] 1.5 Preserve strict anonymity (Author names omitted, Paper ID [RSS-2027-0150], zero external links)│
   │ [x] 1.6 Launch interactive project page (docs/index.html) with 7-domain video demonstrations           │
+  │ [x] 1.6b Deliver minimalist, high-impact benchmark comparison figure (LIBERO-PRO vs LIBERO-X vs Ours) │
   │ [ ] 1.7 Train preliminary State-BC & State-Diffusion baselines on Domain 1 (Industrial) & 3 (Tabletop) │
   │ [ ] 1.8 Run evaluate_id.py & evaluate_ood.py to populate preliminary empirical numbers in Table II     │
   │ [ ] 1.9 Recompile final publication-grade main.pdf and freeze Stage 1 submission package               │
