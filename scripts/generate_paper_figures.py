@@ -9,7 +9,7 @@ import numpy as np
 
 import afford_pro
 
-OUTPUT_DIR = Path(r"D:\Selim Sarowar\Cursor_Projects\AFFORD-PRO-150\AFFORD-PRO_RSS'27\paper-template-latex\figures")
+OUTPUT_DIR = ROOT / "AFFORD-Bench_RSS'27" / "paper-template-latex" / "figures"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 SELECTED_TASKS = [

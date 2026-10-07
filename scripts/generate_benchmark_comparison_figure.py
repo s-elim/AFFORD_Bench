@@ -25,7 +25,7 @@ plt.rcParams.update({
 })
 
 ROOT = Path(__file__).resolve().parent.parent
-OUTPUT_DIR_PAPER = ROOT / "AFFORD-PRO_RSS'27" / "paper-template-latex" / "figures"
+OUTPUT_DIR_PAPER = ROOT / "AFFORD-Bench_RSS'27" / "paper-template-latex" / "figures"
 OUTPUT_DIR_DOCS = ROOT / "docs" / "images"
 OUTPUT_DIR_PAPER.mkdir(parents=True, exist_ok=True)
 OUTPUT_DIR_DOCS.mkdir(parents=True, exist_ok=True)

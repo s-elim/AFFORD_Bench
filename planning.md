@@ -131,11 +131,11 @@ python scripts/evaluate_ood.py --checkpoint checkpoints/bc_state_industrial_best
 
 ## 5. Summary of Benchmark Assets & Verified Files
 
-- **Core Package**: [`afford_pro/`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-PRO-150/afford_pro) (Gymnasium envs, MuJoCo C++, 210 task definitions, perturbation engine).
-- **HDF5 Datasets**: [`datasets/*.hdf5`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-PRO-150/datasets) (210 tasks $\times$ 50 demos = 10,500 demos, 2,296,400 steps, ~387 GB).
-- **Paper LaTeX Source**: [`AFFORD-PRO_RSS'27/paper-template-latex/main.tex`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-PRO-150/AFFORD-PRO_RSS'27/paper-template-latex/main.tex).
-- **Compiled Paper PDF**: [`AFFORD-PRO_RSS'27/paper-template-latex/main.pdf`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-PRO-150/AFFORD-PRO_RSS'27/paper-template-latex/main.pdf) (Strict 6 pages, 0 overfull boxes).
-- **Interactive Project Website**: [`docs/index.html`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-PRO-150/docs/index.html).
-- **Showcase Videos**: [`docs/videos/*.mp4`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-PRO-150/docs/videos) (7 domain video demos).
-- **Master README**: [`README.md`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-PRO-150/README.md).
+- **Core Package**: [`afford_pro/`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-Bench/afford_pro) (Gymnasium envs, MuJoCo C++, 210 task definitions, perturbation engine).
+- **HDF5 Datasets**: [`datasets/*.hdf5`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-Bench/datasets) (210 tasks $\times$ 50 demos = 10,500 demos, 2,296,400 steps, ~387 GB).
+- **Paper LaTeX Source**: [`AFFORD-Bench_RSS'27/paper-template-latex/main.tex`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-Bench/AFFORD-Bench_RSS'27/paper-template-latex/main.tex).
+- **Compiled Paper PDF**: [`AFFORD-Bench_RSS'27/paper-template-latex/main.pdf`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-Bench/AFFORD-Bench_RSS'27/paper-template-latex/main.pdf) (Strict 6 pages, 0 overfull boxes).
+- **Interactive Project Website**: [`docs/index.html`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-Bench/docs/index.html).
+- **Showcase Videos**: [`docs/videos/*.mp4`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-Bench/docs/videos) (7 domain video demos).
+- **Master README**: [`README.md`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-Bench/README.md).
 - **Remote Git Repository**: `https://github.com/s-elim/AFFORD_Bench.git` (`main`).

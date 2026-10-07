@@ -1,6 +1,6 @@
 # AFFORD-Bench: An Affordance-Grounded Benchmark and Generalization Evaluation for Robot Learning
 
-[![Target Venue: RSS 2027](https://img.shields.io/badge/Submission-RSS%202027%20Stage%201-blue.svg)](AFFORD-PRO_RSS'27/paper-template-latex/main.pdf)
+[![Target Venue: RSS 2027](https://img.shields.io/badge/Submission-RSS%202027%20Stage%201-blue.svg)](AFFORD-Bench_RSS'27/paper-template-latex/main.pdf)
 [![Physics: MuJoCo Native](https://img.shields.io/badge/MuJoCo-3.x%20C%2B%2B%20Native-brightgreen.svg)](https://mujoco.org)
 [![Dataset Standard: Robomimic HDF5](https://img.shields.io/badge/Dataset-Robomimic%20HDF5-orange.svg)](https://robomimic.github.io)
 [![Scale: 210 Tasks / 10,500 Demos](https://img.shields.io/badge/Scale-210%20Tasks%20%7C%2010%2C500%20Demos-purple.svg)]()
@@ -224,7 +224,7 @@ AFFORD_Bench/
 │   ├── oracles/                        # Deterministic Closed-Loop Algorithmic Solvers
 │   ├── perturbations/                  # Affordance-Grounded Perturbation Engine (Spatial, Physics, Visual)
 │   └── datasets/                       # Universal Robomimic HDF5 dataset writer
-├── AFFORD-PRO_RSS'27/
+├── AFFORD-Bench_RSS'27/
 │   └── paper-template-latex/           # RSS 2027 Stage 1 Extended Abstract LaTeX source
 │       ├── main.tex                    # Strict 6-page manuscript source
 │       ├── main.pdf                    # Compiled publication-grade PDF
