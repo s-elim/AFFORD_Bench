@@ -13,8 +13,8 @@ The substitutions touch only robot meshes and one texture. Object geometry, mass
 
 | Check (nominal suite, all 210 tasks) | Result in this reproduction | Paper claim |
 | --- | --- | --- |
-| Oracle success (deterministic, 1 episode) | 171/210 (81.4%); failures in D1 12, D4 10, D5 9, D6 8 | 100% on all 210 (Table II, Sec. VII-B) |
-| Random policy, 5 episodes x 400 steps | SR > 0 on 11 tasks; 100% on 7 (017, 018, 019, 046, 193, 198, 209); aggregate 4.0% | 0.0% in every domain |
+| Oracle success (deterministic, 1 episode) | 171/210 (81.4%); per domain D1 18/30, D2 30/30, D3 30/30, D4 20/30, D5 21/30, D6 22/30, D7 30/30 | 100% on all 210 (Table II, Sec. VII-B) |
+| Random policy, 5 episodes x 400 steps (`scripts/sanity_baselines.py`, seed 10000) | SR > 0 on 14 tasks; 100% on 7 (017, 018, 019, 046, 193, 198, 209); aggregate 4.5%; per domain D1 12.0%, D2 4.7%, D3 1.3%, D4 2.0%, D5 0.0%, D6 1.3%, D7 10.0% | 0.0% in every domain |
 | Null policy (never moves, gripper open) | Solves 11 tasks: 017, 018, 019, 030, 046, 060, 090, 120, 193, 198, 209 | not reported |
 | Success predicate already true at reset | 8 tasks: 017, 018, 019, 030, 046, 060, 090, 120 | not reported |
 | Initial object pose across reset seeds | identical for 210/210 tasks | "initial pose jitter <= 1.0 cm" (L1) |
@@ -105,7 +105,7 @@ Score: reject as written; would move to borderline with fixes 1 to 6 of Section 
 | Sec. V-A | "closed-loop algorithmic oracles", "minimum-jerk quintic splines", "verified using simulation contact manifolds" | open-loop waypoints from the reset pose, smoothstep (cubic) interpolation, geometric check only |
 | Sec. VI-A | 500 Hz solver, 20 Hz closed loop | 500 Hz solver, but 500 Hz actions |
 | Sec. VI-C | FVR "episodes terminating due to contact collisions or excessive forces" | no such termination exists |
-| Sec. VII-B | 100% oracle across 210 tasks on disjoint seeds; random 0% | 81.4% and 4.0% in this reproduction; seeds are irrelevant in nominal |
+| Sec. VII-B | 100% oracle across 210 tasks on disjoint seeds; random 0% | 81.4% and 4.5% in this reproduction; seeds are irrelevant in nominal |
 | planning.md, vulnerability 1 | "docking, peg insertion, gear meshing ... fully governed by MuJoCo contact physics" | false; release snaps the body to the goal |
 
 The planning.md defense, "kinematic attachment for transport, contact physics for insertion", would not survive a reviewer who reads `parametric_env.py`. Do not use it in a rebuttal.
