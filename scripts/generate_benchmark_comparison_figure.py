@@ -141,12 +141,12 @@ def generate_appealing_figure():
     # Card 1 Header: LIBERO-PRO
     draw_card(ax, c1_x, banner_y, c1_w, banner_h, "#F8FAFC", "#CBD5E1", border_width=1.0, corner_radius=0.014)
     draw_pill(ax, c1_x + 0.020, banner_y + 0.040, c1_w - 0.040, 0.036, "LIBERO-PRO", "#E2E8F0", "#1E293B", fontsize=10.0, weight="heavy")
-    ax.text(c1_x + c1_w / 2, banner_y + 0.018, "Mellis et al., 2024 • Prior Baseline", fontsize=7.6, color="#64748B", ha="center")
+    ax.text(c1_x + c1_w / 2, banner_y + 0.018, "Zhou et al., 2026 • Robustness", fontsize=7.6, color="#64748B", ha="center")
 
     # Card 2 Header: LIBERO-X
     draw_card(ax, c2_x, banner_y, c2_w, banner_h, "#FFFBEB", "#FDE68A", border_width=1.0, corner_radius=0.014)
     draw_pill(ax, c2_x + 0.020, banner_y + 0.040, c2_w - 0.040, 0.036, "LIBERO-X", "#FEF3C7", "#92400E", fontsize=10.0, weight="heavy", border_color="#FCD34D")
-    ax.text(c2_x + c2_w / 2, banner_y + 0.018, "Kim et al., 2025 • Language-X", fontsize=7.6, color="#B45309", ha="center")
+    ax.text(c2_x + c2_w / 2, banner_y + 0.018, "Wang et al., 2026 • Language-X", fontsize=7.6, color="#B45309", ha="center")
 
     # Card 3 Header: AFFORD-Bench (Ours) - Prominent Banner
     draw_card(ax, c3_x, banner_y, c3_w, banner_h, "#EFF6FF", "#93C5FD", border_width=1.0, corner_radius=0.014)
@@ -162,42 +162,42 @@ def generate_appealing_figure():
             "desc": "Friction & mass dynamics",
             "pro": ("Nominal (Fixed μ = 0.5)", "#F8FAFC", "#64748B", "#E2E8F0"),
             "x":   ("Nominal (Fixed μ = 0.5)", "#F8FAFC", "#64748B", "#E2E8F0"),
-            "ours": ("Dynamic μ [0.1–1.8] & Mass", "#ECFDF5", "#065F46", "#A7F3D0")
+            "ours": ("True Contact Pads (μ ∈ [0.12, 0.25] & Mass)", "#ECFDF5", "#065F46", "#A7F3D0")
         },
         {
-            "cat": "Perception Modalities",
-            "desc": "Visual & geometric inputs",
+            "cat": "Perception Inputs",
+            "desc": "Visual & geometric sensors",
             "pro": ("1× RGB (128 × 128)", "#F8FAFC", "#64748B", "#E2E8F0"),
             "x":   ("2× RGB (256 × 256)", "#F8FAFC", "#475569", "#E2E8F0"),
-            "ours": ("Dual RGB (256²) + 3D Depth", "#ECFDF5", "#065F46", "#A7F3D0")
+            "ours": ("Dual RGB (640×660 / 300×420) + 3D Depth", "#ECFDF5", "#065F46", "#A7F3D0")
         },
         {
             "cat": "Policy Universality",
-            "desc": "Policy architecture support",
+            "desc": "Policy & dataset formats",
             "pro": ("VLA Models Only", "#F8FAFC", "#64748B", "#E2E8F0"),
             "x":   ("VLA Models Only", "#F8FAFC", "#64748B", "#E2E8F0"),
-            "ours": ("Universal: DP, ACT, Flow, VLA", "#EFF6FF", "#1D4ED8", "#BFDBFE")
+            "ours": ("Universal + LeRobot v2.0 & RLDS", "#EFF6FF", "#1D4ED8", "#BFDBFE")
         },
         {
             "cat": "Domain Scope",
-            "desc": "Environment breadth",
-            "pro": ("4 Domestic Suites", "#F8FAFC", "#64748B", "#E2E8F0"),
-            "x":   ("5 Domestic Suites", "#F8FAFC", "#475569", "#E2E8F0"),
-            "ours": ("7 Diverse Domains", "#EFF6FF", "#1D4ED8", "#BFDBFE")
+            "desc": "Environment breadth & tasks",
+            "pro": ("4 Suites (130 Tasks)", "#F8FAFC", "#64748B", "#E2E8F0"),
+            "x":   ("5 Suites (50 Tasks)", "#F8FAFC", "#475569", "#E2E8F0"),
+            "ours": ("7 Diverse Domains (210 Tasks)", "#EFF6FF", "#1D4ED8", "#BFDBFE")
         },
         {
-            "cat": "Task Complexity",
-            "desc": "Horizon & subgoals",
-            "pro": ("Single-Step Pick & Place", "#F8FAFC", "#64748B", "#E2E8F0"),
-            "x":   ("Subtask Tagging", "#FFFBEB", "#92400E", "#FDE68A"),
-            "ours": ("Chained 2–3 Step Subgoals", "#FAF5FF", "#6D28D9", "#DDD6FE")
+            "cat": "Precision & Anti-Cheat",
+            "desc": "Tolerance & impulse probes",
+            "pro": ("Coarse / Kinematic Welds", "#F8FAFC", "#64748B", "#E2E8F0"),
+            "x":   ("Coarse / Kinematic Welds", "#F8FAFC", "#64748B", "#E2E8F0"),
+            "ours": ("2–2.5 mm Tol. + Reactive Impulse Probe", "#FAF5FF", "#6D28D9", "#DDD6FE")
         },
         {
-            "cat": "Demonstration Scale",
-            "desc": "Total steps & trajectories",
-            "pro": ("1.3M Steps (6.5k Demos)", "#F8FAFC", "#64748B", "#E2E8F0"),
-            "x":   ("0.5M Steps (2.5k Demos)", "#F8FAFC", "#64748B", "#E2E8F0"),
-            "ours": ("2.3M Steps (10.5k Demos)", "#ECFDF5", "#065F46", "#A7F3D0")
+            "cat": "Verified Solvability",
+            "desc": "Empirical sanity baselines",
+            "pro": ("Unverified Null Baselines", "#F8FAFC", "#64748B", "#E2E8F0"),
+            "x":   ("Unverified Null Baselines", "#F8FAFC", "#64748B", "#E2E8F0"),
+            "ours": ("99.8% Nominal Oracle (0.0% Null/Rand)", "#ECFDF5", "#065F46", "#A7F3D0")
         }
     ]
 
@@ -224,13 +224,13 @@ def generate_appealing_figure():
         ax.text(c0_x + 0.014, y + pill_h * 0.22, r["desc"], fontsize=7.4, color="#64748B", va="center", zorder=3)
 
         # Col 1: LIBERO-PRO Cell
-        draw_pill(ax, c1_x + 0.012, y, c1_w - 0.024, pill_h, r["pro"][0], r["pro"][1], r["pro"][2], fontsize=8.6, weight="normal", border_color=r["pro"][3])
+        draw_pill(ax, c1_x + 0.012, y, c1_w - 0.024, pill_h, r["pro"][0], r["pro"][1], r["pro"][2], fontsize=8.4, weight="normal", border_color=r["pro"][3])
 
         # Col 2: LIBERO-X Cell
-        draw_pill(ax, c2_x + 0.012, y, c2_w - 0.024, pill_h, r["x"][0], r["x"][1], r["x"][2], fontsize=8.6, weight="normal", border_color=r["x"][3])
+        draw_pill(ax, c2_x + 0.012, y, c2_w - 0.024, pill_h, r["x"][0], r["x"][1], r["x"][2], fontsize=8.4, weight="normal", border_color=r["x"][3])
 
         # Col 3: AFFORD-Bench Cell (Highlighted with checkmark)
-        draw_pill(ax, c3_x + 0.012, y, c3_w - 0.024, pill_h, f"✓  {r['ours'][0]}", r["ours"][1], r["ours"][2], fontsize=8.8, weight="bold", border_color=r["ours"][3])
+        draw_pill(ax, c3_x + 0.012, y, c3_w - 0.024, pill_h, f"✓  {r['ours'][0]}", r["ours"][1], r["ours"][2], fontsize=7.8, weight="bold", border_color=r["ours"][3])
 
     # =========================================================================
     # 5. BOTTOM SUMMARY STRIP (Tasks & Scale Progress - Perfectly Snug)
@@ -242,17 +242,17 @@ def generate_appealing_figure():
     ax.text(c0_x + 0.014, bottom_y + 0.016, "Normalized data volume", fontsize=7.4, color="#64748B")
 
     # LIBERO-PRO Bottom: Scale Bar
-    ax.text(c1_x + 0.015, bottom_y + 0.040, "130 Tasks • 56% Scale", fontsize=7.8, weight="bold", color="#64748B")
+    ax.text(c1_x + 0.015, bottom_y + 0.040, "130 Tasks • 62% Scale", fontsize=7.8, weight="bold", color="#64748B")
     ax.add_patch(FancyBboxPatch((c1_x + 0.015, bottom_y + 0.014), c1_w - 0.030, 0.016, boxstyle="round,pad=0,rounding_size=0.004", facecolor="#F1F5F9", edgecolor="#E2E8F0", linewidth=0.8, zorder=2))
-    ax.add_patch(FancyBboxPatch((c1_x + 0.015, bottom_y + 0.014), (c1_w - 0.030) * 0.56, 0.016, boxstyle="round,pad=0,rounding_size=0.004", facecolor="#94A3B8", edgecolor="none", zorder=3))
+    ax.add_patch(FancyBboxPatch((c1_x + 0.015, bottom_y + 0.014), (c1_w - 0.030) * 0.62, 0.016, boxstyle="round,pad=0,rounding_size=0.004", facecolor="#94A3B8", edgecolor="none", zorder=3))
 
     # LIBERO-X Bottom: Scale Bar
-    ax.text(c2_x + 0.015, bottom_y + 0.040, "50 Tasks • 22% Scale", fontsize=7.8, weight="bold", color="#64748B")
+    ax.text(c2_x + 0.015, bottom_y + 0.040, "50 Tasks • 24% Scale", fontsize=7.8, weight="bold", color="#64748B")
     ax.add_patch(FancyBboxPatch((c2_x + 0.015, bottom_y + 0.014), c2_w - 0.030, 0.016, boxstyle="round,pad=0,rounding_size=0.004", facecolor="#F1F5F9", edgecolor="#E2E8F0", linewidth=0.8, zorder=2))
-    ax.add_patch(FancyBboxPatch((c2_x + 0.015, bottom_y + 0.014), (c2_w - 0.030) * 0.22, 0.016, boxstyle="round,pad=0,rounding_size=0.004", facecolor="#FBBF24", edgecolor="none", zorder=3))
+    ax.add_patch(FancyBboxPatch((c2_x + 0.015, bottom_y + 0.014), (c2_w - 0.030) * 0.24, 0.016, boxstyle="round,pad=0,rounding_size=0.004", facecolor="#FBBF24", edgecolor="none", zorder=3))
 
     # AFFORD-Bench Bottom: Scale Bar (Full & Vibrant)
-    ax.text(c3_x + 0.015, bottom_y + 0.040, "★ 150 Tasks • 100% (2.3× Scale)", fontsize=8.2, weight="bold", color="#047857")
+    ax.text(c3_x + 0.015, bottom_y + 0.040, "★ 210 Tasks • 100% (4.2× Scale)", fontsize=8.2, weight="bold", color="#047857")
     ax.add_patch(FancyBboxPatch((c3_x + 0.015, bottom_y + 0.014), c3_w - 0.030, 0.016, boxstyle="round,pad=0,rounding_size=0.004", facecolor="#DCFCE7", edgecolor="#A7F3D0", linewidth=0.8, zorder=2))
     ax.add_patch(FancyBboxPatch((c3_x + 0.015, bottom_y + 0.014), c3_w - 0.030, 0.016, boxstyle="round,pad=0,rounding_size=0.004", facecolor="#10B981", edgecolor="none", zorder=3))
 

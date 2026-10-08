@@ -492,3 +492,17 @@ class BaseFrankaEnv(gym.Env):
     def check_success(self) -> bool:
         """Override in task environment to evaluate task-specific completion."""
         return False
+
+    def close(self) -> None:
+        """Release MuJoCo renderers and OpenGL contexts."""
+        if hasattr(self, "renderer_agentic") and self.renderer_agentic is not None:
+            try:
+                self.renderer_agentic.close()
+            except Exception:
+                pass
+        if hasattr(self, "renderer_wrist") and self.renderer_wrist is not None:
+            try:
+                self.renderer_wrist.close()
+            except Exception:
+                pass
+        super().close()
