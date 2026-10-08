@@ -1308,7 +1308,7 @@ tasks:
   sim_grounding:
     scene: kitchen_burger.xml
     object: top_bun
-    start_xyz_m: [0.38, 0.16, 0.036]
+    start_xyz_m: [0.38, 0.18, 0.036]
     goal_xyz_m: [0.52, 0.0, 0.068]
     tolerance_xy_m: 0.008
     tolerance_z_m: 0.008
@@ -1322,7 +1322,7 @@ tasks:
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the top bun from the bakery caddy at (0.380, 0.160, 0.036) m and set it dome up on top of the burger stack at (0.520, 0.000, 0.068) m.
+    geometric_spatial: Pick the top bun from the bakery caddy at (0.380, 0.180, 0.036) m and set it dome up on top of the burger stack at (0.520, 0.000, 0.068) m.
     affordance_physical: Bread is soft and compresses under a hard pinch, so hold the domed bun lightly at its widest part and lower it squarely so the stack beneath does not shift.
     colloquial_terse: Bun on top.
     atomic_subtasks:
@@ -1798,7 +1798,7 @@ tasks:
   sim_grounding:
     scene: kitchen_burger.xml
     object: top_bun
-    start_xyz_m: [0.38, 0.16, 0.036]
+    start_xyz_m: [0.38, 0.18, 0.036]
     goal_xyz_m: [0.52, 0.0, 0.026]
     tolerance_xy_m: 0.008
     tolerance_z_m: 0.008
@@ -1812,7 +1812,7 @@ tasks:
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the top bun from the caddy at (0.380, 0.160, 0.036) m and place it flat on the assembly board at (0.520, 0.000, 0.026) m.
+    geometric_spatial: Pick the top bun from the caddy at (0.380, 0.180, 0.036) m and place it flat on the assembly board at (0.520, 0.000, 0.026) m.
     affordance_physical: Grip the soft bun lightly at its widest part so it is not crushed, and set it down dome up.
     colloquial_terse: Top bun on the board.
     atomic_subtasks:
@@ -2053,7 +2053,7 @@ tasks:
     scene: kitchen_burger.xml
     object: top_bun
     start_xyz_m: [0.52, 0.0, 0.068]
-    goal_xyz_m: [0.38, 0.16, 0.036]
+    goal_xyz_m: [0.38, 0.18, 0.036]
     tolerance_xy_m: 0.008
     tolerance_z_m: 0.008
     tilt_tolerance_deg: 15.0
@@ -2066,7 +2066,7 @@ tasks:
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the top bun from the stack at (0.520, 0.000, 0.068) m and return it to the rear slot of the bakery caddy at (0.380, 0.160, 0.036) m.
+    geometric_spatial: Pick the top bun from the stack at (0.520, 0.000, 0.068) m and return it to the rear slot of the bakery caddy at (0.380, 0.180, 0.036) m.
     affordance_physical: Lift the crown straight up so the layers below are not dragged with it, and set it down dome up in the slot.
     colloquial_terse: Top bun back.
     atomic_subtasks:
@@ -4642,7 +4642,7 @@ tasks:
   sim_grounding:
     scene: kitchen_burger.xml
     object: top_bun
-    start_xyz_m: [0.38, 0.16, 0.036]
+    start_xyz_m: [0.38, 0.18, 0.036]
     goal_xyz_m: [0.52, 0.0, 0.068]
     tolerance_xy_m: 0.008
     tolerance_z_m: 0.008
@@ -4656,7 +4656,7 @@ tasks:
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: 'Stack the burger on the board at (0.52, 0.00) in order: patty, cheese, tomato, and finally the top bun from (0.380, 0.160, 0.036) m placed at (0.520, 0.000, 0.068) m.'
+    geometric_spatial: 'Stack the burger on the board at (0.52, 0.00) in order: patty, cheese, tomato, and finally the top bun from (0.380, 0.180, 0.036) m placed at (0.520, 0.000, 0.068) m.'
     affordance_physical: Each layer is softer or more slippery than the last, so place every layer flat with no sideways motion and crown the stack with a light grip on the bun.
     colloquial_terse: Build the full burger.
     atomic_subtasks:
@@ -5329,7 +5329,7 @@ tasks:
     scene: kitchen_burger.xml
     object: top_bun
     start_xyz_m: [0.52, 0.0, 0.068]
-    goal_xyz_m: [0.38, 0.16, 0.036]
+    goal_xyz_m: [0.38, 0.18, 0.036]
     tolerance_xy_m: 0.008
     tolerance_z_m: 0.008
     tilt_tolerance_deg: 15.0
@@ -5342,7 +5342,7 @@ tasks:
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 1
   prompts:
-    geometric_spatial: 'Clear the plate: return the top bun from (0.520, 0.000, 0.068) m to the caddy at (0.380, 0.160, 0.036) m, return the other burger components to their trays, then wipe the board.'
+    geometric_spatial: 'Clear the plate: return the top bun from (0.520, 0.000, 0.068) m to the caddy at (0.380, 0.180, 0.036) m, return the other burger components to their trays, then wipe the board.'
     affordance_physical: Lift each soft layer straight up so the layers below are not dragged, and keep the wipe pass at a steady low height.
     colloquial_terse: Clear it all away.
     atomic_subtasks:
@@ -5442,7 +5442,7 @@ tasks:
   sim_grounding:
     scene: kitchen_burger.xml
     object: top_bun
-    start_xyz_m: [0.38, 0.16, 0.036]
+    start_xyz_m: [0.38, 0.18, 0.036]
     goal_xyz_m: [0.52, 0.0, 0.068]
     tolerance_xy_m: 0.008
     tolerance_z_m: 0.008
@@ -5456,7 +5456,7 @@ tasks:
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 2
   prompts:
-    geometric_spatial: Build the burger on the board in order (bun, patty, cheese), crown it with the top bun from (0.380, 0.160, 0.036) m at (0.520, 0.000, 0.068) m, then move the burger to the plate.
+    geometric_spatial: Build the burger on the board in order (bun, patty, cheese), crown it with the top bun from (0.380, 0.180, 0.036) m at (0.520, 0.000, 0.068) m, then move the burger to the plate.
     affordance_physical: Work quickly but place every soft layer flat and without dragging, and move the finished burger level so the stack does not shear.
     colloquial_terse: Rush burger, plated.
     atomic_subtasks:
@@ -6920,7 +6920,7 @@ tasks:
   sim_grounding:
     scene: kitchen_burger.xml
     object: top_bun
-    start_xyz_m: [0.38, 0.16, 0.036]
+    start_xyz_m: [0.38, 0.18, 0.036]
     goal_xyz_m: [0.52, 0.0, 0.068]
     tolerance_xy_m: 0.008
     tolerance_z_m: 0.008
@@ -6934,7 +6934,7 @@ tasks:
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 2
   prompts:
-    geometric_spatial: Layer turkey and lettuce on the bread, place the top slice from (0.380, 0.160, 0.036) m at (0.520, 0.000, 0.068) m, then cut the sandwich diagonally.
+    geometric_spatial: Layer turkey and lettuce on the bread, place the top slice from (0.380, 0.180, 0.036) m at (0.520, 0.000, 0.068) m, then cut the sandwich diagonally.
     affordance_physical: Lay each filling flat so the stack is even, set the top slice down without shifting the fillings, and hold the sandwich with light pressure while cutting.
     colloquial_terse: Make the sandwich.
     atomic_subtasks:

@@ -8,9 +8,10 @@ from afford_pro.envs.base_franka_env import GRIPPER_OPEN_WIDTH
 from afford_pro.oracles.base_oracle import BaseOracle
 
 OPEN, CLOSE = 1.0, -1.0
-# Rotational symmetry (rad) of the grasp about the vertical axis; bodies not listed are round.
+# Spacing (rad) of candidate grasp yaws measured from the body x axis (its grasp symmetry; the mug is a cylinder
+# whose handle only rules out some yaws, which the collision check decides). Bodies not listed are round.
 GRASP_SYMMETRY = {"red_block": np.pi / 2, "blue_block": np.pi / 2, "cheese_slice": np.pi / 2,
-                  "micropipette": np.pi / 2, "coffee_mug": np.pi}
+                  "micropipette": np.pi / 2, "coffee_mug": np.pi / 4}
 # Grasp height relative to the body origin for bodies whose top is not a good grasp (m).
 GRASP_HEIGHT_OVERRIDE = {"micropipette": 0.045, "dowel_pin": 0.020}  # pin: by the head, so the fingers clear deep holes
 PAD_BELOW_TCP = 0.0115   # finger pads reach this far below the TCP (m)
@@ -22,6 +23,14 @@ CARRY_CLEARANCE = 0.12   # carry height above the higher of the pick and place g
 # margins let the fingers enter tight compartments.
 PRESHAPE_MARGINS = (0.008, 0.005, 0.003)
 YAW_LIMIT = 2.0          # largest hand yaw (rad) commanded during a carry, inside the joint-7 range
+# Transport with a carried body: lower speed and acceleration than the free-space approach, so bodies held
+# away from their center of mass (mugs, buns, capsules) do not slip out of the fingers.
+CARRY_MAX_STEP = 0.012   # m per 50 ms step (0.24 m/s)
+CARRY_ACCEL_STEP = 0.002  # m per step per step (0.8 m/s^2)
+HAND_HALF_SPAN = 0.10    # half-width of the hand footprint scanned for obstacles along the carry path (m)
+CARRY_PATH_MARGIN = 0.025  # clearance between the carried body and the highest surface on the carry path (m)
+RECENTER_STEPS = 15      # most steps spent re-centering laterally during one final descent
+SETTLE_STEPS = 25        # longest wait for the carried body to stop swinging above the goal, and to settle on it
 JAM_RETRIES = 3          # lift-and-realign attempts when an insertion stalls above the goal
 
 
@@ -200,8 +209,35 @@ class ParametricOracle(BaseOracle):
         offset = env.tcp_position - self._obj()
         carry_z = max(env.tcp_position[2], goal[2] + offset[2]) + CARRY_CLEARANCE
         carry_z = max(carry_z, env.start_z + env.min_lift + offset[2] + 0.01)  # meet the task's lift requirement
+        carry_z = max(carry_z, self._path_clear_z(goal))
         yaw = self._place_yaw(goal + offset, carry_z)
-        self.servo(np.array([*env.tcp_position[:2], carry_z]), env.tcp_yaw, CLOSE, tol=0.005, max_steps=60)
+        free_accel, self.accel_step = self.accel_step, CARRY_ACCEL_STEP
+        try:
+            self._carry(goal, carry_z, yaw)
+        finally:
+            self.accel_step = free_accel
+
+    def _path_clear_z(self, goal: np.ndarray) -> float:
+        """TCP height at which the carried body passes CARRY_PATH_MARGIN above every surface under the hand's
+        footprint on the straight path to the goal (brew heads and other overhangs included)."""
+        env = self.env
+        start = self._obj()
+        lo, _ = env.object_extent_z()
+        direction = goal[:2] - start[:2]
+        normal = np.array([-direction[1], direction[0]]) / max(np.linalg.norm(direction), 1e-9)
+        top = -np.inf
+        for f in np.linspace(0.0, 1.0, 21):
+            for side in (-HAND_HALF_SPAN, 0.0, HAND_HALF_SPAN):
+                xy = start[:2] + f * direction + side * normal
+                hit = env.ray_vertical(np.array([xy[0], xy[1], 0.6]))
+                if hit is not None:
+                    top = max(top, hit)
+        return top + CARRY_PATH_MARGIN + (env.tcp_position[2] - lo)
+
+    def _carry(self, goal: np.ndarray, carry_z: float, yaw: float) -> None:
+        env = self.env
+        self.servo(np.array([*env.tcp_position[:2], carry_z]), env.tcp_yaw, CLOSE, tol=0.005, max_steps=80,
+                   max_step=CARRY_MAX_STEP)
         misses = [0]
 
         def lost() -> bool:
@@ -214,8 +250,16 @@ class ParametricOracle(BaseOracle):
             return env.tcp_position + (obj_target - self._obj())
 
         above = np.array([goal[0], goal[1], goal[2] + 0.05])
-        self.servo(lambda: np.array([*tcp_for(above)[:2], carry_z]), yaw, CLOSE, tol=0.003, max_steps=120, until=lost)
+        self.servo(lambda: np.array([*tcp_for(above)[:2], carry_z]), yaw, CLOSE, tol=0.003, max_steps=160,
+                   max_step=CARRY_MAX_STEP, until=lost)
         self.servo(lambda: tcp_for(above), yaw, CLOSE, tol=0.0008, max_steps=80, max_step=0.01, until=lost)
+        # Hover until the body stops swinging in the fingers and is centered over the goal.
+        for _ in range(SETTLE_STEPS):
+            lin, _ = env.object_speed()
+            if lin < 0.005 and np.linalg.norm(self._obj()[:2] - goal[:2]) < 0.0005:
+                break
+            self.act(self.action_towards(tcp_for(above), yaw, CLOSE, max_step=0.002))
+            lost()
         if env.hold_goal:
             self.servo(lambda: tcp_for(goal), yaw, CLOSE, tol=0.0005, max_steps=120, max_step=0.004)
             while True:
@@ -231,6 +275,14 @@ class ParametricOracle(BaseOracle):
             # Stalled in contact above the goal (a part wedged at a tight fit): back off, re-centre, retry.
             entry = goal + np.array([0.0, 0.0, 0.012])
             self.servo(lambda: tcp_for(entry), yaw, CLOSE, tol=0.0005, max_steps=40, max_step=0.004, until=lost)
+        # Compliant settling: stop pushing and hold the grasp until the body is at rest on its support, then
+        # correct any residual lateral offset before letting go.
+        hold_tcp = env.tcp_position.copy()
+        for _ in range(SETTLE_STEPS):
+            lin, ang = env.object_speed()
+            if lin < 0.005 and ang < 0.05:
+                break
+            self.act(self.action_towards(hold_tcp, yaw, CLOSE, max_step=0.002))
         self._release(yaw)
 
     def _release(self, yaw: float) -> None:
@@ -250,6 +302,7 @@ class ParametricOracle(BaseOracle):
         env = self.env
         target = goal + np.array([0.0, 0.0, -0.002])
         history: list[float] = []
+        recenter_budget = RECENTER_STEPS
         for _ in range(120):
             if supported():
                 return True
@@ -259,5 +312,10 @@ class ParametricOracle(BaseOracle):
             if in_contact and len(history) > 6 and history[-7] - z < 0.0005:
                 return False
             step = 0.002 if z < goal[2] + 0.02 else 0.004
-            self.act(self.action_towards(tcp_for(target), yaw, CLOSE, max_step=step))
+            # Near the goal, re-center before descending further so the body lands within tolerance.
+            off_center = np.linalg.norm(self._obj()[:2] - goal[:2]) > 0.001
+            recenter = off_center and z < goal[2] + 0.015 and recenter_budget > 0
+            recenter_budget -= int(recenter)
+            aim = np.array([goal[0], goal[1], z]) if recenter else target
+            self.act(self.action_towards(tcp_for(aim), yaw, CLOSE, max_step=step))
         return False

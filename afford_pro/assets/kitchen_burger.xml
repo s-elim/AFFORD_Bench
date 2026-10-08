@@ -237,7 +237,7 @@
     </body>
 
     <!-- 5. Top Sesame Bun (Crown) -->
-    <body name="top_bun" pos="0.38 0.16 0.036">
+    <body name="top_bun" pos="0.38 0.18 0.036">
       <freejoint name="t_bun_joint"/>
       <!-- Domed bun crown on a flat base, 66 mm across so the open gripper (80 mm) can enclose it -->
       <geom name="tbun_base" type="cylinder" size="0.033 0.007" pos="0 0 -0.004" rgba="0.87 0.61 0.26 1.0" mass="0.02" friction="1.6 0.005 0.0001" condim="4"/>
