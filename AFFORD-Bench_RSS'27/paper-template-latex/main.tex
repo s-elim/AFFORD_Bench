@@ -302,8 +302,11 @@ The Stage 2 Extension Charter includes a hardware pilot on two D1 tasks: peg ins
 In accordance with the RSS 2027 shepherding process, the Stage 2 charter comprises:
 (1)~\textit{Simulator fidelity}: tolerance-indexed task variants, multi-body predicates for D5--D7, and compliant fingertip models;
 (2)~\textit{Full empirical scaling}: 50 rollouts per condition $\times$ 210 tasks $\times$ 35 suites for Diffusion Policy, ACT, OpenVLA, SmolVLA, AtomVLA, and DP3;
-(3)~\textit{Disentangled ablations}: separate sensitivity curves for $\mathcal{P}_{\mathrm{spatial}}$, $\mathcal{P}_{\mathrm{physics}}$, $\mathcal{P}_{\mathrm{visual}}$, and tolerance; and
-(4)~\textit{Hardware pilot}: peg insertion and gear meshing as described above.
+(3)~\textit{Disentangled ablations}: separate sensitivity curves for $\mathcal{P}_{\mathrm{spatial}}$, $\mathcal{P}_{\mathrm{physics}}$, $\mathcal{P}_{\mathrm{visual}}$, and tolerance;
+(4)~\textit{Hardware pilot}: peg insertion and gear meshing as described above; and
+(5)~\textit{Domain 8 (Tasks 211--240)}: tool-mediated manipulation (hook retrieval beyond the workspace, spatula wedging, hex-key socketing), non-prehensile manipulation (edge singulation, fixture-assisted pivoting, corral sweeping), twist-lock and detent assembly (bayonet, key and latch, push-and-turn caps), and mid-trajectory reactive perturbations.
+
+Pick-and-place suites reward reaching a pose; Domain 8 tasks succeed only through a mechanism the policy must infer, such as a tool frame, a pushing motion cone, a configuration-space slot, or a displaced target, so they test physical affordance reasoning in VLAs and world models more directly. Each task enters the benchmark only if a privileged oracle solves at least 95\% of its episodes and null and random policies solve none; tasks that need wrist roll and pitch, which Stage~1 does not execute, are marked as such. The perturbation test is already validated on Stage~1 tasks (\texttt{scripts/test\_reactive\_perturbation.py}): with a 4\,cm displacement at mid-approach, a closed-loop and a 16-step chunked execution of the same state-feedback law succeed in 18 of 19 episodes, open-loop replay in 0 of 19, and all three in 9 of 9 without the displacement. Specifications are in \texttt{docs/FRONTIER\_COMPLEX\_TASKS.md}.
 
 \clearpage
 {\footnotesize
