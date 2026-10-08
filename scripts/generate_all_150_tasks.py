@@ -17,7 +17,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import afford_pro
-from afford_pro.datasets.hdf5_writer import RobomimicHDF5Writer
+from afford_pro.datasets.hdf5_writer import RobomimicHDF5Writer, make_env_args
 
 
 def is_task_already_done(hdf5_path: Path, target_demos: int) -> bool:
@@ -40,6 +40,7 @@ def generate_task_demos(
     perturbation: str = "nominal",
     output_dir: Path = ROOT / "datasets",
     base_seed: int = 42,
+    depth: bool = False,
 ) -> tuple[int, int, float]:
     """Generate demonstrations for a single task."""
     entry = afford_pro.get_task_entry(task_id)
@@ -50,7 +51,7 @@ def generate_task_demos(
         print(f"  [SKIP] Task #{entry.task_number:03d} '{task_id}' already has {num_demos} demos.", flush=True)
         return num_demos, 0, 0.0
 
-    env = afford_pro.make(task_id, perturbation_mode=perturbation)
+    env = afford_pro.make(task_id, perturbation_mode=perturbation, render_depth=depth)
     oracle = afford_pro.get_oracle(task_id, env)
 
     writer = RobomimicHDF5Writer(
@@ -58,7 +59,12 @@ def generate_task_demos(
         env_name=task_id,
         task_id=task_id,
         instruction=entry.instruction,
+        env_args=make_env_args(task_id, perturbation_mode=perturbation, render_depth=depth),
     )
+    if depth:
+        env.reset(seed=base_seed)
+        for key, value in env.camera_parameters().items():
+            writer.data_grp.attrs[f"camera_{key}"] = value
 
     t0 = time.monotonic()
     collected = 0
@@ -71,7 +77,7 @@ def generate_task_demos(
 
         actions, observations, rewards, dones = oracle.generate_episode(seed=ep_seed)
         if env.check_success():
-            writer.add_demonstration(actions, observations, rewards, dones)
+            writer.add_demonstration(actions, observations, rewards, dones, states=oracle.last_states, seed=ep_seed)
             collected += 1
             total_steps += len(actions)
             if collected % 5 == 0 or collected == num_demos:
@@ -98,6 +104,8 @@ def main():
     parser.add_argument("--perturbation", type=str, default="nominal", choices=["nominal", "p1_object", "p2_spatial", "p3_visual", "combined_ood"])
     parser.add_argument("--output-dir", type=str, default="datasets")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--depth", action="store_true",
+                        help="Also record float32 metric depth for both cameras and their camera parameters (much larger files)")
     args = parser.parse_args()
 
     all_task_ids = afford_pro.list_tasks()
@@ -147,6 +155,7 @@ def main():
             perturbation=args.perturbation,
             output_dir=out_path,
             base_seed=args.seed + entry.task_number * 1000,
+            depth=args.depth,
         )
         grand_total_demos += c
         grand_total_steps += s

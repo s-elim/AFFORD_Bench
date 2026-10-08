@@ -27,21 +27,31 @@ class BaseOracle:
         self._obs: dict[str, list[np.ndarray]] = {}
         self._rewards: list[float] = []
         self._dones: list[bool] = []
+        self._states: list[np.ndarray] = []
+        self.last_states = np.zeros((0, 0))
+        self.last_seed: int | None = None
 
     def generate_episode(self, seed: int | None = None, options: dict[str, Any] | None = None) -> Episode:
-        """Generate one rollout; returns (actions, observations, rewards, dones) aligned to T steps."""
+        """Generate one rollout; returns (actions, observations, rewards, dones) aligned to T steps.
+
+        observations[t] and `last_states[t]` describe the state before actions[t]; rewards[t] and dones[t] are the
+        reward and termination returned by the step that executes actions[t], so a successful demonstration
+        ends with dones[-1] = True."""
         obs, _ = self.env.reset(seed=seed, options=options)
+        self.last_seed = seed
         self._obs: dict[str, list[np.ndarray]] = {k: [v] for k, v in obs.items()}
+        self._states: list[np.ndarray] = [self.env.get_sim_state()] if hasattr(self.env, "get_sim_state") else []
         self._actions: list[np.ndarray] = []
-        self._rewards: list[float] = [0.0]
-        self._dones: list[bool] = [False]
+        self._rewards: list[float] = []
+        self._dones: list[bool] = []
         self._prev_delta = np.zeros(3)
         try:
             self.run()
         except EpisodeDone:
             pass
         T = len(self._actions)
-        return self._actions, {k: v[:T] for k, v in self._obs.items()}, self._rewards[:T], self._dones[:T]
+        self.last_states = np.asarray(self._states[:T], dtype=np.float64)
+        return self._actions, {k: v[:T] for k, v in self._obs.items()}, self._rewards, self._dones
 
     def run(self) -> None:
         raise NotImplementedError
@@ -54,6 +64,8 @@ class BaseOracle:
             self._obs[k].append(v)
         self._rewards.append(reward)
         self._dones.append(terminated)
+        if self._states:
+            self._states.append(self.env.get_sim_state())
         if terminated or len(self._actions) >= self.max_steps:
             raise EpisodeDone
 

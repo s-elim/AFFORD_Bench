@@ -17,6 +17,8 @@ GRIPPER_OPEN_WIDTH = 0.04  # per finger (m)
 # Commanded TCP targets are clipped to this box (m, world frame).
 WORKSPACE_LOW = np.array([0.20, -0.50, 0.0])
 WORKSPACE_HIGH = np.array([0.80, 0.50, 0.70])
+# Recorded simulator state: time, qpos, qvel, actuator activations, and plugin state (MuJoCo's full physics state).
+SIM_STATE_SPEC = mujoco.mjtState.mjSTATE_FULLPHYSICS
 
 _PLACEHOLDER_OBJ = (
     b"o placeholder\n"
@@ -370,6 +372,23 @@ class BaseFrankaEnv(gym.Env):
             if int(m.body_rootid[other]) not in ignore and other not in ignore:
                 return True
         return False
+
+    def get_sim_state(self) -> np.ndarray:
+        """Full physics state (float64) followed by the gripper's slew-limited opening command (m). After
+        `reset(seed)` with the recorded seed (which re-applies that episode's model perturbations),
+        `set_sim_state` restores the scene for re-rendering or inspection; task bookkeeping such as success
+        counters is not part of it."""
+        state = np.empty(mujoco.mj_stateSize(self.model, SIM_STATE_SPEC))
+        mujoco.mj_getState(self.model, self.data, state, SIM_STATE_SPEC)
+        return np.append(state, self.finger_cmd)
+
+    def set_sim_state(self, state: np.ndarray) -> None:
+        """Inverse of `get_sim_state`."""
+        state = np.asarray(state, dtype=np.float64)
+        assert state.shape == (mujoco.mj_stateSize(self.model, SIM_STATE_SPEC) + 1,), state.shape
+        mujoco.mj_setState(self.model, self.data, state[:-1], SIM_STATE_SPEC)
+        self.finger_cmd = float(state[-1])
+        mujoco.mj_forward(self.model, self.data)
 
     def _set_arm_state(self, q: np.ndarray, finger: float = GRIPPER_OPEN_WIDTH) -> None:
         """Teleport the arm (reset only): joint positions, zero velocity, matching servo targets."""

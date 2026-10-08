@@ -13,7 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import afford_pro
-from afford_pro.datasets.hdf5_writer import RobomimicHDF5Writer
+from afford_pro.datasets.hdf5_writer import RobomimicHDF5Writer, make_env_args
 
 
 def main():
@@ -53,6 +53,7 @@ def main():
         env_name=args.task,
         task_id=args.task,
         instruction=entry.instruction,
+        env_args=make_env_args(args.task, perturbation_mode=args.perturbation, render_depth=args.depth),
     )
 
     if args.depth:
@@ -72,7 +73,8 @@ def main():
         success = env.check_success()
 
         if success:
-            demo_key = writer.add_demonstration(actions, observations, rewards, dones)
+            demo_key = writer.add_demonstration(actions, observations, rewards, dones,
+                                                states=oracle.last_states, seed=ep_seed)
             collected += 1
             total_steps += len(actions)
             dur = time.monotonic() - ep_t0

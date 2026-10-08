@@ -2,7 +2,8 @@
 
 Robomimic HDF5 (written by `RobomimicHDF5Writer`):
     data/demo_i/actions (T, 7) float32, data/demo_i/obs/<key> (T, ...), data/demo_i/rewards (T,),
-    data/demo_i/dones (T,), attrs env_name / task_id / instruction on `data`, mask/train and mask/valid.
+    data/demo_i/dones (T,), optional data/demo_i/states (T, S) simulator states and demo attr `seed`, attrs
+    env_args / env_name / task_id / instruction on `data`, mask/train and mask/valid.
 
 LeRobot v2.0 (one parquet file per episode, images stored losslessly as PNG in the parquet "image" struct):
     meta/info.json, meta/episodes.jsonl, meta/tasks.jsonl, meta/stats.json,
@@ -33,19 +34,23 @@ LEROBOT_VERSION = "v2.0"
 
 @dataclass
 class Episode:
-    """One demonstration: actions (T, A), observations {key: (T, ...)}, rewards (T,), dones (T,)."""
+    """One demonstration: actions (T, A), observations {key: (T, ...)}, rewards (T,), dones (T,), and optionally the
+    simulator state before each action (T, S) and the reset seed."""
 
     actions: np.ndarray
     obs: dict[str, np.ndarray]
     rewards: np.ndarray
     dones: np.ndarray
     key: str = ""
+    states: np.ndarray | None = None
+    seed: int | None = None
 
     def __post_init__(self) -> None:
         T = len(self.actions)
         assert self.actions.ndim == 2, self.actions.shape
         assert len(self.rewards) == T and len(self.dones) == T
         assert all(len(v) == T for v in self.obs.values()), {k: v.shape for k, v in self.obs.items()}
+        assert self.states is None or len(self.states) == T, (None if self.states is None else self.states.shape)
 
     def __len__(self) -> int:
         return len(self.actions)
@@ -59,6 +64,7 @@ class DatasetMeta:
     train_keys: list[str] = field(default_factory=list)
     valid_keys: list[str] = field(default_factory=list)
     camera: dict[str, list] = field(default_factory=dict)  # camera_* attributes (intrinsics K, pose) if recorded
+    env_args: str = ""  # robomimic environment metadata (JSON)
 
 
 # ------------------------------------------------------------------------------------------- Robomimic HDF5
@@ -74,6 +80,7 @@ def read_robomimic(path: str | Path) -> tuple[DatasetMeta, Iterator[Episode]]:
             train_keys=[k.decode() for k in f["mask/train"][()]] if "mask/train" in f else [],
             valid_keys=[k.decode() for k in f["mask/valid"][()]] if "mask/valid" in f else [],
             camera={k: np.asarray(v).tolist() for k, v in data.attrs.items() if k.startswith("camera_")},
+            env_args=str(data.attrs.get("env_args", "")),
         )
         keys = sorted(data.keys(), key=lambda k: int(k.split("_")[-1]))
 
@@ -82,7 +89,9 @@ def read_robomimic(path: str | Path) -> tuple[DatasetMeta, Iterator[Episode]]:
             for k in keys:
                 g = f["data"][k]
                 yield Episode(actions=g["actions"][()], obs={o: g["obs"][o][()] for o in g["obs"]},
-                              rewards=g["rewards"][()], dones=g["dones"][()], key=k)
+                              rewards=g["rewards"][()], dones=g["dones"][()], key=k,
+                              states=g["states"][()] if "states" in g else None,
+                              seed=int(g.attrs["seed"]) if "seed" in g.attrs else None)
 
     return meta, episodes()
 
@@ -91,11 +100,12 @@ def write_robomimic(path: str | Path, meta: DatasetMeta, episodes: Iterator[Epis
     """Write episodes as demo_0..demo_{n-1} with the dataset's train/valid masks; returns the episode count."""
     from afford_pro.datasets.hdf5_writer import RobomimicHDF5Writer
 
-    writer = RobomimicHDF5Writer(path, env_name=meta.env_name, task_id=meta.task_id, instruction=meta.instruction)
+    writer = RobomimicHDF5Writer(path, env_name=meta.env_name, task_id=meta.task_id, instruction=meta.instruction,
+                                 env_args=meta.env_args or None)
     for k, v in meta.camera.items():
         writer.data_grp.attrs[k] = np.asarray(v)
     for ep in episodes:
-        writer.add_demonstration(ep.actions, ep.obs, ep.rewards, ep.dones)
+        writer.add_demonstration(ep.actions, ep.obs, ep.rewards, ep.dones, states=ep.states, seed=ep.seed)
     n = writer.demo_count
     train = meta.train_keys or [f"demo_{i}" for i in range(int(n * 0.9))]
     valid = meta.valid_keys or [f"demo_{i}" for i in range(int(n * 0.9), n)]
@@ -169,6 +179,8 @@ def write_lerobot(root: str | Path, meta: DatasetMeta, episodes: Iterator[Episod
                 **{k: {"dtype": "int64", "shape": [1], "names": None}
                    for k in ("frame_index", "episode_index", "index", "task_index")},
                 "timestamp": {"dtype": "float32", "shape": [1], "names": None},
+                **({"sim_state": {"dtype": "float64", "shape": [ep.states.shape[1]], "names": None}}
+                   if ep.states is not None else {}),
             }
         state = np.concatenate([ep.obs[k].reshape(T, -1) for k, _ in layout], axis=1).astype(np.float32)
         columns: dict[str, Any] = {
@@ -188,11 +200,13 @@ def write_lerobot(root: str | Path, meta: DatasetMeta, episodes: Iterator[Episod
             "task_index": np.zeros(T, dtype=np.int64),
             "timestamp": (np.arange(T) / fps).astype(np.float32),
         })
+        if ep.states is not None:
+            columns["sim_state"] = list(np.asarray(ep.states, dtype=np.float64))
         out = root / "data" / f"chunk-{n // CHUNK_SIZE:03d}" / f"episode_{n:06d}.parquet"
         out.parent.mkdir(parents=True, exist_ok=True)
         pq.write_table(pa.table(columns), out)
         episodes_meta.append({"episode_index": n, "tasks": [meta.instruction], "length": T, "source_key": ep.key,
-                              "split": "valid" if ep.key in valid else "train"})
+                              "split": "valid" if ep.key in valid else "train", "seed": ep.seed})
         for name, arr in (("observation.state", state), ("action", ep.actions.astype(np.float64))):
             acc = stats_acc.setdefault(name, [])
             acc.append(arr)
@@ -221,7 +235,8 @@ def write_lerobot(root: str | Path, meta: DatasetMeta, episodes: Iterator[Episod
         "video_path": None,
         "features": features,
         "afford_bench": {"env_name": meta.env_name, "task_id": meta.task_id,
-                         "state_layout": [[k, d] for k, d in layout], "camera": meta.camera},
+                         "state_layout": [[k, d] for k, d in layout], "camera": meta.camera,
+                         "env_args": meta.env_args},
     }
     (root / "meta" / "info.json").write_text(json.dumps(info, indent=2))
     (root / "meta" / "tasks.jsonl").write_text(json.dumps({"task_index": 0, "task": meta.instruction}) + "\n")
@@ -242,7 +257,7 @@ def read_lerobot(root: str | Path) -> tuple[DatasetMeta, Iterator[Episode]]:
     meta = DatasetMeta(env_name=extra.get("env_name", ""), task_id=extra.get("task_id", ""), instruction=task,
                        train_keys=[f"demo_{e['episode_index']}" for e in eps if e.get("split") != "valid"],
                        valid_keys=[f"demo_{e['episode_index']}" for e in eps if e.get("split") == "valid"],
-                       camera=extra.get("camera", {}))
+                       camera=extra.get("camera", {}), env_args=extra.get("env_args", ""))
     layout = [(k, int(d)) for k, d in extra.get("state_layout", [])]
     cams = {cam: k for k, cam in IMAGE_KEYS.items()}
 
@@ -266,7 +281,9 @@ def read_lerobot(root: str | Path) -> tuple[DatasetMeta, Iterator[Episode]]:
                 start += d
             yield Episode(actions=np.asarray(table["action"], dtype=np.float32), obs=obs,
                           rewards=np.asarray(table["next.reward"], dtype=np.float32),
-                          dones=np.asarray(table["next.done"], dtype=np.uint8), key=f"demo_{i}")
+                          dones=np.asarray(table["next.done"], dtype=np.uint8), key=f"demo_{i}",
+                          states=np.asarray(table["sim_state"], dtype=np.float64) if "sim_state" in table else None,
+                          seed=e.get("seed"))
 
     return meta, episodes()
 
@@ -296,8 +313,12 @@ def episode_to_rlds(ep: Episode, instruction: str, episode_id: str = "") -> dict
             "is_terminal": bool(t == T - 1 and ep.dones[t]),
             "done": bool(ep.dones[t]),
             "language_instruction": instruction,
+            **({"sim_state": np.asarray(ep.states[t], dtype=np.float64)} if ep.states is not None else {}),
         })
-    return {"steps": steps, "episode_metadata": {"file_path": episode_id, "source_key": ep.key}}
+    metadata = {"file_path": episode_id, "source_key": ep.key}
+    if ep.seed is not None:
+        metadata["seed"] = int(ep.seed)
+    return {"steps": steps, "episode_metadata": metadata}
 
 
 def rlds_to_episode(episode: dict[str, Any]) -> Episode:
@@ -309,7 +330,9 @@ def rlds_to_episode(episode: dict[str, Any]) -> Episode:
     return Episode(actions=np.stack([s["action"] for s in steps]), obs=obs,
                    rewards=np.array([s["reward"] for s in steps], dtype=np.float32),
                    dones=np.array([s["done"] for s in steps], dtype=np.uint8),
-                   key=episode["episode_metadata"].get("source_key", ""))
+                   key=episode["episode_metadata"].get("source_key", ""),
+                   states=np.stack([s["sim_state"] for s in steps]) if "sim_state" in steps[0] else None,
+                   seed=int(episode["episode_metadata"]["seed"]) if "seed" in episode["episode_metadata"] else None)
 
 
 def save_rlds_npz(path: str | Path, episode: dict[str, Any]) -> None:
@@ -318,8 +341,9 @@ def save_rlds_npz(path: str | Path, episode: dict[str, Any]) -> None:
     arrays: dict[str, np.ndarray] = {}
     for k in steps[0]["observation"]:
         arrays[f"steps/observation/{k}"] = np.stack([s["observation"][k] for s in steps])
-    for k in ("action", "reward", "discount", "is_first", "is_last", "is_terminal", "done"):
-        arrays[f"steps/{k}"] = np.stack([np.asarray(s[k]) for s in steps])
+    for k in ("action", "reward", "discount", "is_first", "is_last", "is_terminal", "done", "sim_state"):
+        if k in steps[0]:
+            arrays[f"steps/{k}"] = np.stack([np.asarray(s[k]) for s in steps])
     arrays["steps/language_instruction"] = np.array([s["language_instruction"] for s in steps])
     for k, v in episode["episode_metadata"].items():
         arrays[f"episode_metadata/{k}"] = np.array(v)
@@ -335,8 +359,9 @@ def load_rlds_npz(path: str | Path) -> dict[str, Any]:
     steps = []
     for t in range(T):
         step = {"observation": {k: data[f"steps/observation/{k}"][t] for k in obs_keys}}
-        for k in ("action", "reward", "discount"):
-            step[k] = data[f"steps/{k}"][t]
+        for k in ("action", "reward", "discount", "sim_state"):
+            if f"steps/{k}" in data:
+                step[k] = data[f"steps/{k}"][t]
         for k in ("is_first", "is_last", "is_terminal", "done"):
             step[k] = bool(data[f"steps/{k}"][t])
         step["language_instruction"] = str(data["steps/language_instruction"][t])

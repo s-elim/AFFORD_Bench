@@ -20,7 +20,9 @@ from afford_pro.datasets.converters import (  # noqa: E402
 
 META = DatasetMeta(env_name="industrial_shaft_assembly", task_id="industrial_shaft_assembly",
                    instruction="Insert the shaft into the bore.", train_keys=["demo_0", "demo_1"], valid_keys=["demo_2"],
-                   camera={"camera_agentic_K": [[500.0, 0.0, 329.5], [0.0, 500.0, 319.5], [0.0, 0.0, 1.0]]})
+                   camera={"camera_agentic_K": [[500.0, 0.0, 329.5], [0.0, 500.0, 319.5], [0.0, 0.0, 1.0]]},
+                   env_args=json.dumps({"env_name": "industrial_shaft_assembly", "type": 2,
+                                        "env_kwargs": {"factory": "afford_pro.make", "perturbation_mode": "nominal"}}))
 
 
 def _episode(seed: int, T: int) -> Episode:
@@ -40,6 +42,8 @@ def _episode(seed: int, T: int) -> Episode:
         },
         rewards=dones.astype(np.float32),
         dones=dones,
+        states=rng.normal(size=(T, 9)),
+        seed=1000 + seed,
     )
 
 
@@ -55,6 +59,8 @@ def _assert_same(a: Episode, b: Episode, float_tol: float) -> None:
     np.testing.assert_array_equal(a.actions, b.actions)
     np.testing.assert_array_equal(a.rewards, b.rewards)
     np.testing.assert_array_equal(a.dones, b.dones)
+    np.testing.assert_array_equal(a.states, b.states)  # float64 simulator states round-trip exactly
+    assert a.seed == b.seed
     for k in a.obs:
         if a.obs[k].dtype == np.uint8:
             np.testing.assert_array_equal(a.obs[k], b.obs[k])
@@ -77,8 +83,8 @@ def test_lerobot_roundtrip(hdf5: Path, tmp_path: Path) -> None:
     meta2, episodes2 = read_lerobot(root)
     write_robomimic(back, meta2, episodes2)
     meta3, eps3 = read_robomimic(back)
-    assert (meta3.instruction, meta3.task_id, meta3.train_keys, meta3.valid_keys, meta3.camera) == \
-        (META.instruction, META.task_id, META.train_keys, META.valid_keys, META.camera)
+    assert (meta3.instruction, meta3.task_id, meta3.train_keys, meta3.valid_keys, meta3.camera, meta3.env_args) == \
+        (META.instruction, META.task_id, META.train_keys, META.valid_keys, META.camera, META.env_args)
     assert info["features"]["observation.agentic_depth"]["shape"] == [12, 10]
     # observation.state is float32 in LeRobot, so float64 proprioception round-trips to float32 precision.
     for a, b in zip(read_robomimic(hdf5)[1], eps3):
