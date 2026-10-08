@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  tests:
+    name: Unit tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "mujoco==3.2.7" gymnasium numpy h5py pyyaml pyarrow pillow pytest
+      - name: Run pytest
+        run: python -m pytest -q tests
+
+  paper:
+    name: Paper build and page budget
+    runs-on: ubuntu-24.04
+    env:
+      PAPER_DIR: "AFFORD-Bench_RSS'27/paper-template-latex"
+      MAX_PAGES: "6"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install TeX Live
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends texlive-latex-recommended texlive-latex-extra \
+            texlive-fonts-recommended texlive-pictures texlive-science latexmk poppler-utils
+      - name: Compile main.tex
+        working-directory: ${{ env.PAPER_DIR }}
+        run: latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
+      - name: Check for undefined references and the page budget
+        working-directory: ${{ env.PAPER_DIR }}
+        run: |
+          if grep -E "undefined (references|citations)|Citation .* undefined|Reference .* undefined" main.log; then
+            echo "::error::undefined references or citations"; exit 1
+          fi
+          pages=$(pdfinfo main.pdf | awk '/^Pages:/ {print $2}')
+          echo "main.pdf has ${pages} pages (budget ${MAX_PAGES})"
+          if [ "${pages}" -gt "${MAX_PAGES}" ]; then
+            echo "::error::main.pdf has ${pages} pages, over the ${MAX_PAGES}-page budget"; exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: main-pdf
+          path: ${{ env.PAPER_DIR }}/main.pdf

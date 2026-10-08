@@ -225,6 +225,38 @@ class BaseFrankaEnv(gym.Env):
                 d.qpos[adr] = np.clip(d.qpos[adr] + dq[i], *self.arm_joint_range[i])
         return np.array([d.qpos[adr] for adr in self.arm_qpos_adr])
 
+    def robot_scene_force(self, exclude: set[int] | None = None) -> float:
+        """Magnitude (N) of the net contact force the scene exerts on the robot, excluding bodies in `exclude`
+        (the manipulated body); evaluated at the current state for the force violation rate."""
+        m, d = self.model, self.data
+        exclude = exclude or set()
+        total = np.zeros(3)
+        wrench = np.zeros(6)
+        for i in range(d.ncon):
+            c = d.contact[i]
+            b1, b2 = int(m.geom_bodyid[c.geom1]), int(m.geom_bodyid[c.geom2])
+            r1, r2 = b1 in self.robot_body_ids, b2 in self.robot_body_ids
+            if r1 == r2 or b1 in exclude or b2 in exclude:
+                continue
+            mujoco.mj_contactForce(m, d, i, wrench)
+            total += c.frame[:3] * wrench[0] * (1.0 if r2 else -1.0)  # contact normal points from geom1 to geom2
+        return float(np.linalg.norm(total))
+
+    def camera_parameters(self) -> dict[str, np.ndarray]:
+        """Pinhole intrinsics K (3x3, pixels, square pixels from the vertical field of view) and world pose
+        (position and 3x3 rotation of the MuJoCo camera frame, which looks along -z with y up) of the workcell
+        and wrist cameras at their render sizes. Metric depth back-projects as P = D(u, v) K^-1 [u, v, 1]^T in
+        the OpenCV camera frame (x right, y down, z forward); diag(1, -1, -1) maps it to the MuJoCo frame."""
+        mujoco.mj_forward(self.model, self.data)
+        out = {}
+        for name, cam, (h, w) in (("agentic", self.cam_agentic_id, self.agentic_cam_size),
+                                  ("wrist", self.cam_wrist_id, self.wrist_cam_size)):
+            f = 0.5 * h / np.tan(np.radians(self.model.cam_fovy[cam]) / 2.0)
+            out[f"{name}_K"] = np.array([[f, 0.0, (w - 1) / 2.0], [0.0, f, (h - 1) / 2.0], [0.0, 0.0, 1.0]])
+            out[f"{name}_pos"] = self.data.cam_xpos[cam].copy()
+            out[f"{name}_rot"] = self.data.cam_xmat[cam].reshape(3, 3).copy()
+        return out
+
     def hand_collides(self, tcp: np.ndarray, yaw: float, finger: float, ignore: set[int]) -> bool:
         """True if the robot, posed by IK at `tcp` and `yaw` with the given per-finger opening, would
         penetrate a non-robot body outside `ignore` (or the pose is out of reach). Uses the scratch state;
@@ -361,7 +393,8 @@ class BaseFrankaEnv(gym.Env):
         reward = self.compute_reward()
         terminated = self.check_success()
         truncated = self.current_step >= self.max_episode_steps
-        info = {"success": terminated, "step": self.current_step}
+        info = {"success": terminated, "step": self.current_step,
+                "robot_scene_force": self.robot_scene_force({getattr(self, "target_id", -1)})}
 
         return obs, reward, terminated, truncated, info
 

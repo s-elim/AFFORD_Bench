@@ -26,10 +26,11 @@ def main():
     ])
     parser.add_argument("--output-dir", type=str, default="datasets")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--depth", action="store_true", help="Also record metric depth and camera parameters")
     args = parser.parse_args()
 
     entry = afford_pro.get_task_entry(args.task)
-    env = afford_pro.make(args.task, perturbation_mode=args.perturbation)
+    env = afford_pro.make(args.task, perturbation_mode=args.perturbation, render_depth=args.depth)
     oracle = afford_pro.get_oracle(args.task, env)
 
     out_dir = ROOT / args.output_dir
@@ -53,6 +54,11 @@ def main():
         task_id=args.task,
         instruction=entry.instruction,
     )
+
+    if args.depth:
+        env.reset(seed=args.seed)
+        for key, value in env.camera_parameters().items():
+            writer.data_grp.attrs[f"camera_{key}"] = value
 
     t0 = time.monotonic()
     collected = 0
