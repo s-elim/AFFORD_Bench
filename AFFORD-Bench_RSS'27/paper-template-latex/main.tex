@@ -154,14 +154,14 @@ Affordance theory~\cite{gibson1979ecological} frames objects by the interactions
 \subsection{Tasks as Goal-Conditioned MDPs}
 Each task is a tuple $\kappa = (\ell, \mathbf{e}, \mathcal{C}_{\text{aff}})$ with instruction $\ell$, environment $\mathbf{e} = (\mathcal{W}, \mathcal{O}, \rho_0, \Phi)$, and goal set $\mathcal{C}_{\text{aff}}$. $\mathcal{W}$ is the workspace geometry, $\mathcal{O} = \{o_1, \dots, o_K\}$ the object set with one evaluated body $o^\star \in \mathcal{O}$, $\rho_0$ the initial-state distribution, and $\Phi = (\mu, m, \boldsymbol{\epsilon})$ the physical parameters: sliding friction $\mu$ of $o^\star$, its mass $m$, and success tolerance $\boldsymbol{\epsilon} = (\epsilon_{xy}, \epsilon_z)$.
 
-Each task induces an MDP $\mathcal{M} = \langle \mathcal{S}, \mathcal{A}, P, R, \Omega, H \rangle$. $\mathcal{S}$ is the joint robot-object state. An action $\mathbf{a} = (\Delta\mathbf{p}, \Delta\boldsymbol{\theta}, a_{\text{grip}}) \in [-1,1]^7$ commands a TCP position increment $0.04\,\Delta\mathbf{p}$\,m tracked by damped-least-squares IK, a rotation increment $\Delta\boldsymbol{\theta}$ (reserved and not executed in Stage 1), and a gripper opening $w = 0.02\,(a_{\text{grip}} + 1)$\,m per finger. $P(s' \mid s, \mathbf{a})$ is given by MuJoCo~\cite{todorov2012mujoco} and is deterministic given $s$; all stochasticity enters through $\rho_0$ and the perturbation sampler. $R(s) = \mathbb{I}[s \in \mathcal{C}_{\text{aff}}]$ is sparse, and $H$ is the step budget.
+Each task induces an MDP $\mathcal{M} = \langle \mathcal{S}, \mathcal{A}, P, R, \Omega, H \rangle$. $\mathcal{S}$ is the joint robot-object state. An action $\mathbf{a} = (\Delta\mathbf{p}, \Delta\boldsymbol{\theta}, a_{\text{grip}}) \in [-1,1]^7$ commands a TCP position increment $0.025\,\Delta\mathbf{p}$\,m, capped at 2.5\,cm per step (0.5\,m/s) and tracked by damped-least-squares IK at 20\,Hz, a rotation increment $\Delta\boldsymbol{\theta}$ (reserved and not executed in Stage 1), and a gripper opening $w = 0.02\,(a_{\text{grip}} + 1)$\,m per finger. $P(s' \mid s, \mathbf{a})$ is given by MuJoCo~\cite{todorov2012mujoco} and is deterministic given $s$; all stochasticity enters through $\rho_0$ and the perturbation sampler, both seeded per episode. $R(s) = \mathbb{I}[s \in \mathcal{C}_{\text{aff}}]$ is sparse, and $H$ is the step budget.
 
 The goal set is a state set:
 \begin{align}
 \mathcal{C}_{\text{aff}} = \big\{ s \in \mathcal{S} \;\big|\; & \|\mathbf{p}^{xy}_{o^\star} - \mathbf{p}^{xy}_{\text{goal}}\|_2 \le \epsilon_{xy}, \notag \\
 & |p^{z}_{o^\star} - p^{z}_{\text{goal}}| \le \epsilon_z, \; w \ge w_{\text{rel}} \big\},
 \end{align}
-with release threshold $w_{\text{rel}} = 0.03$\,m. For reach-and-press tasks the condition is $\|\mathbf{p}_{\text{tcp}} - \mathbf{p}_{\text{goal}}\|_2 \le 0.025$\,m. Episodes terminate at the first $t \le H$ with $s_t \in \mathcal{C}_{\text{aff}}$, so policy competence is
+with release threshold $w_{\text{rel}} = 0.03$\,m. Four lift-and-replace tasks also require $o^\star$ to have been raised by $h_{\min} \in [0.10, 0.15]$\,m before placement. For reach-and-press tasks the condition is $\|\mathbf{p}_{\text{tcp}} - \mathbf{p}_{\text{goal}}\|_2 \le 0.025$\,m. Episodes terminate at the first $t \le H$ with $s_t \in \mathcal{C}_{\text{aff}}$, so policy competence is
 \begin{equation}
 J(\pi; \kappa) = \mathbb{P}_{s_0 \sim \rho_0,\; \tau \sim \pi}\big[\exists\, t \le H : s_t \in \mathcal{C}_{\text{aff}}\big].
 \end{equation}
@@ -191,12 +191,12 @@ The observation $\mathbf{o}_t \in \Omega$ comprises:
 \textbf{D1: Industrial Precision} & 001--030 & 30 & Shaft-in-bore, gear-on-shaft, pin-in-hole, kitting, fixture contact & Shaft, spur gear, dowel pin & 30--40 / 20--30 \\
 \textbf{D2: Culinary Operations} & 031--060 & 30 & Burger layer stacking, mug to drip tray, capsule to hopper & Patty, cheese, tomato, buns, mug, capsule & 35--40 / 25--30 \\
 \textbf{D3: Domestic Tabletop} & 061--090 & 30 & Color sorting, block stacking, relocation, touch & Two cubes, one cylinder & 40 / 30 \\
-\textbf{D4: Laboratory Sciences} & 091--120 & 30 & Tube racking, centrifuge loading, pipette positioning & Conical tube, microtube, pipette & 40 / 30 \\
+\textbf{D4: Laboratory Sciences} & 091--120 & 30 & Tube racking, centrifuge loading, pipette positioning & Conical tube, microtube, pipette & 10--40 / 30 \\
 \textbf{D5: Long-Horizon Sequences} & 121--150 & 30 & Multi-step assembly, sorting, and service instructions & One per task (Stage 1) & 40 / 30 \\
 \textbf{D6: Precision Chaining} & 151--180 & 30 & 2--3 step industrial and laboratory chains & One per task (Stage 1) & 40 / 30 \\
 \textbf{D7: Service Assembly} & 181--210 & 30 & 2--3 step kitchen and household chains & One per task (Stage 1) & 40 / 30 \\
 \midrule
-\textbf{Total} & \textbf{001--210} & \textbf{210} & \textbf{7 Domains $\times$ 30 Tasks (35 Evaluation Suites)} & \textbf{16 rigid bodies} & \textbf{30--40 / 20--30} \\
+\textbf{Total} & \textbf{001--210} & \textbf{210} & \textbf{7 Domains $\times$ 30 Tasks (35 Evaluation Suites)} & \textbf{16 rigid bodies} & \textbf{10--40 / 20--30} \\
 \bottomrule
 \end{tabularx}
 \end{table*}
@@ -214,32 +214,32 @@ As summarized in Table~\ref{tab:domains} and Figure~\ref{fig:tasks_vis}, AFFORD-
 
 AFFORD-Bench organizes distribution shift into five levels:
 
-\textbf{L1: Nominal (in-distribution).} Default scene; specified initial-pose jitter $\|\Delta \mathbf{p}\| \le 1.0\,\text{cm}$ \TODO{not yet implemented: $\rho_0$ is currently a point mass}.
+\textbf{L1: Nominal (in-distribution).} Default scene; the initial positions of $o^\star$ and the TCP are jittered by $\pm 1.5$\,cm per horizontal axis and the yaw of $o^\star$ by $\pm 15^\circ$, sampled from the episode seed.
 
 \textbf{L2: Spatial ($\mathcal{P}_{\mathrm{spatial}}$).} $\mathbf{p}_{\text{init}} \sim \mathcal{U}(\mathbf{p}_0 - \boldsymbol{\delta}, \mathbf{p}_0 + \boldsymbol{\delta})$ with $\boldsymbol{\delta} = [0.03, 0.03, 0]^\top$\,m and yaw $\theta \sim \mathcal{U}(-45^\circ, 45^\circ)$, probing closed-loop servoing versus trajectory recall.
 
-\textbf{L3: Visual ($\mathcal{P}_{\mathrm{visual}}$).} Light intensity in $[0.5, 1.5]\,I_0$, light position jitter of $\pm 0.5\,\text{m}$, and object color jitter of $\pm 25\%$, leaving geometry unchanged \TODO{restore nominal lights and colors before each sample and seed the perturbation RNG from the episode seed}.
+\textbf{L3: Visual ($\mathcal{P}_{\mathrm{visual}}$).} Light intensity in $[0.5, 1.5]\,I_0$, light position jitter of $\pm 0.5\,\text{m}$, and object color jitter of $\pm 25\%$, leaving geometry unchanged. Lights and colors are restored to nominal before each sample.
 
 \textbf{L4: Physical ($\mathcal{P}_{\mathrm{physics}}$).} Sliding friction $\mu \sim \mathcal{U}(0.10, 1.20)$ and mass $m \sim \mathcal{U}(0.5, 3.0)\,m_0$ of $o^\star$ at identical visual coordinates. \TODO{implement; requires contact-based grasping, since Stage 1 attaches grasped bodies kinematically to the TCP}
 
 \textbf{L5: Compound ($\mathcal{P}_{\mathrm{comp}}$).} L2, L3, and L4 sampled jointly, combined with the multi-step instructions of D5--D7.
 
-\textbf{Implementation status.} In the Stage 1 release, L2, L3, and object-color shifts are implemented; L5 currently combines those three. Grasped bodies are rigidly attached to the TCP, and a release within 4.5--6\,cm of the goal places the body at the goal pose. Stage 1 results therefore measure spatial and photometric generalization of goal-reaching, not contact dynamics.
+\textbf{Implementation status.} In the Stage 1 release, L1, L2, L3, and object-color shifts are implemented; L5 currently combines L2, L3, and color. At reset, bodies are lifted out of any spawn interpenetration and simulated until at rest (at least 40 physics steps) before the first observation. Grasped bodies are rigidly attached to the TCP, and a release within 4.5--6\,cm of the goal seats the body at the goal pose until it is grasped again. Stage 1 results therefore measure spatial and photometric generalization of goal-reaching, not contact dynamics.
 
 \section{Algorithmic Oracles and Dataset Synthesis}
 \label{sec:oracles}
 
 \subsection{Scripted Waypoint Oracles}
-Teleoperated demonstrations are costly and inconsistent~\cite{mandlekar2021robomimic}. AFFORD-Bench instead uses scripted oracles: from the reset pose of $o^\star$, each oracle builds a fixed sequence of approach, grasp, lift, transfer, place, and retract waypoints, interpolates them with a smoothstep profile, and tracks them with the same IK controller used by learned policies. The waypoints are planned once per episode, so the oracle is open-loop with respect to object motion after reset.
+Teleoperated demonstrations are costly and inconsistent~\cite{mandlekar2021robomimic}. AFFORD-Bench instead uses scripted oracles: from the settled reset pose of $o^\star$, each oracle builds a fixed sequence of approach, grasp, lift, transfer, place, and retract waypoints, interpolates them with a smoothstep profile, and tracks them with the same IK controller used by learned policies. The waypoints are planned once per episode, so the oracle is open-loop with respect to object motion after reset.
 
 \subsection{Demonstration Scale and Packaging}
-The generator records 50 demonstrations per task, 10,500 in total and over $2.2 \times 10^6$ timesteps, in Robomimic HDF5 with 90\%/10\% train/validation masks and per-episode metadata. Because $\rho_0$ is currently deterministic and the oracle is scripted, the 50 demonstrations of a task are identical \TODO{regenerate after L1 jitter is implemented; report unique-trajectory count}. Conversion to RLDS (OpenVLA, Octo) and LeRobot (SmolVLA) formats is required for VLA training.
+The generator records 50 demonstrations per task, 10,500 in total and over $2.2 \times 10^6$ timesteps, in Robomimic HDF5 with 90\%/10\% train/validation masks and per-episode metadata. Each demonstration is generated from its own seed, so the 50 demonstrations of a task start from distinct layouts \TODO{regenerate the dataset with the 20\,Hz controller and update the timestep count}. Conversion to RLDS (OpenVLA, Octo) and LeRobot (SmolVLA) formats is required for VLA training.
 
 \section{Training and Evaluation Protocols}
 \label{sec:protocols}
 
 \subsection{Standardized Closed-Loop Rollout Procedure}
-Each policy step applies one action and advances MuJoCo by one $2\,\text{ms}$ physics step \TODO{switch to 25 substeps per action for 20\,Hz control and cap TCP speed}. For each task we roll out $N=50$ episodes with evaluation seeds disjoint from data-generation seeds, with $H=400$ steps for D1--D4 and $H=800$ for D5--D7. Seeds matter only for suites that sample perturbations; the nominal suite is deterministic in Stage 1.
+Each policy step applies one action at 20\,Hz: the arm is interpolated to the IK joint target over 25 physics steps of 2\,ms, with commanded TCP speed capped at 0.5\,m/s. For each task we roll out $N=50$ episodes with evaluation seeds disjoint from data-generation seeds, with $H=400$ steps for D1--D4 and $H=800$ for D5--D7. Every suite, including nominal, draws its initial state from the evaluation seed.
 
 \subsection{Standardized Evaluation Suites}
 Models are evaluated on 35 suites (7 domains $\times$ 5 conditions): (1)~\textbf{Nominal}; (2)~\textbf{Spatial} ($\mathcal{P}_{\mathrm{spatial}}$); (3)~\textbf{Visual} ($\mathcal{P}_{\mathrm{visual}}$); (4)~\textbf{Physical} ($\mathcal{P}_{\mathrm{physics}}$); and (5)~\textbf{Composite} ($\mathcal{P}_{\mathrm{comp}}$), with parameters as in Sec.~\ref{sec:perturbations}. Language variants are evaluated as a separate axis on the nominal scene.
@@ -297,7 +297,7 @@ The Stage 2 Extension Charter includes a hardware pilot on two D1 tasks: peg ins
 
 \subsection{Stage 2 Extension Charter}
 In accordance with the RSS 2027 shepherding process, the Stage 2 charter comprises:
-(1)~\textit{Simulator fidelity}: contact-based grasping, the L4 physical axis, L1 jitter, per-task tolerances, and multi-body predicates for D5--D7;
+(1)~\textit{Simulator fidelity}: contact-based grasping, the L4 physical axis, tolerance-indexed task variants, and multi-body predicates for D5--D7;
 (2)~\textit{Full empirical scaling}: 50 rollouts per condition $\times$ 210 tasks $\times$ 35 suites for Diffusion Policy, ACT, OpenVLA, SmolVLA, AtomVLA, and DP3;
 (3)~\textit{Disentangled ablations}: separate sensitivity curves for $\mathcal{P}_{\mathrm{spatial}}$, $\mathcal{P}_{\mathrm{physics}}$, $\mathcal{P}_{\mathrm{visual}}$, and tolerance; and
 (4)~\textit{Hardware pilot}: peg insertion and gear meshing as described above.
