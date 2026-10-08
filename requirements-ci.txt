@@ -1,0 +1,9 @@
+# Dependencies of the unit tests run in .github/workflows/ci.yml.
+mujoco==3.2.7
+gymnasium
+numpy
+h5py
+pyyaml
+pyarrow
+pillow
+pytest
