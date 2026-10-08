@@ -119,6 +119,32 @@ def test_open_loop_replay_fails_under_perturbation():
     assert not pert_env.check_success(), "Open-loop replay must fail when object is displaced"
 
 
+def test_family_structure_matches_specification():
+    """Verify Domain 8 has exactly 30 tasks partitioned into the 4 charter families:
+    Family A: Tasks 211-218 (8 tasks, tool-mediated)
+    Family B: Tasks 219-226 (8 tasks, non-prehensile pushing/pivoting)
+    Family C: Tasks 227-233 (7 tasks, twist-lock & detents)
+    Family D: Tasks 234-240 (7 tasks, reactive perturbations)
+    """
+    assert len(DOMAIN_8_FRONTIER_TASKS) == 30
+    task_numbers = [t.task_number for t in DOMAIN_8_FRONTIER_TASKS]
+    assert task_numbers == list(range(211, 241))
+
+    fam_a = [t for t in DOMAIN_8_FRONTIER_TASKS if 211 <= t.task_number <= 218]
+    fam_b = [t for t in DOMAIN_8_FRONTIER_TASKS if 219 <= t.task_number <= 226]
+    fam_c = [t for t in DOMAIN_8_FRONTIER_TASKS if 227 <= t.task_number <= 233]
+    fam_d = [t for t in DOMAIN_8_FRONTIER_TASKS if 234 <= t.task_number <= 240]
+
+    assert len(fam_a) == 8
+    assert len(fam_b) == 8
+    assert len(fam_c) == 7
+    assert len(fam_d) == 7
+    assert all(t.task_type == "tool_use" for t in fam_a)
+    assert all(t.task_type in ("push_overhang", "push_and_grasp") for t in fam_b)
+    assert all(t.task_type == "twist_lock" for t in fam_c)
+    assert all(t.task_type == "reactive_perturbation" for t in fam_d)
+
+
 def test_push_and_grasp_enforces_distance():
     """Non-prehensile pushing distance must be strictly satisfied for task success."""
     env = afford_pro.make("frontier_nonprehensile_push_and_grasp")
@@ -127,6 +153,37 @@ def test_push_and_grasp_enforces_distance():
 
     assert env.check_success(), "Oracle must solve push_and_grasp task"
     assert env.pushed_distance >= env.min_push_distance, "Pushed distance requirement must be met"
+
+
+def test_push_overhang_success():
+    """Verify non-prehensile overhang push (Task 219) moves plate to target overhang without dropping it."""
+    env = afford_pro.make("frontier_push_thin_plate_overhang")
+    oracle = afford_pro.get_oracle("frontier_push_thin_plate_overhang", env)
+    actions, _, _, _ = oracle.generate_episode(seed=42)
+
+    assert env.check_success(), "Oracle must solve push_thin_plate_overhang task"
+    assert env.pushed_distance >= env.min_push_distance, "Overhang pushing distance must exceed threshold"
+
+
+def test_double_displacement_recovery():
+    """Verify closed-loop oracle recovers from two sequential mid-trajectory perturbations (Task 240)."""
+    env = afford_pro.make("frontier_reactive_double_displacement")
+    oracle = afford_pro.get_oracle("frontier_reactive_double_displacement", env)
+    actions, _, _, _ = oracle.generate_episode(seed=0)
+
+    assert env.check_success(), "Closed-loop oracle must solve double displacement task"
+    assert env.perturbed_applied, "First perturbation must have fired"
+    assert env.second_perturbed_applied, "Second perturbation must have fired"
+
+
+def test_goal_fixture_shift_recovery():
+    """Verify closed-loop oracle adapts when the goal fixture shifts mid-transport (Task 238)."""
+    env = afford_pro.make("frontier_reactive_fixture_shift")
+    oracle = afford_pro.get_oracle("frontier_reactive_fixture_shift", env)
+    actions, _, _, _ = oracle.generate_episode(seed=0)
+
+    assert env.check_success(), "Closed-loop oracle must adapt to dynamic goal shift"
+    assert env.goal_shift_applied, "Goal fixture shift must have been triggered"
 
 
 # ----------------------------------------------------------------- Family C: twist-lock and detent mechanisms

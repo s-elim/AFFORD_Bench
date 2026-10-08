@@ -181,9 +181,9 @@ def generate_appealing_figure():
         {
             "cat": "Domain Scope",
             "desc": "Environment breadth & tasks",
-            "pro": ("4 Suites (130 Tasks)", "#F8FAFC", "#64748B", "#E2E8F0"),
-            "x":   ("5 Suites (50 Tasks)", "#F8FAFC", "#475569", "#E2E8F0"),
-            "ours": ("7 Diverse Domains (210 Tasks)", "#EFF6FF", "#1D4ED8", "#BFDBFE")
+            "pro": ("40 Eval Tasks (4 Axes)", "#F8FAFC", "#64748B", "#E2E8F0"),
+            "x":   ("600 Procedural Tasks", "#F8FAFC", "#475569", "#E2E8F0"),
+            "ours": ("210 Defined Tasks (7 Domains)", "#EFF6FF", "#1D4ED8", "#BFDBFE")
         },
         {
             "cat": "Precision & Anti-Cheat",
@@ -242,17 +242,17 @@ def generate_appealing_figure():
     ax.text(c0_x + 0.014, bottom_y + 0.016, "Normalized data volume", fontsize=7.4, color="#64748B")
 
     # LIBERO-PRO Bottom: Scale Bar
-    ax.text(c1_x + 0.015, bottom_y + 0.040, "130 Tasks • 62% Scale", fontsize=7.8, weight="bold", color="#64748B")
+    ax.text(c1_x + 0.015, bottom_y + 0.040, "40 Tasks • Eval Only (0 Demos)", fontsize=7.8, weight="bold", color="#64748B")
     ax.add_patch(FancyBboxPatch((c1_x + 0.015, bottom_y + 0.014), c1_w - 0.030, 0.016, boxstyle="round,pad=0,rounding_size=0.004", facecolor="#F1F5F9", edgecolor="#E2E8F0", linewidth=0.8, zorder=2))
-    ax.add_patch(FancyBboxPatch((c1_x + 0.015, bottom_y + 0.014), (c1_w - 0.030) * 0.62, 0.016, boxstyle="round,pad=0,rounding_size=0.004", facecolor="#94A3B8", edgecolor="none", zorder=3))
+    ax.add_patch(FancyBboxPatch((c1_x + 0.015, bottom_y + 0.014), (c1_w - 0.030) * 0.19, 0.016, boxstyle="round,pad=0,rounding_size=0.004", facecolor="#94A3B8", edgecolor="none", zorder=3))
 
     # LIBERO-X Bottom: Scale Bar
-    ax.text(c2_x + 0.015, bottom_y + 0.040, "50 Tasks • 24% Scale", fontsize=7.8, weight="bold", color="#64748B")
+    ax.text(c2_x + 0.015, bottom_y + 0.040, "600 Tasks • 2,520 VR Demos", fontsize=7.8, weight="bold", color="#B45309")
     ax.add_patch(FancyBboxPatch((c2_x + 0.015, bottom_y + 0.014), c2_w - 0.030, 0.016, boxstyle="round,pad=0,rounding_size=0.004", facecolor="#F1F5F9", edgecolor="#E2E8F0", linewidth=0.8, zorder=2))
-    ax.add_patch(FancyBboxPatch((c2_x + 0.015, bottom_y + 0.014), (c2_w - 0.030) * 0.24, 0.016, boxstyle="round,pad=0,rounding_size=0.004", facecolor="#FBBF24", edgecolor="none", zorder=3))
+    ax.add_patch(FancyBboxPatch((c2_x + 0.015, bottom_y + 0.014), (c2_w - 0.030) * 0.55, 0.016, boxstyle="round,pad=0,rounding_size=0.004", facecolor="#FBBF24", edgecolor="none", zorder=3))
 
     # AFFORD-Bench Bottom: Scale Bar (Full & Vibrant)
-    ax.text(c3_x + 0.015, bottom_y + 0.040, "★ 210 Tasks • 100% (4.2× Scale)", fontsize=8.2, weight="bold", color="#047857")
+    ax.text(c3_x + 0.015, bottom_y + 0.040, "★ 210 Tasks • 10,500 Demos Target", fontsize=8.2, weight="bold", color="#047857")
     ax.add_patch(FancyBboxPatch((c3_x + 0.015, bottom_y + 0.014), c3_w - 0.030, 0.016, boxstyle="round,pad=0,rounding_size=0.004", facecolor="#DCFCE7", edgecolor="#A7F3D0", linewidth=0.8, zorder=2))
     ax.add_patch(FancyBboxPatch((c3_x + 0.015, bottom_y + 0.014), c3_w - 0.030, 0.016, boxstyle="round,pad=0,rounding_size=0.004", facecolor="#10B981", edgecolor="none", zorder=3))
 

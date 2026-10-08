@@ -70,6 +70,8 @@ def _make_env_factory(task_def: TaskDef) -> Callable[..., BaseFrankaEnv]:
                 perturbation_offset=getattr(task_def, "perturbation_offset", None),
                 second_perturbation_step=getattr(task_def, "second_perturbation_step", None),
                 second_perturbation_offset=getattr(task_def, "second_perturbation_offset", None),
+                goal_shift_step=getattr(task_def, "goal_shift_step", None),
+                goal_shift_offset=getattr(task_def, "goal_shift_offset", None),
                 min_push_distance=getattr(task_def, "min_push_distance", 0.0),
                 **kwargs,
             )
@@ -125,6 +127,11 @@ for t in DOMAIN_8_FRONTIER_TASKS:
         _TASK_REGISTRY[short_alias] = entry
     if f"{short_alias}_perturbation" not in _TASK_REGISTRY:
         _TASK_REGISTRY[f"{short_alias}_perturbation"] = entry
+
+# Backward-compatibility alias for previous push-and-grasp task ID
+if "frontier_overhang_and_grasp_plate" in _TASK_REGISTRY:
+    _TASK_REGISTRY["frontier_nonprehensile_push_and_grasp"] = _TASK_REGISTRY["frontier_overhang_and_grasp_plate"]
+    _TASK_REGISTRY["nonprehensile_push_and_grasp"] = _TASK_REGISTRY["frontier_overhang_and_grasp_plate"]
 
 
 def list_tasks() -> list[str]:

@@ -33,8 +33,7 @@ class FrontierComplexEnv(ParametricFrankaEnv):
         nominal_pos: list[float] | np.ndarray,
         target_pos: list[float] | np.ndarray,
         instruction: str,
-        task_type: Literal["pick_place", "insert", "press_button", "slide", "reactive_perturbation", "push_and_grasp",
-                           "twist_lock"] = "pick_place",
+        task_type: str = "pick_place",
         tolerance_xy: float = 0.005,
         tolerance_z: float = 0.005,
         tilt_tol_deg: float = 10.0,
@@ -43,6 +42,8 @@ class FrontierComplexEnv(ParametricFrankaEnv):
         perturbation_offset: list[float] | np.ndarray | None = None,
         second_perturbation_step: int | None = None,
         second_perturbation_offset: list[float] | np.ndarray | None = None,
+        goal_shift_step: int | None = None,
+        goal_shift_offset: list[float] | np.ndarray | None = None,
         min_push_distance: float = 0.0,
         **kwargs,
     ):
@@ -53,7 +54,7 @@ class FrontierComplexEnv(ParametricFrankaEnv):
             nominal_pos=nominal_pos,
             target_pos=target_pos,
             instruction=instruction,
-            task_type="pick_place" if task_type in ("reactive_perturbation", "push_and_grasp", "twist_lock") else task_type,
+            task_type="pick_place" if task_type not in ("pick_place", "insert", "press_button", "slide") else task_type,
             tolerance_xy=tolerance_xy,
             tolerance_z=tolerance_z,
             tilt_tol_deg=tilt_tol_deg,
@@ -65,11 +66,14 @@ class FrontierComplexEnv(ParametricFrankaEnv):
         self.perturbation_offset = np.array(perturbation_offset, dtype=np.float64) if perturbation_offset is not None else None
         self.second_perturbation_step = second_perturbation_step
         self.second_perturbation_offset = np.array(second_perturbation_offset, dtype=np.float64) if second_perturbation_offset is not None else None
+        self.goal_shift_step = goal_shift_step
+        self.goal_shift_offset = np.array(goal_shift_offset, dtype=np.float64) if goal_shift_offset is not None else None
         self.min_push_distance = min_push_distance
         self.pushed_distance = 0.0
         self.initial_obj_xy = None
         self.perturbed_applied = False
         self.second_perturbed_applied = False
+        self.goal_shift_applied = False
 
     def reset_objects(self, options: dict[str, Any] | None = None) -> None:
         super().reset_objects(options=options)
@@ -78,6 +82,7 @@ class FrontierComplexEnv(ParametricFrankaEnv):
         self.pushed_distance = 0.0
         self.perturbed_applied = False
         self.second_perturbed_applied = False
+        self.goal_shift_applied = False
 
     def _apply_displacement(self, offset: np.ndarray) -> None:
         """Displace the manipulated free body mid-trajectory and zero its velocity."""
@@ -119,13 +124,38 @@ class FrontierComplexEnv(ParametricFrankaEnv):
                 self._apply_displacement(offset)
                 self.second_perturbed_applied = True
 
+        # Apply goal fixture shift
+        if self.goal_shift_step is not None and not self.goal_shift_applied:
+            if self.current_step >= self.goal_shift_step:
+                shift = self.goal_shift_offset if self.goal_shift_offset is not None else np.array([0.04, 0.0, 0.0])
+                self.goal_xy = self.goal_xy + shift[:2]
+                self.goal_z = self.goal_z + shift[2]
+                self.goal_shift_applied = True
+
+    @property
+    def goal_position(self) -> np.ndarray:
+        return super().goal_position
+
+    @goal_position.setter
+    def goal_position(self, val: np.ndarray) -> None:
+        self.goal_xy = np.array(val[:2], dtype=np.float64)
+        self.goal_z = float(val[2])
+
     def check_success(self) -> bool:
+        if self.frontier_task_type == "push_overhang":
+            if self.target_qposadr is None:
+                return False
+            dof = self.free_qpos_to_dof.get(self.target_qposadr)
+            lin_speed = np.linalg.norm(self.data.qvel[dof : dof + 3]) if dof is not None else 0.0
+            z_pos = self.data.xpos[self.target_id][2]
+            return bool(self.pushed_distance >= self.min_push_distance and lin_speed < REST_LIN_SPEED and z_pos > 0.015)
+
         base_success = super().check_success()
         if not base_success:
             return False
             
         # For non-prehensile push-and-grasp tasks, verify that the push requirement was met
-        if self.frontier_task_type == "push_and_grasp" and self.min_push_distance > 0.0:
+        if self.frontier_task_type in ("push_and_grasp", "push_mug_and_grasp") and self.min_push_distance > 0.0:
             if self.pushed_distance < self.min_push_distance:
                 return False
 
