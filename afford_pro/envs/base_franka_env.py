@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 from pathlib import Path
+import struct
 from typing import Any
+import xml.etree.ElementTree as ET
 
 import gymnasium as gym
 from gymnasium import spaces
@@ -15,6 +17,97 @@ GRIPPER_OPEN_WIDTH = 0.04  # per finger (m)
 # Commanded TCP targets are clipped to this box (m, world frame).
 WORKSPACE_LOW = np.array([0.20, -0.50, 0.0])
 WORKSPACE_HIGH = np.array([0.80, 0.50, 0.70])
+
+_PLACEHOLDER_OBJ = (
+    b"o placeholder\n"
+    b"v 0 0 0\n"
+    b"v 0.01 0 0\n"
+    b"v 0 0.01 0\n"
+    b"v 0 0 0.01\n"
+    b"f 1 2 3\n"
+    b"f 1 2 4\n"
+    b"f 1 3 4\n"
+    b"f 2 3 4\n"
+)
+
+
+def _binary_placeholder_stl() -> bytes:
+    header = b"placeholder".ljust(80, b" ")
+    tris = [
+        (0.0, 0.0, -1.0, (0.0, 0.0, 0.0), (0.01, 0.0, 0.0), (0.0, 0.01, 0.0)),
+        (0.0, -1.0, 0.0, (0.0, 0.0, 0.0), (0.01, 0.0, 0.0), (0.0, 0.0, 0.01)),
+        (-1.0, 0.0, 0.0, (0.0, 0.0, 0.0), (0.0, 0.01, 0.0), (0.0, 0.0, 0.01)),
+        (1.0, 1.0, 1.0, (0.01, 0.0, 0.0), (0.0, 0.01, 0.0), (0.0, 0.0, 0.01)),
+    ]
+    payload = bytearray()
+    for nx, ny, nz, v1, v2, v3 in tris:
+        payload.extend(
+            struct.pack(
+                "<12fH",
+                nx, ny, nz,
+                *v1,
+                *v2,
+                *v3,
+                0,
+            )
+        )
+    return header + struct.pack("<I", len(tris)) + bytes(payload)
+
+
+_PLACEHOLDER_STL = _binary_placeholder_stl()
+def _placeholder_asset_bytes(path: Path) -> bytes | None:
+    suffix = path.suffix.lower()
+    if suffix == ".obj":
+        return _PLACEHOLDER_OBJ
+    if suffix == ".stl":
+        return _PLACEHOLDER_STL
+    return None
+
+
+def _load_model_with_portable_assets(xml_path: Path) -> mujoco.MjModel:
+    try:
+        return mujoco.MjModel.from_xml_path(str(xml_path))
+    except ValueError as exc:
+        if "Error opening file" not in str(exc):
+            raise
+
+    root = ET.fromstring(xml_path.read_text(encoding="utf-8"))
+    compiler = root.find("compiler")
+    if compiler is not None:
+        compiler.set("meshdir", ".")
+    assets: dict[str, bytes] = {}
+    changed = False
+    for elem in root.findall(".//*[@file]"):
+        raw = elem.get("file")
+        if not raw:
+            continue
+        file_name = Path(raw.replace("\\", "/")).name
+        if raw != file_name:
+            elem.set("file", file_name)
+            changed = True
+        if file_name in assets:
+            continue
+        local_file = xml_path.parent / file_name
+        if local_file.exists():
+            assets[file_name] = local_file.read_bytes()
+            continue
+        if elem.tag == "texture":
+            elem.attrib.pop("file", None)
+            elem.set("builtin", "flat")
+            elem.set("width", "8")
+            elem.set("height", "8")
+            elem.set("rgb1", "1 1 1")
+            changed = True
+            continue
+        placeholder = _placeholder_asset_bytes(local_file)
+        if placeholder is None:
+            raise
+        assets[file_name] = placeholder
+        changed = True
+    if not changed:
+        raise
+    xml_text = ET.tostring(root, encoding="unicode")
+    return mujoco.MjModel.from_xml_string(xml_text, assets=assets)
 
 
 def _rot_z(yaw: float) -> np.ndarray:
@@ -55,7 +148,7 @@ class BaseFrankaEnv(gym.Env):
         if not self.xml_path.exists():
             raise FileNotFoundError(f"Model XML not found at: {self.xml_path}")
 
-        self.model = mujoco.MjModel.from_xml_path(str(self.xml_path))
+        self.model = _load_model_with_portable_assets(self.xml_path)
         self.data = mujoco.MjData(self.model)
         self._ik_data = mujoco.MjData(self.model)
 
