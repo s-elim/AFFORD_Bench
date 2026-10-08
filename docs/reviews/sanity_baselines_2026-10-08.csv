@@ -1,211 +1,211 @@
-task_number,task_id,domain,success_at_reset,oracle_success,random_sr,null_sr,reset_pose_varies
-1,industrial_shaft_assembly,Industrial & Manufacturing,False,True,0.0,0.0,True
-2,industrial_gear_mesh,Industrial & Manufacturing,False,True,0.0,0.0,True
-3,industrial_pin_insertion,Industrial & Manufacturing,False,True,0.0,0.0,True
-4,industrial_bearing_press,Industrial & Manufacturing,False,True,0.0,0.0,True
-5,industrial_bolt_pickup,Industrial & Manufacturing,False,True,0.0,0.0,True
-6,industrial_nut_thread_align,Industrial & Manufacturing,False,True,0.0,0.0,True
-7,industrial_pcb_chip_insert,Industrial & Manufacturing,False,True,0.0,0.0,True
-8,industrial_fuse_seat,Industrial & Manufacturing,False,True,0.0,0.0,True
-9,industrial_cable_harness_plug,Industrial & Manufacturing,False,True,0.0,0.0,True
-10,industrial_relay_switch_seat,Industrial & Manufacturing,False,True,0.0,0.0,True
-11,industrial_shaft_to_pallet,Industrial & Manufacturing,False,True,0.0,0.0,True
-12,industrial_gear_to_pallet,Industrial & Manufacturing,False,True,0.0,0.0,True
-13,industrial_pin_to_pallet,Industrial & Manufacturing,False,True,0.0,0.0,True
-14,industrial_shaft_to_cup,Industrial & Manufacturing,False,True,0.0,0.0,True
-15,industrial_gear_to_tray,Industrial & Manufacturing,False,True,0.0,0.0,True
-16,industrial_pin_to_tray,Industrial & Manufacturing,False,True,0.0,0.0,True
-17,industrial_shaft_flip,Industrial & Manufacturing,False,True,0.0,0.0,True
-18,industrial_gear_flip,Industrial & Manufacturing,False,True,0.0,0.0,True
-19,industrial_pin_reposition,Industrial & Manufacturing,False,True,0.0,0.0,True
-20,industrial_tray_kitting_slot1,Industrial & Manufacturing,False,True,0.0,0.0,True
-21,industrial_tray_kitting_slot2,Industrial & Manufacturing,False,True,0.0,0.0,True
-22,industrial_tray_kitting_slot3,Industrial & Manufacturing,False,True,0.0,0.0,True
-23,industrial_estop_button_press,Industrial & Manufacturing,False,True,0.0,0.0,True
-24,industrial_inspection_dwell,Industrial & Manufacturing,False,True,0.0,0.0,True
-25,industrial_pallet_scan_dwell,Industrial & Manufacturing,False,True,0.0,0.0,True
-26,industrial_andon_green_verify,Industrial & Manufacturing,False,True,0.0,0.0,True
-27,industrial_jaw_clamp_actuation,Industrial & Manufacturing,False,True,0.0,0.0,True
-28,industrial_clear_feeder_spindle,Industrial & Manufacturing,False,True,0.0,0.0,True
-29,industrial_clear_inbound_tray,Industrial & Manufacturing,False,True,0.0,0.0,True
-30,industrial_ready_home_return,Industrial & Manufacturing,False,True,0.0,0.0,True
-31,kitchen_patty_stack,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-32,kitchen_cheese_place,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-33,kitchen_tomato_place,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-34,kitchen_top_bun_crown,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-35,kitchen_bottom_bun_to_board,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-36,kitchen_mug_to_espresso,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-37,kitchen_press_brew_button,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-38,kitchen_pod_into_hopper,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-39,kitchen_mug_to_serving_tray,Culinary & Kitchen Operations,True,True,0.6,1.0,True
-40,kitchen_patty_to_plate,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-41,kitchen_tomato_to_plate,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-42,kitchen_cheese_to_plate,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-43,kitchen_pod_to_tray,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-44,kitchen_mug_return_bin,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-45,kitchen_pod_return_caddy,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-46,kitchen_patty_flip,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-47,kitchen_top_bun_to_board,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-48,kitchen_tomato_to_board,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-49,kitchen_cheese_to_board,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-50,kitchen_bun_lid_close_dwell,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-51,kitchen_espresso_spout_align,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-52,kitchen_grill_led_verify,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-53,kitchen_caddy_slot1_fill,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-54,kitchen_caddy_slot2_fill,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-55,kitchen_tray_cheese_restock,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-56,kitchen_tray_tomato_restock,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-57,kitchen_patty_grill_return,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-58,kitchen_counter_wipe_pass,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-59,kitchen_drip_tray_wipe_pass,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-60,kitchen_ready_standby,Culinary & Kitchen Operations,False,True,0.0,0.0,True
-61,tabletop_sort_red,Tabletop & Domestic,False,True,0.0,0.0,True
-62,tabletop_sort_green,Tabletop & Domestic,False,True,0.0,0.0,True
-63,tabletop_sort_blue,Tabletop & Domestic,False,True,0.0,0.0,True
-64,tabletop_red_to_green_bin,Tabletop & Domestic,False,True,0.0,0.0,True
-65,tabletop_red_to_blue_bin,Tabletop & Domestic,False,True,0.0,0.0,True
-66,tabletop_green_to_red_bin,Tabletop & Domestic,False,True,0.0,0.0,True
-67,tabletop_green_to_blue_bin,Tabletop & Domestic,False,True,0.0,0.0,True
-68,tabletop_blue_to_red_bin,Tabletop & Domestic,False,True,0.0,0.0,True
-69,tabletop_blue_to_green_bin,Tabletop & Domestic,False,True,0.0,0.0,True
-70,tabletop_red_center_table,Tabletop & Domestic,False,True,0.0,0.0,True
-71,tabletop_green_center_table,Tabletop & Domestic,False,True,0.0,0.0,True
-72,tabletop_blue_center_table,Tabletop & Domestic,False,True,0.0,0.0,True
-73,tabletop_swap_red_blue,Tabletop & Domestic,False,True,0.0,0.0,True
-74,tabletop_swap_blue_green,Tabletop & Domestic,False,True,0.0,0.0,True
-75,tabletop_swap_green_red,Tabletop & Domestic,False,True,0.0,0.0,True
-76,tabletop_stack_red_on_blue,Tabletop & Domestic,False,True,0.0,0.0,True
-77,tabletop_stack_green_on_blue,Tabletop & Domestic,False,True,0.0,0.0,True
-78,tabletop_stack_blue_on_red,Tabletop & Domestic,False,True,0.0,0.0,True
-79,tabletop_red_bin_inspect,Tabletop & Domestic,False,True,0.0,0.0,True
-80,tabletop_green_bin_inspect,Tabletop & Domestic,False,True,0.0,0.0,True
-81,tabletop_blue_bin_inspect,Tabletop & Domestic,False,True,0.0,0.0,True
-82,tabletop_red_touch,Tabletop & Domestic,False,True,0.0,0.0,True
-83,tabletop_green_touch,Tabletop & Domestic,False,True,0.0,0.0,True
-84,tabletop_blue_touch,Tabletop & Domestic,False,True,0.0,0.0,True
-85,tabletop_clear_left_quadrant,Tabletop & Domestic,False,True,0.0,0.0,True
-86,tabletop_clear_right_quadrant,Tabletop & Domestic,False,True,0.0,0.0,True
-87,tabletop_push_red_forward,Tabletop & Domestic,False,True,0.0,0.0,True
-88,tabletop_push_blue_forward,Tabletop & Domestic,False,True,0.0,0.0,True
-89,tabletop_table_center_sweep,Tabletop & Domestic,False,True,0.0,0.0,True
-90,tabletop_home_ready,Tabletop & Domestic,False,True,0.0,0.0,True
-91,lab_transfer_test_tube,Laboratory & Life Sciences,False,True,0.0,0.0,True
-92,lab_tube_to_centrifuge,Laboratory & Life Sciences,False,False,0.0,0.0,True
-93,lab_pick_micropipette,Laboratory & Life Sciences,False,True,0.0,0.0,True
-94,lab_pipette_to_microplate,Laboratory & Life Sciences,False,True,0.0,0.0,True
-95,lab_micro_tube_to_rack_b,Laboratory & Life Sciences,False,False,0.0,0.0,True
-96,lab_tube_return_rack_a,Laboratory & Life Sciences,False,True,0.0,0.0,True
-97,lab_micro_tube_return,Laboratory & Life Sciences,False,True,0.0,0.0,True
-98,lab_pipette_dock_stand,Laboratory & Life Sciences,False,True,0.0,0.0,True
-99,lab_centrifuge_display_press,Laboratory & Life Sciences,False,True,0.0,0.0,True
-100,lab_microplate_optical_scan,Laboratory & Life Sciences,False,True,0.0,0.0,True
-101,lab_tube_rack_a_inspect,Laboratory & Life Sciences,False,True,0.0,0.0,True
-102,lab_tube_rack_b_inspect,Laboratory & Life Sciences,False,True,0.0,0.0,True
-103,lab_conical_tube_to_plate,Laboratory & Life Sciences,False,True,0.0,0.0,True
-104,lab_micro_tube_to_plate,Laboratory & Life Sciences,False,False,0.0,0.0,True
-105,lab_tube_slot1_to_slot3,Laboratory & Life Sciences,False,True,0.0,0.0,True
-106,lab_pipette_to_tube_mouth,Laboratory & Life Sciences,False,True,0.0,0.0,True
-107,lab_pipette_plunger_press,Laboratory & Life Sciences,False,True,0.0,0.0,True
-108,lab_microcentrifuge_rotor_inspect,Laboratory & Life Sciences,False,True,0.0,0.0,True
-109,lab_bench_wipe_pass_1,Laboratory & Life Sciences,False,True,0.0,0.0,True
-110,lab_bench_wipe_pass_2,Laboratory & Life Sciences,False,True,0.0,0.0,True
-111,lab_tube_rack_b_to_center,Laboratory & Life Sciences,False,True,0.0,0.0,True
-112,lab_micro_tube_to_center,Laboratory & Life Sciences,False,False,0.0,0.0,True
-113,lab_pipette_to_well_corner,Laboratory & Life Sciences,False,True,0.0,0.0,True
-114,lab_pipette_to_centrifuge_tube,Laboratory & Life Sciences,False,True,0.0,0.0,True
-115,lab_centrifuge_lid_touch,Laboratory & Life Sciences,False,True,0.0,0.0,True
-116,lab_plate_skirt_align,Laboratory & Life Sciences,False,True,0.0,0.0,True
-117,lab_tube_cap_tighten_dwell,Laboratory & Life Sciences,False,True,0.0,0.0,True
-118,lab_micro_cap_snap_dwell,Laboratory & Life Sciences,False,True,0.0,0.0,True
-119,lab_bench_center_scan,Laboratory & Life Sciences,False,True,0.0,0.0,True
-120,lab_ready_standby,Laboratory & Life Sciences,False,True,0.0,0.0,True
-121,long_horizon_transmission_assembly,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-122,long_horizon_gear_pin_subassembly,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-123,long_horizon_transmission_qa_palletize,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-124,long_horizon_burger_patty_cheese,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-125,long_horizon_gourmet_burger_classic,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-126,long_horizon_burger_service_plating,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-127,long_horizon_espresso_service_complete,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-128,long_horizon_pod_brew_cycle,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-129,long_horizon_tabletop_complete_sort,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-130,long_horizon_tabletop_dual_bin_sort,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-131,long_horizon_lab_pcr_assay_prep,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-132,long_horizon_lab_centrifugation_run,Long-Horizon Multi-Stage,False,False,0.0,0.0,True
-133,long_horizon_lab_tube_serial_transfer,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-134,long_horizon_industrial_kitting_full,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-135,long_horizon_kitchen_breakfast_set,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-136,long_horizon_kitchen_clean_prep_cycle,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-137,long_horizon_industrial_jig_clamp_cycle,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-138,long_horizon_industrial_disassembly,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-139,long_horizon_tabletop_pyramid_stack,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-140,long_horizon_kitchen_burger_and_coffee,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-141,long_horizon_lab_biohazard_clear,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-142,long_horizon_industrial_qa_rework,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-143,long_horizon_tabletop_bin_reversal,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-144,long_horizon_kitchen_tray_clearoff,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-145,long_horizon_lab_incubator_cycle,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-146,long_horizon_industrial_cell_startup,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-147,long_horizon_kitchen_rush_burger,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-148,long_horizon_tabletop_tidy_workspace,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-149,long_horizon_lab_complete_dilution,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-150,long_horizon_grand_challenge_150,Long-Horizon Multi-Stage,False,True,0.0,0.0,True
-151,chain_shaft_bearing_clamp,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-152,chain_gear_shaft_washer,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-153,chain_pin_align_press,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-154,chain_bolt_flange_torque,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-155,chain_wire_harness_clip,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-156,chain_bushing_shaft_inspect,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-157,chain_pipette_aspirate_dispense,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-158,chain_tube_centrifuge_rack,Multi-Stage Precision Chaining,False,False,0.0,0.0,True
-159,chain_micro_tube_cap_dock,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-160,chain_pipette_tip_eject,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-161,chain_reagent_vial_mix,Multi-Stage Precision Chaining,False,False,0.0,0.0,True
-162,chain_slide_cover_inspect,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-163,chain_fixture_toggle_lock,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-164,chain_bearing_housing_press,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-165,chain_o_ring_shaft_seat,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-166,chain_gasket_flange_align,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-167,chain_spark_plug_socket,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-168,chain_fuse_terminal_insert,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-169,chain_pcb_chip_socket,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-170,chain_sensor_bracket_mount,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-171,chain_conical_tube_decant,Multi-Stage Precision Chaining,False,False,0.0,0.0,True
-172,chain_well_plate_seal,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-173,chain_cuvette_spectro_measure,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-174,chain_cryovial_dewar_storage,Multi-Stage Precision Chaining,False,False,0.0,0.0,True
-175,chain_valve_manifold_tighten,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-176,chain_pulley_belt_tension,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-177,chain_shaft_key_slot_insert,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-178,chain_crimping_wire_terminal,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-179,chain_petri_dish_streak_incubate,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-180,chain_master_cleanroom_assembly,Multi-Stage Precision Chaining,False,True,0.0,0.0,True
-181,chain_burger_flip_cheese_top,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-182,chain_espresso_mug_brew_serve,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-183,chain_bread_slice_toast_plate,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-184,chain_salad_toss_dressing_bowl,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-185,chain_pizza_sauce_cheese_bake,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-186,chain_sandwich_meat_lettuce_cut,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-187,chain_tea_bag_kettle_steep,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-188,chain_sushi_rice_fish_roll,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-189,chain_egg_crack_whisk_pour,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-190,chain_pancake_flip_syrup_serve,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-191,chain_cutlery_fork_knife_napkin,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-192,chain_cereal_pour_milk_spoon,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-193,chain_table_condiment_caddy,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-194,chain_plate_dishrack_cabinet,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-195,chain_drawer_sort_utensil_close,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-196,chain_cup_stack_shelf_align,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-197,chain_trash_can_liner_tie,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-198,chain_fruit_bowl_arrange_center,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-199,chain_bottle_uncap_pour_glass,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-200,chain_biscuit_jam_butter_plate,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-201,chain_taco_shell_beef_salsa,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-202,chain_microwave_dish_cover_start,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-203,chain_blender_fruit_lid_pulse,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-204,chain_pasta_strainer_sauce_pot,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-205,chain_wine_cork_open_pour,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-206,chain_groceries_bag_unload_fridge,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-207,chain_coffee_pod_eject_tray,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-208,chain_ice_cube_tray_fill_freeze,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-209,chain_dining_table_clear_wipe,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
-210,chain_grand_master_banquet_service,Sequential Service & Culinary Assembly,False,True,0.0,0.0,True
+task_number,task_id,domain,success_at_reset,oracle_sr,oracle_sr_physical,random_sr,null_sr,reset_pose_varies,start_fallback_rate
+1,industrial_shaft_assembly,Industrial & Manufacturing,False,1.0,0.0,0.0,0.0,True,0.0
+2,industrial_gear_mesh,Industrial & Manufacturing,False,1.0,0.6,0.0,0.0,True,0.0
+3,industrial_pin_insertion,Industrial & Manufacturing,False,1.0,0.2,0.0,0.0,True,0.0
+4,industrial_bearing_press,Industrial & Manufacturing,False,1.0,0.6,0.0,0.0,True,0.0
+5,industrial_bolt_pickup,Industrial & Manufacturing,False,1.0,0.2,0.0,0.0,True,0.0
+6,industrial_nut_thread_align,Industrial & Manufacturing,False,1.0,0.6,0.0,0.0,True,0.0
+7,industrial_pcb_chip_insert,Industrial & Manufacturing,False,1.0,0.6,0.0,0.0,True,0.0
+8,industrial_fuse_seat,Industrial & Manufacturing,False,1.0,0.4,0.0,0.0,True,0.0
+9,industrial_cable_harness_plug,Industrial & Manufacturing,False,1.0,0.0,0.0,0.0,True,0.0
+10,industrial_relay_switch_seat,Industrial & Manufacturing,False,1.0,0.2,0.0,0.0,True,0.0
+11,industrial_shaft_to_pallet,Industrial & Manufacturing,False,1.0,0.0,0.0,0.0,True,0.0
+12,industrial_gear_to_pallet,Industrial & Manufacturing,False,1.0,0.2,0.0,0.0,True,1.0
+13,industrial_pin_to_pallet,Industrial & Manufacturing,False,1.0,0.6,0.0,0.0,True,0.0
+14,industrial_shaft_to_cup,Industrial & Manufacturing,False,1.0,0.0,0.0,0.0,True,0.0
+15,industrial_gear_to_tray,Industrial & Manufacturing,False,1.0,0.4,0.0,0.0,True,0.0
+16,industrial_pin_to_tray,Industrial & Manufacturing,False,1.0,0.2,0.0,0.0,True,0.3333333333333333
+17,industrial_shaft_flip,Industrial & Manufacturing,False,1.0,0.0,0.0,0.0,True,0.0
+18,industrial_gear_flip,Industrial & Manufacturing,False,1.0,0.6,0.0,0.0,True,0.0
+19,industrial_pin_reposition,Industrial & Manufacturing,False,1.0,0.6,0.0,0.0,True,0.0
+20,industrial_tray_kitting_slot1,Industrial & Manufacturing,False,1.0,0.0,0.0,0.0,True,0.0
+21,industrial_tray_kitting_slot2,Industrial & Manufacturing,False,1.0,0.0,0.0,0.0,True,0.0
+22,industrial_tray_kitting_slot3,Industrial & Manufacturing,False,1.0,0.6,0.0,0.0,True,0.0
+23,industrial_estop_button_press,Industrial & Manufacturing,False,1.0,1.0,0.0,0.0,True,0.0
+24,industrial_inspection_dwell,Industrial & Manufacturing,False,1.0,1.0,0.0,0.0,True,0.0
+25,industrial_pallet_scan_dwell,Industrial & Manufacturing,False,1.0,1.0,0.0,0.0,True,0.0
+26,industrial_andon_green_verify,Industrial & Manufacturing,False,1.0,1.0,0.0,0.0,True,0.0
+27,industrial_jaw_clamp_actuation,Industrial & Manufacturing,False,1.0,1.0,0.0,0.0,True,0.0
+28,industrial_clear_feeder_spindle,Industrial & Manufacturing,False,1.0,0.2,0.0,0.0,True,0.0
+29,industrial_clear_inbound_tray,Industrial & Manufacturing,False,1.0,0.0,0.0,0.0,True,0.0
+30,industrial_ready_home_return,Industrial & Manufacturing,False,1.0,1.0,0.0,0.0,True,0.0
+31,kitchen_patty_stack,Culinary & Kitchen Operations,False,1.0,0.4,0.0,0.0,True,0.0
+32,kitchen_cheese_place,Culinary & Kitchen Operations,False,1.0,0.2,0.0,0.0,True,0.0
+33,kitchen_tomato_place,Culinary & Kitchen Operations,False,1.0,0.2,0.0,0.0,True,0.0
+34,kitchen_top_bun_crown,Culinary & Kitchen Operations,False,0.6,1.0,0.0,0.0,True,0.0
+35,kitchen_bottom_bun_to_board,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.3333333333333333
+36,kitchen_mug_to_espresso,Culinary & Kitchen Operations,False,0.8,0.0,0.0,0.0,True,0.0
+37,kitchen_press_brew_button,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0
+38,kitchen_pod_into_hopper,Culinary & Kitchen Operations,False,1.0,0.4,0.0,0.0,True,0.0
+39,kitchen_mug_to_serving_tray,Culinary & Kitchen Operations,False,0.8,0.0,0.0,0.0,True,0.0
+40,kitchen_patty_to_plate,Culinary & Kitchen Operations,False,1.0,0.4,0.0,0.0,True,0.0
+41,kitchen_tomato_to_plate,Culinary & Kitchen Operations,False,1.0,0.2,0.0,0.0,True,0.0
+42,kitchen_cheese_to_plate,Culinary & Kitchen Operations,False,1.0,0.2,0.0,0.0,True,0.0
+43,kitchen_pod_to_tray,Culinary & Kitchen Operations,False,0.4,0.0,0.0,0.0,True,0.0
+44,kitchen_mug_return_bin,Culinary & Kitchen Operations,False,0.8,0.0,0.0,0.0,True,0.0
+45,kitchen_pod_return_caddy,Culinary & Kitchen Operations,False,0.8,0.2,0.0,0.0,True,0.0
+46,kitchen_patty_flip,Culinary & Kitchen Operations,False,1.0,0.4,0.0,0.0,True,0.0
+47,kitchen_top_bun_to_board,Culinary & Kitchen Operations,False,0.6,1.0,0.0,0.0,True,0.0
+48,kitchen_tomato_to_board,Culinary & Kitchen Operations,False,1.0,0.2,0.0,0.0,True,0.0
+49,kitchen_cheese_to_board,Culinary & Kitchen Operations,False,1.0,0.4,0.0,0.0,True,0.0
+50,kitchen_bun_lid_close_dwell,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0
+51,kitchen_espresso_spout_align,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0
+52,kitchen_grill_led_verify,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0
+53,kitchen_caddy_slot1_fill,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0
+54,kitchen_caddy_slot2_fill,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0
+55,kitchen_tray_cheese_restock,Culinary & Kitchen Operations,False,1.0,0.4,0.0,0.0,True,0.0
+56,kitchen_tray_tomato_restock,Culinary & Kitchen Operations,False,1.0,0.0,0.0,0.0,True,0.0
+57,kitchen_patty_grill_return,Culinary & Kitchen Operations,False,1.0,0.2,0.0,0.0,True,0.0
+58,kitchen_counter_wipe_pass,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0
+59,kitchen_drip_tray_wipe_pass,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0
+60,kitchen_ready_standby,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0
+61,tabletop_sort_red,Tabletop & Domestic,False,1.0,0.0,0.0,0.0,True,0.0
+62,tabletop_sort_green,Tabletop & Domestic,False,1.0,0.0,0.0,0.0,True,0.0
+63,tabletop_sort_blue,Tabletop & Domestic,False,1.0,0.0,0.0,0.0,True,0.0
+64,tabletop_red_to_green_bin,Tabletop & Domestic,False,1.0,0.2,0.0,0.0,True,0.0
+65,tabletop_red_to_blue_bin,Tabletop & Domestic,False,1.0,0.2,0.0,0.0,True,0.0
+66,tabletop_green_to_red_bin,Tabletop & Domestic,False,1.0,0.2,0.0,0.0,True,0.0
+67,tabletop_green_to_blue_bin,Tabletop & Domestic,False,1.0,0.0,0.0,0.0,True,0.0
+68,tabletop_blue_to_red_bin,Tabletop & Domestic,False,1.0,0.2,0.0,0.0,True,0.0
+69,tabletop_blue_to_green_bin,Tabletop & Domestic,False,1.0,0.2,0.0,0.0,True,0.0
+70,tabletop_red_center_table,Tabletop & Domestic,False,1.0,0.4,0.0,0.0,True,0.0
+71,tabletop_green_center_table,Tabletop & Domestic,False,1.0,0.6,0.0,0.0,True,0.0
+72,tabletop_blue_center_table,Tabletop & Domestic,False,1.0,0.6,0.0,0.0,True,0.0
+73,tabletop_swap_red_blue,Tabletop & Domestic,False,1.0,0.2,0.0,0.0,True,0.0
+74,tabletop_swap_blue_green,Tabletop & Domestic,False,1.0,0.2,0.0,0.0,True,0.0
+75,tabletop_swap_green_red,Tabletop & Domestic,False,1.0,0.2,0.0,0.0,True,0.0
+76,tabletop_stack_red_on_blue,Tabletop & Domestic,False,1.0,0.2,0.0,0.0,True,0.0
+77,tabletop_stack_green_on_blue,Tabletop & Domestic,False,1.0,0.2,0.0,0.0,True,0.0
+78,tabletop_stack_blue_on_red,Tabletop & Domestic,False,1.0,0.2,0.0,0.0,True,0.0
+79,tabletop_red_bin_inspect,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0
+80,tabletop_green_bin_inspect,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0
+81,tabletop_blue_bin_inspect,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0
+82,tabletop_red_touch,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0
+83,tabletop_green_touch,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0
+84,tabletop_blue_touch,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0
+85,tabletop_clear_left_quadrant,Tabletop & Domestic,False,1.0,0.6,0.0,0.0,True,0.0
+86,tabletop_clear_right_quadrant,Tabletop & Domestic,False,1.0,0.4,0.0,0.0,True,0.0
+87,tabletop_push_red_forward,Tabletop & Domestic,False,1.0,0.2,0.0,0.0,True,0.0
+88,tabletop_push_blue_forward,Tabletop & Domestic,False,1.0,0.4,0.0,0.0,True,0.0
+89,tabletop_table_center_sweep,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0
+90,tabletop_home_ready,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0
+91,lab_transfer_test_tube,Laboratory & Life Sciences,False,1.0,0.8,0.0,0.0,True,0.0
+92,lab_tube_to_centrifuge,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+93,lab_pick_micropipette,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+94,lab_pipette_to_microplate,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+95,lab_micro_tube_to_rack_b,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+96,lab_tube_return_rack_a,Laboratory & Life Sciences,False,1.0,0.2,0.0,0.0,True,0.0
+97,lab_micro_tube_return,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+98,lab_pipette_dock_stand,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+99,lab_centrifuge_display_press,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+100,lab_microplate_optical_scan,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+101,lab_tube_rack_a_inspect,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+102,lab_tube_rack_b_inspect,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+103,lab_conical_tube_to_plate,Laboratory & Life Sciences,False,1.0,0.8,0.0,0.0,True,0.0
+104,lab_micro_tube_to_plate,Laboratory & Life Sciences,False,1.0,0.4,0.0,0.0,True,0.0
+105,lab_tube_slot1_to_slot3,Laboratory & Life Sciences,False,1.0,0.8,0.0,0.0,True,0.0
+106,lab_pipette_to_tube_mouth,Laboratory & Life Sciences,False,1.0,0.8,0.0,0.0,True,0.0
+107,lab_pipette_plunger_press,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+108,lab_microcentrifuge_rotor_inspect,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+109,lab_bench_wipe_pass_1,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+110,lab_bench_wipe_pass_2,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+111,lab_tube_rack_b_to_center,Laboratory & Life Sciences,False,1.0,0.4,0.0,0.0,True,0.0
+112,lab_micro_tube_to_center,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+113,lab_pipette_to_well_corner,Laboratory & Life Sciences,False,1.0,0.8,0.0,0.0,True,0.0
+114,lab_pipette_to_centrifuge_tube,Laboratory & Life Sciences,False,1.0,0.4,0.0,0.0,True,0.0
+115,lab_centrifuge_lid_touch,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+116,lab_plate_skirt_align,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+117,lab_tube_cap_tighten_dwell,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+118,lab_micro_cap_snap_dwell,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+119,lab_bench_center_scan,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+120,lab_ready_standby,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0
+121,long_horizon_transmission_assembly,Long-Horizon Multi-Stage,False,1.0,0.0,0.0,0.0,True,0.0
+122,long_horizon_gear_pin_subassembly,Long-Horizon Multi-Stage,False,1.0,0.6,0.0,0.0,True,0.0
+123,long_horizon_transmission_qa_palletize,Long-Horizon Multi-Stage,False,1.0,0.0,0.0,0.0,True,0.0
+124,long_horizon_burger_patty_cheese,Long-Horizon Multi-Stage,False,1.0,0.4,0.0,0.0,True,0.0
+125,long_horizon_gourmet_burger_classic,Long-Horizon Multi-Stage,False,0.6,1.0,0.0,0.0,True,0.0
+126,long_horizon_burger_service_plating,Long-Horizon Multi-Stage,False,1.0,1.0,0.0,0.0,True,0.0
+127,long_horizon_espresso_service_complete,Long-Horizon Multi-Stage,False,0.6,0.0,0.0,0.0,True,0.0
+128,long_horizon_pod_brew_cycle,Long-Horizon Multi-Stage,False,1.0,0.4,0.0,0.0,True,0.0
+129,long_horizon_tabletop_complete_sort,Long-Horizon Multi-Stage,False,1.0,0.0,0.0,0.0,True,0.0
+130,long_horizon_tabletop_dual_bin_sort,Long-Horizon Multi-Stage,False,1.0,0.4,0.0,0.0,True,0.0
+131,long_horizon_lab_pcr_assay_prep,Long-Horizon Multi-Stage,False,1.0,1.0,0.0,0.0,True,0.0
+132,long_horizon_lab_centrifugation_run,Long-Horizon Multi-Stage,False,1.0,0.8,0.0,0.0,True,0.0
+133,long_horizon_lab_tube_serial_transfer,Long-Horizon Multi-Stage,False,1.0,0.8,0.0,0.0,True,0.0
+134,long_horizon_industrial_kitting_full,Long-Horizon Multi-Stage,False,1.0,0.0,0.0,0.0,True,0.0
+135,long_horizon_kitchen_breakfast_set,Long-Horizon Multi-Stage,False,0.6,0.0,0.0,0.0,True,0.0
+136,long_horizon_kitchen_clean_prep_cycle,Long-Horizon Multi-Stage,False,1.0,0.2,0.0,0.0,True,0.0
+137,long_horizon_industrial_jig_clamp_cycle,Long-Horizon Multi-Stage,False,1.0,0.0,0.0,0.0,True,0.0
+138,long_horizon_industrial_disassembly,Long-Horizon Multi-Stage,False,1.0,0.0,0.0,0.0,True,0.0
+139,long_horizon_tabletop_pyramid_stack,Long-Horizon Multi-Stage,False,1.0,0.0,0.0,0.0,True,0.0
+140,long_horizon_kitchen_burger_and_coffee,Long-Horizon Multi-Stage,False,1.0,0.4,0.0,0.0,True,0.0
+141,long_horizon_lab_biohazard_clear,Long-Horizon Multi-Stage,False,1.0,0.8,0.0,0.0,True,0.0
+142,long_horizon_industrial_qa_rework,Long-Horizon Multi-Stage,False,1.0,0.0,0.0,0.0,True,0.0
+143,long_horizon_tabletop_bin_reversal,Long-Horizon Multi-Stage,False,1.0,0.0,0.0,0.0,True,0.0
+144,long_horizon_kitchen_tray_clearoff,Long-Horizon Multi-Stage,False,1.0,1.0,0.0,0.0,True,0.0
+145,long_horizon_lab_incubator_cycle,Long-Horizon Multi-Stage,False,1.0,0.8,0.0,0.0,True,0.0
+146,long_horizon_industrial_cell_startup,Long-Horizon Multi-Stage,False,1.0,0.0,0.0,0.0,True,0.0
+147,long_horizon_kitchen_rush_burger,Long-Horizon Multi-Stage,False,0.6,1.0,0.0,0.0,True,0.0
+148,long_horizon_tabletop_tidy_workspace,Long-Horizon Multi-Stage,False,1.0,0.0,0.0,0.0,True,0.0
+149,long_horizon_lab_complete_dilution,Long-Horizon Multi-Stage,False,1.0,1.0,0.0,0.0,True,0.0
+150,long_horizon_grand_challenge_150,Long-Horizon Multi-Stage,False,1.0,0.0,0.0,0.0,True,0.0
+151,chain_shaft_bearing_clamp,Multi-Stage Precision Chaining,False,1.0,0.0,0.0,0.0,True,0.0
+152,chain_gear_shaft_washer,Multi-Stage Precision Chaining,False,1.0,0.6,0.0,0.0,True,0.0
+153,chain_pin_align_press,Multi-Stage Precision Chaining,False,1.0,0.6,0.0,0.0,True,0.0
+154,chain_bolt_flange_torque,Multi-Stage Precision Chaining,False,1.0,0.0,0.0,0.0,True,0.0
+155,chain_wire_harness_clip,Multi-Stage Precision Chaining,False,0.6,0.2,0.0,0.0,True,0.0
+156,chain_bushing_shaft_inspect,Multi-Stage Precision Chaining,False,1.0,0.0,0.0,0.0,True,0.0
+157,chain_pipette_aspirate_dispense,Multi-Stage Precision Chaining,False,1.0,1.0,0.0,0.0,True,0.0
+158,chain_tube_centrifuge_rack,Multi-Stage Precision Chaining,False,1.0,0.8,0.0,0.0,True,0.0
+159,chain_micro_tube_cap_dock,Multi-Stage Precision Chaining,False,1.0,0.4,0.0,0.0,True,0.0
+160,chain_pipette_tip_eject,Multi-Stage Precision Chaining,False,1.0,0.8,0.0,0.0,True,0.0
+161,chain_reagent_vial_mix,Multi-Stage Precision Chaining,False,1.0,0.8,0.0,0.0,True,0.0
+162,chain_slide_cover_inspect,Multi-Stage Precision Chaining,False,1.0,0.8,0.0,0.0,True,0.0
+163,chain_fixture_toggle_lock,Multi-Stage Precision Chaining,False,1.0,0.0,0.0,0.0,True,0.0
+164,chain_bearing_housing_press,Multi-Stage Precision Chaining,False,1.0,0.6,0.0,0.0,True,0.0
+165,chain_o_ring_shaft_seat,Multi-Stage Precision Chaining,False,1.0,0.6,0.0,0.0,True,0.0
+166,chain_gasket_flange_align,Multi-Stage Precision Chaining,False,1.0,0.0,0.0,0.0,True,0.0
+167,chain_spark_plug_socket,Multi-Stage Precision Chaining,False,1.0,0.6,0.0,0.0,True,0.0
+168,chain_fuse_terminal_insert,Multi-Stage Precision Chaining,False,0.0,0.0,0.0,0.0,True,0.0
+169,chain_pcb_chip_socket,Multi-Stage Precision Chaining,False,1.0,0.6,0.0,0.0,True,0.0
+170,chain_sensor_bracket_mount,Multi-Stage Precision Chaining,False,1.0,0.4,0.0,0.0,True,0.0
+171,chain_conical_tube_decant,Multi-Stage Precision Chaining,False,1.0,0.8,0.0,0.0,True,0.0
+172,chain_well_plate_seal,Multi-Stage Precision Chaining,False,1.0,1.0,0.0,0.0,True,0.0
+173,chain_cuvette_spectro_measure,Multi-Stage Precision Chaining,False,1.0,0.4,0.0,0.0,True,0.0
+174,chain_cryovial_dewar_storage,Multi-Stage Precision Chaining,False,1.0,0.8,0.0,0.0,True,0.0
+175,chain_valve_manifold_tighten,Multi-Stage Precision Chaining,False,1.0,0.0,0.0,0.0,True,0.0
+176,chain_pulley_belt_tension,Multi-Stage Precision Chaining,False,1.0,0.6,0.0,0.0,True,0.0
+177,chain_shaft_key_slot_insert,Multi-Stage Precision Chaining,False,1.0,0.6,0.0,0.0,True,0.0
+178,chain_crimping_wire_terminal,Multi-Stage Precision Chaining,False,1.0,0.4,0.0,0.0,True,0.0
+179,chain_petri_dish_streak_incubate,Multi-Stage Precision Chaining,False,1.0,1.0,0.0,0.0,True,0.0
+180,chain_master_cleanroom_assembly,Multi-Stage Precision Chaining,False,1.0,0.8,0.0,0.0,True,0.0
+181,chain_burger_flip_cheese_top,Sequential Service & Culinary Assembly,False,1.0,0.2,0.0,0.0,True,0.0
+182,chain_espresso_mug_brew_serve,Sequential Service & Culinary Assembly,False,1.0,0.0,0.0,0.0,True,0.0
+183,chain_bread_slice_toast_plate,Sequential Service & Culinary Assembly,False,1.0,1.0,0.0,0.0,True,0.3333333333333333
+184,chain_salad_toss_dressing_bowl,Sequential Service & Culinary Assembly,False,1.0,0.0,0.0,0.0,True,0.0
+185,chain_pizza_sauce_cheese_bake,Sequential Service & Culinary Assembly,False,1.0,0.6,0.0,0.0,True,0.3333333333333333
+186,chain_sandwich_meat_lettuce_cut,Sequential Service & Culinary Assembly,False,1.0,1.0,0.0,0.0,True,0.0
+187,chain_tea_bag_kettle_steep,Sequential Service & Culinary Assembly,False,0.8,0.0,0.0,0.0,True,0.0
+188,chain_sushi_rice_fish_roll,Sequential Service & Culinary Assembly,False,1.0,0.2,0.0,0.0,True,0.0
+189,chain_egg_crack_whisk_pour,Sequential Service & Culinary Assembly,False,1.0,0.0,0.0,0.0,True,0.0
+190,chain_pancake_flip_syrup_serve,Sequential Service & Culinary Assembly,False,1.0,0.2,0.0,0.0,True,0.0
+191,chain_cutlery_fork_knife_napkin,Sequential Service & Culinary Assembly,False,1.0,0.0,0.0,0.0,True,0.0
+192,chain_cereal_pour_milk_spoon,Sequential Service & Culinary Assembly,False,0.2,0.0,0.0,0.0,True,0.0
+193,chain_table_condiment_caddy,Sequential Service & Culinary Assembly,False,1.0,0.0,0.0,0.0,True,0.0
+194,chain_plate_dishrack_cabinet,Sequential Service & Culinary Assembly,False,1.0,0.0,0.0,0.0,True,0.0
+195,chain_drawer_sort_utensil_close,Sequential Service & Culinary Assembly,False,1.0,0.2,0.0,0.0,True,0.0
+196,chain_cup_stack_shelf_align,Sequential Service & Culinary Assembly,False,0.8,0.2,0.0,0.0,True,0.0
+197,chain_trash_can_liner_tie,Sequential Service & Culinary Assembly,False,1.0,0.2,0.0,0.0,True,0.0
+198,chain_fruit_bowl_arrange_center,Sequential Service & Culinary Assembly,False,1.0,0.2,0.0,0.0,True,0.0
+199,chain_bottle_uncap_pour_glass,Sequential Service & Culinary Assembly,False,0.4,0.0,0.0,0.0,True,0.0
+200,chain_biscuit_jam_butter_plate,Sequential Service & Culinary Assembly,False,1.0,1.0,0.0,0.0,True,0.3333333333333333
+201,chain_taco_shell_beef_salsa,Sequential Service & Culinary Assembly,False,1.0,0.6,0.0,0.0,True,0.3333333333333333
+202,chain_microwave_dish_cover_start,Sequential Service & Culinary Assembly,False,1.0,0.0,0.0,0.0,True,0.0
+203,chain_blender_fruit_lid_pulse,Sequential Service & Culinary Assembly,False,1.0,0.2,0.0,0.0,True,0.0
+204,chain_pasta_strainer_sauce_pot,Sequential Service & Culinary Assembly,False,1.0,0.2,0.0,0.0,True,0.0
+205,chain_wine_cork_open_pour,Sequential Service & Culinary Assembly,False,0.8,0.0,0.0,0.0,True,0.0
+206,chain_groceries_bag_unload_fridge,Sequential Service & Culinary Assembly,False,1.0,0.2,0.0,0.0,True,0.0
+207,chain_coffee_pod_eject_tray,Sequential Service & Culinary Assembly,False,1.0,0.0,0.0,0.0,True,0.0
+208,chain_ice_cube_tray_fill_freeze,Sequential Service & Culinary Assembly,False,1.0,0.2,0.0,0.0,True,0.0
+209,chain_dining_table_clear_wipe,Sequential Service & Culinary Assembly,False,1.0,0.0,0.0,0.0,True,0.0
+210,chain_grand_master_banquet_service,Sequential Service & Culinary Assembly,False,1.0,0.2,0.0,0.0,True,0.0
