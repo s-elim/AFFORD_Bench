@@ -5,10 +5,11 @@ from dataclasses import dataclass
 from typing import Callable
 
 from afford_pro.envs.base_franka_env import BaseFrankaEnv
-from afford_pro.envs.frontier_env import FrontierComplexEnv
+from afford_pro.envs.frontier_env import FrontierComplexEnv, TwistLockEnv
 from afford_pro.envs.parametric_env import ParametricFrankaEnv
 from afford_pro.oracles.base_oracle import BaseOracle
 from afford_pro.oracles.frontier_oracle import FrontierOracle
+from afford_pro.oracles.twist_lock_oracle import TwistLockOracle
 from afford_pro.oracles.parametric_oracle import ParametricOracle
 from afford_pro.task_definitions import ALL_210_TASKS, DOMAIN_8_FRONTIER_TASKS, TaskDef
 
@@ -32,6 +33,22 @@ def _make_env_factory(task_def: TaskDef) -> Callable[..., BaseFrankaEnv]:
             or getattr(task_def, "perturbation_step", None) is not None
             or getattr(task_def, "min_push_distance", 0.0) > 0.0
         )
+        if task_def.task_type == "twist_lock":
+            return TwistLockEnv(
+                scene_xml_name=task_def.scene_xml,
+                object_name=task_def.object_name,
+                joint_name=task_def.joint_name,
+                nominal_pos=task_def.nominal_pos,
+                target_pos=task_def.target_pos,
+                instruction=task_def.instruction,
+                task_type=task_def.task_type,
+                tolerance_xy=task_def.tolerance_xy,
+                tolerance_z=task_def.tolerance_z,
+                tilt_tol_deg=task_def.tilt_tol_deg,
+                min_lift=task_def.min_lift,
+                mechanism=task_def.mechanism,
+                **kwargs,
+            )
         if is_frontier:
             return FrontierComplexEnv(
                 scene_xml_name=task_def.scene_xml,
@@ -97,7 +114,7 @@ for t in DOMAIN_8_FRONTIER_TASKS:
         domain=t.domain,
         task_number=t.task_number,
         env_factory=_make_env_factory(t),
-        oracle_factory=FrontierOracle,
+        oracle_factory=TwistLockOracle if t.task_type == "twist_lock" else FrontierOracle,
         instruction=t.instruction,
         description=t.description,
     )

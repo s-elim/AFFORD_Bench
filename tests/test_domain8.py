@@ -127,3 +127,96 @@ def test_push_and_grasp_enforces_distance():
 
     assert env.check_success(), "Oracle must solve push_and_grasp task"
     assert env.pushed_distance >= env.min_push_distance, "Pushed distance requirement must be met"
+
+
+# ----------------------------------------------------------------- Family C: twist-lock and detent mechanisms
+from afford_pro.envs.frontier_env import TWIST_LOCK_MECHANISMS, TwistLockEnv  # noqa: E402
+from afford_pro.oracles.twist_lock_oracle import TwistLockOracle  # noqa: E402
+
+TWIST_TASKS = [t.task_id for t in DOMAIN_8_FRONTIER_TASKS if t.task_type == "twist_lock"]
+TWIST_SEEDS = 4  # per task; scripts/twist_lock_probe.py runs the full 21-seed measurement
+
+
+def test_family_c_registered():
+    """Tasks 227-233 are registered with the twist-lock env and oracle."""
+    numbers = sorted(t.task_number for t in DOMAIN_8_FRONTIER_TASKS if t.task_type == "twist_lock")
+    assert numbers == list(range(227, 234))
+    for task_id in TWIST_TASKS:
+        env = afford_pro.make(task_id)
+        assert isinstance(env, TwistLockEnv)
+        assert isinstance(afford_pro.get_oracle(task_id, env), TwistLockOracle)
+        assert env.mechanism in TWIST_LOCK_MECHANISMS
+
+
+def test_twist_lock_scene_is_contact_only():
+    """No welds, mocap bodies, or snapping: the only equality constraint is the Panda finger coupling, and every
+    mechanism degree of freedom is a native slide or hinge joint (springs as joint stiffness)."""
+    import mujoco
+
+    env = afford_pro.make("frontier_cap_push_turn_open")
+    m = env.model
+    assert m.neq == 1 and m.eq_type[0] == mujoco.mjtEq.mjEQ_JOINT
+    assert m.nmocap == 0
+    springs = {"cap_press": 2000.0, "bayonet_press": 1500.0, "bayonet2_press": 1500.0}
+    for name, k in springs.items():
+        j = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, name)
+        assert m.jnt_type[j] == mujoco.mjtJoint.mjJNT_SLIDE
+        assert m.jnt_stiffness[j] == pytest.approx(k)
+    for name in ("cap_ring_hinge", "cap_spin", "bayonet_twist", "lock_plug_hinge", "lock_sleeve_hinge"):
+        assert m.jnt_type[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, name)] == mujoco.mjtJoint.mjJNT_HINGE
+
+
+def test_axial_force_is_spring_force():
+    """F_z is read from the slide-joint spring force, k_c * dz."""
+    env = afford_pro.make("frontier_cap_push_turn_open")
+    env.reset(seed=0)
+    env.data.qpos[env.press_qadr] = -0.011
+    import mujoco
+
+    mujoco.mj_forward(env.model, env.data)
+    assert env.axial_force == pytest.approx(2000.0 * 0.011)
+
+
+@pytest.mark.parametrize("task_id", TWIST_TASKS)
+def test_twist_lock_null_and_random_fail(task_id: str):
+    """Null and uniform-random policies never satisfy Phi_C."""
+    env = afford_pro.make(task_id)
+    for policy in ("null", "random"):
+        env.reset(seed=7)
+        rng = np.random.default_rng(7)
+        for _ in range(150):
+            action = rng.uniform(-1.0, 1.0, 7) if policy == "random" else np.array([0, 0, 0, 0, 0, 0, 1.0])
+            _, _, term, _, _ = env.step(action)
+            assert not term, f"{policy} policy solved {task_id}"
+        assert not env.check_success()
+
+
+def test_twist_lock_oracle_success_rate():
+    """The privileged oracle solves >= 95% of Family C episodes (TWIST_SEEDS reset seeds per task)."""
+    outcomes = []
+    for task_id in TWIST_TASKS:
+        env = afford_pro.make(task_id)
+        oracle = afford_pro.get_oracle(task_id, env)
+        for seed in range(TWIST_SEEDS):
+            oracle.generate_episode(seed=seed)
+            outcomes.append(env.check_success())
+            if env.mech.kind == "cap" and env.check_success():
+                assert env.low_force_travel <= np.radians(5.0)
+                assert env.forced_travel >= np.radians(170.0)  # the ring was turned under >= 20 N
+    rate = float(np.mean(outcomes))
+    assert rate >= 0.95, f"oracle success {rate:.1%} over {len(outcomes)} episodes"
+
+
+@pytest.mark.parametrize("task_id", ["frontier_cap_push_turn_open", "frontier_bayonet_lock"])
+def test_under_threshold_press_cannot_turn(task_id: str):
+    """Turning with an axial press below the threshold (5 mm commanded: nominally 10 N on the cap, 7.5 N on the bayonet) leaves
+    the mechanism locked: the cap freewheels over the ratchet and the bayonet pin stops against the lock ceiling."""
+    env = afford_pro.make(task_id)
+    oracle = TwistLockOracle(env, press_depth=0.005)
+    oracle.generate_episode(seed=0)
+    assert not env.check_success()
+    start = env.mech.start_angle
+    assert abs(env.mechanism_angle - start) < np.radians(10.0), "mechanism turned without the required preload"
+    if env.mech.kind == "cap":
+        assert env.peak_axial_force < 20.0
+        assert env.forced_travel == 0.0

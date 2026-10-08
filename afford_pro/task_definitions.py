@@ -17,7 +17,8 @@ class TaskDef:
     joint_name: str
     nominal_pos: list[float]
     target_pos: list[float]
-    task_type: Literal["pick_place", "insert", "press_button", "slide", "reactive_perturbation", "push_and_grasp"] = "pick_place"
+    task_type: Literal["pick_place", "insert", "press_button", "slide", "reactive_perturbation", "push_and_grasp",
+                       "twist_lock"] = "pick_place"
     # Goal tolerances; None takes the precision tier of the task's domain (PRECISION_TIERS).
     tolerance_xy: float | None = None
     tolerance_z: float | None = None
@@ -38,6 +39,8 @@ class TaskDef:
     second_perturbation_step: int | None = None
     second_perturbation_offset: list[float] | None = None
     min_push_distance: float = 0.0
+    # Family C articulated mechanism (key of frontier_env.TWIST_LOCK_MECHANISMS); requires task_type "twist_lock".
+    mechanism: str | None = None
 
 
 ALL_150_TASKS: list[TaskDef] = [
@@ -2968,6 +2971,134 @@ DOMAIN_8_FRONTIER_TASKS: list[TaskDef] = [
         tolerance_z=0.008,
         tilt_tol_deg=15.0,
         min_push_distance=0.03,
+    ),
+    # Family C (docs/FRONTIER_COMPLEX_TASKS.md, Sec. 4): multi-axis twist-lock and detent mechanisms. Success is the
+    # mechanism state (frontier_env.TwistLockEnv); the tolerances here are unused (3 deg and 1.5 mm are applied there).
+    TaskDef(
+        task_id="frontier_bayonet_lock",
+        task_number=227,
+        domain="Frontier Complex Manipulation",
+        instruction="Push the filter cartridge down against its spring, twist it 45 degrees clockwise, and let it rise into the locking seat.",
+        description="Bayonet twist-lock: 12 mm axial compression against 1.5 N/mm, 45 deg clockwise twist under preload, release into the detent seat.",
+        scene_xml="twist_lock_fixtures.xml",
+        object_name="bayonet_cartridge",
+        joint_name="bayonet_twist",
+        nominal_pos=[0.42, -0.18, 0.04],
+        target_pos=[0.42, -0.18, 0.04],
+        task_type="twist_lock",
+        tolerance_xy=0.0015,
+        tolerance_z=0.0015,
+        tilt_tol_deg=3.0,
+        min_lift=0.0,
+        mechanism="bayonet_lock",
+    ),
+    TaskDef(
+        task_id="frontier_bayonet_unlock",
+        task_number=228,
+        domain="Frontier Complex Manipulation",
+        instruction="Push the seated filter cartridge down, twist it 45 degrees counter-clockwise back to the entry channel, and let it rise.",
+        description="Bayonet removal along the reverse path: compress out of the seat, counter-twist under preload, release to the top of the entry channel.",
+        scene_xml="twist_lock_fixtures.xml",
+        object_name="bayonet_cartridge",
+        joint_name="bayonet_twist",
+        nominal_pos=[0.42, -0.18, 0.04],
+        target_pos=[0.42, -0.18, 0.04],
+        task_type="twist_lock",
+        tolerance_xy=0.0015,
+        tolerance_z=0.0015,
+        tilt_tol_deg=3.0,
+        min_lift=0.0,
+        mechanism="bayonet_unlock",
+    ),
+    TaskDef(
+        task_id="frontier_bayonet_two_step",
+        task_number=229,
+        domain="Frontier Complex Manipulation",
+        instruction="Lock the cartridge in two clicks: push and twist it into the 22.5 degree seat, release, then push and twist it into the 45 degree seat.",
+        description="Two-step bayonet detent: two compress-twist-release cycles with an intermediate seat at 22.5 deg (clockwise).",
+        scene_xml="twist_lock_fixtures.xml",
+        object_name="bayonet2_cartridge",
+        joint_name="bayonet2_twist",
+        nominal_pos=[0.63, -0.2, 0.04],
+        target_pos=[0.63, -0.2, 0.04],
+        task_type="twist_lock",
+        tolerance_xy=0.0015,
+        tolerance_z=0.0015,
+        tilt_tol_deg=3.0,
+        min_lift=0.0,
+        mechanism="bayonet_two_step",
+    ),
+    TaskDef(
+        task_id="frontier_key_turn_latch",
+        task_number=230,
+        domain="Frontier Complex Manipulation",
+        instruction="Pick up the key, insert it fully into the upright keyway, and turn it 90 degrees to retract the latch.",
+        description="Key insertion (blade 2 mm, slot 4.4 mm) to depth >= 18 mm, then a 90 deg turn whose cam retracts a contact-coupled spring latch.",
+        scene_xml="twist_lock_fixtures.xml",
+        object_name="lock_key",
+        joint_name="lock_plug_hinge",
+        nominal_pos=[0.45, 0.02, 0.005],
+        target_pos=[0.45, 0.02, 0.005],
+        task_type="twist_lock",
+        tolerance_xy=0.0015,
+        tolerance_z=0.0015,
+        tilt_tol_deg=3.0,
+        min_lift=0.0,
+        mechanism="key_turn",
+    ),
+    TaskDef(
+        task_id="frontier_key_latch_bolt",
+        task_number=231,
+        domain="Frontier Complex Manipulation",
+        instruction="Insert the key, turn it 90 degrees to retract the latch, release it, then slide the bolt open by its knob.",
+        description="Two-body sequence: key insertion and 90 deg turn retract the latch, then the bolt slides >= 30 mm, which the extended latch blocks.",
+        scene_xml="twist_lock_fixtures.xml",
+        object_name="lock_key",
+        joint_name="lock_plug_hinge",
+        nominal_pos=[0.45, 0.02, 0.005],
+        target_pos=[0.45, 0.02, 0.005],
+        task_type="twist_lock",
+        tolerance_xy=0.0015,
+        tolerance_z=0.0015,
+        tilt_tol_deg=3.0,
+        min_lift=0.0,
+        mechanism="key_bolt",
+    ),
+    TaskDef(
+        task_id="frontier_cap_push_turn_open",
+        task_number=232,
+        domain="Frontier Complex Manipulation",
+        instruction="Open the child-proof cap: press it down firmly while turning it counter-clockwise half a turn, regrasping once.",
+        description="Push-and-turn cap: the ratchet engages only at F_z = 2 N/mm x dz >= 20 N; a 180 deg turn needs a release, counter-rotation, and regrasp.",
+        scene_xml="twist_lock_fixtures.xml",
+        object_name="safety_cap",
+        joint_name="cap_ring_hinge",
+        nominal_pos=[0.42, 0.2, 0.08],
+        target_pos=[0.42, 0.2, 0.08],
+        task_type="twist_lock",
+        tolerance_xy=0.0015,
+        tolerance_z=0.0015,
+        tilt_tol_deg=3.0,
+        min_lift=0.0,
+        mechanism="cap_open",
+    ),
+    TaskDef(
+        task_id="frontier_cap_push_turn_close",
+        task_number=233,
+        domain="Frontier Complex Manipulation",
+        instruction="Close the child-proof cap: press it down firmly while turning it clockwise half a turn until it clicks into its detent.",
+        description="Push-and-turn closing turn of 180 deg under >= 20 N axial force into the spring-plunger detent at 0 deg, with one regrasp.",
+        scene_xml="twist_lock_fixtures.xml",
+        object_name="safety_cap",
+        joint_name="cap_ring_hinge",
+        nominal_pos=[0.42, 0.2, 0.08],
+        target_pos=[0.42, 0.2, 0.08],
+        task_type="twist_lock",
+        tolerance_xy=0.0015,
+        tolerance_z=0.0015,
+        tilt_tol_deg=3.0,
+        min_lift=0.0,
+        mechanism="cap_close",
     ),
 ]
 

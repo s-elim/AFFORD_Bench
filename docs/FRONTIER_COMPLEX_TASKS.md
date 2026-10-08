@@ -164,6 +164,50 @@ the spring force.
 | 232 | Push-and-turn cap: open 180° (one regrasp) |
 | 233 | Push-and-turn cap: close until the detent clicks |
 
+**Implementation (2026-10-08).** Tasks 227–233 are implemented and registered (`frontier_bayonet_lock`,
+`frontier_bayonet_unlock`, `frontier_bayonet_two_step`, `frontier_key_turn_latch`, `frontier_key_latch_bolt`,
+`frontier_cap_push_turn_open`, `frontier_cap_push_turn_close`).
+- *Asset* `afford_pro/assets/twist_lock_fixtures.xml`. Every mechanism degree of freedom is a native slide or hinge
+  joint, springs are joint stiffness, and parts interact only through contact. The only equality constraint is the
+  Panda finger coupling, and there are no mocap bodies. After reset nothing is pinned or teleported.
+  - Cap: k_c = 2000 N/m. The six cap teeth sit 10 mm above the twelve ring teeth, so the ring turns only at
+    F_z > 20 N.
+  - Ring hold: joint dry friction (0.08 N·m) plus a spring plunger with two balls straddling a rim bump at 0° (the
+    233 detent). A fixed lip covers the ring, so fingers cannot turn it directly.
+  - Bayonet: k_z = 1500 N/m. The L-slot is built from radial wall fins. Passing under the lock ceiling needs a
+    compression of 11 to 12 mm (measured on a 0.5 mm grid). The released pin rests at dz = −8 mm in the seat
+    pocket at −45° (clockwise), or at −22.5° and −45° for 229.
+  - Key: blade 2 mm, slot 4.4 mm. The top 18 mm of the keyway is a free-spinning sleeve, so the plug turns only once
+    the blade is deeper than 18 mm; the plug floor stops it at 26 mm.
+  - Latch and bolt: an eccentric cam (8 mm) drives a spring latch (400 N/m) 5.5 mm out of the bolt path. The cam
+    passes over center at 75°, so the plug stays at its 90° stop when released. With the latch extended, the bolt
+    moves about 2 mm before its tongue stops it.
+- *Solver.* This scene alone uses an elliptic friction cone with impratio 10. With the default pyramidal cone, the
+  spring-loaded cap crept through the closed fingers (about 1 mm/s at 20 N).
+- *Success* (`frontier_env.TwistLockEnv`). Every terminal stage must be reached (angle within 3°, slide within
+  1.5 mm where specified) and held for 0.5 s with no finger on the turned body or bolt.
+  - Key tasks also require insertion ≥ 18 mm and latch retraction ≥ 4 mm, plus bolt opening ≥ 30 mm for 231.
+  - For 232–233, at most 5° of ring travel may occur while the slide spring force is below 20 N; the ring must
+    otherwise be driven at F_z ≥ 20 N.
+  - The specification above asks for a 1 s hold; the implementation uses 0.5 s as requested for this round.
+- *Oracle* (`oracles/twist_lock_oracle.py`). It closes the loop on the slide position to press past the threshold
+  (12.5 mm) and turns under that preload. A turn above 120° is split into strokes: release, counter-rotate the open
+  hand, regrasp, press, and turn. For the cap, it turns the unpressed cap until its teeth face the ring gaps before
+  pressing (privileged state); on the tooth tops the arm's push exceeded the grasp friction.
+- *Measured* (`scripts/twist_lock_probe.py`, `docs/reviews/twist_lock_probe_2026-10-08.csv`, MuJoCo 3.2.7, 21 reset
+  seeds per task): 147/147 episodes succeed (21/21 per task). Cap episodes peak at F_z = 28.1 N, and at most 0.05°
+  of ring travel occurs below 20 N. Terminal angles: bayonet seat −44.9 to −44.8°, cap 179.8 to 180.5° (open) and
+  −0.5 to −0.1° (closed), plug 90.1°.
+  - With a 5 mm press (nominal F_z = 10 N, measured peak 13.5 N on the cap), no cap or bayonet episode succeeds
+    (0/25), and the ring and cartridge stay locked (`docs/reviews/twist_lock_probe_underpress_2026-10-08.csv`). The key tasks have no axial spring and are
+    unaffected.
+  - Null and random policies (150 steps) and resets never satisfy Φ_C (`tests/test_domain8.py`).
+  - Success counts are the same with the placeholder robot meshes used in CI and with MuJoCo Menagerie meshes; the
+    finger pads are primitive boxes. Episode lengths differ only for 231 (bolt phase).
+- *Not validated.* The holding torques of the ring friction and detent and the cap's 1 mm overshoot of its 13 mm
+  slide stop (peak F_z about 28 N) have no counterpart measurement on hardware. The 180° terminal state of 232 is
+  held by joint friction, not by a detent.
+
 ## 5. Family D: mid-trajectory reactive perturbations (Tasks 234–240)
 
 **Operator.** A perturbation Π_{t_p, Δ} acts at step t_p on the state:
