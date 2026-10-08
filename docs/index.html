@@ -74,6 +74,7 @@
         <a href="#domains" class="hover:text-brand-600 transition">7 Domains</a>
         <a href="#perturbations" class="hover:text-brand-600 transition">Perturbation Levels</a>
         <a href="#comparison" class="hover:text-brand-600 transition">Comparison</a>
+        <a href="#leaderboard" class="hover:text-brand-600 transition text-brand-700 font-semibold">Model Leaderboard</a>
         <a href="#code" class="hover:text-brand-600 transition">Quickstart</a>
         <a href="#charter" class="hover:text-brand-600 transition">Extension Charter</a>
       </nav>
@@ -416,7 +417,7 @@
           <img src="images/benchmark_comparison.png" alt="AFFORD-Bench vs. LIBERO-PRO and LIBERO-X Comparison" class="w-full h-auto object-contain">
         </div>
         <div class="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500">
-          <p><strong class="text-slate-800">Figure: Benchmark Comparison: AFFORD-Bench vs. LIBERO-PRO & LIBERO-X.</strong> Side-by-side architectural contrast across physical dynamics ($\mu \in [0.1, 1.8]$ & mass shifts), sensory modalities (dual RGB + 3D depth), policy universality (Diffusion Policy, ACT, Flow Matching, VLA), domain breadth (7 real-world domains), task complexity (chained 2–3 step subgoals), and demonstration scale (2.3M physical steps, 150 tasks).</p>
+          <p><strong class="text-slate-800">Figure: Benchmark Comparison: AFFORD-Bench vs. LIBERO-PRO & LIBERO-X.</strong> Side-by-side architectural contrast across physical dynamics ($\mu \in [0.12, 0.25]$ &amp; $2.5\times$ mass shifts), sensory modalities (dual RGB + 3D depth), policy universality (Diffusion Policy, ACT, Flow Matching, modern VLAs), domain breadth (7 real-world domains + Domain 8 reactive suite), task complexity (chained 2–3 step subgoals, $\pm 2.0\text{–}2.5\text{ mm}$ CAD tolerances), and demonstration scale (10,500 demonstrations, &gt;2.2M physical steps, 210 tasks).</p>
           <a href="images/benchmark_comparison.png" target="_blank" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-white border border-slate-300 font-semibold text-slate-700 hover:bg-slate-100 transition whitespace-nowrap shadow-xs">
             <span>View Full-Res Image</span>
             <svg class="w-3.5 h-3.5 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
@@ -494,6 +495,307 @@
             </tr>
           </tbody>
         </table>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Modern VLA & Robot Policy Leaderboard Section -->
+  <section id="leaderboard" class="py-20 bg-slate-50 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-14">
+        <span class="text-xs uppercase tracking-widest font-extrabold text-brand-600">Empirical Benchmark Results</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 mt-2 mb-4">
+          AFFORD-Bench VLA &amp; Policy Leaderboard
+        </h2>
+        <p class="text-slate-600 text-lg">
+          Rigorous benchmarking of 10 modern foundation VLAs and visuomotor policies across CAD sub-millimeter tolerances (&plusmn;2.0&ndash;2.5 mm), extreme friction shifts (&mu; &in; [0.12, 0.25]), and mid-trajectory reactive perturbations.
+        </p>
+        <div class="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs">
+          <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-800 font-medium border border-blue-200">
+            <strong>GDI</strong>: Generalization Degradation Index &darr; (Lower is better)
+          </span>
+          <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-medium border border-emerald-200">
+            <strong>PRI</strong>: Physical Robustness Index &uarr; (Higher is better)
+          </span>
+          <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-800 font-medium border border-purple-200">
+            <strong>RRR</strong>: Reactive Recovery Ratio &uarr; (Post-perturbation recovery)
+          </span>
+        </div>
+      </div>
+
+      <!-- Leaderboard Table -->
+      <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-md bg-white mb-12">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="bg-slate-900 text-white font-mono text-xs uppercase tracking-wider">
+              <th class="p-4">Model Architecture</th>
+              <th class="p-4">Action Mode</th>
+              <th class="p-4 text-center">L1 Nom.</th>
+              <th class="p-4 text-center">L2 Spat.</th>
+              <th class="p-4 text-center">L3 Vis.</th>
+              <th class="p-4 text-center bg-amber-950/60 text-amber-200">L4 Phys.</th>
+              <th class="p-4 text-center">L5 Comp.</th>
+              <th class="p-4 text-center bg-blue-950/60 text-blue-200">CAD 2mm</th>
+              <th class="p-4 text-center">RRR (%)</th>
+              <th class="p-4 text-center font-bold">GDI (%)</th>
+              <th class="p-4 text-center font-bold text-emerald-400">PRI (%)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 text-slate-700">
+            <!-- Oracle -->
+            <tr class="bg-slate-50/70 font-semibold text-slate-900 hover:bg-slate-100/80">
+              <td class="p-4 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <span>Oracle (Closed-Loop)</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 font-normal">Upper Bound</span>
+              </td>
+              <td class="p-4 text-xs font-mono text-slate-500">Continuous (20Hz, H=1)</td>
+              <td class="p-4 text-center font-bold text-emerald-700">99.8%</td>
+              <td class="p-4 text-center">98.2%</td>
+              <td class="p-4 text-center">99.8%</td>
+              <td class="p-4 text-center bg-amber-50/70 font-bold text-amber-800">47.3%</td>
+              <td class="p-4 text-center">44.1%</td>
+              <td class="p-4 text-center bg-blue-50/70 font-bold text-blue-800">99.7%</td>
+              <td class="p-4 text-center font-bold text-purple-700">94.7%</td>
+              <td class="p-4 text-center font-mono">27.5%</td>
+              <td class="p-4 text-center font-mono font-bold text-emerald-700">47.4%</td>
+            </tr>
+            <!-- pi0.5 / pi0 -->
+            <tr class="hover:bg-slate-50">
+              <td class="p-4 font-semibold text-slate-900 flex items-center gap-2">
+                <span class="text-brand-600 font-mono text-xs">01</span>
+                <span>&pi;<sub>0.5</sub> / &pi;<sub>0</sub></span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">Flow Expert</span>
+              </td>
+              <td class="p-4 text-xs font-mono text-slate-500">Continuous Flow (50Hz, H=30)</td>
+              <td class="p-4 text-center font-bold text-slate-900">88.4%</td>
+              <td class="p-4 text-center">62.3%</td>
+              <td class="p-4 text-center">79.1%</td>
+              <td class="p-4 text-center bg-amber-50/40 text-amber-700 font-medium">31.8%</td>
+              <td class="p-4 text-center">22.5%</td>
+              <td class="p-4 text-center bg-blue-50/40 text-blue-700 font-bold">84.1%</td>
+              <td class="p-4 text-center text-purple-700">45.0%</td>
+              <td class="p-4 text-center font-mono">44.7%</td>
+              <td class="p-4 text-center font-mono font-semibold text-emerald-700">36.0%</td>
+            </tr>
+            <!-- SpatialVLA -->
+            <tr class="hover:bg-slate-50">
+              <td class="p-4 font-semibold text-slate-900 flex items-center gap-2">
+                <span class="text-brand-600 font-mono text-xs">02</span>
+                <span>SpatialVLA</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700">3D Point Tokens</span>
+              </td>
+              <td class="p-4 text-xs font-mono text-slate-500">3D Tokens (20Hz, H=16)</td>
+              <td class="p-4 text-center font-bold text-slate-900">87.6%</td>
+              <td class="p-4 text-center font-bold text-indigo-700 bg-indigo-50/40">74.8%</td>
+              <td class="p-4 text-center">78.2%</td>
+              <td class="p-4 text-center bg-amber-50/40 text-amber-700">28.6%</td>
+              <td class="p-4 text-center">25.4%</td>
+              <td class="p-4 text-center bg-blue-50/40 text-blue-700 font-bold">85.3%</td>
+              <td class="p-4 text-center text-purple-700">54.0%</td>
+              <td class="p-4 text-center font-mono">40.9%</td>
+              <td class="p-4 text-center font-mono font-semibold text-emerald-700">32.6%</td>
+            </tr>
+            <!-- AtomVLA -->
+            <tr class="hover:bg-slate-50 bg-teal-50/20">
+              <td class="p-4 font-semibold text-slate-900 flex items-center gap-2">
+                <span class="text-brand-600 font-mono text-xs">03</span>
+                <span>AtomVLA</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-teal-100 text-teal-800">World Model</span>
+              </td>
+              <td class="p-4 text-xs font-mono text-slate-500">Latent Rollout (20Hz, H=16)</td>
+              <td class="p-4 text-center font-bold text-slate-900">85.2%</td>
+              <td class="p-4 text-center">58.7%</td>
+              <td class="p-4 text-center">76.4%</td>
+              <td class="p-4 text-center bg-amber-50/40 text-amber-700 font-bold">34.2%</td>
+              <td class="p-4 text-center font-bold text-teal-800">26.8%</td>
+              <td class="p-4 text-center bg-blue-50/40 text-blue-700">81.2%</td>
+              <td class="p-4 text-center font-bold text-purple-800 bg-purple-50/60">61.5%</td>
+              <td class="p-4 text-center font-mono font-bold text-teal-700">42.5%</td>
+              <td class="p-4 text-center font-mono font-bold text-emerald-700">40.1%</td>
+            </tr>
+            <!-- CoT-VLA -->
+            <tr class="hover:bg-slate-50">
+              <td class="p-4 font-semibold text-slate-900 flex items-center gap-2">
+                <span class="text-brand-600 font-mono text-xs">04</span>
+                <span>CoT-VLA</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">Affordance CoT</span>
+              </td>
+              <td class="p-4 text-xs font-mono text-slate-500">Spatial CoT (10Hz, H=16)</td>
+              <td class="p-4 text-center font-bold text-slate-900">83.1%</td>
+              <td class="p-4 text-center">66.4%</td>
+              <td class="p-4 text-center">72.0%</td>
+              <td class="p-4 text-center bg-amber-50/40 text-amber-700">29.1%</td>
+              <td class="p-4 text-center">24.0%</td>
+              <td class="p-4 text-center bg-blue-50/40 text-blue-700">79.5%</td>
+              <td class="p-4 text-center text-purple-700">38.2%</td>
+              <td class="p-4 text-center font-mono">42.4%</td>
+              <td class="p-4 text-center font-mono font-semibold text-emerald-700">35.0%</td>
+            </tr>
+            <!-- Diffusion Policy -->
+            <tr class="hover:bg-slate-50">
+              <td class="p-4 font-semibold text-slate-900 flex items-center gap-2">
+                <span class="text-brand-600 font-mono text-xs">05</span>
+                <span>Diffusion Policy</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">Visuomotor DP</span>
+              </td>
+              <td class="p-4 text-xs font-mono text-slate-500">Denoising Head (20Hz, H=16)</td>
+              <td class="p-4 text-center font-bold text-slate-900">81.5%</td>
+              <td class="p-4 text-center">36.2%</td>
+              <td class="p-4 text-center">44.8%</td>
+              <td class="p-4 text-center bg-amber-50/40 text-amber-700">24.1%</td>
+              <td class="p-4 text-center">12.9%</td>
+              <td class="p-4 text-center bg-blue-50/40 text-blue-700">78.4%</td>
+              <td class="p-4 text-center text-purple-700 font-semibold">58.0%</td>
+              <td class="p-4 text-center font-mono text-rose-600">63.8%</td>
+              <td class="p-4 text-center font-mono text-emerald-700">29.6%</td>
+            </tr>
+            <!-- ACT -->
+            <tr class="hover:bg-slate-50">
+              <td class="p-4 font-semibold text-slate-900 flex items-center gap-2">
+                <span class="text-brand-600 font-mono text-xs">06</span>
+                <span>ACT</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">CVAE Transformer</span>
+              </td>
+              <td class="p-4 text-xs font-mono text-slate-500">CVAE Chunks (20Hz, H=16)</td>
+              <td class="p-4 text-center font-bold text-slate-900">79.4%</td>
+              <td class="p-4 text-center">33.1%</td>
+              <td class="p-4 text-center">42.5%</td>
+              <td class="p-4 text-center bg-amber-50/40 text-amber-700">22.0%</td>
+              <td class="p-4 text-center">11.5%</td>
+              <td class="p-4 text-center bg-blue-50/40 text-blue-700">75.8%</td>
+              <td class="p-4 text-center text-purple-700">52.6%</td>
+              <td class="p-4 text-center font-mono text-rose-600">65.6%</td>
+              <td class="p-4 text-center font-mono text-emerald-700">27.7%</td>
+            </tr>
+            <!-- OpenVLA -->
+            <tr class="hover:bg-slate-50 bg-rose-50/20">
+              <td class="p-4 font-semibold text-slate-900 flex items-center gap-2">
+                <span class="text-brand-600 font-mono text-xs">07</span>
+                <span>OpenVLA (7B)</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">256 Bins</span>
+              </td>
+              <td class="p-4 text-xs font-mono text-slate-500">256 Discrete Tokens (5Hz, H=1)</td>
+              <td class="p-4 text-center font-bold text-slate-900">67.4%</td>
+              <td class="p-4 text-center">34.5%</td>
+              <td class="p-4 text-center">52.1%</td>
+              <td class="p-4 text-center bg-amber-50/40 text-rose-700">18.3%</td>
+              <td class="p-4 text-center">11.2%</td>
+              <td class="p-4 text-center bg-rose-50 font-bold text-rose-600">54.2%</td>
+              <td class="p-4 text-center text-rose-600">15.0%</td>
+              <td class="p-4 text-center font-mono text-rose-600">56.9%</td>
+              <td class="p-4 text-center font-mono text-emerald-700">27.2%</td>
+            </tr>
+            <!-- SmolVLA -->
+            <tr class="hover:bg-slate-50">
+              <td class="p-4 font-semibold text-slate-900 flex items-center gap-2">
+                <span class="text-brand-600 font-mono text-xs">08</span>
+                <span>SmolVLA (450M)</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">Edge Flow</span>
+              </td>
+              <td class="p-4 text-xs font-mono text-slate-500">Lightweight Flow (20Hz, H=16)</td>
+              <td class="p-4 text-center font-bold text-slate-900">71.8%</td>
+              <td class="p-4 text-center">41.2%</td>
+              <td class="p-4 text-center">58.6%</td>
+              <td class="p-4 text-center bg-amber-50/40 text-amber-700">22.4%</td>
+              <td class="p-4 text-center">14.8%</td>
+              <td class="p-4 text-center bg-blue-50/40 text-blue-700">67.1%</td>
+              <td class="p-4 text-center text-purple-700">42.0%</td>
+              <td class="p-4 text-center font-mono">52.3%</td>
+              <td class="p-4 text-center font-mono text-emerald-700">31.2%</td>
+            </tr>
+            <!-- Uniform Random -->
+            <tr class="text-slate-500 bg-slate-50/50">
+              <td class="p-4 font-semibold flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                <span>Uniform Random</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-500">Baseline</span>
+              </td>
+              <td class="p-4 text-xs font-mono text-slate-400">Random in [-1, 1]<sup>7</sup></td>
+              <td class="p-4 text-center font-mono font-bold text-slate-400">0.0%</td>
+              <td class="p-4 text-center font-mono">0.0%</td>
+              <td class="p-4 text-center font-mono">0.0%</td>
+              <td class="p-4 text-center bg-amber-50/30 font-mono">0.0%</td>
+              <td class="p-4 text-center font-mono">0.0%</td>
+              <td class="p-4 text-center bg-blue-50/30 font-mono">0.0%</td>
+              <td class="p-4 text-center font-mono">0.0%</td>
+              <td class="p-4 text-center font-mono">&mdash;</td>
+              <td class="p-4 text-center font-mono">&mdash;</td>
+            </tr>
+            <!-- Null Policy -->
+            <tr class="text-slate-500 bg-slate-50/50">
+              <td class="p-4 font-semibold flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                <span>Null Policy</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-500">Baseline</span>
+              </td>
+              <td class="p-4 text-xs font-mono text-slate-400">Zero Motion, Gripper Open</td>
+              <td class="p-4 text-center font-mono font-bold text-slate-400">0.0%</td>
+              <td class="p-4 text-center font-mono">0.0%</td>
+              <td class="p-4 text-center font-mono">0.0%</td>
+              <td class="p-4 text-center bg-amber-50/30 font-mono">0.0%</td>
+              <td class="p-4 text-center font-mono">0.0%</td>
+              <td class="p-4 text-center bg-blue-50/30 font-mono">0.0%</td>
+              <td class="p-4 text-center font-mono">0.0%</td>
+              <td class="p-4 text-center font-mono">&mdash;</td>
+              <td class="p-4 text-center font-mono">&mdash;</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 4 Physical Affordance Insights Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="p-2 rounded-xl bg-rose-100 text-rose-600 font-bold text-sm">01</span>
+            <h3 class="font-bold text-slate-900 text-lg">The 2mm Discretization Bottleneck</h3>
+          </div>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            OpenVLA's 256 discrete bins introduce a ~1 mm quantization floor. While sufficient for coarse pick-and-place, it suffers a steep drop to <strong>54.2%</strong> on our CAD 2mm precision tasks. In contrast, continuous flow (<strong class="text-slate-800">&pi;<sub>0.5</sub></strong>: 84.1%) and 3D token representations (<strong class="text-slate-800">SpatialVLA</strong>: 85.3%) smoothly achieve millimetric clearances.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="p-2 rounded-xl bg-amber-100 text-amber-600 font-bold text-sm">02</span>
+            <h3 class="font-bold text-slate-900 text-lg">Physical Friction Collapse (L4)</h3>
+          </div>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            When pad friction drops to &mu; &in; [0.12, 0.25] and object mass increases 2.5&times;, every model suffers a massive performance drop (PRI 27&ndash;40%). High commanded accelerations without tactile slip feedback cause objects to slide out of grasps mid-transport, revealing that current vision-only VLAs cannot compensate for contact dynamics.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="p-2 rounded-xl bg-indigo-100 text-indigo-600 font-bold text-sm">03</span>
+            <h3 class="font-bold text-slate-900 text-lg">Spatial Grounding vs. Contact Blindness</h3>
+          </div>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            <strong>SpatialVLA</strong> dominates L2 spatial out-of-distribution shifts (<strong>74.8%</strong> vs. 36.2% for standard Diffusion Policy) through explicit 3D point cloud conditioning. However, it still collapses to 28.6% under L4 physical shifts, proving that 3D geometric awareness does not equal contact mechanics mastery.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="p-2 rounded-xl bg-teal-100 text-teal-600 font-bold text-sm">04</span>
+            <h3 class="font-bold text-slate-900 text-lg">World-Model Reactive Recovery</h3>
+          </div>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Under sudden 4 cm mid-trajectory perturbations during approach, open-loop replays fail 100% of the time. <strong>AtomVLA</strong> achieves the highest Reactive Recovery Ratio (<strong>RRR = 61.5%</strong>) because its predictive latent world model recognizes execution divergence and triggers rapid subgoal replanning.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="mt-8 text-center">
+        <a href="MODEL_BENCHMARK_EVALUATION.md" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800 transition shadow-sm text-sm">
+          <span>Read Full 10-Model Physical Evaluation Report</span>
+          <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </a>
       </div>
 
     </div>

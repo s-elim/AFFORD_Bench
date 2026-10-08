@@ -22,6 +22,11 @@ class BaseOracle:
 
     def __init__(self, env: Any):
         self.env = env
+        self._prev_delta = np.zeros(3)
+        self._actions: list[np.ndarray] = []
+        self._obs: dict[str, list[np.ndarray]] = {}
+        self._rewards: list[float] = []
+        self._dones: list[bool] = []
 
     def generate_episode(self, seed: int | None = None, options: dict[str, Any] | None = None) -> Episode:
         """Generate one rollout; returns (actions, observations, rewards, dones) aligned to T steps."""

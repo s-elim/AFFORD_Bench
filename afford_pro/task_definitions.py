@@ -17,7 +17,7 @@ class TaskDef:
     joint_name: str
     nominal_pos: list[float]
     target_pos: list[float]
-    task_type: Literal["pick_place", "insert", "press_button", "slide"] = "pick_place"
+    task_type: Literal["pick_place", "insert", "press_button", "slide", "reactive_perturbation", "push_and_grasp"] = "pick_place"
     # Goal tolerances; None takes the precision tier of the task's domain (PRECISION_TIERS).
     tolerance_xy: float | None = None
     tolerance_z: float | None = None
@@ -32,6 +32,12 @@ class TaskDef:
     goal_ref_body: str | None = None
     # Place distractor bodies on the workspace (set from the domain in apply_precision_tiers).
     distractors: bool = False
+    # Domain 8 Frontier Complex Manipulation fields:
+    perturbation_step: int | None = None
+    perturbation_offset: list[float] | None = None
+    second_perturbation_step: int | None = None
+    second_perturbation_offset: list[float] | None = None
+    min_push_distance: float = 0.0
 
 
 ALL_150_TASKS: list[TaskDef] = [
@@ -2849,4 +2855,129 @@ apply_precision_tiers(ALL_150_TASKS)
 ALL_210_TASKS: list[TaskDef] = ALL_150_TASKS
 TASK_MAP_210: dict[str, TaskDef] = {t.task_id: t for t in ALL_210_TASKS}
 TASK_MAP_150: dict[str, TaskDef] = TASK_MAP_210
+
+# =========================================================================
+# DOMAIN 8: Frontier Complex Manipulation (Tasks 211 - 240 / Stage 2 Charter)
+# =========================================================================
+DOMAIN_8_FRONTIER_TASKS: list[TaskDef] = [
+    TaskDef(
+        task_id="frontier_reactive_sort_red",
+        task_number=211,
+        domain="Frontier Complex Manipulation",
+        instruction="Displace the red block 4 cm at mid-approach, then sort it into the red bin.",
+        description="Mid-approach reactive displacement recovery during cube sorting.",
+        scene_xml="tabletop_sorting.xml",
+        object_name="red_block",
+        joint_name="red_joint",
+        nominal_pos=[0.45, -0.08, 0.025],
+        target_pos=[0.40, -0.24, 0.035],
+        task_type="reactive_perturbation",
+        tolerance_xy=0.008,
+        tolerance_z=0.008,
+        tilt_tol_deg=15.0,
+        perturbation_step=30,
+        perturbation_offset=[0.04, 0.0, 0.0],
+    ),
+    TaskDef(
+        task_id="frontier_reactive_shaft_seat",
+        task_number=212,
+        domain="Frontier Complex Manipulation",
+        instruction="Displace the transmission shaft 4 cm at mid-approach, then seat it into the central jig bore.",
+        description="Mid-approach reactive displacement recovery during precision shaft insertion.",
+        scene_xml="industrial_assembly.xml",
+        object_name="machined_shaft",
+        joint_name="shaft_joint",
+        nominal_pos=[0.40, 0.24, 0.050],
+        target_pos=[0.55, 0.00, 0.116],
+        task_type="reactive_perturbation",
+        tolerance_xy=0.002,
+        tolerance_z=0.002,
+        tilt_tol_deg=5.0,
+        perturbation_step=30,
+        perturbation_offset=[0.03, 0.0, 0.0],
+    ),
+    TaskDef(
+        task_id="frontier_reactive_mug_place",
+        task_number=213,
+        domain="Frontier Complex Manipulation",
+        instruction="Displace the coffee mug 4 cm at mid-approach, then place it onto the drip tray.",
+        description="Mid-approach reactive displacement recovery during coffee mug placement.",
+        scene_xml="kitchen_coffee.xml",
+        object_name="coffee_mug",
+        joint_name="mug_joint",
+        nominal_pos=[0.38, 0.22, 0.038],
+        target_pos=[0.38, -0.15, 0.038],
+        task_type="reactive_perturbation",
+        tolerance_xy=0.008,
+        tolerance_z=0.008,
+        tilt_tol_deg=15.0,
+        perturbation_step=30,
+        perturbation_offset=[0.03, 0.0, 0.0],
+    ),
+    TaskDef(
+        task_id="frontier_reactive_tube_centrifuge",
+        task_number=214,
+        domain="Frontier Complex Manipulation",
+        instruction="Displace the conical tube 4 cm during descent, then rack it in the centrifuge.",
+        description="Mid-approach reactive displacement recovery during laboratory tube racking.",
+        scene_xml="lab_science.xml",
+        object_name="conical_tube",
+        joint_name="tube_joint",
+        nominal_pos=[0.40, 0.12, 0.06],
+        target_pos=[0.52, -0.18, 0.08],
+        task_type="reactive_perturbation",
+        tolerance_xy=0.002,
+        tolerance_z=0.002,
+        tilt_tol_deg=5.0,
+        perturbation_step=30,
+        perturbation_offset=[0.02, -0.02, 0.0],
+    ),
+    TaskDef(
+        task_id="frontier_reactive_double_displacement",
+        task_number=215,
+        domain="Frontier Complex Manipulation",
+        instruction="Displace the red block twice (steps 25 and 60), then sort it into the red bin.",
+        description="Sequential double mid-trajectory displacement recovery.",
+        scene_xml="tabletop_sorting.xml",
+        object_name="red_block",
+        joint_name="red_joint",
+        nominal_pos=[0.45, -0.08, 0.025],
+        target_pos=[0.40, -0.24, 0.035],
+        task_type="reactive_perturbation",
+        tolerance_xy=0.008,
+        tolerance_z=0.008,
+        tilt_tol_deg=15.0,
+        perturbation_step=25,
+        perturbation_offset=[0.03, 0.0, 0.0],
+        second_perturbation_step=60,
+        second_perturbation_offset=[0.0, 0.03, 0.0],
+    ),
+    TaskDef(
+        task_id="frontier_nonprehensile_push_and_grasp",
+        task_number=216,
+        domain="Frontier Complex Manipulation",
+        instruction="Push the red block at least 3 cm across the table, then grasp and sort it into the red bin.",
+        description="Compound non-prehensile planar pushing followed by prehensile pick and place.",
+        scene_xml="tabletop_sorting.xml",
+        object_name="red_block",
+        joint_name="red_joint",
+        nominal_pos=[0.45, -0.08, 0.025],
+        target_pos=[0.40, -0.24, 0.035],
+        task_type="push_and_grasp",
+        tolerance_xy=0.008,
+        tolerance_z=0.008,
+        tilt_tol_deg=15.0,
+        min_push_distance=0.03,
+    ),
+]
+
+apply_precision_tiers(DOMAIN_8_FRONTIER_TASKS)
+
+TASK_MAP_FRONTIER: dict[str, TaskDef] = {t.task_id: t for t in DOMAIN_8_FRONTIER_TASKS}
+# Register short alias names (e.g. 'reactive_sort_red_perturbation')
+for t in DOMAIN_8_FRONTIER_TASKS:
+    alias = t.task_id.replace("frontier_", "")
+    TASK_MAP_FRONTIER[alias] = t
+    TASK_MAP_FRONTIER[f"{alias}_perturbation"] = t
+
 

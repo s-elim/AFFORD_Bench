@@ -5,10 +5,12 @@ from dataclasses import dataclass
 from typing import Callable
 
 from afford_pro.envs.base_franka_env import BaseFrankaEnv
+from afford_pro.envs.frontier_env import FrontierComplexEnv
 from afford_pro.envs.parametric_env import ParametricFrankaEnv
 from afford_pro.oracles.base_oracle import BaseOracle
+from afford_pro.oracles.frontier_oracle import FrontierOracle
 from afford_pro.oracles.parametric_oracle import ParametricOracle
-from afford_pro.task_definitions import ALL_210_TASKS, TaskDef
+from afford_pro.task_definitions import ALL_210_TASKS, DOMAIN_8_FRONTIER_TASKS, TaskDef
 
 
 @dataclass
@@ -24,6 +26,36 @@ class TaskEntry:
 
 def _make_env_factory(task_def: TaskDef) -> Callable[..., BaseFrankaEnv]:
     def factory(**kwargs) -> BaseFrankaEnv:
+        is_frontier = (
+            task_def.domain == "Frontier Complex Manipulation"
+            or task_def.task_type in ("reactive_perturbation", "push_and_grasp")
+            or getattr(task_def, "perturbation_step", None) is not None
+            or getattr(task_def, "min_push_distance", 0.0) > 0.0
+        )
+        if is_frontier:
+            return FrontierComplexEnv(
+                scene_xml_name=task_def.scene_xml,
+                object_name=task_def.object_name,
+                joint_name=task_def.joint_name,
+                nominal_pos=task_def.nominal_pos,
+                target_pos=task_def.target_pos,
+                instruction=task_def.instruction,
+                task_type=task_def.task_type,
+                tolerance_xy=task_def.tolerance_xy,
+                tolerance_z=task_def.tolerance_z,
+                tilt_tol_deg=task_def.tilt_tol_deg,
+                min_lift=task_def.min_lift,
+                init_tcp_pos=task_def.init_tcp_pos,
+                scene_bodies=task_def.scene_bodies,
+                distractors=task_def.distractors,
+                goal_ref_body=task_def.goal_ref_body,
+                perturbation_step=getattr(task_def, "perturbation_step", None),
+                perturbation_offset=getattr(task_def, "perturbation_offset", None),
+                second_perturbation_step=getattr(task_def, "second_perturbation_step", None),
+                second_perturbation_offset=getattr(task_def, "second_perturbation_offset", None),
+                min_push_distance=getattr(task_def, "min_push_distance", 0.0),
+                **kwargs,
+            )
         return ParametricFrankaEnv(
             scene_xml_name=task_def.scene_xml,
             object_name=task_def.object_name,
@@ -58,10 +90,41 @@ _TASK_REGISTRY: dict[str, TaskEntry] = {
     for t in ALL_210_TASKS
 }
 
+# Register Domain 8 Frontier Tasks
+for t in DOMAIN_8_FRONTIER_TASKS:
+    entry = TaskEntry(
+        task_id=t.task_id,
+        domain=t.domain,
+        task_number=t.task_number,
+        env_factory=_make_env_factory(t),
+        oracle_factory=FrontierOracle,
+        instruction=t.instruction,
+        description=t.description,
+    )
+    _TASK_REGISTRY[t.task_id] = entry
+    # Register aliases
+    short_alias = t.task_id.replace("frontier_", "")
+    if short_alias not in _TASK_REGISTRY:
+        _TASK_REGISTRY[short_alias] = entry
+    if f"{short_alias}_perturbation" not in _TASK_REGISTRY:
+        _TASK_REGISTRY[f"{short_alias}_perturbation"] = entry
+
 
 def list_tasks() -> list[str]:
-    """Return all registered task IDs in task-number order."""
-    return list(_TASK_REGISTRY.keys())
+    """Return all 210 core benchmark task IDs in task-number order."""
+    return [t.task_id for t in ALL_210_TASKS]
+
+
+def list_frontier_tasks() -> list[str]:
+    """Return Domain 8 frontier complex task IDs."""
+    return [t.task_id for t in DOMAIN_8_FRONTIER_TASKS]
+
+
+def list_all_tasks(include_frontier: bool = False) -> list[str]:
+    """Return task IDs, optionally including Domain 8 frontier tasks."""
+    if include_frontier:
+        return [t.task_id for t in ALL_210_TASKS] + [t.task_id for t in DOMAIN_8_FRONTIER_TASKS]
+    return [t.task_id for t in ALL_210_TASKS]
 
 
 def get_task_entry(task_id: str) -> TaskEntry:
@@ -78,3 +141,4 @@ def make(task_id: str, **kwargs) -> BaseFrankaEnv:
 def get_oracle(task_id: str, env: BaseFrankaEnv) -> BaseOracle:
     """Instantiate the closed-loop oracle for a given task and environment."""
     return get_task_entry(task_id).oracle_factory(env)
+

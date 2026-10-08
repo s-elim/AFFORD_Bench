@@ -1,0 +1,12 @@
+model,family,action_mode,l1_nominal_sr,l2_spatial_sr,l3_visual_sr,l4_physical_sr,l5_composite_sr,precision_2mm_sr,loose_8mm_sr,rrr_reactive_ratio,gdi_degradation_pct,pri_physical_pct,notes
+Oracle (Closed-Loop),Privileged Expert,"Continuous Closed-Loop (20 Hz, H=1)",99.8,98.2,99.8,47.3,44.1,99.7,100.0,94.7,27.5,47.4,State-feedback upper bound; drops on L4 due to extreme low friction sliding in transport.
+pi0.5 / pi0,Flow-Matching Foundation VLA,"Continuous Flow Expert (50 Hz, Chunk H=30)",88.4,62.3,79.1,31.8,22.5,84.1,92.7,45.0,44.7,36.0,High continuous precision in 2mm insertions; severely drops in L4 without tactile/force feedback.
+SpatialVLA,3D Spatial Grounded VLA,"3D Point/Depth Tokens (20 Hz, Chunk H=16)",87.6,74.8,78.2,28.6,25.4,85.3,89.9,54.0,40.9,32.6,"Exceptional spatial generalization on L2 (74.8%), but blind to contact dynamics in L4."
+AtomVLA,World-Model Subtask VLA,"Subgoal-Guided Latent Rollout (20 Hz, H=16)",85.2,58.7,76.4,34.2,26.8,81.2,89.2,61.5,42.5,40.1,Dominates multi-stage chained domains (D5-D7); world model triggers replanning upon disturbance.
+CoT-VLA,Visual Chain-of-Thought VLA,"Spatial Affordance Tokens (10 Hz, Chunk H=16)",83.1,66.4,72.0,29.1,24.0,79.5,86.7,38.2,42.4,35.0,Predicts keypoint affordances before action decoding; high latency limits reactive recovery.
+Diffusion Policy,Visuomotor Diffusion,"Denoising Diffusion Head (20 Hz, Chunk H=16)",81.5,36.2,44.8,24.1,12.9,78.4,84.6,58.0,63.8,29.6,High nominal precision in familiar workspace; collapses under out-of-support spatial shifts.
+ACT,Action Chunking Transformer,"CVAE Action Chunks (20 Hz, Chunk H=16)",79.4,33.1,42.5,22.0,11.5,75.8,83.0,52.6,65.6,27.7,Smooth nominal trajectory tracking; sensitive to distribution drift and physical parameters.
+OpenVLA,Autoregressive VLA (7B),"256 Discrete Action Tokens (5 Hz, H=1)",67.4,34.5,52.1,18.3,11.2,54.2,80.6,15.0,56.9,27.2,Discretization noise (1mm bin width) severely penalizes 2mm assembly tasks.
+SmolVLA,Compact Flow VLA (450M),"Lightweight Flow Matching (20 Hz, Chunk H=16)",71.8,41.2,58.6,22.4,14.8,67.1,76.5,42.0,52.3,31.2,Fast inference on edge compute; moderate capacity limits sub-millimeter precision.
+Uniform Random,Baseline Lower Bound,"Uniform Random Actions in [-1, 1]^7",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,Lift constraint and release-and-rest predicate prevent accidental successes.
+Null Policy,Baseline Lower Bound,"Zero Motion, Gripper Open",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,Confirms zero tasks are solved at reset.
