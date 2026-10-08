@@ -53,6 +53,7 @@ def generate_task_demos(
 
     env = afford_pro.make(task_id, perturbation_mode=perturbation, render_depth=depth)
     oracle = afford_pro.get_oracle(task_id, env)
+    model_xml = env.get_model_xml() if hasattr(env, "get_model_xml") else None
 
     writer = RobomimicHDF5Writer(
         file_path=hdf5_path,
@@ -60,6 +61,7 @@ def generate_task_demos(
         task_id=task_id,
         instruction=entry.instruction,
         env_args=make_env_args(task_id, perturbation_mode=perturbation, render_depth=depth),
+        model_file=model_xml,
     )
     if depth:
         env.reset(seed=base_seed)

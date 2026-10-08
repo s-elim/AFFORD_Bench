@@ -3112,3 +3112,25 @@ for t in DOMAIN_8_FRONTIER_TASKS:
     TASK_MAP_FRONTIER[f"{alias}_perturbation"] = t
 
 
+from functools import lru_cache
+from pathlib import Path
+
+
+@lru_cache(maxsize=1)
+def load_all_augmented_prompts() -> dict[str, dict[str, Any]]:
+    yaml_path = Path(__file__).resolve().parent.parent / "configs" / "prompts_augmented.yaml"
+    if not yaml_path.exists():
+        return {}
+    try:
+        import yaml
+        data = yaml.safe_load(yaml_path.read_text(encoding="utf-8"))
+        return {entry["task_id"]: entry for entry in data.get("tasks", [])}
+    except Exception:
+        return {}
+
+
+def get_augmented_prompts(task_id: str) -> dict[str, Any] | None:
+    """Return augmented multi-tier language prompt metadata for task_id from configs/prompts_augmented.yaml."""
+    return load_all_augmented_prompts().get(task_id)
+
+

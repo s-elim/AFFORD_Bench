@@ -62,8 +62,18 @@ def test_recorded_dataset_is_robomimic_loadable_and_restorable(tmp_path: Path):
         env_meta = json.loads(f["data"].attrs["env_args"])
         assert set(env_meta) == {"env_name", "type", "env_kwargs"} and env_meta["env_name"] == TASK
         assert env_meta["env_kwargs"]["perturbation_mode"] == "nominal"
+        assert "model_file" in f["data"].attrs and "<mujoco" in f["data"].attrs["model_file"]
+        assert "language_instructions" in f["data"].attrs
+        assert len(json.loads(f["data"].attrs["language_instructions"])) >= 1
+
         demo = f["data/demo_1"]
         seed = int(demo.attrs["seed"])
+        assert "language_instruction" in demo.attrs
+        # Robomimic / LIBERO aliases exist and share exact underlying datasets
+        assert "ee_states" in demo["obs"] and "joint_states" in demo["obs"]
+        np.testing.assert_array_equal(demo["obs/ee_states"][()], demo["obs/tcp_pose"][()])
+        np.testing.assert_array_equal(demo["obs/joint_states"][()], demo["obs/joint_positions"][()])
+
         states, tcp, joints = demo["states"][()], demo["obs/tcp_pose"][()], demo["obs/joint_positions"][()]
         assert states.dtype == np.float64 and len(states) == len(demo["actions"])
         assert demo["dones"][-1] == 1 and demo["rewards"][-1] == 1.0
@@ -83,3 +93,23 @@ def test_batch_generator_depth_flag(tmp_path: Path):
         attrs = f["data"].attrs
         assert json.loads(attrs["env_args"])["env_kwargs"]["render_depth"] is True
         assert attrs["camera_agentic_K"].shape == (3, 3) and attrs["camera_wrist_K"].shape == (3, 3)
+
+
+def test_export_and_restore_fixed_initial_states(tmp_path: Path):
+    """Initial states exporter saves valid settled sim states, and loading them restores physics state."""
+    from scripts.export_initial_states import export_task_initial_states
+
+    npz_path = export_task_initial_states(TASK, num_states=3, output_dir=tmp_path, base_seed=123)
+    assert npz_path.exists()
+
+    loaded = afford_pro.get_initial_states(TASK, init_states_dir=tmp_path)
+    assert loaded is not None and len(loaded) == 3
+    assert loaded.dtype == np.float64
+
+    env = afford_pro.make(TASK)
+    env.reset(seed=999)  # reset to a completely different seed
+    # Now set to fixed initial state 1
+    env.set_sim_state(loaded[1])
+    # Sim state read back matches exactly
+    current_state = env.get_sim_state()
+    np.testing.assert_allclose(current_state, loaded[1], atol=1e-9)

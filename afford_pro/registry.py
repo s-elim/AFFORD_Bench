@@ -159,3 +159,21 @@ def get_oracle(task_id: str, env: BaseFrankaEnv) -> BaseOracle:
     """Instantiate the closed-loop oracle for a given task and environment."""
     return get_task_entry(task_id).oracle_factory(env)
 
+
+from pathlib import Path
+import numpy as np
+
+
+def get_initial_states(task_id: str, init_states_dir: Path | str | None = None) -> np.ndarray | None:
+    """Load pre-generated fixed initial simulator states for task_id, if available."""
+    if init_states_dir is None:
+        init_states_dir = Path(__file__).resolve().parent.parent / "data" / "init_states"
+    path = Path(init_states_dir) / f"{task_id}_init_states.npz"
+    if path.exists():
+        try:
+            data = np.load(str(path))
+            return data["states"]
+        except Exception:
+            return None
+    return None
+

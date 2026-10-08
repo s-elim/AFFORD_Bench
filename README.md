@@ -3,13 +3,13 @@
 [![Target Venue: RSS 2027](https://img.shields.io/badge/Submission-RSS%202027%20Stage%201-blue.svg)](AFFORD-Bench_RSS'27/paper-template-latex/main.pdf)
 [![Physics: MuJoCo Native](https://img.shields.io/badge/MuJoCo-3.x%20C%2B%2B%20Native-brightgreen.svg)](https://mujoco.org)
 [![Dataset Standard: Robomimic HDF5](https://img.shields.io/badge/Dataset-Robomimic%20HDF5-orange.svg)](https://robomimic.github.io)
-[![Scale: 210 Tasks / 10,500 Demos](https://img.shields.io/badge/Scale-210%20Tasks%20%7C%2010%2C500%20Demos-purple.svg)]()
+[![Scale: 210 Tasks / 10,500 Demos Target](https://img.shields.io/badge/Scale-210%20Tasks%20%7C%2010%2C500%20Demos%20Target-purple.svg)]()
 [![Suites: 35 Benchmark Suites](https://img.shields.io/badge/Suites-35%20Benchmark%20Suites-darkblue.svg)]()
 [![Zero External Cost](https://img.shields.io/badge/External%20Cost-%240.00%20Zero-success.svg)]()
 
 **AFFORD-Bench** is a large-scale, **policy-agnostic**, affordance-grounded robot manipulation benchmark and dataset suite engineered to stress-test the out-of-distribution (OOD) physical generalization of any robot learning policy---ranging from **Classical Imitation Learning (BC, BeT)** and **Visuomotor Action Chunking (Diffusion Policy, ACT)** to **3D Point-Cloud Policies (DP3)**, **Vision-Language-Action (VLA) Foundation Models (OpenVLA, SmolVLA, AtomVLA, Octo)**, and **Offline Reinforcement Learning (CQL, IQL)**.
 
-Operating on a 7-DoF Franka Emika Panda manipulator simulated with contact physics in MuJoCo, AFFORD-Bench provides **210 formally defined physical manipulation tasks** across **7 distinct domains**, backed by **10,500 demonstration episodes** (>2.2M physical timesteps), synchronized dual-camera RGB perception ($640\times 660$ workcell and $300\times 420$ wrist), and **true physical 3D metric depth** ($D_{\text{3D}}$).
+Operating on a 7-DoF Franka Emika Panda manipulator simulated with contact physics in MuJoCo, AFFORD-Bench provides **210 formally defined physical manipulation tasks** across **7 distinct domains**, accompanied by a 100% local deterministic demonstration generator targeting **up to 10,500 demonstration episodes** (>2.2M physical timesteps), synchronized dual-camera perception ($640\times 660$ workcell and $300\times 420$ wrist), and optional **true physical 3D metric depth** (`--depth`).
 
 > 🌐 **Interactive Project Page**: Explore multi-modal videos, interactive domain tabs, perturbation hierarchies, and dataset schemas in [`docs/index.html`](docs/index.html).
 
@@ -17,20 +17,21 @@ Operating on a 7-DoF Franka Emika Panda manipulator simulated with contact physi
 
 ## 1. Overview: Physical Affordances & Policy-Agnostic Benchmark Architecture
 
-Recent investigations by **LIBERO-PRO** and **LIBERO-X** revealed that seemingly high success rates on existing imitation learning benchmarks often reflect rote memorization of nominal camera views and initial poses rather than generalized physical understanding. When exposed to minor spatial displacements, policy performance degrades precipitously.
+Recent investigations by **LIBERO** (130 tasks, 50 core), **LIBERO-PRO** (40 evaluation tasks, 4 perturbation axes), and **LIBERO-X** (600 tasks across Kitchen, Study, and Living scenes, shipping 2,520 VR teleoperated demonstrations) revealed that seemingly high success rates on existing imitation learning benchmarks often reflect rote memorization of nominal camera views and initial poses rather than generalized physical understanding. When exposed to minor spatial displacements or visual shifts, policy performance degrades precipitously.
 
 AFFORD-Bench grounds robot learning in **ecological contact mechanics** across a **policy-agnostic** architecture:
 - **Universal Policy Support**: Directly ingestible by BC, ACT, Diffusion Policy, 3D Point-Cloud policies (DP3), VLAs (OpenVLA, SmolVLA, AtomVLA), and Offline RL (CQL, IQL).
 - **Coulomb Friction Variation ($\mu \in [0.10, 1.20]$)**: Grasping forces must prevent slippage without crushing objects.
 - **Dynamic Payload Scaling ($0.5\times$--$3.0\times$)**: Transport dynamics require inertial compensation.
 - **Sub-Millimeter Clearances ($\pm 1.5\,\text{mm} \le \epsilon \le \pm 20.0\,\text{mm}$)**: Assembly requires compliance along insertion manifolds.
-- **Compound Multi-Subtask Prompt Chaining**: Chaining 2–3 sequential manipulation steps within continuous instructions (analogous to multi-step long-horizon suites like LIBERO-10).
-- **Synchronized Multi-Modal Perception**: Dual-view RGB ($640\times 660$ and $300\times 420$) aligned with true metric depth ($D_{\text{3D}}$).
+- **Multi-Tier Language Grounding**: Multi-tier linguistic descriptions per task (colloquial, geometric, physical affordance, atomic subtasks in `configs/prompts_augmented.yaml`) evaluating physical placement tolerances.
+- **Synchronized Multi-Modal Perception**: Dual-view RGB ($640\times 660$ and $300\times 420$) aligned with optional metric depth ($D_{\text{3D}}$ via `--depth`).
 
-### Benchmark Scaling: LIBERO-PRO (20 Suites) vs. LIBERO-X vs. AFFORD-Bench (35 Suites)
-- **LIBERO-PRO**: 4 base suites (40 tabletop tasks) $\times$ 5 perturbation types = **20 Evaluation Suites** ($128\times 128$ RGB only, zero depth, no friction/mass variation).
-- **LIBERO-X**: Hierarchical evaluation protocol (L1--L5) across domestic tabletop scenes.
-- **AFFORD-Bench**: 7 manipulation domains (210 tasks) $\times$ 5 hierarchical perturbation regimes (Nominal, Spatial, Physical, Visual, Composite OOD) = **35 Comprehensive Benchmark Suites** ($5.25\times$ scale, contact physics, 3D metric depth, chained multi-subtask prompts, policy-agnostic design).
+### Benchmark Positioning: LIBERO, LIBERO-PRO, LIBERO-X, and AFFORD-Bench
+- **LIBERO** (arXiv 2306.03310): Released dataset of 6,500 human SpaceMouse teleoperated demos across 130 tasks (50 core), evaluated with BDDL predicate conjunctions.
+- **LIBERO-PRO** (arXiv 2510.03827): Evaluation-only protocol evaluating 40 tasks across 4 perturbation axes (object, spatial, semantic, environment).
+- **LIBERO-X** (arXiv 2602.06556): Procedural benchmark with 600 tasks across diverse scenes, 2,520 VR teleoperated training demonstrations, and a 5-level hierarchical evaluation protocol (L1--L5).
+- **AFFORD-Bench**: 210 formally specified manipulation tasks across 7 domains $\times$ 5 hierarchical perturbation regimes (Nominal, Spatial, Physical-Coulomb friction & mass scaling, Visual, Composite OOD) = **35 Comprehensive Benchmark Suites**. Crucially, unlike LIBERO suites, AFFORD-Bench checks success physically (released, at rest, supported, within 2–8 mm tolerance tiers with zero artificial welds or magnetic snapping) and perturbs physical contact dynamics ($\mu \in [0.10, 1.20]$, payload mass $0.5\times$--$3.0\times$).
 
 ---
 
@@ -56,7 +57,7 @@ pip install -e .
 AFFORD-Bench provides local, deterministic demonstration synthesis powered by closed-loop kinematic oracles ($0.00 external API cost):
 
 ```bash
-# Generate 50 demonstrations per task for a specific domain
+# Generate 50 demonstrations per task for a specific domain (optionally append --depth for metric depth)
 python scripts/generate_all_150_tasks.py --domain industrial --num-demos 50
 python scripts/generate_all_150_tasks.py --domain kitchen --num-demos 50
 python scripts/generate_all_150_tasks.py --domain tabletop --num-demos 50
@@ -65,10 +66,13 @@ python scripts/generate_all_150_tasks.py --domain long_horizon --num-demos 50
 python scripts/generate_all_150_tasks.py --domain chain_precision --num-demos 50
 python scripts/generate_all_150_tasks.py --domain chain_service --num-demos 50
 
-# Or generate all 210 tasks (10,500 demonstrations) across all domains
-python scripts/generate_all_150_tasks.py --domain all --num-demos 50
+# Or generate all 210 tasks across all domains with 3D metric depth
+python scripts/generate_all_150_tasks.py --domain all --num-demos 50 --depth
 
-# Verify dataset integrity (shapes, channels, metric depth, and step counts in <1s)
+# Export 50 pre-settled initial simulator states per task (for zero-variance benchmark evaluation)
+python scripts/export_initial_states.py --domain all
+
+# Verify dataset integrity (shapes, channels, metric depth, robomimic aliases, and step counts)
 python scripts/verify_dataset_integrity.py
 ```
 

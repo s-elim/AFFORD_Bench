@@ -95,6 +95,36 @@ def verify_file(hdf5_path: Path, expected_demos: int = 50) -> dict:
                         if np.isnan(depth_sample).any() or np.isinf(depth_sample).any():
                             result["errors"].append("agentic_depth contains NaN or Inf")
 
+                    # Check Robomimic observation key aliases if present
+                    aliases = [
+                        ("agentic_rgb", "agentview_rgb"),
+                        ("wrist_rgb", "eye_in_hand_rgb"),
+                        ("tcp_pose", "ee_states"),
+                        ("joint_positions", "joint_states"),
+                    ]
+                    for can_k, alias_k in aliases:
+                        if can_k in d0["obs"] and alias_k in d0["obs"]:
+                            if d0["obs"][can_k].shape != d0["obs"][alias_k].shape:
+                                result["errors"].append(f"Shape mismatch between {can_k} and alias {alias_k}")
+
+                # Check rewards, dones, and terminal done flag
+                if "dones" in d0 and len(d0["dones"]) > 0:
+                    if d0["dones"][-1] != 1:
+                        result["errors"].append("demo_0 dones[-1] is not 1 (episode done signal missing)")
+                if "rewards" in d0 and len(d0["rewards"]) > 0:
+                    if d0["rewards"][-1] != 1.0:
+                        result["errors"].append("demo_0 rewards[-1] is not 1.0 (success reward missing)")
+
+            # Check env_args attribute (Robomimic metadata)
+            if "env_args" in data_grp.attrs:
+                try:
+                    import json
+                    meta = json.loads(data_grp.attrs["env_args"])
+                    if "env_name" not in meta or "type" not in meta:
+                        result["errors"].append("Malformed env_args attribute")
+                except Exception as e:
+                    result["errors"].append(f"Invalid env_args JSON: {e}")
+
             # Fast step count from attributes if available
             if "total" in data_grp.attrs:
                 total_steps = int(data_grp.attrs["total"])

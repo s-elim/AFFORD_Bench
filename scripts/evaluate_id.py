@@ -57,8 +57,12 @@ def run_episode(
     device: torch.device,
     seed: int,
     max_steps: int = 400,
+    init_state: np.ndarray | None = None,
 ) -> tuple[bool, int, float]:
     obs, info = env.reset(seed=seed)
+    if init_state is not None:
+        env.set_sim_state(init_state)
+        obs = env.get_observation()
     t0 = time.monotonic()
     done = False
     step_count = 0
@@ -118,10 +122,15 @@ def evaluate_task(
     modality: str,
     device: torch.device,
     num_episodes: int = 20,
-    base_seed: int = 10000,
+    base_seed: int = 200_000,
+    use_init_states: bool = False,
 ) -> dict:
     env = afford_pro.make(task_id, perturbation_mode="nominal")
     oracle = afford_pro.get_oracle(task_id, env) if policy_name == "oracle" else None
+
+    init_states = afford_pro.get_initial_states(task_id) if use_init_states else None
+    if use_init_states and init_states is None:
+        print(f" (Note: fixed init states not found for {task_id}; using reset seed)", end="")
 
     successes = []
     steps = []
@@ -129,7 +138,8 @@ def evaluate_task(
 
     for ep in range(num_episodes):
         ep_seed = base_seed + ep
-        suc, s_cnt, dur = run_episode(env, oracle, model, modality, policy_name, device, ep_seed)
+        init_st = init_states[ep % len(init_states)] if init_states is not None else None
+        suc, s_cnt, dur = run_episode(env, oracle, model, modality, policy_name, device, ep_seed, init_state=init_st)
         successes.append(float(suc))
         steps.append(s_cnt)
         durations.append(dur)
@@ -156,7 +166,8 @@ def main():
     parser.add_argument("--task", type=str, default=None, help="Evaluate specifically on a single task ID")
     parser.add_argument("--num-episodes", type=int, default=10, help="Episodes per task")
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
-    parser.add_argument("--seed", type=int, default=10000)
+    parser.add_argument("--seed", type=int, default=200_000, help="Base seed offset for segregated evaluation seed block")
+    parser.add_argument("--use-init-states", action="store_true", help="Initialize directly from pre-generated fixed initial states")
     args = parser.parse_args()
 
     device = torch.device(args.device)
@@ -199,14 +210,25 @@ def main():
     print(f" Evaluation Domain : {args.domain.upper() if not args.task else args.task}", flush=True)
     print(f" Tasks In Scope    : {len(selected_tasks)} tasks", flush=True)
     print(f" Episodes Per Task : {args.num_episodes}", flush=True)
-    print(f" Disjoint Seeds    : [{args.seed} .. {args.seed + args.num_episodes - 1}]", flush=True)
+    print(f" Disjoint Seeds    : Base seed block [{args.seed} + task_number * 1000]", flush=True)
+    print(f" Fixed Init States : {'ENABLED' if args.use_init_states else 'DISABLED (RNG reset)'}", flush=True)
     print("=" * 80 + "\n", flush=True)
 
     results = []
     for idx, tid in enumerate(selected_tasks, 1):
         entry = afford_pro.get_task_entry(tid)
+        task_base_seed = args.seed + entry.task_number * 1000
         print(f"[{idx:2d}/{len(selected_tasks):2d}] Evaluating Task #{entry.task_number:03d}: '{tid}'...", end=" ", flush=True)
-        res = evaluate_task(tid, policy_name, model, modality, device, num_episodes=args.num_episodes, base_seed=args.seed)
+        res = evaluate_task(
+            tid,
+            policy_name,
+            model,
+            modality,
+            device,
+            num_episodes=args.num_episodes,
+            base_seed=task_base_seed,
+            use_init_states=args.use_init_states,
+        )
         results.append(res)
         print(f"SR: {res['sr']*100:5.1f}% | Avg Steps: {res['avg_steps']:5.1f}", flush=True)
 

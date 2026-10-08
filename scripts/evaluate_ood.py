@@ -162,7 +162,7 @@ def main():
     )
     parser.add_argument("--num-episodes", type=int, default=10, help="Episodes per perturbation suite")
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
-    parser.add_argument("--seed", type=int, default=20000)
+    parser.add_argument("--seed", type=int, default=300_000, help="Base seed offset for segregated evaluation seed block")
     args = parser.parse_args()
 
     device = torch.device(args.device)
@@ -230,7 +230,7 @@ def main():
                 modality,
                 device,
                 num_episodes=args.num_episodes,
-                base_seed=args.seed + entry.task_number * 100,
+                base_seed=args.seed + entry.task_number * 1000,
             )
             row[split] = res["sr"] * 100.0
             print(f"     -> {split:<15}: {res['sr']*100:5.1f}% SR", flush=True)

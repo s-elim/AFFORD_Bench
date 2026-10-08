@@ -149,6 +149,7 @@ class BaseFrankaEnv(gym.Env):
         self.xml_path = Path(xml_path)
         if not self.xml_path.exists():
             raise FileNotFoundError(f"Model XML not found at: {self.xml_path}")
+        self._model_xml_str = self.xml_path.read_text(encoding="utf-8")
 
         self.model = _load_model_with_portable_assets(self.xml_path)
         self.data = mujoco.MjData(self.model)
@@ -389,6 +390,12 @@ class BaseFrankaEnv(gym.Env):
         mujoco.mj_setState(self.model, self.data, state[:-1], SIM_STATE_SPEC)
         self.finger_cmd = float(state[-1])
         mujoco.mj_forward(self.model, self.data)
+
+    def get_model_xml(self) -> str:
+        """Return the XML string of the MuJoCo scene model."""
+        if hasattr(self, "_model_xml_str") and self._model_xml_str:
+            return self._model_xml_str
+        return self.xml_path.read_text(encoding="utf-8")
 
     def _set_arm_state(self, q: np.ndarray, finger: float = GRIPPER_OPEN_WIDTH) -> None:
         """Teleport the arm (reset only): joint positions, zero velocity, matching servo targets."""

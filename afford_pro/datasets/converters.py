@@ -44,6 +44,7 @@ class Episode:
     key: str = ""
     states: np.ndarray | None = None
     seed: int | None = None
+    language_instruction: str = ""
 
     def __post_init__(self) -> None:
         T = len(self.actions)
@@ -65,6 +66,17 @@ class DatasetMeta:
     valid_keys: list[str] = field(default_factory=list)
     camera: dict[str, list] = field(default_factory=dict)  # camera_* attributes (intrinsics K, pose) if recorded
     env_args: str = ""  # robomimic environment metadata (JSON)
+    model_file: str = ""  # MuJoCo scene XML string
+
+
+ROBOMIMIC_ALIASES_MAP = {
+    "agentview_rgb": "agentic_rgb",
+    "eye_in_hand_rgb": "wrist_rgb",
+    "ee_states": "tcp_pose",
+    "joint_states": "joint_positions",
+    "agentview_depth": "agentic_depth",
+    "eye_in_hand_depth": "wrist_depth",
+}
 
 
 # ------------------------------------------------------------------------------------------- Robomimic HDF5
@@ -81,6 +93,7 @@ def read_robomimic(path: str | Path) -> tuple[DatasetMeta, Iterator[Episode]]:
             valid_keys=[k.decode() for k in f["mask/valid"][()]] if "mask/valid" in f else [],
             camera={k: np.asarray(v).tolist() for k, v in data.attrs.items() if k.startswith("camera_")},
             env_args=str(data.attrs.get("env_args", "")),
+            model_file=str(data.attrs.get("model_file", "")),
         )
         keys = sorted(data.keys(), key=lambda k: int(k.split("_")[-1]))
 
@@ -88,10 +101,22 @@ def read_robomimic(path: str | Path) -> tuple[DatasetMeta, Iterator[Episode]]:
         with h5py.File(path, "r") as f:
             for k in keys:
                 g = f["data"][k]
-                yield Episode(actions=g["actions"][()], obs={o: g["obs"][o][()] for o in g["obs"]},
-                              rewards=g["rewards"][()], dones=g["dones"][()], key=k,
-                              states=g["states"][()] if "states" in g else None,
-                              seed=int(g.attrs["seed"]) if "seed" in g.attrs else None)
+                # Filter out duplicate hard-link aliases so canonical observations are retained
+                obs_dict = {}
+                for o in g["obs"]:
+                    if o in ROBOMIMIC_ALIASES_MAP and ROBOMIMIC_ALIASES_MAP[o] in g["obs"]:
+                        continue
+                    obs_dict[o] = g["obs"][o][()]
+                yield Episode(
+                    actions=g["actions"][()],
+                    obs=obs_dict,
+                    rewards=g["rewards"][()],
+                    dones=g["dones"][()],
+                    key=k,
+                    states=g["states"][()] if "states" in g else None,
+                    seed=int(g.attrs["seed"]) if "seed" in g.attrs else None,
+                    language_instruction=str(g.attrs.get("language_instruction", "")),
+                )
 
     return meta, episodes()
 
@@ -100,12 +125,26 @@ def write_robomimic(path: str | Path, meta: DatasetMeta, episodes: Iterator[Epis
     """Write episodes as demo_0..demo_{n-1} with the dataset's train/valid masks; returns the episode count."""
     from afford_pro.datasets.hdf5_writer import RobomimicHDF5Writer
 
-    writer = RobomimicHDF5Writer(path, env_name=meta.env_name, task_id=meta.task_id, instruction=meta.instruction,
-                                 env_args=meta.env_args or None)
+    writer = RobomimicHDF5Writer(
+        path,
+        env_name=meta.env_name,
+        task_id=meta.task_id,
+        instruction=meta.instruction,
+        env_args=meta.env_args or None,
+        model_file=meta.model_file or None,
+    )
     for k, v in meta.camera.items():
         writer.data_grp.attrs[k] = np.asarray(v)
     for ep in episodes:
-        writer.add_demonstration(ep.actions, ep.obs, ep.rewards, ep.dones, states=ep.states, seed=ep.seed)
+        writer.add_demonstration(
+            ep.actions,
+            ep.obs,
+            ep.rewards,
+            ep.dones,
+            states=ep.states,
+            seed=ep.seed,
+            language_instruction=ep.language_instruction or None,
+        )
     n = writer.demo_count
     train = meta.train_keys or [f"demo_{i}" for i in range(int(n * 0.9))]
     valid = meta.valid_keys or [f"demo_{i}" for i in range(int(n * 0.9), n)]

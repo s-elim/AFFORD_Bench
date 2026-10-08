@@ -14,7 +14,19 @@ import h5py
 import numpy as np
 
 
+from afford_pro.task_definitions import get_augmented_prompts
+
 ROBOMIMIC_GYM_TYPE = 2  # robomimic EnvType.GYM_TYPE (robomimic 0.2.0, envs/env_base.py)
+
+# Standard aliases between AFFORD-Bench keys and canonical Robomimic / LIBERO loader keys
+ROBOMIMIC_OBS_ALIASES = {
+    "agentic_rgb": "agentview_rgb",
+    "wrist_rgb": "eye_in_hand_rgb",
+    "tcp_pose": "ee_states",
+    "joint_positions": "joint_states",
+    "agentic_depth": "agentview_depth",
+    "wrist_depth": "eye_in_hand_depth",
+}
 
 
 def make_env_args(task_id: str, **env_kwargs: Any) -> str:
@@ -27,8 +39,17 @@ def make_env_args(task_id: str, **env_kwargs: Any) -> str:
 class RobomimicHDF5Writer:
     """Creates robomimic-format HDF5 demonstration datasets."""
 
-    def __init__(self, file_path: str | Path, env_name: str, task_id: str, instruction: str,
-                 env_args: str | None = None):
+    def __init__(
+        self,
+        file_path: str | Path,
+        env_name: str,
+        task_id: str,
+        instruction: str,
+        env_args: str | None = None,
+        model_file: str | None = None,
+        language_instructions: list[str] | None = None,
+        prompt_variants: dict[str, Any] | None = None,
+    ):
         self.file_path = Path(file_path)
         self.file_path.parent.mkdir(parents=True, exist_ok=True)
         self.env_name = env_name
@@ -47,6 +68,30 @@ class RobomimicHDF5Writer:
         self.data_grp.attrs["task_id"] = task_id
         self.data_grp.attrs["instruction"] = instruction
         self.data_grp.attrs["env_args"] = env_args if env_args is not None else make_env_args(task_id)
+        if model_file is not None:
+            self.data_grp.attrs["model_file"] = str(model_file)
+
+        # Multi-tier language prompt variants (for LIBERO-PRO/X paraphrase evaluation)
+        if prompt_variants is None or language_instructions is None:
+            aug = get_augmented_prompts(task_id)
+            if aug:
+                if prompt_variants is None:
+                    prompt_variants = aug.get("prompts", {})
+                if language_instructions is None:
+                    variants = [instruction]
+                    prompts = aug.get("prompts", {})
+                    for tier in ("colloquial_terse", "geometric_spatial", "affordance_physical"):
+                        t_text = prompts.get(tier)
+                        if t_text and isinstance(t_text, str) and t_text not in variants:
+                            variants.append(t_text)
+                    language_instructions = variants
+
+        if language_instructions is None:
+            language_instructions = [instruction]
+        self.language_instructions = language_instructions
+        self.data_grp.attrs["language_instructions"] = json.dumps(language_instructions)
+        if prompt_variants:
+            self.data_grp.attrs["prompt_variants"] = json.dumps(prompt_variants)
 
     def add_demonstration(
         self,
@@ -56,6 +101,7 @@ class RobomimicHDF5Writer:
         dones: list[bool] | np.ndarray | None = None,
         states: np.ndarray | None = None,
         seed: int | None = None,
+        language_instruction: str | None = None,
     ) -> str:
         """Add a complete recorded episode to the dataset."""
         demo_key = f"demo_{self.demo_count}"
@@ -73,6 +119,13 @@ class RobomimicHDF5Writer:
             chunks = (1, *arr.shape[1:]) if arr.ndim >= 3 else True
             obs_grp.create_dataset(k, data=arr, compression="gzip", chunks=chunks)
 
+        # Robomimic / LIBERO observation key aliases (hard links to avoid duplicate storage)
+        for src_key, alias_key in ROBOMIMIC_OBS_ALIASES.items():
+            if src_key in obs_grp and alias_key not in obs_grp:
+                obs_grp[alias_key] = obs_grp[src_key]
+            elif alias_key in obs_grp and src_key not in obs_grp:
+                obs_grp[src_key] = obs_grp[alias_key]
+
         # Rewards & dones
         rew_arr = np.asarray(rewards, dtype=np.float32) if rewards is not None else np.zeros(T, dtype=np.float32)
         done_arr = np.asarray(dones, dtype=np.uint8) if dones is not None else np.zeros(T, dtype=np.uint8)
@@ -86,6 +139,11 @@ class RobomimicHDF5Writer:
         ep_grp.attrs["num_samples"] = T
         if seed is not None:
             ep_grp.attrs["seed"] = int(seed)
+
+        if language_instruction is None:
+            language_instruction = self.language_instructions[self.demo_count % len(self.language_instructions)]
+        ep_grp.attrs["language_instruction"] = language_instruction
+        ep_grp.attrs["instruction"] = language_instruction
 
         self.demo_count += 1
         self.total_samples += T

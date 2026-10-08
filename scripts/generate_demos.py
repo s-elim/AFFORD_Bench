@@ -48,12 +48,14 @@ def main():
     print(f" Output File  : {hdf5_path}")
     print(f"================================================================================\n")
 
+    model_xml = env.get_model_xml() if hasattr(env, "get_model_xml") else None
     writer = RobomimicHDF5Writer(
         file_path=hdf5_path,
         env_name=args.task,
         task_id=args.task,
         instruction=entry.instruction,
         env_args=make_env_args(args.task, perturbation_mode=args.perturbation, render_depth=args.depth),
+        model_file=model_xml,
     )
 
     if args.depth:

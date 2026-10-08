@@ -439,59 +439,59 @@
           <tbody class="divide-y divide-slate-200 text-slate-700">
             <tr class="hover:bg-slate-50">
               <td class="p-4 font-semibold text-slate-900">Total Unique Tasks</td>
-              <td class="p-4">130 Tasks</td>
-              <td class="p-4">130 Tasks (Perturbed)</td>
+              <td class="p-4">130 Tasks (50 Core)</td>
+              <td class="p-4">40 Evaluation Tasks</td>
               <td class="p-4">600 Tasks</td>
-              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">210 Defined Tasks</td>
+              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">210 Formally Defined Tasks</td>
             </tr>
             <tr class="hover:bg-slate-50">
               <td class="p-4 font-semibold text-slate-900">Distinct Domain Breadth</td>
-              <td class="p-4">4 (Domestic/Kitchen)</td>
-              <td class="p-4">4 (Domestic/Kitchen)</td>
-              <td class="p-4">5 (Living/Dining/Kitchen)</td>
-              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">7 Domains (Ind., Lab, Cul., Chaining)</td>
+              <td class="p-4">4 (Spatial, Object, Goal, 100)</td>
+              <td class="p-4">4 Suites (Perturbed)</td>
+              <td class="p-4">Diverse Tabletop/Kitchen/Study</td>
+              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">7 Real-World Domains + Frontier Suite</td>
             </tr>
             <tr class="hover:bg-slate-50">
               <td class="p-4 font-semibold text-slate-900">Observation Modalities</td>
               <td class="p-4">RGB (128&times;128)</td>
               <td class="p-4">RGB (128&times;128)</td>
               <td class="p-4">Dual RGB (256&times;256)</td>
-              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">Dual RGB (640&times;660, 300&times;420) + 3D Depth</td>
+              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">Dual RGB (640&times;660, 300&times;420) + Metric Depth</td>
             </tr>
             <tr class="hover:bg-slate-50">
               <td class="p-4 font-semibold text-slate-900">Physical Affordance Grounding</td>
               <td class="p-4 text-rose-500 font-semibold">&cross; Nominal Only</td>
               <td class="p-4 text-rose-500 font-semibold">&cross; Object/Pose Shifts</td>
               <td class="p-4 text-amber-600 font-semibold">Partial (L1-L5 Spatial/Obj)</td>
-              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">&check; Friction, Mass, Clearances</td>
+              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">&check; Friction (&mu;), Mass, Sub-mm Clearances</td>
             </tr>
             <tr class="hover:bg-slate-50">
-              <td class="p-4 font-semibold text-slate-900">Multi-Subtask Compound Chaining</td>
-              <td class="p-4 text-rose-500 font-semibold">&cross; Single Step</td>
-              <td class="p-4 text-rose-500 font-semibold">&cross; Single Step</td>
-              <td class="p-4 text-amber-600 font-semibold">Atomic Subtasks</td>
-              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">&check; 2&ndash;3 Step Chained Instructions (D6, D7)</td>
+              <td class="p-4 font-semibold text-slate-900">Multi-Subtask Language Prompts</td>
+              <td class="p-4">LIBERO-10 Conjunctions</td>
+              <td class="p-4">3 Paraphrases per Task</td>
+              <td class="p-4">Atomic Subtask Tags (L5)</td>
+              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">&check; 4 Tiers per Task (Geometric, Affordance, Colloquial, Atomic)</td>
             </tr>
             <tr class="hover:bg-slate-50">
               <td class="p-4 font-semibold text-slate-900">Policy Agnostic Support</td>
               <td class="p-4">Primarily BC / DP</td>
               <td class="p-4">VLAs (OpenVLA, &pi;0)</td>
               <td class="p-4">VLAs (OpenVLA, Octo)</td>
-              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">&check; BC, DP, ACT, DP3, VLAs, Offline RL</td>
+              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">&check; BC, DP, ACT, DP3, VLAs, Offline RL (CQL, IQL)</td>
             </tr>
             <tr class="hover:bg-slate-50">
-              <td class="p-4 font-semibold text-slate-900">Total Demonstration Data</td>
-              <td class="p-4">6,500 Demos</td>
-              <td class="p-4">6,500 Demos</td>
-              <td class="p-4">2,520 Demos</td>
-              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">10,500 Demos (&gt;2.2M Steps)</td>
+              <td class="p-4 font-semibold text-slate-900">Demonstration Training Data</td>
+              <td class="p-4">6,500 Demos (Human SpaceMouse)</td>
+              <td class="p-4 text-slate-400">None (Evaluation Only)</td>
+              <td class="p-4">2,520 Demos (Human VR Teleop)</td>
+              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">10,500 Target Demos (100% Local Generator)</td>
             </tr>
             <tr class="hover:bg-slate-50">
               <td class="p-4 font-semibold text-slate-900">Simulation Throughput &amp; Cost</td>
               <td class="p-4">Robosuite (~15 FPS)</td>
               <td class="p-4">Robosuite (~15 FPS)</td>
               <td class="p-4">Robosuite (~15 FPS)</td>
-              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">Native MuJoCo (40&ndash;50 FPS), $0 Cost</td>
+              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">Native MuJoCo C++ (25&ndash;50 FPS), $0 Cost</td>
             </tr>
           </tbody>
         </table>
