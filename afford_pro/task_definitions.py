@@ -20,6 +20,10 @@ class TaskDef:
     task_type: Literal["pick_place", "insert", "press_button", "slide"] = "pick_place"
     tolerance_xy: float = 0.040
     tolerance_z: float = 0.030
+    # Success also requires the body to have been raised this far above its settled start (m).
+    min_lift: float = 0.0
+    # Initial TCP position (m); None starts the arm at the ready pose.
+    init_tcp_pos: list[float] | None = None
 
 
 ALL_150_TASKS: list[TaskDef] = [
@@ -246,6 +250,7 @@ ALL_150_TASKS: list[TaskDef] = [
         nominal_pos=[0.40, 0.24, 0.050],
         target_pos=[0.40, 0.24, 0.050],
         task_type="pick_place",
+        min_lift=0.15,
     ),
     TaskDef(
         task_id="industrial_gear_flip",
@@ -259,6 +264,7 @@ ALL_150_TASKS: list[TaskDef] = [
         nominal_pos=[0.56, 0.18, 0.055],
         target_pos=[0.56, 0.18, 0.055],
         task_type="pick_place",
+        min_lift=0.10,
     ),
     TaskDef(
         task_id="industrial_pin_reposition",
@@ -272,6 +278,7 @@ ALL_150_TASKS: list[TaskDef] = [
         nominal_pos=[0.42, 0.10, 0.035],
         target_pos=[0.42, 0.10, 0.035],
         task_type="pick_place",
+        min_lift=0.10,
     ),
     TaskDef(
         task_id="industrial_tray_kitting_slot1",
@@ -415,6 +422,7 @@ ALL_150_TASKS: list[TaskDef] = [
         nominal_pos=[0.55, 0.0, 0.04],
         target_pos=[0.36, 0.00, 0.50],
         task_type="press_button",
+        init_tcp_pos=[0.55, 0.00, 0.20],
     ),
 
     # =========================================================================
@@ -627,6 +635,7 @@ ALL_150_TASKS: list[TaskDef] = [
         nominal_pos=[0.58, 0.20, 0.042],
         target_pos=[0.58, 0.20, 0.042],
         task_type="pick_place",
+        min_lift=0.10,
     ),
     TaskDef(
         task_id="kitchen_top_bun_to_board",
@@ -809,6 +818,7 @@ ALL_150_TASKS: list[TaskDef] = [
         nominal_pos=[0.52, 0.0, 0.01],
         target_pos=[0.36, 0.00, 0.50],
         task_type="press_button",
+        init_tcp_pos=[0.52, 0.00, 0.16],
     ),
 
     # =========================================================================
@@ -1203,6 +1213,7 @@ ALL_150_TASKS: list[TaskDef] = [
         nominal_pos=[0.45, 0.0, -0.025],
         target_pos=[0.36, 0.00, 0.50],
         task_type="press_button",
+        init_tcp_pos=[0.45, 0.00, 0.15],
     ),
 
     # =========================================================================
@@ -1402,6 +1413,7 @@ ALL_150_TASKS: list[TaskDef] = [
         nominal_pos=[0.40, 0.20, 0.060],
         target_pos=[0.40, 0.16, 0.060],
         task_type="pick_place",
+        tolerance_xy=0.010,
     ),
     TaskDef(
         task_id="lab_pipette_to_tube_mouth",
@@ -1597,6 +1609,7 @@ ALL_150_TASKS: list[TaskDef] = [
         nominal_pos=[0.48, 0.0, -0.025],
         target_pos=[0.36, 0.00, 0.50],
         task_type="press_button",
+        init_tcp_pos=[0.48, 0.00, 0.18],
     ),
 
     # =========================================================================
@@ -1944,7 +1957,7 @@ ALL_150_TASKS: list[TaskDef] = [
         task_id="long_horizon_kitchen_rush_burger",
         task_number=147,
         domain="Long-Horizon Multi-Stage",
-        instruction="Rapid commercial burger build: bun $\to$ patty $\to$ cheese $\to$ crown top bun $\to$ plate.",
+        instruction="Rapid commercial burger build: bun -> patty -> cheese -> crown top bun -> plate.",
         description="High-throughput fast-food commercial assembly.",
         scene_xml="kitchen_burger.xml",
         object_name="top_bun",
@@ -1970,7 +1983,7 @@ ALL_150_TASKS: list[TaskDef] = [
         task_id="long_horizon_lab_complete_dilution",
         task_number=149,
         domain="Long-Horizon Multi-Stage",
-        instruction="Retrieve pipette $\to$ aspirate from conical tube $\to$ dispense into microplate $\to$ dock pipette.",
+        instruction="Retrieve pipette -> aspirate from conical tube -> dispense into microplate -> dock pipette.",
         description="Serial titration laboratory automation assay.",
         scene_xml="lab_science.xml",
         object_name="micropipette",
@@ -2555,7 +2568,7 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="tabletop_sorting.xml",
         object_name="green_block",
         joint_name="green_joint",
-        nominal_pos=[0.48, 0.04, 0.025],
+        nominal_pos=[0.62, -0.14, 0.025],
         target_pos=[0.5, 0.0, 0.035],
         task_type="pick_place",
     ),
@@ -2620,7 +2633,7 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="tabletop_sorting.xml",
         object_name="green_block",
         joint_name="green_joint",
-        nominal_pos=[0.48, 0.04, 0.025],
+        nominal_pos=[0.62, 0.16, 0.025],
         target_pos=[0.5, 0.0, 0.035],
         task_type="pick_place",
     ),
@@ -2764,7 +2777,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="green_block",
         joint_name="green_joint",
         nominal_pos=[0.48, 0.04, 0.025],
-        target_pos=[0.5, 0.0, 0.035],
+        target_pos=[0.40, -0.24, 0.035],
         task_type="pick_place",
     ),
     TaskDef(

@@ -53,7 +53,9 @@ class FrankaGearMeshEnv(BaseFrankaEnv):
         self.nominal_gear_pos = np.array([0.56, 0.18, 0.055], dtype=np.float64)
         self.jig_shaft_pos = np.array([0.55, 0.00, 0.116], dtype=np.float64)
         self.target_mesh_pos = np.array([0.55, 0.00, 0.090], dtype=np.float64)
+        self.static_body_ids.add(self.shaft_id)
         self.grasped_object = None
+        self.seated = False
 
     def reset_objects(self, options: dict[str, Any] | None = None) -> None:
         """Reset shaft (seated in jig) and gear (on feeder with perturbations)."""
@@ -76,6 +78,15 @@ class FrankaGearMeshEnv(BaseFrankaEnv):
         # 3. Object material/color perturbation
         self.perturbation_engine.apply_object_perturbation(self.model, "gear_disk")
         self.grasped_object = None
+        self.seated = False
+
+    def _hold_bodies(self) -> None:
+        """Keep the shaft seated in the jig, a grasped gear at the fingertips, and a seated gear at its goal."""
+        self.pin_free_body(self.shaft_qposadr, self.jig_shaft_pos)
+        if self.grasped_object == "gear":
+            self.pin_free_body(self.gear_qposadr, self.tcp_position + np.array([0.0, 0.0, -0.012]))
+        elif self.seated:
+            self.pin_free_body(self.gear_qposadr, self.target_mesh_pos)
 
     def step(self, action: np.ndarray) -> tuple[dict[str, Any], float, bool, bool, dict[str, Any]]:
         tip = self.tcp_position
@@ -85,18 +96,13 @@ class FrankaGearMeshEnv(BaseFrankaEnv):
         # Check grasp closing
         if self.gripper_width <= 0.024 and dist < 0.065:
             self.grasped_object = "gear"
+            self.seated = False
         elif self.gripper_width >= 0.032:
             if self.grasped_object == "gear":
                 # Check if near target mesh position on shaft
                 if np.linalg.norm(gear_pos[:2] - self.target_mesh_pos[:2]) < 0.05:
-                    self.data.qpos[self.gear_qposadr : self.gear_qposadr + 3] = self.target_mesh_pos
-                    self.data.qpos[self.gear_qposadr + 3 : self.gear_qposadr + 7] = [1.0, 0.0, 0.0, 0.0]
+                    self.seated = True
             self.grasped_object = None
-
-        # Synchronize grasped gear pose with gripper
-        if self.grasped_object == "gear":
-            self.data.qpos[self.gear_qposadr : self.gear_qposadr + 3] = tip + np.array([0.0, 0.0, -0.012])
-            self.data.qpos[self.gear_qposadr + 3 : self.gear_qposadr + 7] = [1.0, 0.0, 0.0, 0.0]
 
         return super().step(action)
 

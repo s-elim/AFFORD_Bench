@@ -1,7 +1,10 @@
 <mujoco model="panda_industrial_assembly">
   <compiler angle="radian" meshdir="D:/Selim Sarowar/Cursor_Projects/cap-x/capx/envs/assets/franka_pick_place/assets" autolimits="true"/>
 
-  <option integrator="implicitfast"/>
+  <option integrator="implicitfast">
+    <!-- Multi-point convex contacts: without them cylinders on boxes rest on one point and topple. -->
+    <flag multiccd="enable"/>
+  </option>
 
   <visual>
     <global offwidth="1920" offheight="1080"/>
@@ -177,12 +180,12 @@
       <!-- Cylindrical Precision Bore Housing -->
       <geom name="jig_housing" type="cylinder" size="0.05 0.04" pos="0 0 0.04" rgba="0.30 0.33 0.38 1.0"/>
       <!-- Central Guide Bore Ream -->
-      <geom name="jig_bore" type="cylinder" size="0.022 0.005" pos="0 0 0.076" rgba="0.12 0.14 0.16 1.0"/>
+      <geom name="jig_bore" type="cylinder" size="0.022 0.005" pos="0 0 0.076" rgba="0.12 0.14 0.16 1.0" contype="0" conaffinity="0"/>
       <!-- Pneumatic Clamping Vise Jaws -->
       <geom name="vise_jaw1" type="box" size="0.02 0.06 0.025" pos="0.065 0 0.035" rgba="0.75 0.20 0.20 1.0"/>
       <geom name="vise_jaw2" type="box" size="0.02 0.06 0.025" pos="-0.065 0 0.035" rgba="0.75 0.20 0.20 1.0"/>
       <!-- Fixture Dowel Locating Peg -->
-      <geom name="locating_peg" type="cylinder" size="0.006 0.02" pos="0 0.055 0.04" rgba="0.80 0.85 0.90 1.0"/>
+      <geom name="locating_peg" type="cylinder" size="0.006 0.02" pos="0 0.055 0.04" rgba="0.80 0.85 0.90 1.0" contype="0" conaffinity="0"/>
     </body>
 
     <!-- Inbound Pallet / Parts Kitting Tray (Right side: +Y) -->
@@ -203,7 +206,7 @@
     <!-- Fastener / Dowel Pin Feeder Cup (Forward right) -->
     <body name="pin_feeder" pos="0.42 0.10 0.015">
       <geom name="cup_base" type="box" size="0.035 0.035 0.005" rgba="0.25 0.28 0.33 1.0" friction="1.0 0.1 0.1"/>
-      <geom name="cup_rim" type="cylinder" size="0.025 0.015" pos="0 0 0.015" rgba="0.40 0.44 0.50 1.0"/>
+      <geom name="cup_rim" type="cylinder" size="0.025 0.015" pos="0 0 0.015" rgba="0.40 0.44 0.50 1.0" contype="0" conaffinity="0"/>
     </body>
 
     <!-- Outbound Finished QA Pallet (Left side: -Y) -->
@@ -215,7 +218,7 @@
       <geom name="out_rail3" type="box" size="0.005 0.08 0.016" pos="0.075 0 0.014" rgba="0.20 0.55 0.32 1.0"/>
       <geom name="out_rail4" type="box" size="0.005 0.08 0.016" pos="-0.075 0 0.014" rgba="0.20 0.55 0.32 1.0"/>
       <!-- Green Pass Target Stamp -->
-      <geom name="pass_target" type="cylinder" size="0.03 0.001" pos="0 0 0.007" rgba="0.25 0.90 0.40 1.0"/>
+      <geom name="pass_target" type="cylinder" size="0.03 0.001" pos="0 0 0.007" rgba="0.25 0.90 0.40 1.0" contype="0" conaffinity="0"/>
     </body>
 
     <!-- Interactable Object 1: Precision Machined Steel Transmission Shaft -->
@@ -237,7 +240,7 @@
       <!-- Inner bore hub -->
       <geom name="gear_hub" type="cylinder" size="0.022 0.016" pos="0 0 0.002" rgba="0.95 0.76 0.28 1.0" mass="0.02"/>
       <!-- Bore hole opening marker -->
-      <geom name="gear_hole" type="cylinder" size="0.0165 0.017" pos="0 0 0.002" rgba="0.15 0.15 0.18 1.0"/>
+      <geom name="gear_hole" type="cylinder" size="0.0165 0.017" pos="0 0 0.002" rgba="0.15 0.15 0.18 1.0" contype="0" conaffinity="0"/>
     </body>
 
     <!-- Interactable Object 3: Hardened Steel Locking Dowel Pin -->

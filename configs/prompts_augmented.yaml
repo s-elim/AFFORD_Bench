@@ -5,13 +5,15 @@
 # against the task definitions; rerun it whenever a TaskDef changes.
 #
 # Per-task fields
-#   nominal_instruction  Verbatim TaskDef.instruction. Tasks 147 and 149 hold a
-#                        TAB character where "\to" was meant (Python escape bug
-#                        in task_definitions.py); it is kept as-is for traceability.
+#   nominal_instruction  Verbatim TaskDef.instruction.
 #   sim_grounding        What the simulator actually renders and checks:
 #                        the single evaluated body, start/goal xyz in the world
-#                        frame (Panda link0 at the origin, metres), and the
-#                        success thresholds used by the env serving the task.
+#                        frame (Panda link0 at the origin, metres), the success
+#                        thresholds used by the env serving the task, the
+#                        minimum lift required before placement, and the
+#                        initial TCP position when the arm does not start at
+#                        the ready pose. Start positions are nominal; every
+#                        reset adds +-1.5 cm / +-15 deg jitter.
 #     referent_in_scene  false when the object the instruction names is not
 #                        the simulated body (e.g. Task 208 names an ice tray but the
 #                        env moves blue_block). For VLA language-grounding studies
@@ -48,10 +50,9 @@
 #   All other predicates (seated, meshed, poured, clamped, ...) are symbolic.
 #   The current simulator does not evaluate them.
 #
-# Probe results (MuJoCo 3.2.7, Menagerie Panda meshes substituting for the
-# absolute Windows meshdir in afford_pro/assets/*.xml): tasks 17, 18, 19, 30,
-# 46, 60, 90, 120, 193, 198 and 209 are solved by a policy that never moves.
-# Exclude them from language-sensitivity aggregates or fix their goals.
+# Sanity floors (scripts/sanity_baselines.py; per-task results in
+# docs/reviews/sanity_baselines_2026-10-08.csv): no task succeeds at reset, and
+# a policy that never moves solves none of the 210 tasks.
 schema_version: 1
 num_tasks: 210
 tasks:
@@ -67,6 +68,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.116]
     tolerance_xy_m: 0.03
     tolerance_z_m: 0.02
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.030 m and z_err < 0.020 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
@@ -101,6 +104,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.09]
     tolerance_xy_m: 0.035
     tolerance_z_m: 0.025
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.035 m and z_err < 0.025 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: true
@@ -135,6 +140,8 @@ tasks:
     goal_xyz_m: [0.55, 0.055, 0.08]
     tolerance_xy_m: 0.03
     tolerance_z_m: 0.025
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.030 m and z_err < 0.025 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: true
@@ -169,6 +176,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: false
@@ -203,6 +212,8 @@ tasks:
     goal_xyz_m: [0.55, -0.055, 0.08]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: false
@@ -237,6 +248,8 @@ tasks:
     goal_xyz_m: [0.55, 0.055, 0.07]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: false
@@ -271,6 +284,8 @@ tasks:
     goal_xyz_m: [0.48, -0.05, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: false
@@ -305,6 +320,8 @@ tasks:
     goal_xyz_m: [0.5, 0.05, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: false
@@ -339,6 +356,8 @@ tasks:
     goal_xyz_m: [0.55, -0.1, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: false
@@ -373,6 +392,8 @@ tasks:
     goal_xyz_m: [0.5, -0.1, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: false
@@ -407,6 +428,8 @@ tasks:
     goal_xyz_m: [0.42, -0.2, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
@@ -441,6 +464,8 @@ tasks:
     goal_xyz_m: [0.42, -0.2, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: true
@@ -475,6 +500,8 @@ tasks:
     goal_xyz_m: [0.42, -0.2, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: true
@@ -509,6 +536,8 @@ tasks:
     goal_xyz_m: [0.42, 0.1, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
@@ -543,6 +572,8 @@ tasks:
     goal_xyz_m: [0.4, 0.24, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: true
@@ -577,6 +608,8 @@ tasks:
     goal_xyz_m: [0.4, 0.24, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: true
@@ -611,7 +644,9 @@ tasks:
     goal_xyz_m: [0.4, 0.24, 0.05]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    min_lift_m: 0.15
+    init_tcp_xyz_m: null
+    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m and peak lift >= 0.15 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -645,7 +680,9 @@ tasks:
     goal_xyz_m: [0.56, 0.18, 0.055]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    min_lift_m: 0.1
+    init_tcp_xyz_m: null
+    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m and peak lift >= 0.10 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -679,7 +716,9 @@ tasks:
     goal_xyz_m: [0.42, 0.1, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    min_lift_m: 0.1
+    init_tcp_xyz_m: null
+    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m and peak lift >= 0.10 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -713,6 +752,8 @@ tasks:
     goal_xyz_m: [0.42, -0.22, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
@@ -747,6 +788,8 @@ tasks:
     goal_xyz_m: [0.42, -0.18, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: true
@@ -781,6 +824,8 @@ tasks:
     goal_xyz_m: [0.46, -0.2, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: true
@@ -815,6 +860,8 @@ tasks:
     goal_xyz_m: [0.55, -0.065, 0.075]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: false
@@ -845,6 +892,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.16]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -875,6 +924,8 @@ tasks:
     goal_xyz_m: [0.42, -0.2, 0.16]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -905,6 +956,8 @@ tasks:
     goal_xyz_m: [0.65, 0.35, 0.25]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -935,6 +988,8 @@ tasks:
     goal_xyz_m: [0.615, 0.0, 0.075]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -965,6 +1020,8 @@ tasks:
     goal_xyz_m: [0.48, 0.05, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: true
@@ -999,6 +1056,8 @@ tasks:
     goal_xyz_m: [0.48, -0.05, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
@@ -1033,6 +1092,8 @@ tasks:
     goal_xyz_m: [0.36, 0.0, 0.5]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: [0.55, 0.0, 0.2]
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -1063,6 +1124,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.042]
     tolerance_xy_m: 0.035
     tolerance_z_m: 0.025
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.035 m and z_err < 0.025 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: true
@@ -1097,6 +1160,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.052]
     tolerance_xy_m: 0.035
     tolerance_z_m: 0.025
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.035 m and z_err < 0.025 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(cheese_slice, goal)', gripper_open]
     referent_in_scene: true
@@ -1131,6 +1196,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.058]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(tomato_slice, goal)', gripper_open]
     referent_in_scene: true
@@ -1165,6 +1232,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.068]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(top_bun, goal)', gripper_open]
     referent_in_scene: true
@@ -1199,6 +1268,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.026]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(bottom_bun, goal)', gripper_open]
     referent_in_scene: true
@@ -1233,6 +1304,8 @@ tasks:
     goal_xyz_m: [0.48, -0.15, 0.038]
     tolerance_xy_m: 0.035
     tolerance_z_m: 0.025
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.035 m and z_err < 0.025 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: true
@@ -1267,6 +1340,8 @@ tasks:
     goal_xyz_m: [0.5, -0.105, 0.175]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -1297,6 +1372,8 @@ tasks:
     goal_xyz_m: [0.54, -0.15, 0.203]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(coffee_pod, goal)', gripper_open]
     referent_in_scene: true
@@ -1331,6 +1408,8 @@ tasks:
     goal_xyz_m: [0.35, -0.16, 0.038]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: true
@@ -1365,6 +1444,8 @@ tasks:
     goal_xyz_m: [0.36, -0.18, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: true
@@ -1399,6 +1480,8 @@ tasks:
     goal_xyz_m: [0.36, -0.18, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(tomato_slice, goal)', gripper_open]
     referent_in_scene: true
@@ -1433,6 +1516,8 @@ tasks:
     goal_xyz_m: [0.36, -0.18, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(cheese_slice, goal)', gripper_open]
     referent_in_scene: true
@@ -1467,6 +1552,8 @@ tasks:
     goal_xyz_m: [0.35, -0.16, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(coffee_pod, goal)', gripper_open]
     referent_in_scene: true
@@ -1501,6 +1588,8 @@ tasks:
     goal_xyz_m: [0.38, 0.22, 0.038]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: true
@@ -1535,6 +1624,8 @@ tasks:
     goal_xyz_m: [0.52, 0.14, 0.032]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(coffee_pod, goal)', gripper_open]
     referent_in_scene: true
@@ -1569,7 +1660,9 @@ tasks:
     goal_xyz_m: [0.58, 0.2, 0.042]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    min_lift_m: 0.1
+    init_tcp_xyz_m: null
+    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m and peak lift >= 0.10 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1603,6 +1696,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.026]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(top_bun, goal)', gripper_open]
     referent_in_scene: true
@@ -1637,6 +1732,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.026]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(tomato_slice, goal)', gripper_open]
     referent_in_scene: true
@@ -1671,6 +1768,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.026]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(cheese_slice, goal)', gripper_open]
     referent_in_scene: true
@@ -1705,6 +1804,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -1735,6 +1836,8 @@ tasks:
     goal_xyz_m: [0.48, -0.15, 0.12]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -1765,6 +1868,8 @@ tasks:
     goal_xyz_m: [0.64, 0.25, 0.12]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -1795,6 +1900,8 @@ tasks:
     goal_xyz_m: [0.38, 0.26, 0.03]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(bottom_bun, goal)', gripper_open]
     referent_in_scene: true
@@ -1829,6 +1936,8 @@ tasks:
     goal_xyz_m: [0.38, 0.16, 0.036]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(top_bun, goal)', gripper_open]
     referent_in_scene: true
@@ -1863,6 +1972,8 @@ tasks:
     goal_xyz_m: [0.58, -0.12, 0.026]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(cheese_slice, goal)', gripper_open]
     referent_in_scene: true
@@ -1897,6 +2008,8 @@ tasks:
     goal_xyz_m: [0.58, -0.2, 0.028]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(tomato_slice, goal)', gripper_open]
     referent_in_scene: true
@@ -1931,6 +2044,8 @@ tasks:
     goal_xyz_m: [0.58, 0.2, 0.042]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: true
@@ -1965,6 +2080,8 @@ tasks:
     goal_xyz_m: [0.42, 0.0, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -1995,6 +2112,8 @@ tasks:
     goal_xyz_m: [0.48, -0.15, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -2025,6 +2144,8 @@ tasks:
     goal_xyz_m: [0.36, 0.0, 0.5]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: [0.52, 0.0, 0.16]
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -2055,6 +2176,8 @@ tasks:
     goal_xyz_m: [0.4, -0.24, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2089,6 +2212,8 @@ tasks:
     goal_xyz_m: [0.58, 0.0, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2123,6 +2248,8 @@ tasks:
     goal_xyz_m: [0.4, 0.24, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2157,6 +2284,8 @@ tasks:
     goal_xyz_m: [0.58, 0.0, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2191,6 +2320,8 @@ tasks:
     goal_xyz_m: [0.4, 0.24, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2225,6 +2356,8 @@ tasks:
     goal_xyz_m: [0.4, -0.24, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2259,6 +2392,8 @@ tasks:
     goal_xyz_m: [0.4, 0.24, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2293,6 +2428,8 @@ tasks:
     goal_xyz_m: [0.4, -0.24, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2327,6 +2464,8 @@ tasks:
     goal_xyz_m: [0.58, 0.0, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2361,6 +2500,8 @@ tasks:
     goal_xyz_m: [0.48, 0.0, 0.025]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2395,6 +2536,8 @@ tasks:
     goal_xyz_m: [0.48, 0.0, 0.025]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2429,6 +2572,8 @@ tasks:
     goal_xyz_m: [0.48, 0.0, 0.025]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2463,6 +2608,8 @@ tasks:
     goal_xyz_m: [0.38, 0.06, 0.025]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2497,6 +2644,8 @@ tasks:
     goal_xyz_m: [0.52, 0.07, 0.025]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2531,6 +2680,8 @@ tasks:
     goal_xyz_m: [0.45, -0.08, 0.025]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2565,6 +2716,8 @@ tasks:
     goal_xyz_m: [0.38, 0.06, 0.055]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2599,6 +2752,8 @@ tasks:
     goal_xyz_m: [0.38, 0.06, 0.055]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2633,6 +2788,8 @@ tasks:
     goal_xyz_m: [0.45, -0.08, 0.055]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2667,6 +2824,8 @@ tasks:
     goal_xyz_m: [0.4, -0.24, 0.16]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -2697,6 +2856,8 @@ tasks:
     goal_xyz_m: [0.58, 0.0, 0.16]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -2727,6 +2888,8 @@ tasks:
     goal_xyz_m: [0.4, 0.24, 0.16]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -2757,6 +2920,8 @@ tasks:
     goal_xyz_m: [0.45, -0.08, 0.045]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -2787,6 +2952,8 @@ tasks:
     goal_xyz_m: [0.52, 0.07, 0.045]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -2817,6 +2984,8 @@ tasks:
     goal_xyz_m: [0.38, 0.06, 0.045]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -2847,6 +3016,8 @@ tasks:
     goal_xyz_m: [0.45, 0.16, 0.025]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2881,6 +3052,8 @@ tasks:
     goal_xyz_m: [0.38, -0.16, 0.025]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2915,6 +3088,8 @@ tasks:
     goal_xyz_m: [0.55, -0.08, 0.025]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2949,6 +3124,8 @@ tasks:
     goal_xyz_m: [0.48, 0.06, 0.025]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
@@ -2983,6 +3160,8 @@ tasks:
     goal_xyz_m: [0.45, 0.0, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -3013,6 +3192,8 @@ tasks:
     goal_xyz_m: [0.36, 0.0, 0.5]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: [0.45, 0.0, 0.15]
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -3043,6 +3224,8 @@ tasks:
     goal_xyz_m: [0.55, -0.15, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: true
@@ -3077,6 +3260,8 @@ tasks:
     goal_xyz_m: [0.612, 0.2, 0.085]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micro_tube, goal)', gripper_open]
     referent_in_scene: true
@@ -3111,6 +3296,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.16]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: true
@@ -3145,6 +3332,8 @@ tasks:
     goal_xyz_m: [0.38, -0.16, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: true
@@ -3179,6 +3368,8 @@ tasks:
     goal_xyz_m: [0.55, -0.15, 0.045]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micro_tube, goal)', gripper_open]
     referent_in_scene: true
@@ -3213,6 +3404,8 @@ tasks:
     goal_xyz_m: [0.4, 0.2, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: true
@@ -3247,6 +3440,8 @@ tasks:
     goal_xyz_m: [0.4, 0.24, 0.045]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micro_tube, goal)', gripper_open]
     referent_in_scene: true
@@ -3281,6 +3476,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: true
@@ -3315,6 +3512,8 @@ tasks:
     goal_xyz_m: [0.58, 0.145, 0.096]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -3345,6 +3544,8 @@ tasks:
     goal_xyz_m: [0.38, -0.16, 0.14]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -3375,6 +3576,8 @@ tasks:
     goal_xyz_m: [0.4, 0.2, 0.16]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -3405,6 +3608,8 @@ tasks:
     goal_xyz_m: [0.55, -0.15, 0.16]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -3435,6 +3640,8 @@ tasks:
     goal_xyz_m: [0.46, -0.16, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: true
@@ -3469,6 +3676,8 @@ tasks:
     goal_xyz_m: [0.46, -0.12, 0.045]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micro_tube, goal)', gripper_open]
     referent_in_scene: true
@@ -3501,9 +3710,11 @@ tasks:
     object: conical_tube
     start_xyz_m: [0.4, 0.2, 0.06]
     goal_xyz_m: [0.4, 0.16, 0.06]
-    tolerance_xy_m: 0.04
+    tolerance_xy_m: 0.01
     tolerance_z_m: 0.03
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
+    success_predicate: xy_err < 0.010 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3537,6 +3748,8 @@ tasks:
     goal_xyz_m: [0.4, 0.2, 0.105]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: true
@@ -3571,6 +3784,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.1]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -3601,6 +3816,8 @@ tasks:
     goal_xyz_m: [0.58, 0.2, 0.17]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -3631,6 +3848,8 @@ tasks:
     goal_xyz_m: [0.48, 0.15, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -3661,6 +3880,8 @@ tasks:
     goal_xyz_m: [0.48, -0.15, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -3691,6 +3912,8 @@ tasks:
     goal_xyz_m: [0.48, 0.0, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: true
@@ -3725,6 +3948,8 @@ tasks:
     goal_xyz_m: [0.48, 0.04, 0.045]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micro_tube, goal)', gripper_open]
     referent_in_scene: true
@@ -3759,6 +3984,8 @@ tasks:
     goal_xyz_m: [0.35, -0.19, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: true
@@ -3793,6 +4020,8 @@ tasks:
     goal_xyz_m: [0.612, 0.2, 0.12]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: true
@@ -3827,6 +4056,8 @@ tasks:
     goal_xyz_m: [0.58, 0.2, 0.1]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -3857,6 +4088,8 @@ tasks:
     goal_xyz_m: [0.38, -0.16, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -3887,6 +4120,8 @@ tasks:
     goal_xyz_m: [0.4, 0.2, 0.11]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -3917,6 +4152,8 @@ tasks:
     goal_xyz_m: [0.4, 0.24, 0.07]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -3947,6 +4184,8 @@ tasks:
     goal_xyz_m: [0.48, 0.0, 0.18]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -3977,6 +4216,8 @@ tasks:
     goal_xyz_m: [0.36, 0.0, 0.5]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: [0.48, 0.0, 0.18]
     success_predicate: '||tcp - goal|| < 0.025 m'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
@@ -4007,6 +4248,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.116]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
@@ -4041,6 +4284,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.09]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: true
@@ -4071,6 +4316,8 @@ tasks:
     goal_xyz_m: [0.42, -0.2, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
@@ -4105,6 +4352,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.042]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: true
@@ -4135,6 +4384,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.068]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(top_bun, goal)', gripper_open]
     referent_in_scene: true
@@ -4169,6 +4420,8 @@ tasks:
     goal_xyz_m: [0.36, -0.18, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(bottom_bun, goal)', gripper_open]
     referent_in_scene: false
@@ -4203,6 +4456,8 @@ tasks:
     goal_xyz_m: [0.35, -0.16, 0.038]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: true
@@ -4237,6 +4492,8 @@ tasks:
     goal_xyz_m: [0.54, -0.15, 0.203]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(coffee_pod, goal)', gripper_open]
     referent_in_scene: true
@@ -4267,6 +4524,8 @@ tasks:
     goal_xyz_m: [0.4, -0.24, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
@@ -4301,6 +4560,8 @@ tasks:
     goal_xyz_m: [0.4, 0.24, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
@@ -4331,6 +4592,8 @@ tasks:
     goal_xyz_m: [0.38, -0.16, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: false
@@ -4365,6 +4628,8 @@ tasks:
     goal_xyz_m: [0.612, 0.2, 0.085]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micro_tube, goal)', gripper_open]
     referent_in_scene: true
@@ -4395,6 +4660,8 @@ tasks:
     goal_xyz_m: [0.55, -0.15, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: true
@@ -4425,6 +4692,8 @@ tasks:
     goal_xyz_m: [0.42, -0.2, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
@@ -4459,6 +4728,8 @@ tasks:
     goal_xyz_m: [0.35, -0.16, 0.038]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: true
@@ -4489,6 +4760,8 @@ tasks:
     goal_xyz_m: [0.36, -0.18, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: true
@@ -4519,6 +4792,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.116]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
@@ -4549,6 +4824,8 @@ tasks:
     goal_xyz_m: [0.4, 0.24, 0.05]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
@@ -4583,6 +4860,8 @@ tasks:
     goal_xyz_m: [0.38, 0.06, 0.08]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
@@ -4617,6 +4896,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.042]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: false
@@ -4651,6 +4932,8 @@ tasks:
     goal_xyz_m: [0.55, -0.15, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: false
@@ -4681,6 +4964,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.116]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
@@ -4715,6 +5000,8 @@ tasks:
     goal_xyz_m: [0.4, 0.24, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
@@ -4745,6 +5032,8 @@ tasks:
     goal_xyz_m: [0.38, 0.16, 0.036]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(top_bun, goal)', gripper_open]
     referent_in_scene: false
@@ -4779,6 +5068,8 @@ tasks:
     goal_xyz_m: [0.55, -0.15, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: false
@@ -4813,6 +5104,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.116]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
@@ -4839,7 +5132,7 @@ tasks:
   task_id: long_horizon_kitchen_rush_burger
   domain: D5_long_horizon
   task_type: pick_place
-  nominal_instruction: "Rapid commercial burger build: bun $\to$ patty $\to$ cheese $\to$ crown top bun $\to$ plate."
+  nominal_instruction: 'Rapid commercial burger build: bun -> patty -> cheese -> crown top bun -> plate.'
   sim_grounding:
     scene: kitchen_burger.xml
     object: top_bun
@@ -4847,6 +5140,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.068]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(top_bun, goal)', gripper_open]
     referent_in_scene: false
@@ -4881,6 +5176,8 @@ tasks:
     goal_xyz_m: [0.4, -0.24, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
@@ -4907,7 +5204,7 @@ tasks:
   task_id: long_horizon_lab_complete_dilution
   domain: D5_long_horizon
   task_type: pick_place
-  nominal_instruction: "Retrieve pipette $\to$ aspirate from conical tube $\to$ dispense into microplate $\to$ dock pipette."
+  nominal_instruction: Retrieve pipette -> aspirate from conical tube -> dispense into microplate -> dock pipette.
   sim_grounding:
     scene: lab_science.xml
     object: micropipette
@@ -4915,6 +5212,8 @@ tasks:
     goal_xyz_m: [0.38, -0.16, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: false
@@ -4949,6 +5248,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.116]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: false
@@ -4983,6 +5284,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.116]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
@@ -5017,6 +5320,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.09]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: true
@@ -5051,6 +5356,8 @@ tasks:
     goal_xyz_m: [0.55, -0.06, 0.1]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: true
@@ -5085,6 +5392,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.116]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: false
@@ -5119,6 +5428,8 @@ tasks:
     goal_xyz_m: [0.52, 0.12, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: false
@@ -5153,6 +5464,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.116]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
@@ -5187,6 +5500,8 @@ tasks:
     goal_xyz_m: [0.38, -0.16, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: true
@@ -5221,6 +5536,8 @@ tasks:
     goal_xyz_m: [0.55, 0.16, 0.065]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: true
@@ -5255,6 +5572,8 @@ tasks:
     goal_xyz_m: [0.48, -0.12, 0.065]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: false
@@ -5289,6 +5608,8 @@ tasks:
     goal_xyz_m: [0.35, -0.22, 0.05]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: false
@@ -5323,6 +5644,8 @@ tasks:
     goal_xyz_m: [0.45, 0.0, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: false
@@ -5357,6 +5680,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: false
@@ -5391,6 +5716,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.116]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: false
@@ -5425,6 +5752,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.09]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: false
@@ -5459,6 +5788,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.09]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: false
@@ -5493,6 +5824,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.116]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: false
@@ -5527,6 +5860,8 @@ tasks:
     goal_xyz_m: [0.55, -0.06, 0.1]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: false
@@ -5561,6 +5896,8 @@ tasks:
     goal_xyz_m: [0.5, 0.1, 0.08]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: false
@@ -5595,6 +5932,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.09]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: false
@@ -5629,6 +5968,8 @@ tasks:
     goal_xyz_m: [0.55, -0.06, 0.1]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: false
@@ -5663,6 +6004,8 @@ tasks:
     goal_xyz_m: [0.38, -0.16, 0.065]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: true
@@ -5697,6 +6040,8 @@ tasks:
     goal_xyz_m: [0.48, -0.1, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: false
@@ -5731,6 +6076,8 @@ tasks:
     goal_xyz_m: [0.55, 0.16, 0.065]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: false
@@ -5765,6 +6112,8 @@ tasks:
     goal_xyz_m: [0.5, -0.14, 0.065]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: false
@@ -5799,6 +6148,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.116]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: false
@@ -5833,6 +6184,8 @@ tasks:
     goal_xyz_m: [0.55, 0.0, 0.09]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: false
@@ -5867,6 +6220,8 @@ tasks:
     goal_xyz_m: [0.55, -0.06, 0.1]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: false
@@ -5897,6 +6252,8 @@ tasks:
     goal_xyz_m: [0.52, 0.12, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: false
@@ -5931,6 +6288,8 @@ tasks:
     goal_xyz_m: [0.4, -0.18, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: false
@@ -5965,6 +6324,8 @@ tasks:
     goal_xyz_m: [0.55, 0.16, 0.065]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: false
@@ -5999,6 +6360,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.048]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: true
@@ -6033,6 +6396,8 @@ tasks:
     goal_xyz_m: [0.56, -0.14, 0.07]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: true
@@ -6067,6 +6432,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(bottom_bun, goal)', gripper_open]
     referent_in_scene: false
@@ -6101,6 +6468,8 @@ tasks:
     goal_xyz_m: [0.45, -0.05, 0.045]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(tomato_slice, goal)', gripper_open]
     referent_in_scene: false
@@ -6135,6 +6504,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.042]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(cheese_slice, goal)', gripper_open]
     referent_in_scene: false
@@ -6169,6 +6540,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.068]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(top_bun, goal)', gripper_open]
     referent_in_scene: false
@@ -6203,6 +6576,8 @@ tasks:
     goal_xyz_m: [0.45, 0.0, 0.05]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: true
@@ -6237,6 +6612,8 @@ tasks:
     goal_xyz_m: [0.48, 0.05, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: false
@@ -6271,6 +6648,8 @@ tasks:
     goal_xyz_m: [0.52, -0.08, 0.045]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(tomato_slice, goal)', gripper_open]
     referent_in_scene: false
@@ -6305,6 +6684,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.048]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: false
@@ -6339,6 +6720,8 @@ tasks:
     goal_xyz_m: [0.4, -0.24, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: false
@@ -6373,6 +6756,8 @@ tasks:
     goal_xyz_m: [0.48, 0.0, 0.05]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: false
@@ -6403,17 +6788,19 @@ tasks:
   sim_grounding:
     scene: tabletop_sorting.xml
     object: green_block
-    start_xyz_m: [0.48, 0.04, 0.025]
+    start_xyz_m: [0.62, -0.14, 0.025]
     goal_xyz_m: [0.5, 0.0, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 2
   prompts:
-    geometric_spatial: Pick the salt and pepper shakers near (0.480, 0.040, 0.025) m, put them in the table caddy, and move the caddy to the table center at (0.500, 0.000, 0.035) m.
+    geometric_spatial: Pick the salt and pepper shakers near (0.620, -0.140, 0.025) m, put them in the table caddy, and move the caddy to the table center at (0.500, 0.000, 0.035) m.
     affordance_physical: Grip each shaker around its body so it does not tip, set them upright in the caddy, and carry the caddy level.
     colloquial_terse: Shakers in the caddy.
     atomic_subtasks:
@@ -6437,6 +6824,8 @@ tasks:
     goal_xyz_m: [0.52, 0.24, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: false
@@ -6471,6 +6860,8 @@ tasks:
     goal_xyz_m: [0.4, 0.24, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: false
@@ -6501,6 +6892,8 @@ tasks:
     goal_xyz_m: [0.5, 0.15, 0.07]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: false
@@ -6535,6 +6928,8 @@ tasks:
     goal_xyz_m: [0.38, -0.24, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: false
@@ -6565,17 +6960,19 @@ tasks:
   sim_grounding:
     scene: tabletop_sorting.xml
     object: green_block
-    start_xyz_m: [0.48, 0.04, 0.025]
+    start_xyz_m: [0.62, 0.16, 0.025]
     goal_xyz_m: [0.5, 0.0, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 1
   prompts:
-    geometric_spatial: Pick the apple and the banana near (0.480, 0.040, 0.025) m and arrange them in the fruit bowl at (0.500, 0.000, 0.035) m.
+    geometric_spatial: Pick the apple and the banana near (0.620, 0.160, 0.025) m and arrange them in the fruit bowl at (0.500, 0.000, 0.035) m.
     affordance_physical: Fruit bruises under hard grips, so hold the apple around its widest part and the banana near its middle with light force, and lower each into the bowl.
     colloquial_terse: Fruit in the bowl.
     atomic_subtasks:
@@ -6599,6 +6996,8 @@ tasks:
     goal_xyz_m: [0.45, -0.1, 0.06]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: false
@@ -6633,6 +7032,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.04]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(bottom_bun, goal)', gripper_open]
     referent_in_scene: false
@@ -6667,6 +7068,8 @@ tasks:
     goal_xyz_m: [0.48, 0.0, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(cheese_slice, goal)', gripper_open]
     referent_in_scene: false
@@ -6701,6 +7104,8 @@ tasks:
     goal_xyz_m: [0.56, -0.14, 0.07]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: false
@@ -6735,6 +7140,8 @@ tasks:
     goal_xyz_m: [0.5, -0.12, 0.05]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(tomato_slice, goal)', gripper_open]
     referent_in_scene: false
@@ -6769,6 +7176,8 @@ tasks:
     goal_xyz_m: [0.45, -0.05, 0.045]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: false
@@ -6803,6 +7212,8 @@ tasks:
     goal_xyz_m: [0.45, 0.0, 0.05]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: false
@@ -6837,6 +7248,8 @@ tasks:
     goal_xyz_m: [0.52, 0.24, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: false
@@ -6867,6 +7280,8 @@ tasks:
     goal_xyz_m: [0.56, -0.14, 0.07]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: false
@@ -6901,6 +7316,8 @@ tasks:
     goal_xyz_m: [0.4, -0.24, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: false
@@ -6932,16 +7349,18 @@ tasks:
     scene: tabletop_sorting.xml
     object: green_block
     start_xyz_m: [0.48, 0.04, 0.025]
-    goal_xyz_m: [0.5, 0.0, 0.035]
+    goal_xyz_m: [0.4, -0.24, 0.035]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 1
   prompts:
-    geometric_spatial: Clear the plates from the table near (0.480, 0.040, 0.025) m into the bus tub at (0.500, 0.000, 0.035) m, spray the cleaner, and wipe the table dry.
+    geometric_spatial: Clear the plates from the table near (0.480, 0.040, 0.025) m into the bus tub at (0.400, -0.240, 0.035) m, spray the cleaner, and wipe the table dry.
     affordance_physical: Stack the plates gently so they do not chip, spray the cleaner in a light mist, and wipe with even pressure.
     colloquial_terse: Clear and wipe the table.
     atomic_subtasks:
@@ -6969,6 +7388,8 @@ tasks:
     goal_xyz_m: [0.52, 0.0, 0.048]
     tolerance_xy_m: 0.04
     tolerance_z_m: 0.03
+    min_lift_m: 0.0
+    init_tcp_xyz_m: null
     success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: false

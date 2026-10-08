@@ -68,6 +68,8 @@ def _make_parametric_env_factory(task_def: TaskDef) -> Callable[..., BaseFrankaE
             task_type=task_def.task_type,
             tolerance_xy=task_def.tolerance_xy,
             tolerance_z=task_def.tolerance_z,
+            min_lift=task_def.min_lift,
+            init_tcp_pos=task_def.init_tcp_pos,
             **kwargs,
         )
     return factory

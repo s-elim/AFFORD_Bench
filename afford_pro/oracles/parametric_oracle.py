@@ -7,6 +7,11 @@ import numpy as np
 from afford_pro.oracles.base_oracle import BaseOracle
 
 
+# TCP height above the body origin at which the oracle closes the gripper (m). The parametric
+# env attaches bodies within 6.5 cm of the TCP; descending lower lets the fingers shove wide parts.
+GRASP_HEIGHT = 0.04
+
+
 class ParametricOracle(BaseOracle):
     """100% local, zero-cost deterministic oracle solver for parametric tasks."""
 
@@ -17,24 +22,19 @@ class ParametricOracle(BaseOracle):
     ) -> tuple[list[np.ndarray], dict[str, list[np.ndarray]], list[float], list[bool]]:
         obs, _ = self.env.reset(seed=seed, options=options)
 
-        recorded_obs: dict[str, list[np.ndarray]] = {k: [v] for k, v in obs.items()}
-        recorded_actions: list[np.ndarray] = []
-        recorded_rewards: list[float] = [0.0]
-        recorded_dones: list[bool] = [False]
-
         target_goal = self.env.target_goal_pos.copy()
 
         if self.env.task_type in ("pick_place", "insert"):
-            obj_pos = self.env.data.xpos[self.env.target_id].copy()
+            obj_pos = self.body_position(self.env.target_id)
             waypoints = [
                 # 1. Hover above object
                 np.array([obj_pos[0], obj_pos[1], obj_pos[2] + 0.12, 1.0]),
-                # 2. Descend onto object
-                np.array([obj_pos[0], obj_pos[1], obj_pos[2] + 0.012, 1.0]),
+                # 2. Descend to grasp height (within the env's grasp radius, clear of wide parts)
+                np.array([obj_pos[0], obj_pos[1], obj_pos[2] + GRASP_HEIGHT, 1.0]),
                 # 3. Clamp object
-                np.array([obj_pos[0], obj_pos[1], obj_pos[2] + 0.012, -1.0]),
-                # 4. Lift object up
-                np.array([obj_pos[0], obj_pos[1], obj_pos[2] + 0.15, -1.0]),
+                np.array([obj_pos[0], obj_pos[1], obj_pos[2] + GRASP_HEIGHT, -1.0]),
+                # 4. Lift object up, clearing any required minimum lift
+                np.array([obj_pos[0], obj_pos[1], obj_pos[2] + max(0.15, self.env.min_lift + 0.04), -1.0]),
                 # 5. Move above target goal
                 np.array([target_goal[0], target_goal[1], target_goal[2] + 0.12, -1.0]),
                 # 6. Lower to goal
@@ -60,39 +60,4 @@ class ParametricOracle(BaseOracle):
         else:
             raise NotImplementedError(f"Task type {self.env.task_type} waypoints not implemented.")
 
-        step_budget_per_segment = 24
-        for wp in waypoints:
-            target_p = wp[:3]
-            target_grip = wp[3]
-
-            cur_pos = self.env.tcp_position.copy()
-            dist = np.linalg.norm(target_p - cur_pos)
-            steps = max(6, int(step_budget_per_segment * max(0.5, dist / 0.10)))
-
-            for t in np.linspace(0, 1, steps):
-                alpha = t * t * (3.0 - 2.0 * t)
-                interp_pos = (1.0 - alpha) * cur_pos + alpha * target_p
-                delta_xyz = (interp_pos - self.env.tcp_position) / self.env.action_scale
-                delta_xyz = np.clip(delta_xyz, -1.0, 1.0)
-
-                action = np.array([delta_xyz[0], delta_xyz[1], delta_xyz[2], 0.0, 0.0, 0.0, target_grip], dtype=np.float32)
-
-                obs, reward, terminated, truncated, info = self.env.step(action)
-
-                recorded_actions.append(action)
-                for k, v in obs.items():
-                    recorded_obs[k].append(v)
-                recorded_rewards.append(reward)
-                recorded_dones.append(terminated)
-
-                if terminated:
-                    break
-            if self.env.check_success():
-                break
-
-        for k in recorded_obs:
-            recorded_obs[k] = recorded_obs[k][:len(recorded_actions)]
-        recorded_rewards = recorded_rewards[:len(recorded_actions)]
-        recorded_dones = recorded_dones[:len(recorded_actions)]
-
-        return recorded_actions, recorded_obs, recorded_rewards, recorded_dones
+        return self.execute_waypoints(obs, waypoints)

@@ -22,6 +22,9 @@ PerturbationMode = Literal[
 class PerturbationConfig:
     mode: PerturbationMode = "nominal"
     seed: int | None = None
+    # L1 nominal jitter, applied in every mode that does not apply L2 spatial shifts.
+    nominal_jitter_xy_m: float = 0.015
+    nominal_jitter_yaw_deg: float = 15.0
     spatial_jitter_xy_m: float = 0.08
     spatial_jitter_yaw_deg: float = 45.0
     light_pos_jitter_m: float = 0.5
@@ -36,10 +39,28 @@ class PerturbationEngine:
     def __init__(self, config: PerturbationConfig | None = None):
         self.config = config or PerturbationConfig()
         self.rng = np.random.default_rng(self.config.seed)
+        self._nominal_light_pos: np.ndarray | None = None
+        self._nominal_light_diffuse: np.ndarray | None = None
+        self._nominal_geom_rgba: np.ndarray | None = None
 
     def set_seed(self, seed: int):
         self.config.seed = seed
         self.rng = np.random.default_rng(seed)
+
+    def begin_episode(self, model: mujoco.MjModel, seed: int) -> None:
+        """Re-seed the sampler and restore nominal lights and colors.
+
+        Visual and object perturbations scale model parameters in place, so without the
+        restore their severity would compound across episodes.
+        """
+        self.set_seed(seed)
+        if self._nominal_light_pos is None:
+            self._nominal_light_pos = model.light_pos.copy()
+            self._nominal_light_diffuse = model.light_diffuse.copy()
+            self._nominal_geom_rgba = model.geom_rgba.copy()
+        model.light_pos[:] = self._nominal_light_pos
+        model.light_diffuse[:] = self._nominal_light_diffuse
+        model.geom_rgba[:] = self._nominal_geom_rgba
 
     def apply_spatial_perturbation(
         self,
@@ -48,18 +69,22 @@ class PerturbationEngine:
         jitter_xy: float | None = None,
         jitter_yaw_deg: float | None = None,
     ) -> tuple[np.ndarray, np.ndarray]:
-        """Apply random bounded (x, y) displacement and yaw rotation."""
-        mode_str = str(self.config.mode).lower()
-        if mode_str not in ("p2_spatial", "combined_ood"):
-            quat = base_quat if base_quat is not None else np.array([1.0, 0.0, 0.0, 0.0])
-            return base_pos.copy(), quat
+        """Apply a bounded (x, y) displacement and yaw rotation.
 
-        j_xy = jitter_xy or self.config.spatial_jitter_xy_m
-        j_yaw = np.radians(jitter_yaw_deg or self.config.spatial_jitter_yaw_deg)
+        L2 bounds (jitter_xy, jitter_yaw_deg, or the config defaults) apply in the spatial
+        and combined modes; every other mode applies the L1 nominal jitter.
+        """
+        mode_str = str(self.config.mode).lower()
+        if mode_str in ("p2_spatial", "combined_ood"):
+            j_xy = jitter_xy or self.config.spatial_jitter_xy_m
+            j_yaw = np.radians(jitter_yaw_deg or self.config.spatial_jitter_yaw_deg)
+        else:
+            j_xy = self.config.nominal_jitter_xy_m
+            j_yaw = np.radians(self.config.nominal_jitter_yaw_deg)
 
         dx = self.rng.uniform(-j_xy, j_xy)
         dy = self.rng.uniform(-j_xy, j_xy)
-        perturbed_pos = base_pos.copy()
+        perturbed_pos = np.asarray(base_pos, dtype=np.float64).copy()
         perturbed_pos[0] += dx
         perturbed_pos[1] += dy
 
@@ -76,6 +101,13 @@ class PerturbationEngine:
             out_quat = yaw_quat
 
         return perturbed_pos, out_quat
+
+    def jitter_point(self, point: np.ndarray) -> np.ndarray:
+        """Apply the L1 nominal (x, y) jitter to a point, e.g. an initial TCP target."""
+        j_xy = self.config.nominal_jitter_xy_m
+        out = np.asarray(point, dtype=np.float64).copy()
+        out[:2] += self.rng.uniform(-j_xy, j_xy, size=2)
+        return out
 
     def apply_visual_perturbation(self, model: mujoco.MjModel):
         """Perturb lighting position, direction, and intensity in MuJoCo model."""

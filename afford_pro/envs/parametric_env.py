@@ -28,6 +28,8 @@ class ParametricFrankaEnv(BaseFrankaEnv):
         task_type: Literal["pick_place", "insert", "press_button", "slide"] = "pick_place",
         tolerance_xy: float = 0.040,
         tolerance_z: float = 0.030,
+        min_lift: float = 0.0,
+        init_tcp_pos: list[float] | np.ndarray | None = None,
         perturbation_mode: str = "nominal",
         render_mode: str = "rgb_array",
         max_episode_steps: int = 500,
@@ -42,6 +44,8 @@ class ParametricFrankaEnv(BaseFrankaEnv):
         self.task_type = task_type
         self.tolerance_xy = tolerance_xy
         self.tolerance_z = tolerance_z
+        self.min_lift = min_lift
+        self.init_tcp_pos = None if init_tcp_pos is None else np.array(init_tcp_pos, dtype=np.float64)
         self.perturbation_engine = PerturbationEngine(PerturbationConfig(mode=perturbation_mode))
 
         super().__init__(
@@ -59,6 +63,7 @@ class ParametricFrankaEnv(BaseFrankaEnv):
         joint_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_JOINT, self.joint_name)
         self.target_qposadr = self.model.jnt_qposadr[joint_id] if joint_id != -1 else None
         self.grasped_object = None
+        self.seated = False
 
     def reset_objects(self, options: dict[str, Any] | None = None) -> None:
         """Reset object and apply perturbations."""
@@ -75,6 +80,21 @@ class ParametricFrankaEnv(BaseFrankaEnv):
         self.perturbation_engine.apply_visual_perturbation(self.model)
         self.perturbation_engine.apply_object_perturbation(self.model, self.geom_name)
         self.grasped_object = None
+        self.seated = False
+
+    def _settle(self) -> None:
+        super()._settle()
+        self.start_z = float(self.data.xpos[self.target_id][2])
+        self.peak_z = self.start_z
+
+    def _hold_bodies(self) -> None:
+        """Keep a grasped body at the fingertips and a seated body at its goal."""
+        if self.target_qposadr is None:
+            return
+        if self.grasped_object == self.object_name:
+            self.pin_free_body(self.target_qposadr, self.tcp_position + np.array([0.0, 0.0, -0.010]))
+        elif self.seated:
+            self.pin_free_body(self.target_qposadr, self.target_goal_pos)
 
     def step(self, action: np.ndarray) -> tuple[dict[str, Any], float, bool, bool, dict[str, Any]]:
         tip = self.tcp_position
@@ -86,19 +106,21 @@ class ParametricFrankaEnv(BaseFrankaEnv):
             gripper_closed = action[6] < 0
             if gripper_closed and dist < 0.065:
                 self.grasped_object = self.object_name
+                self.seated = False
             elif not gripper_closed:
                 if self.grasped_object == self.object_name:
+                    # Release near the goal seats the body there (kinematic snap).
                     if np.linalg.norm(obj_pos[:2] - self.target_goal_pos[:2]) < (self.tolerance_xy + 0.02):
-                        if self.target_qposadr is not None:
-                            self.data.qpos[self.target_qposadr : self.target_qposadr + 3] = self.target_goal_pos
-                            self.data.qpos[self.target_qposadr + 3 : self.target_qposadr + 7] = [1.0, 0.0, 0.0, 0.0]
+                        self.seated = self.lift_satisfied()
                 self.grasped_object = None
 
-            if self.grasped_object == self.object_name and self.target_qposadr is not None:
-                self.data.qpos[self.target_qposadr : self.target_qposadr + 3] = tip + np.array([0.0, 0.0, -0.010])
-                self.data.qpos[self.target_qposadr + 3 : self.target_qposadr + 7] = [1.0, 0.0, 0.0, 0.0]
+        out = super().step(action)
+        self.peak_z = max(self.peak_z, float(self.data.xpos[self.target_id][2]))
+        return out
 
-        return super().step(action)
+    def lift_satisfied(self) -> bool:
+        """True once the body has been raised at least `min_lift` above its settled start height."""
+        return self.peak_z - self.start_z >= self.min_lift - 1e-6
 
     def check_success(self) -> bool:
         if self.task_type in ("pick_place", "insert"):
@@ -107,7 +129,7 @@ class ParametricFrankaEnv(BaseFrankaEnv):
             z_err = abs(obj_pos[2] - self.target_goal_pos[2])
             is_placed = (xy_err < self.tolerance_xy) and (z_err < self.tolerance_z)
             gripper_released = self.gripper_width >= 0.030
-            return bool(is_placed and gripper_released)
+            return bool(is_placed and gripper_released and self.lift_satisfied())
         elif self.task_type == "press_button":
             # Success if TCP came within contact distance of button
             tip = self.tcp_position

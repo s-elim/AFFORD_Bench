@@ -48,6 +48,7 @@ class FrankaPinInsertionEnv(BaseFrankaEnv):
         self.nominal_pin_pos = np.array([0.42, 0.10, 0.035], dtype=np.float64)
         self.target_hole_pos = np.array([0.55, 0.055, 0.080], dtype=np.float64)
         self.grasped_object = None
+        self.seated = False
 
     def reset_objects(self, options: dict[str, Any] | None = None) -> None:
         """Reset pin with LIBERO-PRO style perturbations."""
@@ -66,6 +67,14 @@ class FrankaPinInsertionEnv(BaseFrankaEnv):
         # 3. Object material/color perturbation
         self.perturbation_engine.apply_object_perturbation(self.model, "pin_core")
         self.grasped_object = None
+        self.seated = False
+
+    def _hold_bodies(self) -> None:
+        """Keep a grasped body at the fingertips and a seated body at its goal."""
+        if self.grasped_object == "pin":
+            self.pin_free_body(self.pin_qposadr, self.tcp_position + np.array([0.0, 0.0, -0.010]))
+        elif self.seated:
+            self.pin_free_body(self.pin_qposadr, self.target_hole_pos)
 
     def step(self, action: np.ndarray) -> tuple[dict[str, Any], float, bool, bool, dict[str, Any]]:
         tip = self.tcp_position
@@ -75,18 +84,13 @@ class FrankaPinInsertionEnv(BaseFrankaEnv):
         # Check grasp closing
         if self.gripper_width <= 0.020 and dist < 0.055:
             self.grasped_object = "pin"
+            self.seated = False
         elif self.gripper_width >= 0.030:
             if self.grasped_object == "pin":
                 # Check if near locating hole on release: snap-in insertion
                 if np.linalg.norm(pin_pos[:2] - self.target_hole_pos[:2]) < 0.045:
-                    self.data.qpos[self.pin_qposadr : self.pin_qposadr + 3] = self.target_hole_pos
-                    self.data.qpos[self.pin_qposadr + 3 : self.pin_qposadr + 7] = [1.0, 0.0, 0.0, 0.0]
+                    self.seated = True
             self.grasped_object = None
-
-        # Synchronize grasped pin pose with gripper
-        if self.grasped_object == "pin":
-            self.data.qpos[self.pin_qposadr : self.pin_qposadr + 3] = tip + np.array([0.0, 0.0, -0.010])
-            self.data.qpos[self.pin_qposadr + 3 : self.pin_qposadr + 7] = [1.0, 0.0, 0.0, 0.0]
 
         return super().step(action)
 

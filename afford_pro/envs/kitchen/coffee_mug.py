@@ -48,6 +48,7 @@ class FrankaCoffeeMugEnv(BaseFrankaEnv):
         self.nominal_mug_pos = np.array([0.38, 0.22, 0.038], dtype=np.float64)
         self.target_drip_tray_pos = np.array([0.48, -0.15, 0.038], dtype=np.float64)
         self.grasped_object = None
+        self.seated = False
 
     def reset_objects(self, options: dict[str, Any] | None = None) -> None:
         """Reset mug with LIBERO-PRO style perturbations."""
@@ -66,6 +67,14 @@ class FrankaCoffeeMugEnv(BaseFrankaEnv):
         # 3. Object material/color perturbation
         self.perturbation_engine.apply_object_perturbation(self.model, "mug_body")
         self.grasped_object = None
+        self.seated = False
+
+    def _hold_bodies(self) -> None:
+        """Keep a grasped body at the fingertips and a seated body at its goal."""
+        if self.grasped_object == "mug":
+            self.pin_free_body(self.mug_qposadr, self.tcp_position + np.array([0.0, 0.0, -0.010]))
+        elif self.seated:
+            self.pin_free_body(self.mug_qposadr, self.target_drip_tray_pos)
 
     def step(self, action: np.ndarray) -> tuple[dict[str, Any], float, bool, bool, dict[str, Any]]:
         tip = self.tcp_position
@@ -76,16 +85,12 @@ class FrankaCoffeeMugEnv(BaseFrankaEnv):
         gripper_closed = action[6] < 0
         if gripper_closed and dist < 0.065:
             self.grasped_object = "mug"
+            self.seated = False
         elif not gripper_closed:
             if self.grasped_object == "mug":
                 if np.linalg.norm(mug_pos[:2] - self.target_drip_tray_pos[:2]) < 0.055:
-                    self.data.qpos[self.mug_qposadr : self.mug_qposadr + 3] = self.target_drip_tray_pos
-                    self.data.qpos[self.mug_qposadr + 3 : self.mug_qposadr + 7] = [1.0, 0.0, 0.0, 0.0]
+                    self.seated = True
             self.grasped_object = None
-
-        if self.grasped_object == "mug":
-            self.data.qpos[self.mug_qposadr : self.mug_qposadr + 3] = tip + np.array([0.0, 0.0, -0.010])
-            self.data.qpos[self.mug_qposadr + 3 : self.mug_qposadr + 7] = [1.0, 0.0, 0.0, 0.0]
 
         return super().step(action)
 

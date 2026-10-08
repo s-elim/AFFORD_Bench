@@ -76,6 +76,7 @@ class FrankaBlockSortingEnv(BaseFrankaEnv):
         self.target_qposadr = self.qposadrs[self.target_color]
         self.target_bin_pos = self.bin_targets[self.target_color]
         self.grasped_object = None
+        self.seated = False
 
     def reset_objects(self, options: dict[str, Any] | None = None) -> None:
         """Reset all objects with perturbations applied to the target object."""
@@ -98,6 +99,14 @@ class FrankaBlockSortingEnv(BaseFrankaEnv):
         self.perturbation_engine.apply_visual_perturbation(self.model)
         self.perturbation_engine.apply_object_perturbation(self.model, f"{self.target_color}_geom")
         self.grasped_object = None
+        self.seated = False
+
+    def _hold_bodies(self) -> None:
+        """Keep a grasped body at the fingertips and a seated body at its goal."""
+        if self.grasped_object == self.target_color:
+            self.pin_free_body(self.target_qposadr, self.tcp_position + np.array([0.0, 0.0, -0.010]))
+        elif self.seated:
+            self.pin_free_body(self.target_qposadr, self.target_bin_pos)
 
     def step(self, action: np.ndarray) -> tuple[dict[str, Any], float, bool, bool, dict[str, Any]]:
         tip = self.tcp_position
@@ -107,16 +116,12 @@ class FrankaBlockSortingEnv(BaseFrankaEnv):
         gripper_closed = action[6] < 0
         if gripper_closed and dist < 0.060:
             self.grasped_object = self.target_color
+            self.seated = False
         elif not gripper_closed:
             if self.grasped_object == self.target_color:
                 if np.linalg.norm(obj_pos[:2] - self.target_bin_pos[:2]) < 0.055:
-                    self.data.qpos[self.target_qposadr : self.target_qposadr + 3] = self.target_bin_pos
-                    self.data.qpos[self.target_qposadr + 3 : self.target_qposadr + 7] = [1.0, 0.0, 0.0, 0.0]
+                    self.seated = True
             self.grasped_object = None
-
-        if self.grasped_object == self.target_color:
-            self.data.qpos[self.target_qposadr : self.target_qposadr + 3] = tip + np.array([0.0, 0.0, -0.010])
-            self.data.qpos[self.target_qposadr + 3 : self.target_qposadr + 7] = [1.0, 0.0, 0.0, 0.0]
 
         return super().step(action)
 

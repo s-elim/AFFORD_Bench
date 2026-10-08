@@ -5,7 +5,7 @@ For each task in the nominal suite this script records:
   - oracle_success:   the scripted oracle solves the task (oracle is deterministic, one episode)
   - random_sr:        success rate of uniform random actions over --episodes episodes
   - null_sr:          success rate of a policy that never moves and keeps the gripper open
-  - reset_pose_varies: the evaluated body's initial pose differs across reset seeds
+  - reset_pose_varies: the evaluated body pose or the initial TCP position differs across reset seeds
 
 Rendering is disabled, so the script runs on headless machines without OpenGL.
 
@@ -40,7 +40,7 @@ CUSTOM_ENV_MODULES = (
     "kitchen.coffee_mug",
     "tabletop.block_sorting",
 )
-BODY_ATTRS = ("target_id", "shaft_id", "gear_id", "pin_id", "patty_id", "cheese_id", "mug_id", "block_id")
+BODY_ATTRS = ("target_id", "gear_id", "cheese_id", "pin_id", "mug_id", "patty_id", "shaft_id")
 NULL_ACTION = np.array([0, 0, 0, 0, 0, 0, 1.0], dtype=np.float32)
 
 
@@ -109,7 +109,7 @@ def evaluate_task(task_id: str, episodes: int, horizon: int, seed: int) -> TaskS
     poses = []
     for s in (seed, seed + 1, seed + 2):
         env.reset(seed=s)
-        poses.append(env.data.xpos[body].copy())
+        poses.append(np.concatenate([env.data.xpos[body], env.tcp_position]))
     success_at_reset = bool(env.check_success())
 
     afford_pro.get_oracle(task_id, env).generate_episode(seed=seed)

@@ -1,7 +1,10 @@
 <mujoco model="panda_burger_kitchen">
   <compiler angle="radian" meshdir="D:/Selim Sarowar/Cursor_Projects/cap-x/capx/envs/assets/franka_pick_place/assets" autolimits="true"/>
 
-  <option integrator="implicitfast"/>
+  <option integrator="implicitfast">
+    <!-- Multi-point convex contacts: without them cylinders on boxes rest on one point and topple. -->
+    <flag multiccd="enable"/>
+  </option>
 
   <visual>
     <global offwidth="1920" offheight="1080"/>

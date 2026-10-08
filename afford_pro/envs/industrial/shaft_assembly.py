@@ -49,6 +49,7 @@ class FrankaShaftAssemblyEnv(BaseFrankaEnv):
         self.nominal_shaft_pos = np.array([0.40, 0.24, 0.050], dtype=np.float64)
         self.jig_bore_pos = np.array([0.55, 0.00, 0.116], dtype=np.float64)
         self.grasped_object = None
+        self.seated = False
 
     def reset_objects(self, options: dict[str, Any] | None = None) -> None:
         """Reset shaft and apply LIBERO-PRO style perturbations."""
@@ -67,6 +68,14 @@ class FrankaShaftAssemblyEnv(BaseFrankaEnv):
         # 3. Object material/color perturbation
         self.perturbation_engine.apply_object_perturbation(self.model, "shaft_core")
         self.grasped_object = None
+        self.seated = False
+
+    def _hold_bodies(self) -> None:
+        """Keep a grasped body at the fingertips and a seated body at its goal."""
+        if self.grasped_object == "shaft":
+            self.pin_free_body(self.shaft_qposadr, self.tcp_position + np.array([0.0, 0.0, -0.015]))
+        elif self.seated:
+            self.pin_free_body(self.shaft_qposadr, self.jig_bore_pos)
 
     def step(self, action: np.ndarray) -> tuple[dict[str, Any], float, bool, bool, dict[str, Any]]:
         # Track grasp state based on gripper proximity
@@ -77,18 +86,13 @@ class FrankaShaftAssemblyEnv(BaseFrankaEnv):
         # Check grasp closing
         if self.gripper_width <= 0.022 and dist < 0.06:
             self.grasped_object = "shaft"
+            self.seated = False
         elif self.gripper_width >= 0.032:
             if self.grasped_object == "shaft":
                 # Check if near jig bore on release: snap-in seating
                 if np.linalg.norm(shaft_pos[:2] - self.jig_bore_pos[:2]) < 0.06:
-                    self.data.qpos[self.shaft_qposadr : self.shaft_qposadr + 3] = self.jig_bore_pos
-                    self.data.qpos[self.shaft_qposadr + 3 : self.shaft_qposadr + 7] = [1.0, 0.0, 0.0, 0.0]
+                    self.seated = True
             self.grasped_object = None
-
-        # Synchronize grasped shaft pose with gripper
-        if self.grasped_object == "shaft":
-            self.data.qpos[self.shaft_qposadr : self.shaft_qposadr + 3] = tip + np.array([0.0, 0.0, -0.015])
-            self.data.qpos[self.shaft_qposadr + 3 : self.shaft_qposadr + 7] = [1.0, 0.0, 0.0, 0.0]
 
         return super().step(action)
 
