@@ -6,13 +6,13 @@ Date: 2026-10-08. Branch `claude/intelligent-meitner-e8vp2p`. Measured with MuJo
 
 | Target | Measured (`docs/reviews/sanity_baselines_2026-10-08.csv`) |
 | --- | --- |
-| Oracle > 95% (nominal) | 1014/1050 episodes, 96.6% (episode-level Wilson 95% CI 95.3 to 97.5%), 5 reset seeds per task; 192/210 tasks solved in every seed, 209/210 in at least one |
+| Oracle > 95% (nominal; follow-up target >= 99%) | 1048/1050 episodes, 99.8% (episode-level Wilson 95% CI 99.3 to 99.9%), 5 reset seeds per task; 208/210 tasks solved in every seed, 210/210 in at least one |
 | Null policy 0.0% | 0/210 tasks (1 episode per task; upper 95% bound 1.8%) |
 | Random policy 0.0% | 0/1050 episodes (5 per task, H = 400; upper 95% bound 0.4%) |
 | No task solved at reset | 0/210 (3 reset seeds per task) |
-| Oracle under L4 (not a target; reported) | 509/1050 episodes, 48.5% (45.5 to 51.5%) |
+| Oracle under L4 (not a target; reported) | 497/1050 episodes, 47.3% (44.3 to 50.4%) |
 
-Per domain (oracle nominal / oracle L4, % of 150 episodes): D1 100.0 / 42.7, D2 92.7 / 52.7, D3 100.0 / 44.7, D4 100.0 / 88.0, D5 94.7 / 38.7, D6 95.3 / 50.7, D7 93.3 / 22.0.
+Per domain (oracle nominal / oracle L4, % of 150 episodes): D1 100.0 / 37.3, D2 100.0 / 56.7, D3 100.0 / 41.3, D4 100.0 / 84.0, D5 100.0 / 38.0, D6 99.3 / 51.3, D7 99.3 / 22.7. The first hardening run measured 96.6% nominal and 48.5% under L4; the follow-up below raised the nominal rate.
 
 The Wilson intervals treat episodes as independent; episodes of one task are correlated, so the intervals are too narrow. A single simulator build was used; no cross-version or cross-machine check was run.
 
@@ -47,14 +47,23 @@ So off-center grasps fail far more often under L4 (8/12 dropped for cube and mug
 - **Gripper slew limit** of 0.05 m/s per finger was added; without it the fingers closed 37 mm in one 50 ms step and launched thin bodies through their support. The Franka Hand rating used for this value is [unverified].
 - **Results depend on the substituted Menagerie meshes.** Finger and hand collision geometry decide many of the grasp outcomes; rerun on the author's assets before quoting numbers.
 
-## Remaining oracle failures (36 of 1050 nominal episodes)
+## Follow-up: oracle patch (36 -> 2 nominal failures)
 
-29 are mug, bun, and capsule episodes in D2, D5, and D7. In the traced episodes the grasp was lost during transport and the body landed on its side; the oracle grasps top-down only and cannot re-orient a toppled body. Task 168 fails in all 5 seeds (the released pin settles 3.2 mm from its goal against a 2.5 mm tolerance) and task 155 in 2 of 5.
+- **Transport.** The carry legs use 0.012 m per step (0.24 m/s) and 0.8 m/s^2 instead of 0.5 m/s and 1.6 m/s^2, and the carry height clears every surface under the hand's footprint on the straight path to the goal by 25 mm. In the traced capsule failure the cause was not slip: the hand struck the coffee brew head on the way, which the path clearance removes.
+- **Placement.** The oracle hovers above the goal until the carried body stops swinging and is within 0.5 mm, re-centers laterally (at most 15 steps) during the last 15 mm of the descent, and holds the grasp until the body is at rest on its support before opening (compliant settling).
+- **Grasp yaw.** The mug may be grasped at 45 deg steps around its body, not only aligned with its handle, which frees grasps next to the brew head.
+- **Scene.** The top bun started straddling its caddy wall and leaned 8.9 deg whenever the start fell back to the nominal pose; its nominal start and the two caddy targets moved to the compartment center (tasks 34, 47, 54, 125, 144, 147, 186).
+
+Remaining nominal failures: one episode each of task 168 (the released pin settles 3.6 mm from its goal against a 2.5 mm tolerance) and task 203 (not traced). Under L4 the oracle succeeds in 47.3% of episodes; its grip and speed do not adapt to friction or mass.
+
+The robot-scene contact force (net force from the scene, excluding the manipulated body, on the robot) is now reported in every step's `info["robot_scene_force"]`. One oracle episode per task (seed 20000) peaked at 149 N in the worst task (median 0 N), which sets the paper's F_max = 150 N. The same probe gives a mean successful episode length of 108 steps, so 50 demonstrations per task is about 1.1e6 timesteps; the released dataset has not been regenerated with this controller.
 
 ## Reproduction
 
 ```
 python scripts/sanity_baselines.py --asset-dir <portable assets> --shard i/4 --oracle-episodes 5 --episodes 5 --out part_i.csv
 python scripts/l4_slip_probe.py --asset-dir <portable assets> --tasks tabletop_sort_red,kitchen_mug_return_bin,industrial_shaft_to_pallet --out slip.csv
+python scripts/convert_to_lerobot.py --hdf5 <dataset>.hdf5 --out lerobot/
+python scripts/convert_to_rlds.py --hdf5 <dataset>.hdf5 --out rlds/ --format npz   # --format tfds needs tensorflow_datasets (not run here)
 pytest tests
 ```
