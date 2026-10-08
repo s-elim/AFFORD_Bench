@@ -49,6 +49,11 @@ def test_entry_matches_definition(task_def, entry) -> None:
     assert g["scene"] == task_def.scene_xml
     assert g["start_xyz_m"] == pytest.approx(task_def.nominal_pos)
     assert g["goal_xyz_m"] == pytest.approx(task_def.target_pos)
+    assert g["tolerance_xy_m"] == pytest.approx(task_def.tolerance_xy)
+    assert g["tolerance_z_m"] == pytest.approx(task_def.tolerance_z)
+    assert g["tilt_tolerance_deg"] == pytest.approx(task_def.tilt_tol_deg)
+    assert g["min_lift_m"] == pytest.approx(task_def.min_lift)
+    assert g["distractors"] == task_def.distractors
 
     geo = entry["prompts"]["geometric_spatial"]
     assert _fmt(task_def.target_pos) in geo

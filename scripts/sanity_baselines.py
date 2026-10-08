@@ -2,10 +2,12 @@
 
 For each task in the nominal suite this script records:
   - success_at_reset: the success predicate already holds before any action
-  - oracle_success:   the scripted oracle solves the task (oracle is deterministic, one episode)
+  - oracle_sr:        success rate of the closed-loop oracle over --oracle-episodes reset seeds
+  - oracle_sr_physical: the same under the L4 physical suite (low friction, heavy body)
   - random_sr:        success rate of uniform random actions over --episodes episodes
   - null_sr:          success rate of a policy that never moves and keeps the gripper open
   - reset_pose_varies: the evaluated body pose or the initial TCP position differs across reset seeds
+  - start_fallback_rate: fraction of those resets that found no valid scattered start and used the nominal pose
 
 Rendering is disabled, so the script runs on headless machines without OpenGL.
 
@@ -13,12 +15,13 @@ Usage:
   python scripts/sanity_baselines.py --out docs/reviews/sanity_baselines.csv
   # Use a different asset directory (e.g. XMLs with a portable meshdir):
   python scripts/sanity_baselines.py --asset-dir /path/to/assets --out sanity.csv
+  # Run one of n shards (merge the CSVs afterwards):
+  python scripts/sanity_baselines.py --shard 0/4 --out part0.csv
 """
 from __future__ import annotations
 
 import argparse
 import csv
-import importlib
 import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -31,16 +34,6 @@ if str(ROOT) not in sys.path:
 
 import afford_pro.envs.base_franka_env as base_env
 
-CUSTOM_ENV_MODULES = (
-    "industrial.shaft_assembly",
-    "industrial.gear_mesh",
-    "industrial.pin_insertion",
-    "kitchen.patty_stack",
-    "kitchen.cheese_place",
-    "kitchen.coffee_mug",
-    "tabletop.block_sorting",
-)
-BODY_ATTRS = ("target_id", "gear_id", "cheese_id", "pin_id", "mug_id", "patty_id", "shaft_id")
 NULL_ACTION = np.array([0, 0, 0, 0, 0, 0, 1.0], dtype=np.float32)
 
 
@@ -50,10 +43,12 @@ class TaskSanity:
     task_id: str
     domain: str
     success_at_reset: bool
-    oracle_success: bool
+    oracle_sr: float
+    oracle_sr_physical: float
     random_sr: float
     null_sr: float
     reset_pose_varies: bool
+    start_fallback_rate: float
 
 
 class _NoRenderer:
@@ -70,19 +65,6 @@ def _redirect_assets(asset_dir: Path) -> None:
     import afford_pro.envs.parametric_env as parametric_env
 
     parametric_env.ASSET_DIR = asset_dir
-    for name in CUSTOM_ENV_MODULES:
-        module = importlib.import_module(f"afford_pro.envs.{name}")
-        if hasattr(module, "ASSET_DIR"):
-            module.ASSET_DIR = asset_dir
-        if hasattr(module, "SCENE_XML"):
-            module.SCENE_XML = asset_dir / Path(module.SCENE_XML).name
-
-
-def _evaluated_body(env) -> int:
-    for attr in BODY_ATTRS:
-        if getattr(env, attr, None) is not None:
-            return getattr(env, attr)
-    raise AttributeError(f"{type(env).__name__} exposes none of {BODY_ATTRS}")
 
 
 def _rollout_sr(env, policy: str, episodes: int, horizon: int, seed: int) -> float:
@@ -99,31 +81,45 @@ def _rollout_sr(env, policy: str, episodes: int, horizon: int, seed: int) -> flo
     return successes / episodes
 
 
-def evaluate_task(task_id: str, episodes: int, horizon: int, seed: int) -> TaskSanity:
+def _oracle_sr(task_id: str, mode: str, episodes: int, seed: int) -> float:
+    import afford_pro
+
+    env = afford_pro.make(task_id, perturbation_mode=mode)
+    oracle = afford_pro.get_oracle(task_id, env)
+    successes = 0
+    for ep in range(episodes):
+        oracle.generate_episode(seed=seed + ep)
+        successes += bool(env.check_success())
+    return successes / episodes
+
+
+def evaluate_task(task_id: str, episodes: int, oracle_episodes: int, horizon: int, seed: int) -> TaskSanity:
     import afford_pro
 
     entry = afford_pro.get_task_entry(task_id)
     env = afford_pro.make(task_id, perturbation_mode="nominal")
-    body = _evaluated_body(env)
+    body = env.target_id
 
     poses = []
+    reset_success = []
+    fallbacks = []
     for s in (seed, seed + 1, seed + 2):
         env.reset(seed=s)
         poses.append(np.concatenate([env.data.xpos[body], env.tcp_position]))
-    success_at_reset = bool(env.check_success())
-
-    afford_pro.get_oracle(task_id, env).generate_episode(seed=seed)
-    oracle_success = bool(env.check_success())
+        reset_success.append(env.check_success())
+        fallbacks.append(env.start_fallback)
 
     return TaskSanity(
         task_number=entry.task_number,
         task_id=task_id,
         domain=entry.domain,
-        success_at_reset=success_at_reset,
-        oracle_success=oracle_success,
+        success_at_reset=any(reset_success),
+        oracle_sr=_oracle_sr(task_id, "nominal", oracle_episodes, seed),
+        oracle_sr_physical=_oracle_sr(task_id, "p4_physical", oracle_episodes, seed),
         random_sr=_rollout_sr(env, "random", episodes, horizon, seed),
         null_sr=_rollout_sr(env, "null", 1, horizon, seed),
         reset_pose_varies=not all(np.allclose(poses[0], p) for p in poses[1:]),
+        start_fallback_rate=float(np.mean(fallbacks)),
     )
 
 
@@ -132,6 +128,8 @@ def main() -> None:
     parser.add_argument("--out", type=Path, default=ROOT / "sanity_baselines.csv")
     parser.add_argument("--asset-dir", type=Path, default=None, help="Override afford_pro/assets")
     parser.add_argument("--episodes", type=int, default=5, help="Random-policy episodes per task")
+    parser.add_argument("--oracle-episodes", type=int, default=5, help="Oracle episodes per task and suite")
+    parser.add_argument("--shard", type=str, default="0/1", help="i/n: evaluate every n-th task starting at i")
     parser.add_argument("--horizon", type=int, default=400)
     parser.add_argument("--seed", type=int, default=10_000)
     parser.add_argument("--tasks", type=str, default="all", help="Comma-separated task IDs, or 'all'")
@@ -143,11 +141,13 @@ def main() -> None:
     import afford_pro
 
     task_ids = afford_pro.list_tasks() if args.tasks == "all" else args.tasks.split(",")
+    shard, n_shards = (int(x) for x in args.shard.split("/"))
+    task_ids = task_ids[shard::n_shards]
     rows = []
     for tid in task_ids:
-        row = evaluate_task(tid, args.episodes, args.horizon, args.seed)
+        row = evaluate_task(tid, args.episodes, args.oracle_episodes, args.horizon, args.seed)
         rows.append(row)
-        print(f"[{row.task_number:03d}] {tid}: oracle={row.oracle_success} random={row.random_sr:.2f} "
+        print(f"[{row.task_number:03d}] {tid}: oracle={row.oracle_sr:.2f} oracle_L4={row.oracle_sr_physical:.2f} random={row.random_sr:.2f} "
               f"null={row.null_sr:.2f} reset_success={row.success_at_reset} pose_varies={row.reset_pose_varies}", flush=True)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
@@ -159,10 +159,10 @@ def main() -> None:
     by_domain: dict[str, list[TaskSanity]] = {}
     for r in rows:
         by_domain.setdefault(r.domain, []).append(r)
-    print("\nDomain                                   Oracle  Random   Null")
+    print("\nDomain                                   Oracle  Or.L4  Random   Null")
     for domain, rs in by_domain.items():
-        print(f"{domain:40s} {np.mean([r.oracle_success for r in rs]):6.1%} {np.mean([r.random_sr for r in rs]):6.1%} "
-              f"{np.mean([r.null_sr for r in rs]):6.1%}")
+        print(f"{domain:40s} {np.mean([r.oracle_sr for r in rs]):6.1%} {np.mean([r.oracle_sr_physical for r in rs]):6.1%} "
+              f"{np.mean([r.random_sr for r in rs]):6.1%} {np.mean([r.null_sr for r in rs]):6.1%}")
     print(f"Wrote {args.out}")
 
 

@@ -1,4 +1,4 @@
-"""Task Definitions for the Complete 150-Task Suite of AFFORD-PRO-150."""
+"""Task definitions for the 210 AFFORD-Bench tasks."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -18,12 +18,20 @@ class TaskDef:
     nominal_pos: list[float]
     target_pos: list[float]
     task_type: Literal["pick_place", "insert", "press_button", "slide"] = "pick_place"
-    tolerance_xy: float = 0.040
-    tolerance_z: float = 0.030
+    # Goal tolerances; None takes the precision tier of the task's domain (PRECISION_TIERS).
+    tolerance_xy: float | None = None
+    tolerance_z: float | None = None
+    tilt_tol_deg: float | None = None
     # Success also requires the body to have been raised this far above its settled start (m).
-    min_lift: float = 0.0
+    min_lift: float = 0.02
     # Initial TCP position (m); None starts the arm at the ready pose.
     init_tcp_pos: list[float] | None = None
+    # Other free bodies placed at fixed positions before the manipulated body: {joint_name: [x, y, z]}.
+    scene_bodies: dict[str, list[float]] | None = None
+    # Goal xy follows this body's axis (e.g. a gear goal follows the seated shaft it slides onto).
+    goal_ref_body: str | None = None
+    # Place distractor bodies on the workspace (set from the domain in apply_precision_tiers).
+    distractors: bool = False
 
 
 ALL_150_TASKS: list[TaskDef] = [
@@ -55,6 +63,8 @@ ALL_150_TASKS: list[TaskDef] = [
         nominal_pos=[0.56, 0.18, 0.055],
         target_pos=[0.55, 0.00, 0.090],
         task_type="insert",
+        scene_bodies={"shaft_joint": [0.55, 0.00, 0.116]},
+        goal_ref_body="machined_shaft",
     ),
     TaskDef(
         task_id="industrial_pin_insertion",
@@ -105,7 +115,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="spur_gear",
         joint_name="gear_joint",
         nominal_pos=[0.56, 0.18, 0.055],
-        target_pos=[0.55, 0.055, 0.070],
+        target_pos=[0.55, 0.0, 0.132],
         task_type="insert",
     ),
     TaskDef(
@@ -144,7 +154,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="machined_shaft",
         joint_name="shaft_joint",
         nominal_pos=[0.40, 0.24, 0.050],
-        target_pos=[0.55, -0.10, 0.040],
+        target_pos=[0.55, -0.13, 0.04],
         task_type="insert",
     ),
     TaskDef(
@@ -157,7 +167,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="spur_gear",
         joint_name="gear_joint",
         nominal_pos=[0.56, 0.18, 0.055],
-        target_pos=[0.50, -0.10, 0.040],
+        target_pos=[0.64, -0.16, 0.04],
         task_type="insert",
     ),
     TaskDef(
@@ -223,6 +233,7 @@ ALL_150_TASKS: list[TaskDef] = [
         joint_name="gear_joint",
         nominal_pos=[0.56, 0.18, 0.055],
         target_pos=[0.40, 0.24, 0.040],
+        scene_bodies={"shaft_joint": [0.55, 0.00, 0.116]},
         task_type="pick_place",
     ),
     TaskDef(
@@ -235,7 +246,8 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="dowel_pin",
         joint_name="pin_joint",
         nominal_pos=[0.42, 0.10, 0.035],
-        target_pos=[0.40, 0.24, 0.040],
+        target_pos=[0.4, 0.21, 0.04],
+        scene_bodies={"shaft_joint": [0.55, 0.00, 0.116]},
         task_type="pick_place",
     ),
     TaskDef(
@@ -394,7 +406,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="spur_gear",
         joint_name="gear_joint",
         nominal_pos=[0.56, 0.18, 0.055],
-        target_pos=[0.48, 0.05, 0.040],
+        target_pos=[0.36, 0.0, 0.04],
         task_type="pick_place",
     ),
     TaskDef(
@@ -407,7 +419,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="machined_shaft",
         joint_name="shaft_joint",
         nominal_pos=[0.40, 0.24, 0.050],
-        target_pos=[0.48, -0.05, 0.040],
+        target_pos=[0.36, -0.05, 0.04],
         task_type="pick_place",
     ),
     TaskDef(
@@ -440,6 +452,7 @@ ALL_150_TASKS: list[TaskDef] = [
         nominal_pos=[0.58, 0.20, 0.042],
         target_pos=[0.52, 0.00, 0.042],
         task_type="pick_place",
+        scene_bodies={"b_bun_joint": [0.52, 0.00, 0.026]},
     ),
     TaskDef(
         task_id="kitchen_cheese_place",
@@ -453,6 +466,7 @@ ALL_150_TASKS: list[TaskDef] = [
         nominal_pos=[0.58, -0.12, 0.026],
         target_pos=[0.52, 0.00, 0.052],
         task_type="pick_place",
+        scene_bodies={"b_bun_joint": [0.52, 0.00, 0.026], "patty_joint": [0.52, 0.00, 0.042]},
     ),
     TaskDef(
         task_id="kitchen_tomato_place",
@@ -503,7 +517,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="coffee_mug",
         joint_name="mug_joint",
         nominal_pos=[0.38, 0.22, 0.038],
-        target_pos=[0.48, -0.15, 0.038],
+        target_pos=[0.38, -0.15, 0.038],
         task_type="pick_place",
     ),
     TaskDef(
@@ -541,8 +555,8 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="kitchen_coffee.xml",
         object_name="coffee_mug",
         joint_name="mug_joint",
-        nominal_pos=[0.48, -0.15, 0.038],
-        target_pos=[0.35, -0.16, 0.038],
+        nominal_pos=[0.38, -0.15, 0.038],
+        target_pos=[0.35, -0.32, 0.038],
         task_type="pick_place",
     ),
     TaskDef(
@@ -594,7 +608,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="coffee_pod",
         joint_name="pod_joint",
         nominal_pos=[0.52, 0.14, 0.032],
-        target_pos=[0.35, -0.16, 0.035],
+        target_pos=[0.35, -0.32, 0.035],
         task_type="pick_place",
     ),
     TaskDef(
@@ -606,7 +620,7 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="kitchen_coffee.xml",
         object_name="coffee_mug",
         joint_name="mug_joint",
-        nominal_pos=[0.35, -0.16, 0.038],
+        nominal_pos=[0.35, -0.32, 0.038],
         target_pos=[0.38, 0.22, 0.038],
         task_type="pick_place",
     ),
@@ -619,7 +633,7 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="kitchen_coffee.xml",
         object_name="coffee_pod",
         joint_name="pod_joint",
-        nominal_pos=[0.35, -0.16, 0.035],
+        nominal_pos=[0.35, -0.32, 0.035],
         target_pos=[0.52, 0.14, 0.032],
         task_type="pick_place",
     ),
@@ -699,7 +713,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="coffee_machine",
         joint_name="mug_joint",
         nominal_pos=[0.58, -0.15, 0.10],
-        target_pos=[0.48, -0.15, 0.12],
+        target_pos=[0.40, -0.15, 0.12],
         task_type="press_button",
     ),
     TaskDef(
@@ -803,7 +817,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="coffee_machine",
         joint_name="mug_joint",
         nominal_pos=[0.58, -0.15, 0.10],
-        target_pos=[0.48, -0.15, 0.035],
+        target_pos=[0.38, -0.15, 0.035],
         task_type="press_button",
     ),
     TaskDef(
@@ -991,6 +1005,7 @@ ALL_150_TASKS: list[TaskDef] = [
         joint_name="red_joint",
         nominal_pos=[0.45, -0.08, 0.025],
         target_pos=[0.38, 0.06, 0.025],
+        scene_bodies={"blue_joint": [0.40, 0.24, 0.035]},
         task_type="pick_place",
     ),
     TaskDef(
@@ -1004,6 +1019,7 @@ ALL_150_TASKS: list[TaskDef] = [
         joint_name="blue_joint",
         nominal_pos=[0.38, 0.06, 0.025],
         target_pos=[0.52, 0.07, 0.025],
+        scene_bodies={"green_joint": [0.58, 0.00, 0.035]},
         task_type="pick_place",
     ),
     TaskDef(
@@ -1017,6 +1033,7 @@ ALL_150_TASKS: list[TaskDef] = [
         joint_name="green_joint",
         nominal_pos=[0.52, 0.07, 0.025],
         target_pos=[0.45, -0.08, 0.025],
+        scene_bodies={"red_joint": [0.40, -0.24, 0.035]},
         task_type="pick_place",
     ),
     TaskDef(
@@ -1146,7 +1163,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="red_block",
         joint_name="red_joint",
         nominal_pos=[0.45, -0.08, 0.025],
-        target_pos=[0.45, 0.16, 0.025],
+        target_pos=[0.45, 0.13, 0.025],
         task_type="pick_place",
     ),
     TaskDef(
@@ -1159,7 +1176,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="blue_block",
         joint_name="blue_joint",
         nominal_pos=[0.38, 0.06, 0.025],
-        target_pos=[0.38, -0.16, 0.025],
+        target_pos=[0.38, -0.13, 0.025],
         task_type="pick_place",
     ),
     TaskDef(
@@ -1172,7 +1189,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="red_block",
         joint_name="red_joint",
         nominal_pos=[0.45, -0.08, 0.025],
-        target_pos=[0.55, -0.08, 0.025],
+        target_pos=[0.55, -0.095, 0.025],
         task_type="pick_place",
     ),
     TaskDef(
@@ -1281,7 +1298,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="micro_tube",
         joint_name="micro_joint",
         nominal_pos=[0.40, 0.24, 0.045],
-        target_pos=[0.55, -0.15, 0.045],
+        target_pos=[0.55, -0.11, 0.045],
         task_type="pick_place",
     ),
     TaskDef(
@@ -1413,7 +1430,6 @@ ALL_150_TASKS: list[TaskDef] = [
         nominal_pos=[0.40, 0.20, 0.060],
         target_pos=[0.40, 0.16, 0.060],
         task_type="pick_place",
-        tolerance_xy=0.010,
     ),
     TaskDef(
         task_id="lab_pipette_to_tube_mouth",
@@ -1703,7 +1719,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="coffee_mug",
         joint_name="mug_joint",
         nominal_pos=[0.38, 0.22, 0.038],
-        target_pos=[0.35, -0.16, 0.038],
+        target_pos=[0.35, -0.32, 0.038],
         task_type="pick_place",
     ),
     TaskDef(
@@ -1807,7 +1823,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="coffee_mug",
         joint_name="mug_joint",
         nominal_pos=[0.38, 0.22, 0.038],
-        target_pos=[0.35, -0.16, 0.038],
+        target_pos=[0.35, -0.32, 0.038],
         task_type="pick_place",
     ),
     TaskDef(
@@ -2045,7 +2061,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="dowel_pin",
         joint_name="pin_joint",
         nominal_pos=[0.44, 0.22, 0.04],
-        target_pos=[0.55, -0.06, 0.1],
+        target_pos=[0.55, -0.055, 0.08],
         task_type="insert",
     ),
     TaskDef(
@@ -2071,7 +2087,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="spur_gear",
         joint_name="gear_joint",
         nominal_pos=[0.48, -0.18, 0.055],
-        target_pos=[0.52, 0.12, 0.06],
+        target_pos=[0.66, 0.13, 0.04],
         task_type="pick_place",
     ),
     TaskDef(
@@ -2110,7 +2126,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="conical_tube",
         joint_name="tube_joint",
         nominal_pos=[0.4, 0.2, 0.045],
-        target_pos=[0.55, 0.16, 0.065],
+        target_pos=[0.56, 0.2, 0.14],
         task_type="insert",
     ),
     TaskDef(
@@ -2200,7 +2216,7 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="industrial_assembly.xml",
         object_name="spur_gear",
         joint_name="gear_joint",
-        nominal_pos=[0.44, 0.22, 0.04],
+        nominal_pos=[0.56, 0.18, 0.055],
         target_pos=[0.55, 0.0, 0.09],
         task_type="insert",
     ),
@@ -2227,7 +2243,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="dowel_pin",
         joint_name="pin_joint",
         nominal_pos=[0.44, 0.22, 0.04],
-        target_pos=[0.55, -0.06, 0.1],
+        target_pos=[0.55, -0.055, 0.08],
         task_type="insert",
     ),
     TaskDef(
@@ -2240,7 +2256,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="dowel_pin",
         joint_name="pin_joint",
         nominal_pos=[0.48, -0.18, 0.04],
-        target_pos=[0.5, 0.1, 0.08],
+        target_pos=[0.5, 0.1, 0.04],
         task_type="insert",
     ),
     TaskDef(
@@ -2266,7 +2282,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="dowel_pin",
         joint_name="pin_joint",
         nominal_pos=[0.4, 0.24, 0.05],
-        target_pos=[0.55, -0.06, 0.1],
+        target_pos=[0.55, -0.055, 0.08],
         task_type="insert",
     ),
     TaskDef(
@@ -2305,7 +2321,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="conical_tube",
         joint_name="tube_joint",
         nominal_pos=[0.42, 0.18, 0.045],
-        target_pos=[0.55, 0.16, 0.065],
+        target_pos=[0.56, 0.2, 0.14],
         task_type="insert",
     ),
     TaskDef(
@@ -2357,7 +2373,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="dowel_pin",
         joint_name="pin_joint",
         nominal_pos=[0.44, 0.22, 0.04],
-        target_pos=[0.55, -0.06, 0.1],
+        target_pos=[0.55, -0.055, 0.08],
         task_type="insert",
     ),
     TaskDef(
@@ -2396,7 +2412,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="micropipette",
         joint_name="pipette_joint",
         nominal_pos=[0.52, 0.0, 0.04],
-        target_pos=[0.55, 0.16, 0.065],
+        target_pos=[0.42, 0.04, 0.04],
         task_type="insert",
     ),
 
@@ -2412,7 +2428,7 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="kitchen_burger.xml",
         object_name="burger_patty",
         joint_name="patty_joint",
-        nominal_pos=[0.45, 0.12, 0.025],
+        nominal_pos=[0.36, 0.04, 0.03],
         target_pos=[0.52, 0.0, 0.048],
         task_type="pick_place",
     ),
@@ -2426,7 +2442,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="coffee_mug",
         joint_name="mug_joint",
         nominal_pos=[0.36, -0.22, 0.05],
-        target_pos=[0.56, -0.14, 0.07],
+        target_pos=[0.38, -0.15, 0.038],
         task_type="pick_place",
     ),
     TaskDef(
@@ -2438,7 +2454,7 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="kitchen_burger.xml",
         object_name="bottom_bun",
         joint_name="b_bun_joint",
-        nominal_pos=[0.4, 0.2, 0.03],
+        nominal_pos=[0.38, 0.26, 0.03],
         target_pos=[0.52, 0.0, 0.04],
         task_type="pick_place",
     ),
@@ -2451,7 +2467,7 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="kitchen_burger.xml",
         object_name="tomato_slice",
         joint_name="tomato_joint",
-        nominal_pos=[0.48, 0.2, 0.02],
+        nominal_pos=[0.36, 0.04, 0.02],
         target_pos=[0.45, -0.05, 0.045],
         task_type="pick_place",
     ),
@@ -2464,7 +2480,7 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="kitchen_burger.xml",
         object_name="cheese_slice",
         joint_name="cheese_joint",
-        nominal_pos=[0.42, -0.15, 0.015],
+        nominal_pos=[0.36, -0.18, 0.025],
         target_pos=[0.52, 0.0, 0.042],
         task_type="pick_place",
     ),
@@ -2503,7 +2519,7 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="kitchen_burger.xml",
         object_name="burger_patty",
         joint_name="patty_joint",
-        nominal_pos=[0.45, 0.12, 0.025],
+        nominal_pos=[0.36, 0.04, 0.03],
         target_pos=[0.48, 0.05, 0.035],
         task_type="pick_place",
     ),
@@ -2516,7 +2532,7 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="kitchen_burger.xml",
         object_name="tomato_slice",
         joint_name="tomato_joint",
-        nominal_pos=[0.48, 0.2, 0.02],
+        nominal_pos=[0.36, 0.04, 0.02],
         target_pos=[0.52, -0.08, 0.045],
         task_type="pick_place",
     ),
@@ -2529,7 +2545,7 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="kitchen_burger.xml",
         object_name="burger_patty",
         joint_name="patty_joint",
-        nominal_pos=[0.45, 0.12, 0.025],
+        nominal_pos=[0.36, 0.04, 0.03],
         target_pos=[0.52, 0.0, 0.048],
         task_type="pick_place",
     ),
@@ -2569,7 +2585,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="green_block",
         joint_name="green_joint",
         nominal_pos=[0.62, -0.14, 0.025],
-        target_pos=[0.5, 0.0, 0.035],
+        target_pos=[0.46, 0.0, 0.035],
         task_type="pick_place",
     ),
     TaskDef(
@@ -2634,7 +2650,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="green_block",
         joint_name="green_joint",
         nominal_pos=[0.62, 0.16, 0.025],
-        target_pos=[0.5, 0.0, 0.035],
+        target_pos=[0.46, 0.0, 0.035],
         task_type="pick_place",
     ),
     TaskDef(
@@ -2647,7 +2663,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="coffee_mug",
         joint_name="mug_joint",
         nominal_pos=[0.36, -0.22, 0.05],
-        target_pos=[0.45, -0.1, 0.06],
+        target_pos=[0.45, -0.03, 0.06],
         task_type="pick_place",
     ),
     TaskDef(
@@ -2659,7 +2675,7 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="kitchen_burger.xml",
         object_name="bottom_bun",
         joint_name="b_bun_joint",
-        nominal_pos=[0.4, 0.2, 0.03],
+        nominal_pos=[0.38, 0.26, 0.03],
         target_pos=[0.52, 0.0, 0.04],
         task_type="pick_place",
     ),
@@ -2672,7 +2688,7 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="kitchen_burger.xml",
         object_name="cheese_slice",
         joint_name="cheese_joint",
-        nominal_pos=[0.42, -0.15, 0.015],
+        nominal_pos=[0.36, -0.18, 0.025],
         target_pos=[0.48, 0.0, 0.035],
         task_type="pick_place",
     ),
@@ -2686,7 +2702,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="coffee_mug",
         joint_name="mug_joint",
         nominal_pos=[0.36, -0.22, 0.05],
-        target_pos=[0.56, -0.14, 0.07],
+        target_pos=[0.38, -0.15, 0.038],
         task_type="pick_place",
     ),
     TaskDef(
@@ -2698,8 +2714,8 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="kitchen_burger.xml",
         object_name="tomato_slice",
         joint_name="tomato_joint",
-        nominal_pos=[0.48, 0.2, 0.02],
-        target_pos=[0.5, -0.12, 0.05],
+        nominal_pos=[0.36, 0.04, 0.02],
+        target_pos=[0.68, 0.0, 0.05],
         task_type="pick_place",
     ),
     TaskDef(
@@ -2711,7 +2727,7 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="kitchen_burger.xml",
         object_name="burger_patty",
         joint_name="patty_joint",
-        nominal_pos=[0.45, 0.12, 0.025],
+        nominal_pos=[0.36, 0.04, 0.03],
         target_pos=[0.45, -0.05, 0.045],
         task_type="pick_place",
     ),
@@ -2751,7 +2767,7 @@ ALL_150_TASKS: list[TaskDef] = [
         object_name="coffee_mug",
         joint_name="mug_joint",
         nominal_pos=[0.36, -0.22, 0.05],
-        target_pos=[0.56, -0.14, 0.07],
+        target_pos=[0.38, -0.15, 0.038],
         task_type="pick_place",
     ),
     TaskDef(
@@ -2789,11 +2805,45 @@ ALL_150_TASKS: list[TaskDef] = [
         scene_xml="kitchen_burger.xml",
         object_name="burger_patty",
         joint_name="patty_joint",
-        nominal_pos=[0.45, 0.12, 0.025],
+        nominal_pos=[0.36, 0.04, 0.03],
         target_pos=[0.52, 0.0, 0.048],
         task_type="pick_place",
     ),
 ]
+
+# Precision tiers: (Cartesian goal tolerance in m, tilt tolerance in deg). D1, D4, and D6 use CAD-style
+# clearances; D2, D3, and D7 tolerate 8 mm. D5 follows the scene: industrial and laboratory scenes take
+# the precision tier, kitchen and tabletop scenes the 8 mm tier.
+PRECISION_TIERS: dict[str, tuple[float, float]] = {
+    "Industrial & Manufacturing": (0.002, 5.0),
+    "Laboratory & Life Sciences": (0.002, 5.0),
+    "Multi-Stage Precision Chaining": (0.0025, 5.0),
+    "Culinary & Kitchen Operations": (0.008, 15.0),
+    "Tabletop & Domestic": (0.008, 15.0),
+    "Sequential Service & Culinary Assembly": (0.008, 15.0),
+}
+PRECISE_SCENES = ("industrial_assembly.xml", "lab_science.xml")
+DISTRACTOR_DOMAINS = ("Industrial & Manufacturing", "Tabletop & Domestic", "Sequential Service & Culinary Assembly")
+
+
+def precision_tier(task: TaskDef) -> tuple[float, float]:
+    if task.domain in PRECISION_TIERS:
+        return PRECISION_TIERS[task.domain]
+    return (0.002, 5.0) if task.scene_xml in PRECISE_SCENES else (0.008, 15.0)
+
+
+def apply_precision_tiers(tasks: list[TaskDef]) -> None:
+    for t in tasks:
+        tol, tilt = precision_tier(t)
+        t.tolerance_xy = tol if t.tolerance_xy is None else t.tolerance_xy
+        t.tolerance_z = tol if t.tolerance_z is None else t.tolerance_z
+        t.tilt_tol_deg = tilt if t.tilt_tol_deg is None else t.tilt_tol_deg
+        t.distractors = t.domain in DISTRACTOR_DOMAINS
+        if t.task_type == "press_button":
+            t.min_lift = 0.0
+
+
+apply_precision_tiers(ALL_150_TASKS)
 
 # Master Registry of all 210 Tasks
 ALL_210_TASKS: list[TaskDef] = ALL_150_TASKS

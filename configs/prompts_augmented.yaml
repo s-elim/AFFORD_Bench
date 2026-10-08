@@ -12,8 +12,19 @@
 #                        thresholds used by the env serving the task, the
 #                        minimum lift required before placement, and the
 #                        initial TCP position when the arm does not start at
-#                        the ready pose. Start positions are nominal; every
-#                        reset adds +-1.5 cm / +-15 deg jitter.
+#                        the ready pose. Start positions are nominal: every
+#                        reset rejection-samples the start of the body from
+#                        U[-7, 7] cm in x and y, yaw U[-45, 45] deg and spawn
+#                        roll/pitch U[-10, 10] deg (resolved by settling under
+#                        gravity), shrinking the scatter when no valid resting
+#                        start is found, and jitters the initial TCP by
+#                        U[-1.5, 1.5] cm. Goal z is recalibrated at env
+#                        construction to the settled resting height, so it can
+#                        differ from goal_xyz_m by a few millimetres; goals
+#                        with no stable resting pose are hold goals (the body
+#                        must be held at the goal in a two-finger grasp).
+#     distractors        true for D1, D3 and D7: two distractor bodies similar
+#                        in color or shape are placed on the workspace.
 #     referent_in_scene  false when the object the instruction names is not
 #                        the simulated body (e.g. Task 208 names an ice tray but the
 #                        env moves blue_block). For VLA language-grounding studies
@@ -29,30 +40,33 @@
 #   prompts
 #     geometric_spatial    Explicit metric start/goal coordinates (world frame).
 #     affordance_physical  Conditions on contact, friction, compliance and slip.
-#                          The current simulator welds the grasped body to the
-#                          TCP, teleports it to the goal on release, and applies
-#                          no friction or mass perturbation, so this tier
-#                          measures sensitivity to wording only, not physical
-#                          conditioning.
+#                          Grasps are frictional (force-limited parallel jaw)
+#                          and the L4 suite lowers pad and body friction to
+#                          [0.12, 0.25] and scales mass by [1.8, 2.5], so the
+#                          physical conditions in this tier are simulated; the
+#                          bodies are rigid, so softness and compliance cues are
+#                          wording only.
 #     colloquial_terse     Short casual command.
 #     atomic_subtasks      2-3 steps with pre/post predicates (AtomVLA-style
 #                          decomposition).
 #
 # Predicate vocabulary
 #   Sim-evaluable from MuJoCo state:
-#     gripper_open       gripper_width >= 0.030 m
-#     grasped(o)         env.grasped_object == o
-#     at(o, start|goal)  |xy - p_xy| < tolerance_xy_m and |z - p_z| < tolerance_z_m
+#     gripper_open       no finger in contact with the evaluated body
+#     grasped(o)         both fingers in contact with o
+#     at(o, start|goal)  |xy - p_xy| <= tolerance_xy_m, |z - p_z| <= tolerance_z_m,
+#                        tilt from upright <= tilt_tolerance_deg, o supported
+#                        by a non-robot body and at rest
 #     above(o, p)        xy within tolerance_xy_m of p and z > p_z + 0.03 m
 #     lifted(o, h)       z >= z_start + h (m)
 #     tcp_near(goal)     ||tcp - goal|| < 0.10 m
-#     tcp_at(goal)       ||tcp - goal|| < 0.025 m
+#     tcp_at(goal)       ||tcp - goal|| <= tolerance_xy_m for 5 steps
 #   All other predicates (seated, meshed, poured, clamped, ...) are symbolic.
 #   The current simulator does not evaluate them.
 #
 # Sanity floors (scripts/sanity_baselines.py; per-task results in
 # docs/reviews/sanity_baselines_2026-10-08.csv): no task succeeds at reset, and
-# a policy that never moves solves none of the 210 tasks.
+# null and uniform-random policies solve none of the 210 tasks.
 schema_version: 1
 num_tasks: 210
 tasks:
@@ -66,11 +80,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.4, 0.24, 0.05]
     goal_xyz_m: [0.55, 0.0, 0.116]
-    tolerance_xy_m: 0.03
-    tolerance_z_m: 0.02
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.030 m and z_err < 0.020 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -102,11 +118,13 @@ tasks:
     object: spur_gear
     start_xyz_m: [0.56, 0.18, 0.055]
     goal_xyz_m: [0.55, 0.0, 0.09]
-    tolerance_xy_m: 0.035
-    tolerance_z_m: 0.025
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.035 m and z_err < 0.025 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -138,11 +156,13 @@ tasks:
     object: dowel_pin
     start_xyz_m: [0.42, 0.1, 0.035]
     goal_xyz_m: [0.55, 0.055, 0.08]
-    tolerance_xy_m: 0.03
-    tolerance_z_m: 0.025
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.030 m and z_err < 0.025 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -174,11 +194,13 @@ tasks:
     object: spur_gear
     start_xyz_m: [0.56, 0.18, 0.055]
     goal_xyz_m: [0.55, 0.0, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -210,11 +232,13 @@ tasks:
     object: dowel_pin
     start_xyz_m: [0.42, 0.1, 0.035]
     goal_xyz_m: [0.55, -0.055, 0.08]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -245,18 +269,20 @@ tasks:
     scene: industrial_assembly.xml
     object: spur_gear
     start_xyz_m: [0.56, 0.18, 0.055]
-    goal_xyz_m: [0.55, 0.055, 0.07]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.55, 0.0, 0.132]
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the hex nut from the tray at (0.560, 0.180, 0.055) m and set it level on the top of the threaded stud at (0.550, 0.055, 0.070) m.
+    geometric_spatial: Pick the hex nut from the tray at (0.560, 0.180, 0.055) m and set it level on the top of the threaded stud at (0.550, 0.000, 0.132) m.
     affordance_physical: Hold the nut by two opposite flats so it cannot spin in the grip, keep its face parallel to the stud end, and seat it with almost no downward force so the first thread can start.
     colloquial_terse: Nut on the stud.
     atomic_subtasks:
@@ -282,11 +308,13 @@ tasks:
     object: dowel_pin
     start_xyz_m: [0.42, 0.1, 0.035]
     goal_xyz_m: [0.48, -0.05, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -318,11 +346,13 @@ tasks:
     object: dowel_pin
     start_xyz_m: [0.42, 0.1, 0.035]
     goal_xyz_m: [0.5, 0.05, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -353,18 +383,20 @@ tasks:
     scene: industrial_assembly.xml
     object: machined_shaft
     start_xyz_m: [0.4, 0.24, 0.05]
-    goal_xyz_m: [0.55, -0.1, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.55, -0.13, 0.04]
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the harness plug from the inbound tray at (0.400, 0.240, 0.050) m and insert it into the mating receptacle at (0.550, -0.100, 0.040) m.
+    geometric_spatial: Pick the harness plug from the inbound tray at (0.400, 0.240, 0.050) m and insert it into the mating receptacle at (0.550, -0.130, 0.040) m.
     affordance_physical: Hold the plug by its housing, not the wires, keep the keying feature aligned with the receptacle, and push straight in until the latch engages; do not rock it.
     colloquial_terse: Plug the harness in.
     atomic_subtasks:
@@ -389,18 +421,20 @@ tasks:
     scene: industrial_assembly.xml
     object: spur_gear
     start_xyz_m: [0.56, 0.18, 0.055]
-    goal_xyz_m: [0.5, -0.1, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.64, -0.16, 0.04]
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the relay module from the tray at (0.560, 0.180, 0.055) m and plug it into the base socket at (0.500, -0.100, 0.040) m.
+    geometric_spatial: Pick the relay module from the tray at (0.560, 0.180, 0.055) m and plug it into the base socket at (0.640, -0.160, 0.040) m.
     affordance_physical: Grip the relay across its cover, keep all pins parallel to the socket axis, and press down with even force so no single pin takes the load.
     colloquial_terse: Relay into the socket.
     atomic_subtasks:
@@ -426,11 +460,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.55, 0.0, 0.116]
     goal_xyz_m: [0.42, -0.2, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -462,11 +498,13 @@ tasks:
     object: spur_gear
     start_xyz_m: [0.55, 0.0, 0.09]
     goal_xyz_m: [0.42, -0.2, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -498,11 +536,13 @@ tasks:
     object: dowel_pin
     start_xyz_m: [0.55, 0.055, 0.08]
     goal_xyz_m: [0.42, -0.2, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -534,11 +574,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.4, 0.24, 0.05]
     goal_xyz_m: [0.42, 0.1, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -570,11 +612,13 @@ tasks:
     object: spur_gear
     start_xyz_m: [0.56, 0.18, 0.055]
     goal_xyz_m: [0.4, 0.24, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -605,18 +649,20 @@ tasks:
     scene: industrial_assembly.xml
     object: dowel_pin
     start_xyz_m: [0.42, 0.1, 0.035]
-    goal_xyz_m: [0.4, 0.24, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.4, 0.21, 0.04]
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the dowel pin from the feeder cup at (0.420, 0.100, 0.035) m and drop it into the inbound tray at (0.400, 0.240, 0.040) m.
+    geometric_spatial: Pick the dowel pin from the feeder cup at (0.420, 0.100, 0.035) m and drop it into the inbound tray at (0.400, 0.210, 0.040) m.
     affordance_physical: Close the fingers fully on the slim pin before lifting so it does not slide out, and release it just above the tray floor so it does not bounce over the tray wall.
     colloquial_terse: Pin into the tray.
     atomic_subtasks:
@@ -642,11 +688,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.4, 0.24, 0.05]
     goal_xyz_m: [0.4, 0.24, 0.05]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
     min_lift_m: 0.15
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m and peak lift >= 0.15 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.15 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -678,11 +726,13 @@ tasks:
     object: spur_gear
     start_xyz_m: [0.56, 0.18, 0.055]
     goal_xyz_m: [0.56, 0.18, 0.055]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
     min_lift_m: 0.1
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m and peak lift >= 0.10 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.10 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -714,11 +764,13 @@ tasks:
     object: dowel_pin
     start_xyz_m: [0.42, 0.1, 0.035]
     goal_xyz_m: [0.42, 0.1, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
     min_lift_m: 0.1
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m and peak lift >= 0.10 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.10 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -750,11 +802,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.4, 0.24, 0.05]
     goal_xyz_m: [0.42, -0.22, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -786,11 +840,13 @@ tasks:
     object: spur_gear
     start_xyz_m: [0.56, 0.18, 0.055]
     goal_xyz_m: [0.42, -0.18, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -822,11 +878,13 @@ tasks:
     object: dowel_pin
     start_xyz_m: [0.42, 0.1, 0.035]
     goal_xyz_m: [0.46, -0.2, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -858,11 +916,13 @@ tasks:
     object: assembly_jig
     start_xyz_m: [0.55, 0.0, 0.04]
     goal_xyz_m: [0.55, -0.065, 0.075]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -890,11 +950,13 @@ tasks:
     object: assembly_jig
     start_xyz_m: [0.55, 0.0, 0.04]
     goal_xyz_m: [0.55, 0.0, 0.16]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -922,11 +984,13 @@ tasks:
     object: assembly_jig
     start_xyz_m: [0.42, -0.2, 0.04]
     goal_xyz_m: [0.42, -0.2, 0.16]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -954,11 +1018,13 @@ tasks:
     object: assembly_jig
     start_xyz_m: [0.55, 0.0, 0.04]
     goal_xyz_m: [0.65, 0.35, 0.25]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -986,11 +1052,13 @@ tasks:
     object: assembly_jig
     start_xyz_m: [0.55, 0.0, 0.04]
     goal_xyz_m: [0.615, 0.0, 0.075]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1017,18 +1085,20 @@ tasks:
     scene: industrial_assembly.xml
     object: spur_gear
     start_xyz_m: [0.56, 0.18, 0.055]
-    goal_xyz_m: [0.48, 0.05, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.36, 0.0, 0.04]
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the spur gear from the feeder spindle at (0.560, 0.180, 0.055) m and place it flat in the workbench staging zone at (0.480, 0.050, 0.040) m.
+    geometric_spatial: Pick the spur gear from the feeder spindle at (0.560, 0.180, 0.055) m and place it flat in the workbench staging zone at (0.360, 0.000, 0.040) m.
     affordance_physical: Lift the gear straight off the spindle so it does not bind, then lower it flat onto the bench where friction alone will hold it.
     colloquial_terse: Gear to staging.
     atomic_subtasks:
@@ -1053,18 +1123,20 @@ tasks:
     scene: industrial_assembly.xml
     object: machined_shaft
     start_xyz_m: [0.4, 0.24, 0.05]
-    goal_xyz_m: [0.48, -0.05, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.36, -0.05, 0.04]
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the shaft from the inbound tray at (0.400, 0.240, 0.050) m and place it in the intermediate staging buffer at (0.480, -0.050, 0.040) m.
+    geometric_spatial: Pick the shaft from the inbound tray at (0.400, 0.240, 0.050) m and place it in the intermediate staging buffer at (0.360, -0.050, 0.040) m.
     affordance_physical: Keep the shaft vertical in a firm grip and set it down slowly, since a tall cylinder on a flat bench tips easily if released with lateral velocity.
     colloquial_terse: Shaft to the buffer.
     atomic_subtasks:
@@ -1090,11 +1162,13 @@ tasks:
     object: assembly_jig
     start_xyz_m: [0.55, 0.0, 0.04]
     goal_xyz_m: [0.36, 0.0, 0.5]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: true
     min_lift_m: 0.0
     init_tcp_xyz_m: [0.55, 0.0, 0.2]
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1122,11 +1196,13 @@ tasks:
     object: burger_patty
     start_xyz_m: [0.58, 0.2, 0.042]
     goal_xyz_m: [0.52, 0.0, 0.042]
-    tolerance_xy_m: 0.035
-    tolerance_z_m: 0.025
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.035 m and z_err < 0.025 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1158,18 +1234,20 @@ tasks:
     object: cheese_slice
     start_xyz_m: [0.58, -0.12, 0.026]
     goal_xyz_m: [0.52, 0.0, 0.052]
-    tolerance_xy_m: 0.035
-    tolerance_z_m: 0.025
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.035 m and z_err < 0.025 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(cheese_slice, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 3
   prompts:
     geometric_spatial: Pick the cheese slice from the topping tray at (0.580, -0.120, 0.026) m and lay it flat on top of the patty at (0.520, 0.000, 0.052) m.
-    affordance_physical: The 6 mm cheese slice is thin and floppy, so grip it near its center, keep it horizontal while carrying, and lower it until it nearly touches the patty before letting go.
+    affordance_physical: The 10 mm cheese slice is soft and slippery, so grip it near its center, keep it horizontal while carrying, and lower it until it nearly touches the patty before letting go.
     colloquial_terse: Cheese on the patty.
     atomic_subtasks:
     - step: 1
@@ -1194,11 +1272,13 @@ tasks:
     object: tomato_slice
     start_xyz_m: [0.58, -0.2, 0.028]
     goal_xyz_m: [0.52, 0.0, 0.058]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(tomato_slice, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1230,11 +1310,13 @@ tasks:
     object: top_bun
     start_xyz_m: [0.38, 0.16, 0.036]
     goal_xyz_m: [0.52, 0.0, 0.068]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(top_bun, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1266,11 +1348,13 @@ tasks:
     object: bottom_bun
     start_xyz_m: [0.38, 0.26, 0.03]
     goal_xyz_m: [0.52, 0.0, 0.026]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(bottom_bun, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1301,18 +1385,20 @@ tasks:
     scene: kitchen_coffee.xml
     object: coffee_mug
     start_xyz_m: [0.38, 0.22, 0.038]
-    goal_xyz_m: [0.48, -0.15, 0.038]
-    tolerance_xy_m: 0.035
-    tolerance_z_m: 0.025
-    min_lift_m: 0.0
+    goal_xyz_m: [0.38, -0.15, 0.038]
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.035 m and z_err < 0.025 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the coffee mug from the storage bin at (0.380, 0.220, 0.038) m and place it upright on the espresso machine drip tray at (0.480, -0.150, 0.038) m.
+    geometric_spatial: Pick the coffee mug from the storage bin at (0.380, 0.220, 0.038) m and place it upright on the espresso machine drip tray at (0.380, -0.150, 0.038) m.
     affordance_physical: Grip the 52 mm ceramic mug around its body, keep it upright to avoid tipping, and lower it gently onto the metal drip tray so it does not clatter or slide.
     colloquial_terse: Mug under the spout.
     atomic_subtasks:
@@ -1338,11 +1424,13 @@ tasks:
     object: coffee_machine
     start_xyz_m: [0.58, -0.15, 0.1]
     goal_xyz_m: [0.5, -0.105, 0.175]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0080 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1370,11 +1458,13 @@ tasks:
     object: coffee_pod
     start_xyz_m: [0.52, 0.14, 0.032]
     goal_xyz_m: [0.54, -0.15, 0.203]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(coffee_pod, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1404,19 +1494,21 @@ tasks:
   sim_grounding:
     scene: kitchen_coffee.xml
     object: coffee_mug
-    start_xyz_m: [0.48, -0.15, 0.038]
-    goal_xyz_m: [0.35, -0.16, 0.038]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    start_xyz_m: [0.38, -0.15, 0.038]
+    goal_xyz_m: [0.35, -0.32, 0.038]
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the mug from the drip tray at (0.480, -0.150, 0.038) m and place it on the serving tray at (0.350, -0.160, 0.038) m.
+    geometric_spatial: Pick the mug from the drip tray at (0.380, -0.150, 0.038) m and place it on the serving tray at (0.350, -0.320, 0.038) m.
     affordance_physical: A filled mug sloshes if accelerated sharply, so lift it smoothly, keep it vertical, and decelerate gently before setting it down.
     colloquial_terse: Serve the coffee.
     atomic_subtasks:
@@ -1442,11 +1534,13 @@ tasks:
     object: burger_patty
     start_xyz_m: [0.58, 0.2, 0.042]
     goal_xyz_m: [0.36, -0.18, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1478,11 +1572,13 @@ tasks:
     object: tomato_slice
     start_xyz_m: [0.58, -0.2, 0.028]
     goal_xyz_m: [0.36, -0.18, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(tomato_slice, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1514,11 +1610,13 @@ tasks:
     object: cheese_slice
     start_xyz_m: [0.58, -0.12, 0.026]
     goal_xyz_m: [0.36, -0.18, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(cheese_slice, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1549,18 +1647,20 @@ tasks:
     scene: kitchen_coffee.xml
     object: coffee_pod
     start_xyz_m: [0.52, 0.14, 0.032]
-    goal_xyz_m: [0.35, -0.16, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.35, -0.32, 0.035]
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(coffee_pod, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the coffee capsule from the pod caddy at (0.520, 0.140, 0.032) m and place it on the serving tray at (0.350, -0.160, 0.035) m.
+    geometric_spatial: Pick the coffee capsule from the pod caddy at (0.520, 0.140, 0.032) m and place it on the serving tray at (0.350, -0.320, 0.035) m.
     affordance_physical: The capsule weighs about 25 g and is easily knocked over, so grasp it squarely and set it down upright with no sideways motion.
     colloquial_terse: Pod to the tray.
     atomic_subtasks:
@@ -1584,19 +1684,21 @@ tasks:
   sim_grounding:
     scene: kitchen_coffee.xml
     object: coffee_mug
-    start_xyz_m: [0.35, -0.16, 0.038]
+    start_xyz_m: [0.35, -0.32, 0.038]
     goal_xyz_m: [0.38, 0.22, 0.038]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the mug from the serving tray at (0.350, -0.160, 0.038) m and return it to the storage bin at (0.380, 0.220, 0.038) m.
+    geometric_spatial: Pick the mug from the serving tray at (0.350, -0.320, 0.038) m and return it to the storage bin at (0.380, 0.220, 0.038) m.
     affordance_physical: Lift the mug vertically so it clears the tray rim, and lower it into the bin without striking the bin walls.
     colloquial_terse: Mug back in the bin.
     atomic_subtasks:
@@ -1620,19 +1722,21 @@ tasks:
   sim_grounding:
     scene: kitchen_coffee.xml
     object: coffee_pod
-    start_xyz_m: [0.35, -0.16, 0.035]
+    start_xyz_m: [0.35, -0.32, 0.035]
     goal_xyz_m: [0.52, 0.14, 0.032]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(coffee_pod, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the capsule from the serving tray at (0.350, -0.160, 0.035) m and return it to the pod caddy at (0.520, 0.140, 0.032) m.
+    geometric_spatial: Pick the capsule from the serving tray at (0.350, -0.320, 0.035) m and return it to the pod caddy at (0.520, 0.140, 0.032) m.
     affordance_physical: Grip the small capsule fully so it does not slip, lift it over the tray rim, and drop it into the caddy from a low height.
     colloquial_terse: Pod back in the caddy.
     atomic_subtasks:
@@ -1658,11 +1762,13 @@ tasks:
     object: burger_patty
     start_xyz_m: [0.58, 0.2, 0.042]
     goal_xyz_m: [0.58, 0.2, 0.042]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
     min_lift_m: 0.1
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m and peak lift >= 0.10 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.10 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1694,11 +1800,13 @@ tasks:
     object: top_bun
     start_xyz_m: [0.38, 0.16, 0.036]
     goal_xyz_m: [0.52, 0.0, 0.026]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(top_bun, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1730,11 +1838,13 @@ tasks:
     object: tomato_slice
     start_xyz_m: [0.58, -0.2, 0.028]
     goal_xyz_m: [0.52, 0.0, 0.026]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(tomato_slice, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1766,11 +1876,13 @@ tasks:
     object: cheese_slice
     start_xyz_m: [0.58, -0.12, 0.026]
     goal_xyz_m: [0.52, 0.0, 0.026]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(cheese_slice, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1802,11 +1914,13 @@ tasks:
     object: top_bun
     start_xyz_m: [0.52, 0.0, 0.068]
     goal_xyz_m: [0.52, 0.0, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0080 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1833,18 +1947,20 @@ tasks:
     scene: kitchen_coffee.xml
     object: coffee_machine
     start_xyz_m: [0.58, -0.15, 0.1]
-    goal_xyz_m: [0.48, -0.15, 0.12]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    goal_xyz_m: [0.4, -0.15, 0.12]
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0080 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 2
   prompts:
-    geometric_spatial: Position the fingertip center at (0.480, -0.150, 0.120) m, beneath the espresso brew spout, so the wrist camera views the nozzle.
+    geometric_spatial: Position the fingertip center at (0.400, -0.150, 0.120) m, beneath the espresso brew spout, so the wrist camera views the nozzle.
     affordance_physical: Approach the spout region slowly and without contact, since the spout and drip tray are close together and a collision would knock the machine.
     colloquial_terse: Check the spout.
     atomic_subtasks:
@@ -1866,11 +1982,13 @@ tasks:
     object: grill_station
     start_xyz_m: [0.58, 0.2, 0.015]
     goal_xyz_m: [0.64, 0.25, 0.12]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0080 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1898,11 +2016,13 @@ tasks:
     object: bottom_bun
     start_xyz_m: [0.52, 0.0, 0.026]
     goal_xyz_m: [0.38, 0.26, 0.03]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(bottom_bun, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1934,11 +2054,13 @@ tasks:
     object: top_bun
     start_xyz_m: [0.52, 0.0, 0.068]
     goal_xyz_m: [0.38, 0.16, 0.036]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(top_bun, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -1970,11 +2092,13 @@ tasks:
     object: cheese_slice
     start_xyz_m: [0.52, 0.0, 0.052]
     goal_xyz_m: [0.58, -0.12, 0.026]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(cheese_slice, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2006,11 +2130,13 @@ tasks:
     object: tomato_slice
     start_xyz_m: [0.52, 0.0, 0.058]
     goal_xyz_m: [0.58, -0.2, 0.028]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(tomato_slice, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2042,11 +2168,13 @@ tasks:
     object: burger_patty
     start_xyz_m: [0.52, 0.0, 0.042]
     goal_xyz_m: [0.58, 0.2, 0.042]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2078,11 +2206,13 @@ tasks:
     object: assembly_board
     start_xyz_m: [0.52, 0.0, 0.01]
     goal_xyz_m: [0.42, 0.0, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0080 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2109,18 +2239,20 @@ tasks:
     scene: kitchen_coffee.xml
     object: coffee_machine
     start_xyz_m: [0.58, -0.15, 0.1]
-    goal_xyz_m: [0.48, -0.15, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    goal_xyz_m: [0.38, -0.15, 0.035]
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0080 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 2
   prompts:
-    geometric_spatial: Move the fingertip center down to the drip tray surface at (0.480, -0.150, 0.035) m in a linear pass.
+    geometric_spatial: Move the fingertip center down to the drip tray surface at (0.380, -0.150, 0.035) m in a linear pass.
     affordance_physical: Approach the drip tray at low speed so contact is gentle, and avoid the brew spout directly above it.
     colloquial_terse: Wipe the drip tray.
     atomic_subtasks:
@@ -2142,11 +2274,13 @@ tasks:
     object: assembly_board
     start_xyz_m: [0.52, 0.0, 0.01]
     goal_xyz_m: [0.36, 0.0, 0.5]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: [0.52, 0.0, 0.16]
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0080 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2174,11 +2308,13 @@ tasks:
     object: red_block
     start_xyz_m: [0.45, -0.08, 0.025]
     goal_xyz_m: [0.4, -0.24, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2210,11 +2346,13 @@ tasks:
     object: green_block
     start_xyz_m: [0.52, 0.07, 0.025]
     goal_xyz_m: [0.58, 0.0, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2246,11 +2384,13 @@ tasks:
     object: blue_block
     start_xyz_m: [0.38, 0.06, 0.025]
     goal_xyz_m: [0.4, 0.24, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2282,11 +2422,13 @@ tasks:
     object: red_block
     start_xyz_m: [0.45, -0.08, 0.025]
     goal_xyz_m: [0.58, 0.0, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2318,11 +2460,13 @@ tasks:
     object: red_block
     start_xyz_m: [0.45, -0.08, 0.025]
     goal_xyz_m: [0.4, 0.24, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2354,11 +2498,13 @@ tasks:
     object: green_block
     start_xyz_m: [0.52, 0.07, 0.025]
     goal_xyz_m: [0.4, -0.24, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2390,11 +2536,13 @@ tasks:
     object: green_block
     start_xyz_m: [0.52, 0.07, 0.025]
     goal_xyz_m: [0.4, 0.24, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2426,11 +2574,13 @@ tasks:
     object: blue_block
     start_xyz_m: [0.38, 0.06, 0.025]
     goal_xyz_m: [0.4, -0.24, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2462,11 +2612,13 @@ tasks:
     object: blue_block
     start_xyz_m: [0.38, 0.06, 0.025]
     goal_xyz_m: [0.58, 0.0, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2498,11 +2650,13 @@ tasks:
     object: red_block
     start_xyz_m: [0.45, -0.08, 0.025]
     goal_xyz_m: [0.48, 0.0, 0.025]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2534,11 +2688,13 @@ tasks:
     object: green_block
     start_xyz_m: [0.52, 0.07, 0.025]
     goal_xyz_m: [0.48, 0.0, 0.025]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2570,11 +2726,13 @@ tasks:
     object: blue_block
     start_xyz_m: [0.38, 0.06, 0.025]
     goal_xyz_m: [0.48, 0.0, 0.025]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2606,11 +2764,13 @@ tasks:
     object: red_block
     start_xyz_m: [0.45, -0.08, 0.025]
     goal_xyz_m: [0.38, 0.06, 0.025]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2642,11 +2802,13 @@ tasks:
     object: blue_block
     start_xyz_m: [0.38, 0.06, 0.025]
     goal_xyz_m: [0.52, 0.07, 0.025]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2678,11 +2840,13 @@ tasks:
     object: green_block
     start_xyz_m: [0.52, 0.07, 0.025]
     goal_xyz_m: [0.45, -0.08, 0.025]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2714,11 +2878,13 @@ tasks:
     object: red_block
     start_xyz_m: [0.45, -0.08, 0.025]
     goal_xyz_m: [0.38, 0.06, 0.055]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2750,11 +2916,13 @@ tasks:
     object: green_block
     start_xyz_m: [0.52, 0.07, 0.025]
     goal_xyz_m: [0.38, 0.06, 0.055]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2786,11 +2954,13 @@ tasks:
     object: blue_block
     start_xyz_m: [0.38, 0.06, 0.025]
     goal_xyz_m: [0.45, -0.08, 0.055]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2822,11 +2992,13 @@ tasks:
     object: red_bin
     start_xyz_m: [0.4, -0.24, 0.012]
     goal_xyz_m: [0.4, -0.24, 0.16]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0080 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2854,11 +3026,13 @@ tasks:
     object: green_bin
     start_xyz_m: [0.58, 0.0, 0.012]
     goal_xyz_m: [0.58, 0.0, 0.16]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0080 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2886,11 +3060,13 @@ tasks:
     object: blue_bin
     start_xyz_m: [0.4, 0.24, 0.012]
     goal_xyz_m: [0.4, 0.24, 0.16]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0080 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2918,11 +3094,13 @@ tasks:
     object: red_block
     start_xyz_m: [0.45, -0.08, 0.025]
     goal_xyz_m: [0.45, -0.08, 0.045]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0080 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2950,11 +3128,13 @@ tasks:
     object: green_block
     start_xyz_m: [0.52, 0.07, 0.025]
     goal_xyz_m: [0.52, 0.07, 0.045]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0080 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -2982,11 +3162,13 @@ tasks:
     object: blue_block
     start_xyz_m: [0.38, 0.06, 0.025]
     goal_xyz_m: [0.38, 0.06, 0.045]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0080 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3013,18 +3195,20 @@ tasks:
     scene: tabletop_sorting.xml
     object: red_block
     start_xyz_m: [0.45, -0.08, 0.025]
-    goal_xyz_m: [0.45, 0.16, 0.025]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.45, 0.13, 0.025]
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the red cube from the left quadrant at (0.450, -0.080, 0.025) m and place it in the far right quadrant at (0.450, 0.160, 0.025) m.
+    geometric_spatial: Pick the red cube from the left quadrant at (0.450, -0.080, 0.025) m and place it in the far right quadrant at (0.450, 0.130, 0.025) m.
     affordance_physical: Lift the cube high enough to clear the other blocks on the way across, and set it down flat with no residual sideways speed.
     colloquial_terse: Red to the right side.
     atomic_subtasks:
@@ -3049,18 +3233,20 @@ tasks:
     scene: tabletop_sorting.xml
     object: blue_block
     start_xyz_m: [0.38, 0.06, 0.025]
-    goal_xyz_m: [0.38, -0.16, 0.025]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.38, -0.13, 0.025]
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the blue cube from the right quadrant at (0.380, 0.060, 0.025) m and place it in the far left quadrant at (0.380, -0.160, 0.025) m.
+    geometric_spatial: Pick the blue cube from the right quadrant at (0.380, 0.060, 0.025) m and place it in the far left quadrant at (0.380, -0.130, 0.025) m.
     affordance_physical: Carry the cube above the clutter and lower it fully before opening so it does not slide on landing.
     colloquial_terse: Blue to the left side.
     atomic_subtasks:
@@ -3085,18 +3271,20 @@ tasks:
     scene: tabletop_sorting.xml
     object: red_block
     start_xyz_m: [0.45, -0.08, 0.025]
-    goal_xyz_m: [0.55, -0.08, 0.025]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.55, -0.095, 0.025]
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the red cube at (0.450, -0.080, 0.025) m and place it 10 cm further along +x at (0.550, -0.080, 0.025) m.
+    geometric_spatial: Pick the red cube at (0.450, -0.080, 0.025) m and place it 10 cm further along +x at (0.550, -0.095, 0.025) m.
     affordance_physical: Lift the cube just clear of the table, move it 10 cm forward, and set it down gently so it does not skid past the target.
     colloquial_terse: Red forward 10 cm.
     atomic_subtasks:
@@ -3122,11 +3310,13 @@ tasks:
     object: blue_block
     start_xyz_m: [0.38, 0.06, 0.025]
     goal_xyz_m: [0.48, 0.06, 0.025]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3158,11 +3348,13 @@ tasks:
     object: table
     start_xyz_m: [0.45, 0.0, -0.025]
     goal_xyz_m: [0.45, 0.0, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0080 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3190,11 +3382,13 @@ tasks:
     object: table
     start_xyz_m: [0.45, 0.0, -0.025]
     goal_xyz_m: [0.36, 0.0, 0.5]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
     min_lift_m: 0.0
     init_tcp_xyz_m: [0.45, 0.0, 0.15]
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0080 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3222,11 +3416,13 @@ tasks:
     object: conical_tube
     start_xyz_m: [0.4, 0.2, 0.06]
     goal_xyz_m: [0.55, -0.15, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3258,11 +3454,13 @@ tasks:
     object: micro_tube
     start_xyz_m: [0.4, 0.24, 0.045]
     goal_xyz_m: [0.612, 0.2, 0.085]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micro_tube, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3294,11 +3492,13 @@ tasks:
     object: micropipette
     start_xyz_m: [0.52, 0.0, 0.04]
     goal_xyz_m: [0.52, 0.0, 0.16]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3330,11 +3530,13 @@ tasks:
     object: micropipette
     start_xyz_m: [0.52, 0.0, 0.04]
     goal_xyz_m: [0.38, -0.16, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3365,18 +3567,20 @@ tasks:
     scene: lab_science.xml
     object: micro_tube
     start_xyz_m: [0.4, 0.24, 0.045]
-    goal_xyz_m: [0.55, -0.15, 0.045]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.55, -0.11, 0.045]
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micro_tube, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the microtube from the staging rack at (0.400, 0.240, 0.045) m and place it in the secondary rack at (0.550, -0.150, 0.045) m.
+    geometric_spatial: Pick the microtube from the staging rack at (0.400, 0.240, 0.045) m and place it in the secondary rack at (0.550, -0.110, 0.045) m.
     affordance_physical: Grip the small tube gently enough not to crush it but firmly enough that it cannot slip, and insert it vertically into the rack.
     colloquial_terse: Microtube to the other rack.
     atomic_subtasks:
@@ -3402,11 +3606,13 @@ tasks:
     object: conical_tube
     start_xyz_m: [0.55, -0.15, 0.06]
     goal_xyz_m: [0.4, 0.2, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3438,11 +3644,13 @@ tasks:
     object: micro_tube
     start_xyz_m: [0.612, 0.2, 0.085]
     goal_xyz_m: [0.4, 0.24, 0.045]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micro_tube, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3474,11 +3682,13 @@ tasks:
     object: micropipette
     start_xyz_m: [0.38, -0.16, 0.06]
     goal_xyz_m: [0.52, 0.0, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3510,11 +3720,13 @@ tasks:
     object: microcentrifuge
     start_xyz_m: [0.58, 0.2, 0.05]
     goal_xyz_m: [0.58, 0.145, 0.096]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3542,11 +3754,13 @@ tasks:
     object: microplate_96
     start_xyz_m: [0.38, -0.16, 0.01]
     goal_xyz_m: [0.38, -0.16, 0.14]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3574,11 +3788,13 @@ tasks:
     object: tube_rack_a
     start_xyz_m: [0.4, 0.2, 0.025]
     goal_xyz_m: [0.4, 0.2, 0.16]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3606,11 +3822,13 @@ tasks:
     object: tube_rack_b
     start_xyz_m: [0.55, -0.15, 0.025]
     goal_xyz_m: [0.55, -0.15, 0.16]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3638,11 +3856,13 @@ tasks:
     object: conical_tube
     start_xyz_m: [0.4, 0.2, 0.06]
     goal_xyz_m: [0.46, -0.16, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3674,11 +3894,13 @@ tasks:
     object: micro_tube
     start_xyz_m: [0.4, 0.24, 0.045]
     goal_xyz_m: [0.46, -0.12, 0.045]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micro_tube, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3710,11 +3932,13 @@ tasks:
     object: conical_tube
     start_xyz_m: [0.4, 0.2, 0.06]
     goal_xyz_m: [0.4, 0.16, 0.06]
-    tolerance_xy_m: 0.01
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.010 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3746,11 +3970,13 @@ tasks:
     object: micropipette
     start_xyz_m: [0.52, 0.0, 0.04]
     goal_xyz_m: [0.4, 0.2, 0.105]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3782,11 +4008,13 @@ tasks:
     object: micropipette
     start_xyz_m: [0.52, 0.0, 0.04]
     goal_xyz_m: [0.52, 0.0, 0.1]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3814,11 +4042,13 @@ tasks:
     object: microcentrifuge
     start_xyz_m: [0.58, 0.2, 0.05]
     goal_xyz_m: [0.58, 0.2, 0.17]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3846,11 +4076,13 @@ tasks:
     object: bench
     start_xyz_m: [0.48, 0.0, -0.025]
     goal_xyz_m: [0.48, 0.15, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3878,11 +4110,13 @@ tasks:
     object: bench
     start_xyz_m: [0.48, 0.0, -0.025]
     goal_xyz_m: [0.48, -0.15, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3910,11 +4144,13 @@ tasks:
     object: conical_tube
     start_xyz_m: [0.55, -0.15, 0.06]
     goal_xyz_m: [0.48, 0.0, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3946,11 +4182,13 @@ tasks:
     object: micro_tube
     start_xyz_m: [0.4, 0.24, 0.045]
     goal_xyz_m: [0.48, 0.04, 0.045]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micro_tube, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -3982,11 +4220,13 @@ tasks:
     object: micropipette
     start_xyz_m: [0.52, 0.0, 0.04]
     goal_xyz_m: [0.35, -0.19, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -4018,11 +4258,13 @@ tasks:
     object: micropipette
     start_xyz_m: [0.52, 0.0, 0.04]
     goal_xyz_m: [0.612, 0.2, 0.12]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -4054,11 +4296,13 @@ tasks:
     object: microcentrifuge
     start_xyz_m: [0.58, 0.2, 0.05]
     goal_xyz_m: [0.58, 0.2, 0.1]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -4086,11 +4330,13 @@ tasks:
     object: microplate_96
     start_xyz_m: [0.38, -0.16, 0.01]
     goal_xyz_m: [0.38, -0.16, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -4118,11 +4364,13 @@ tasks:
     object: conical_tube
     start_xyz_m: [0.4, 0.2, 0.06]
     goal_xyz_m: [0.4, 0.2, 0.11]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -4150,11 +4398,13 @@ tasks:
     object: micro_tube
     start_xyz_m: [0.4, 0.24, 0.045]
     goal_xyz_m: [0.4, 0.24, 0.07]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -4182,11 +4432,13 @@ tasks:
     object: bench
     start_xyz_m: [0.48, 0.0, -0.025]
     goal_xyz_m: [0.48, 0.0, 0.18]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: null
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -4214,11 +4466,13 @@ tasks:
     object: bench
     start_xyz_m: [0.48, 0.0, -0.025]
     goal_xyz_m: [0.36, 0.0, 0.5]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
     min_lift_m: 0.0
     init_tcp_xyz_m: [0.48, 0.0, 0.18]
-    success_predicate: '||tcp - goal|| < 0.025 m'
+    success_predicate: '||tcp - goal|| <= 0.0020 m for 5 consecutive steps'
     terminal_predicates: [tcp_at(goal)]
     referent_in_scene: true
     instruction_covered_by_success: true
@@ -4246,11 +4500,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.4, 0.24, 0.05]
     goal_xyz_m: [0.55, 0.0, 0.116]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -4282,11 +4538,13 @@ tasks:
     object: spur_gear
     start_xyz_m: [0.56, 0.18, 0.055]
     goal_xyz_m: [0.55, 0.0, 0.09]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -4314,11 +4572,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.55, 0.0, 0.116]
     goal_xyz_m: [0.42, -0.2, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -4350,11 +4610,13 @@ tasks:
     object: burger_patty
     start_xyz_m: [0.58, 0.2, 0.042]
     goal_xyz_m: [0.52, 0.0, 0.042]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -4382,11 +4644,13 @@ tasks:
     object: top_bun
     start_xyz_m: [0.38, 0.16, 0.036]
     goal_xyz_m: [0.52, 0.0, 0.068]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(top_bun, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -4418,11 +4682,13 @@ tasks:
     object: bottom_bun
     start_xyz_m: [0.52, 0.0, 0.026]
     goal_xyz_m: [0.36, -0.18, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(bottom_bun, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -4453,18 +4719,20 @@ tasks:
     scene: kitchen_coffee.xml
     object: coffee_mug
     start_xyz_m: [0.38, 0.22, 0.038]
-    goal_xyz_m: [0.35, -0.16, 0.038]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.35, -0.32, 0.038]
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Place the mug from (0.380, 0.220, 0.038) m on the drip tray at (0.48, -0.15), press the brew button, then carry the mug to the serving tray at (0.350, -0.160, 0.038) m.
+    geometric_spatial: Place the mug from (0.380, 0.220, 0.038) m on the drip tray at (0.48, -0.15), press the brew button, then carry the mug to the serving tray at (0.350, -0.320, 0.038) m.
     affordance_physical: Set the empty mug down gently, press the button with moderate force, and move the filled mug slowly and upright so the coffee does not slosh.
     colloquial_terse: Make and serve an espresso.
     atomic_subtasks:
@@ -4490,11 +4758,13 @@ tasks:
     object: coffee_pod
     start_xyz_m: [0.52, 0.14, 0.032]
     goal_xyz_m: [0.54, -0.15, 0.203]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(coffee_pod, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -4522,11 +4792,13 @@ tasks:
     object: red_block
     start_xyz_m: [0.45, -0.08, 0.025]
     goal_xyz_m: [0.4, -0.24, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -4558,11 +4830,13 @@ tasks:
     object: blue_block
     start_xyz_m: [0.38, 0.06, 0.025]
     goal_xyz_m: [0.4, 0.24, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -4590,11 +4864,13 @@ tasks:
     object: micropipette
     start_xyz_m: [0.52, 0.0, 0.04]
     goal_xyz_m: [0.38, -0.16, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -4626,11 +4902,13 @@ tasks:
     object: micro_tube
     start_xyz_m: [0.4, 0.24, 0.045]
     goal_xyz_m: [0.612, 0.2, 0.085]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micro_tube, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -4658,11 +4936,13 @@ tasks:
     object: conical_tube
     start_xyz_m: [0.4, 0.2, 0.06]
     goal_xyz_m: [0.55, -0.15, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -4690,11 +4970,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.4, 0.24, 0.05]
     goal_xyz_m: [0.42, -0.2, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -4725,18 +5007,20 @@ tasks:
     scene: kitchen_coffee.xml
     object: coffee_mug
     start_xyz_m: [0.38, 0.22, 0.038]
-    goal_xyz_m: [0.35, -0.16, 0.038]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.35, -0.32, 0.038]
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 1
   prompts:
-    geometric_spatial: Place the mug from (0.380, 0.220, 0.038) m on the serving tray at (0.350, -0.160, 0.038) m, then put the coffee capsule from (0.52, 0.14) on the tray beside it.
+    geometric_spatial: Place the mug from (0.380, 0.220, 0.038) m on the serving tray at (0.350, -0.320, 0.038) m, then put the coffee capsule from (0.52, 0.14) on the tray beside it.
     affordance_physical: Set the mug down upright and gently, then place the light capsule next to it without bumping the mug.
     colloquial_terse: Mug and pod on the tray.
     atomic_subtasks:
@@ -4758,11 +5042,13 @@ tasks:
     object: burger_patty
     start_xyz_m: [0.58, 0.2, 0.042]
     goal_xyz_m: [0.36, -0.18, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -4790,11 +5076,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.4, 0.24, 0.05]
     goal_xyz_m: [0.55, 0.0, 0.116]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -4822,11 +5110,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.55, 0.0, 0.116]
     goal_xyz_m: [0.4, 0.24, 0.05]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -4858,11 +5148,13 @@ tasks:
     object: red_block
     start_xyz_m: [0.45, -0.08, 0.025]
     goal_xyz_m: [0.38, 0.06, 0.08]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -4894,11 +5186,13 @@ tasks:
     object: burger_patty
     start_xyz_m: [0.58, 0.2, 0.042]
     goal_xyz_m: [0.52, 0.0, 0.042]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -4930,11 +5224,13 @@ tasks:
     object: conical_tube
     start_xyz_m: [0.4, 0.2, 0.06]
     goal_xyz_m: [0.55, -0.15, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -4962,11 +5258,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.42, -0.2, 0.04]
     goal_xyz_m: [0.55, 0.0, 0.116]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -4998,11 +5296,13 @@ tasks:
     object: red_block
     start_xyz_m: [0.4, -0.24, 0.035]
     goal_xyz_m: [0.4, 0.24, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -5030,11 +5330,13 @@ tasks:
     object: top_bun
     start_xyz_m: [0.52, 0.0, 0.068]
     goal_xyz_m: [0.38, 0.16, 0.036]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(top_bun, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -5066,11 +5368,13 @@ tasks:
     object: conical_tube
     start_xyz_m: [0.4, 0.2, 0.06]
     goal_xyz_m: [0.55, -0.15, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -5102,11 +5406,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.4, 0.24, 0.05]
     goal_xyz_m: [0.55, 0.0, 0.116]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -5138,11 +5444,13 @@ tasks:
     object: top_bun
     start_xyz_m: [0.38, 0.16, 0.036]
     goal_xyz_m: [0.52, 0.0, 0.068]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(top_bun, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -5174,11 +5482,13 @@ tasks:
     object: red_block
     start_xyz_m: [0.45, -0.08, 0.025]
     goal_xyz_m: [0.4, -0.24, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -5210,11 +5520,13 @@ tasks:
     object: micropipette
     start_xyz_m: [0.52, 0.0, 0.04]
     goal_xyz_m: [0.38, -0.16, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -5246,11 +5558,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.4, 0.24, 0.05]
     goal_xyz_m: [0.55, 0.0, 0.116]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.002
+    tolerance_z_m: 0.002
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0020 m, |z_err| <= 0.0020 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -5282,11 +5596,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.4, 0.24, 0.05]
     goal_xyz_m: [0.55, 0.0, 0.116]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -5318,11 +5634,13 @@ tasks:
     object: spur_gear
     start_xyz_m: [0.56, 0.18, 0.055]
     goal_xyz_m: [0.55, 0.0, 0.09]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -5353,18 +5671,20 @@ tasks:
     scene: industrial_assembly.xml
     object: dowel_pin
     start_xyz_m: [0.44, 0.22, 0.04]
-    goal_xyz_m: [0.55, -0.06, 0.1]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.55, -0.055, 0.08]
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 2
   prompts:
-    geometric_spatial: Pick the dowel pin at (0.440, 0.220, 0.040) m, insert it into the guide hole at (0.550, -0.060, 0.100) m, then press down on its head and hold briefly.
+    geometric_spatial: Pick the dowel pin at (0.440, 0.220, 0.040) m, insert it into the guide hole at (0.550, -0.055, 0.080) m, then press down on its head and hold briefly.
     affordance_physical: Keep the pin plumb so it enters without wedging, then apply a short, steady downward press to seat it fully without bending it.
     colloquial_terse: Pin in, press it home.
     atomic_subtasks:
@@ -5390,11 +5710,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.42, -0.16, 0.05]
     goal_xyz_m: [0.55, 0.0, 0.116]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -5425,18 +5747,20 @@ tasks:
     scene: industrial_assembly.xml
     object: spur_gear
     start_xyz_m: [0.48, -0.18, 0.055]
-    goal_xyz_m: [0.52, 0.12, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.66, 0.13, 0.04]
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the terminal lug at (0.480, -0.180, 0.055) m, route its cable along the channel, and snap the lug into the retention clip at (0.520, 0.120, 0.060) m.
+    geometric_spatial: Pick the terminal lug at (0.480, -0.180, 0.055) m, route its cable along the channel, and snap the lug into the retention clip at (0.660, 0.130, 0.040) m.
     affordance_physical: Hold the lug by its barrel, keep tension on the cable so it lies in the channel, and press the lug into the clip until it snaps without crushing the insulation.
     colloquial_terse: Route and clip the lug.
     atomic_subtasks:
@@ -5462,11 +5786,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.4, 0.24, 0.05]
     goal_xyz_m: [0.55, 0.0, 0.116]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -5498,11 +5824,13 @@ tasks:
     object: micropipette
     start_xyz_m: [0.52, 0.0, 0.04]
     goal_xyz_m: [0.38, -0.16, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -5533,18 +5861,20 @@ tasks:
     scene: lab_science.xml
     object: conical_tube
     start_xyz_m: [0.4, 0.2, 0.045]
-    goal_xyz_m: [0.55, 0.16, 0.065]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.56, 0.2, 0.14]
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 1
   prompts:
-    geometric_spatial: Transfer the test tube from (0.400, 0.200, 0.045) m into the centrifuge bucket at (0.550, 0.160, 0.065) m, close the lid, and return the tube to rack A.
+    geometric_spatial: Transfer the test tube from (0.400, 0.200, 0.045) m into the centrifuge bucket at (0.560, 0.200, 0.140) m, close the lid, and return the tube to rack A.
     affordance_physical: Keep the tube vertical with an even grip so it does not spill, close the lid gently until it latches, and lift the tube straight out afterwards.
     colloquial_terse: Spin the tube, rack it.
     atomic_subtasks:
@@ -5570,11 +5900,13 @@ tasks:
     object: conical_tube
     start_xyz_m: [0.42, 0.18, 0.045]
     goal_xyz_m: [0.48, -0.12, 0.065]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -5606,11 +5938,13 @@ tasks:
     object: micropipette
     start_xyz_m: [0.52, 0.0, 0.04]
     goal_xyz_m: [0.35, -0.22, 0.05]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -5642,11 +5976,13 @@ tasks:
     object: conical_tube
     start_xyz_m: [0.4, 0.2, 0.045]
     goal_xyz_m: [0.45, 0.0, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -5678,11 +6014,13 @@ tasks:
     object: micropipette
     start_xyz_m: [0.48, -0.1, 0.04]
     goal_xyz_m: [0.52, 0.0, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -5714,11 +6052,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.4, 0.24, 0.05]
     goal_xyz_m: [0.55, 0.0, 0.116]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -5750,11 +6090,13 @@ tasks:
     object: spur_gear
     start_xyz_m: [0.56, 0.18, 0.055]
     goal_xyz_m: [0.55, 0.0, 0.09]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -5784,19 +6126,21 @@ tasks:
   sim_grounding:
     scene: industrial_assembly.xml
     object: spur_gear
-    start_xyz_m: [0.44, 0.22, 0.04]
+    start_xyz_m: [0.56, 0.18, 0.055]
     goal_xyz_m: [0.55, 0.0, 0.09]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Grasp the nitrile O-ring at (0.440, 0.220, 0.040) m, stretch it over the shaft chamfer, and roll it into the retention groove at (0.550, 0.000, 0.090) m.
+    geometric_spatial: Grasp the nitrile O-ring at (0.560, 0.180, 0.055) m, stretch it over the shaft chamfer, and roll it into the retention groove at (0.550, 0.000, 0.090) m.
     affordance_physical: The O-ring is elastic and grips the fingers, so stretch it evenly around its circumference, slide it over the chamfer without twisting, and let it contract into the groove.
     colloquial_terse: O-ring in the groove.
     atomic_subtasks:
@@ -5822,11 +6166,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.42, -0.16, 0.05]
     goal_xyz_m: [0.55, 0.0, 0.116]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -5857,18 +6203,20 @@ tasks:
     scene: industrial_assembly.xml
     object: dowel_pin
     start_xyz_m: [0.44, 0.22, 0.04]
-    goal_xyz_m: [0.55, -0.06, 0.1]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.55, -0.055, 0.08]
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 1
   prompts:
-    geometric_spatial: Thread the spark plug from (0.440, 0.220, 0.040) m into the cylinder head at (0.550, -0.060, 0.100) m, engage the socket tool, and torque it to the stop.
+    geometric_spatial: Thread the spark plug from (0.440, 0.220, 0.040) m into the cylinder head at (0.550, -0.055, 0.080) m, engage the socket tool, and torque it to the stop.
     affordance_physical: Start the plug by hand-light rotation so it does not cross-thread, keep the socket square on the hex, and stop turning as soon as resistance rises sharply.
     colloquial_terse: Install the plug.
     atomic_subtasks:
@@ -5893,18 +6241,20 @@ tasks:
     scene: industrial_assembly.xml
     object: dowel_pin
     start_xyz_m: [0.48, -0.18, 0.04]
-    goal_xyz_m: [0.5, 0.1, 0.08]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.5, 0.1, 0.04]
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Pick the 20 A blade fuse from the tray at (0.480, -0.180, 0.040) m, orient its prongs downward, and insert it into fuse box slot 4 at (0.500, 0.100, 0.080) m.
+    geometric_spatial: Pick the 20 A blade fuse from the tray at (0.480, -0.180, 0.040) m, orient its prongs downward, and insert it into fuse box slot 4 at (0.500, 0.100, 0.040) m.
     affordance_physical: Grip the fuse by its plastic body, align both prongs with the slot, and push straight down until it seats; the prongs bend if loaded sideways.
     colloquial_terse: Fuse in slot 4.
     atomic_subtasks:
@@ -5930,11 +6280,13 @@ tasks:
     object: spur_gear
     start_xyz_m: [0.56, 0.18, 0.055]
     goal_xyz_m: [0.55, 0.0, 0.09]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -5965,18 +6317,20 @@ tasks:
     scene: industrial_assembly.xml
     object: dowel_pin
     start_xyz_m: [0.4, 0.24, 0.05]
-    goal_xyz_m: [0.55, -0.06, 0.1]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.55, -0.055, 0.08]
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 2
   prompts:
-    geometric_spatial: Position the proximity sensor in the bracket, insert the locking pin from (0.400, 0.240, 0.050) m at (0.550, -0.060, 0.100) m, and route the sensor lead.
+    geometric_spatial: Position the proximity sensor in the bracket, insert the locking pin from (0.400, 0.240, 0.050) m at (0.550, -0.055, 0.080) m, and route the sensor lead.
     affordance_physical: Hold the sensor square in the bracket, push the pin in plumb until it locks, and lay the lead along its path without pulling on the connector.
     colloquial_terse: Mount the sensor.
     atomic_subtasks:
@@ -6002,11 +6356,13 @@ tasks:
     object: conical_tube
     start_xyz_m: [0.4, 0.2, 0.045]
     goal_xyz_m: [0.38, -0.16, 0.065]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -6038,11 +6394,13 @@ tasks:
     object: micropipette
     start_xyz_m: [0.52, 0.0, 0.04]
     goal_xyz_m: [0.48, -0.1, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -6073,18 +6431,20 @@ tasks:
     scene: lab_science.xml
     object: conical_tube
     start_xyz_m: [0.42, 0.18, 0.045]
-    goal_xyz_m: [0.55, 0.16, 0.065]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.56, 0.2, 0.14]
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 2
   prompts:
-    geometric_spatial: Fill the quartz cuvette from (0.420, 0.180, 0.045) m, insert it into the spectrophotometer chamber at (0.550, 0.160, 0.065) m, and close the chamber lid.
+    geometric_spatial: Fill the quartz cuvette from (0.420, 0.180, 0.045) m, insert it into the spectrophotometer chamber at (0.560, 0.200, 0.140) m, and close the chamber lid.
     affordance_physical: Quartz is brittle and the optical faces must stay clean, so hold the cuvette by its frosted sides, lower it vertically, and close the lid gently.
     colloquial_terse: Cuvette in the spectro.
     atomic_subtasks:
@@ -6110,11 +6470,13 @@ tasks:
     object: conical_tube
     start_xyz_m: [0.4, 0.2, 0.045]
     goal_xyz_m: [0.5, -0.14, 0.065]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(conical_tube, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -6146,11 +6508,13 @@ tasks:
     object: machined_shaft
     start_xyz_m: [0.4, 0.24, 0.05]
     goal_xyz_m: [0.55, 0.0, 0.116]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(machined_shaft, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -6182,11 +6546,13 @@ tasks:
     object: spur_gear
     start_xyz_m: [0.56, 0.18, 0.055]
     goal_xyz_m: [0.55, 0.0, 0.09]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(spur_gear, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -6217,18 +6583,20 @@ tasks:
     scene: industrial_assembly.xml
     object: dowel_pin
     start_xyz_m: [0.44, 0.22, 0.04]
-    goal_xyz_m: [0.55, -0.06, 0.1]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.55, -0.055, 0.08]
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 1
   prompts:
-    geometric_spatial: Insert the square drive key from (0.440, 0.220, 0.040) m into the shaft keyway at (0.550, -0.060, 0.100) m, then slide the coupler hub over the key.
+    geometric_spatial: Insert the square drive key from (0.440, 0.220, 0.040) m into the shaft keyway at (0.550, -0.055, 0.080) m, then slide the coupler hub over the key.
     affordance_physical: Tap the key down flat so it sits fully in the keyway, then align the hub slot with the key and slide the hub on without forcing it.
     colloquial_terse: Key, then hub.
     atomic_subtasks:
@@ -6250,11 +6618,13 @@ tasks:
     object: dowel_pin
     start_xyz_m: [0.48, -0.18, 0.04]
     goal_xyz_m: [0.52, 0.12, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(dowel_pin, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -6286,11 +6656,13 @@ tasks:
     object: micropipette
     start_xyz_m: [0.52, 0.0, 0.04]
     goal_xyz_m: [0.4, -0.18, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -6321,18 +6693,20 @@ tasks:
     scene: lab_science.xml
     object: micropipette
     start_xyz_m: [0.52, 0.0, 0.04]
-    goal_xyz_m: [0.55, 0.16, 0.065]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.42, 0.04, 0.04]
+    tolerance_xy_m: 0.0025
+    tolerance_z_m: 0.0025
+    tilt_tolerance_deg: 5.0
+    distractors: false
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0025 m, |z_err| <= 0.0025 m, tilt <= 5 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(micropipette, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Seat the membrane, attach the manifold, and clamp the frame of the microfluidic cartridge, finishing at (0.550, 0.160, 0.065) m from the start pose (0.520, 0.000, 0.040) m.
+    geometric_spatial: Seat the membrane, attach the manifold, and clamp the frame of the microfluidic cartridge, finishing at (0.420, 0.040, 0.040) m from the start pose (0.520, 0.000, 0.040) m.
     affordance_physical: The membrane tears easily, so lay it flat without stretching, press the manifold down evenly, and close the clamp with gradual force.
     colloquial_terse: Assemble the cartridge.
     atomic_subtasks:
@@ -6356,19 +6730,21 @@ tasks:
   sim_grounding:
     scene: kitchen_burger.xml
     object: burger_patty
-    start_xyz_m: [0.45, 0.12, 0.025]
+    start_xyz_m: [0.36, 0.04, 0.03]
     goal_xyz_m: [0.52, 0.0, 0.048]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 1
   prompts:
-    geometric_spatial: Flip the patty at (0.450, 0.120, 0.025) m, move it onto the bun at (0.520, 0.000, 0.048) m, place the cheese slice on top, then crown it with the toasted bun.
+    geometric_spatial: Flip the patty at (0.360, 0.040, 0.030) m, move it onto the bun at (0.520, 0.000, 0.048) m, place the cheese slice on top, then crown it with the toasted bun.
     affordance_physical: Slide the spatula flat under the greasy patty before flipping so it does not tear, set each layer down flat, and hold the soft bun lightly when crowning.
     colloquial_terse: Flip, cheese, bun.
     atomic_subtasks:
@@ -6393,18 +6769,20 @@ tasks:
     scene: kitchen_coffee.xml
     object: coffee_mug
     start_xyz_m: [0.36, -0.22, 0.05]
-    goal_xyz_m: [0.56, -0.14, 0.07]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.38, -0.15, 0.038]
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Place the mug from (0.360, -0.220, 0.050) m on the espresso drip tray, press the brew button, then move the filled mug to the saucer at (0.560, -0.140, 0.070) m.
+    geometric_spatial: Place the mug from (0.360, -0.220, 0.050) m on the espresso drip tray, press the brew button, then move the filled mug to the saucer at (0.380, -0.150, 0.038) m.
     affordance_physical: Set the empty mug down gently, press the brew button along its axis, and carry the full mug slowly and upright so it does not slosh.
     colloquial_terse: Brew and serve.
     atomic_subtasks:
@@ -6428,19 +6806,21 @@ tasks:
   sim_grounding:
     scene: kitchen_burger.xml
     object: bottom_bun
-    start_xyz_m: [0.4, 0.2, 0.03]
+    start_xyz_m: [0.38, 0.26, 0.03]
     goal_xyz_m: [0.52, 0.0, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(bottom_bun, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Cut a bread slice on the board near (0.400, 0.200, 0.030) m, place it in the toaster slot, then move the toast to the breakfast plate at (0.520, 0.000, 0.040) m.
+    geometric_spatial: Cut a bread slice on the board near (0.380, 0.260, 0.030) m, place it in the toaster slot, then move the toast to the breakfast plate at (0.520, 0.000, 0.040) m.
     affordance_physical: Hold the loaf steady with light pressure while slicing, lower the slice vertically into the slot, and lift the hot toast out by its edge.
     colloquial_terse: Toast on a plate.
     atomic_subtasks:
@@ -6464,19 +6844,21 @@ tasks:
   sim_grounding:
     scene: kitchen_burger.xml
     object: tomato_slice
-    start_xyz_m: [0.48, 0.2, 0.02]
+    start_xyz_m: [0.36, 0.04, 0.02]
     goal_xyz_m: [0.45, -0.05, 0.045]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(tomato_slice, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 1
   prompts:
-    geometric_spatial: Move the chopped greens from (0.480, 0.200, 0.020) m into the salad bowl at (0.450, -0.050, 0.045) m, pour the vinaigrette over them, and toss with the tongs.
+    geometric_spatial: Move the chopped greens from (0.360, 0.040, 0.020) m into the salad bowl at (0.450, -0.050, 0.045) m, pour the vinaigrette over them, and toss with the tongs.
     affordance_physical: Lettuce is light and crushes easily, so grip it loosely, pour the dressing in a thin stream, and toss with gentle lifting motions.
     colloquial_terse: Dress the salad.
     atomic_subtasks:
@@ -6500,19 +6882,21 @@ tasks:
   sim_grounding:
     scene: kitchen_burger.xml
     object: cheese_slice
-    start_xyz_m: [0.42, -0.15, 0.015]
+    start_xyz_m: [0.36, -0.18, 0.025]
     goal_xyz_m: [0.52, 0.0, 0.042]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(cheese_slice, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 2
   prompts:
-    geometric_spatial: Spread sauce over the pizza dough, sprinkle the mozzarella from (0.420, -0.150, 0.015) m at (0.520, 0.000, 0.042) m, and slide the peel into the oven.
+    geometric_spatial: Spread sauce over the pizza dough, sprinkle the mozzarella from (0.360, -0.180, 0.025) m at (0.520, 0.000, 0.042) m, and slide the peel into the oven.
     affordance_physical: Spread the sauce with light, even strokes so the dough does not tear, sprinkle the cheese from just above, and keep the peel level so the pizza does not slide off.
     colloquial_terse: Sauce, cheese, bake.
     atomic_subtasks:
@@ -6538,11 +6922,13 @@ tasks:
     object: top_bun
     start_xyz_m: [0.38, 0.16, 0.036]
     goal_xyz_m: [0.52, 0.0, 0.068]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(top_bun, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -6574,11 +6960,13 @@ tasks:
     object: coffee_mug
     start_xyz_m: [0.36, -0.22, 0.05]
     goal_xyz_m: [0.45, 0.0, 0.05]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: true
     instruction_covered_by_success: false
@@ -6608,19 +6996,21 @@ tasks:
   sim_grounding:
     scene: kitchen_burger.xml
     object: burger_patty
-    start_xyz_m: [0.45, 0.12, 0.025]
+    start_xyz_m: [0.36, 0.04, 0.03]
     goal_xyz_m: [0.48, 0.05, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 2
   prompts:
-    geometric_spatial: Spread the rice on the nori sheet, lay the salmon strip from (0.450, 0.120, 0.025) m along it at (0.480, 0.050, 0.035) m, and roll the bamboo mat.
+    geometric_spatial: Spread the rice on the nori sheet, lay the salmon strip from (0.360, 0.040, 0.030) m along it at (0.480, 0.050, 0.035) m, and roll the bamboo mat.
     affordance_physical: Sticky rice and raw fish adhere to the fingers, so press them on lightly, keep the strip straight, and roll the mat with even, gentle pressure.
     colloquial_terse: Roll the sushi.
     atomic_subtasks:
@@ -6644,19 +7034,21 @@ tasks:
   sim_grounding:
     scene: kitchen_burger.xml
     object: tomato_slice
-    start_xyz_m: [0.48, 0.2, 0.02]
+    start_xyz_m: [0.36, 0.04, 0.02]
     goal_xyz_m: [0.52, -0.08, 0.045]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(tomato_slice, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 1
   prompts:
-    geometric_spatial: Crack the egg from (0.480, 0.200, 0.020) m into the mixing bowl at (0.520, -0.080, 0.045) m, whisk it smooth, and pour it into the heated skillet.
+    geometric_spatial: Crack the egg from (0.360, 0.040, 0.020) m into the mixing bowl at (0.520, -0.080, 0.045) m, whisk it smooth, and pour it into the heated skillet.
     affordance_physical: Tap the shell on the rim with a short, light strike so it cracks cleanly, whisk in steady circles, and pour slowly so it does not splash.
     colloquial_terse: Scramble an egg.
     atomic_subtasks:
@@ -6680,19 +7072,21 @@ tasks:
   sim_grounding:
     scene: kitchen_burger.xml
     object: burger_patty
-    start_xyz_m: [0.45, 0.12, 0.025]
+    start_xyz_m: [0.36, 0.04, 0.03]
     goal_xyz_m: [0.52, 0.0, 0.048]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 2
   prompts:
-    geometric_spatial: Flip the pancake at (0.450, 0.120, 0.025) m, stack it on the service plate at (0.520, 0.000, 0.048) m, and drizzle maple syrup over it.
+    geometric_spatial: Flip the pancake at (0.360, 0.040, 0.030) m, stack it on the service plate at (0.520, 0.000, 0.048) m, and drizzle maple syrup over it.
     affordance_physical: Slide the spatula fully under the pancake before flipping so it does not fold, set it down flat, and pour the syrup in a thin, steady stream.
     colloquial_terse: Flip and syrup.
     atomic_subtasks:
@@ -6718,11 +7112,13 @@ tasks:
     object: red_block
     start_xyz_m: [0.45, -0.08, 0.025]
     goal_xyz_m: [0.4, -0.24, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -6754,11 +7150,13 @@ tasks:
     object: coffee_mug
     start_xyz_m: [0.36, -0.22, 0.05]
     goal_xyz_m: [0.48, 0.0, 0.05]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -6789,18 +7187,20 @@ tasks:
     scene: tabletop_sorting.xml
     object: green_block
     start_xyz_m: [0.62, -0.14, 0.025]
-    goal_xyz_m: [0.5, 0.0, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.46, 0.0, 0.035]
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 2
   prompts:
-    geometric_spatial: Pick the salt and pepper shakers near (0.620, -0.140, 0.025) m, put them in the table caddy, and move the caddy to the table center at (0.500, 0.000, 0.035) m.
+    geometric_spatial: Pick the salt and pepper shakers near (0.620, -0.140, 0.025) m, put them in the table caddy, and move the caddy to the table center at (0.460, 0.000, 0.035) m.
     affordance_physical: Grip each shaker around its body so it does not tip, set them upright in the caddy, and carry the caddy level.
     colloquial_terse: Shakers in the caddy.
     atomic_subtasks:
@@ -6822,11 +7222,13 @@ tasks:
     object: blue_block
     start_xyz_m: [0.52, -0.04, 0.025]
     goal_xyz_m: [0.52, 0.24, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -6858,11 +7260,13 @@ tasks:
     object: red_block
     start_xyz_m: [0.45, -0.08, 0.025]
     goal_xyz_m: [0.4, 0.24, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -6890,11 +7294,13 @@ tasks:
     object: coffee_mug
     start_xyz_m: [0.36, -0.22, 0.05]
     goal_xyz_m: [0.5, 0.15, 0.07]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -6926,11 +7332,13 @@ tasks:
     object: blue_block
     start_xyz_m: [0.52, -0.04, 0.025]
     goal_xyz_m: [0.38, -0.24, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -6961,18 +7369,20 @@ tasks:
     scene: tabletop_sorting.xml
     object: green_block
     start_xyz_m: [0.62, 0.16, 0.025]
-    goal_xyz_m: [0.5, 0.0, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.46, 0.0, 0.035]
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 1
   prompts:
-    geometric_spatial: Pick the apple and the banana near (0.620, 0.160, 0.025) m and arrange them in the fruit bowl at (0.500, 0.000, 0.035) m.
+    geometric_spatial: Pick the apple and the banana near (0.620, 0.160, 0.025) m and arrange them in the fruit bowl at (0.460, 0.000, 0.035) m.
     affordance_physical: Fruit bruises under hard grips, so hold the apple around its widest part and the banana near its middle with light force, and lower each into the bowl.
     colloquial_terse: Fruit in the bowl.
     atomic_subtasks:
@@ -6993,18 +7403,20 @@ tasks:
     scene: kitchen_coffee.xml
     object: coffee_mug
     start_xyz_m: [0.36, -0.22, 0.05]
-    goal_xyz_m: [0.45, -0.1, 0.06]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.45, -0.03, 0.06]
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 2
   prompts:
-    geometric_spatial: Twist the cap off the water bottle near (0.360, -0.220, 0.050) m, fill the highball glass at (0.450, -0.100, 0.060) m, and screw the cap back on.
+    geometric_spatial: Twist the cap off the water bottle near (0.360, -0.220, 0.050) m, fill the highball glass at (0.450, -0.030, 0.060) m, and screw the cap back on.
     affordance_physical: Hold the bottle firmly while twisting so it does not spin in the grip, pour slowly to avoid overfilling the glass, and turn the cap until snug.
     colloquial_terse: Pour a glass of water.
     atomic_subtasks:
@@ -7028,19 +7440,21 @@ tasks:
   sim_grounding:
     scene: kitchen_burger.xml
     object: bottom_bun
-    start_xyz_m: [0.4, 0.2, 0.03]
+    start_xyz_m: [0.38, 0.26, 0.03]
     goal_xyz_m: [0.52, 0.0, 0.04]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(bottom_bun, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Split the biscuit near (0.400, 0.200, 0.030) m, spread butter and strawberry jam on it, and place it on the plate at (0.520, 0.000, 0.040) m.
+    geometric_spatial: Split the biscuit near (0.380, 0.260, 0.030) m, spread butter and strawberry jam on it, and place it on the plate at (0.520, 0.000, 0.040) m.
     affordance_physical: A warm biscuit crumbles, so split it with gentle pressure, spread with light strokes, and lift it from underneath when plating.
     colloquial_terse: Butter and jam.
     atomic_subtasks:
@@ -7064,19 +7478,21 @@ tasks:
   sim_grounding:
     scene: kitchen_burger.xml
     object: cheese_slice
-    start_xyz_m: [0.42, -0.15, 0.015]
+    start_xyz_m: [0.36, -0.18, 0.025]
     goal_xyz_m: [0.48, 0.0, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(cheese_slice, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 2
   prompts:
-    geometric_spatial: Hold the taco shell upright in its stand, spoon the beef from (0.420, -0.150, 0.015) m into it at (0.480, 0.000, 0.035) m, and top it with salsa.
+    geometric_spatial: Hold the taco shell upright in its stand, spoon the beef from (0.360, -0.180, 0.025) m into it at (0.480, 0.000, 0.035) m, and top it with salsa.
     affordance_physical: Crisp taco shells crack under side load, so steady the shell lightly, spoon the filling in gently, and add the salsa without pressing down.
     colloquial_terse: Fill the taco.
     atomic_subtasks:
@@ -7101,18 +7517,20 @@ tasks:
     scene: kitchen_coffee.xml
     object: coffee_mug
     start_xyz_m: [0.36, -0.22, 0.05]
-    goal_xyz_m: [0.56, -0.14, 0.07]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.38, -0.15, 0.038]
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 1
   prompts:
-    geometric_spatial: Place the soup bowl from (0.360, -0.220, 0.050) m in the microwave at (0.560, -0.140, 0.070) m, fit the splatter cover over it, and press the 1-minute start key.
+    geometric_spatial: Place the soup bowl from (0.360, -0.220, 0.050) m in the microwave at (0.380, -0.150, 0.038) m, fit the splatter cover over it, and press the 1-minute start key.
     affordance_physical: Carry the full bowl level so the soup does not spill, lower the cover gently, and press the key with light force.
     colloquial_terse: Heat the soup.
     atomic_subtasks:
@@ -7136,19 +7554,21 @@ tasks:
   sim_grounding:
     scene: kitchen_burger.xml
     object: tomato_slice
-    start_xyz_m: [0.48, 0.2, 0.02]
-    goal_xyz_m: [0.5, -0.12, 0.05]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    start_xyz_m: [0.36, 0.04, 0.02]
+    goal_xyz_m: [0.68, 0.0, 0.05]
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(tomato_slice, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 1
   prompts:
-    geometric_spatial: Add the frozen berries from (0.480, 0.200, 0.020) m to the blender pitcher at (0.500, -0.120, 0.050) m, seat the rubber lid, and press the pulse button.
+    geometric_spatial: Add the frozen berries from (0.360, 0.040, 0.020) m to the blender pitcher at (0.680, 0.000, 0.050) m, seat the rubber lid, and press the pulse button.
     affordance_physical: Frozen berries are hard and slippery, so pour them in from just above the rim, press the lid down evenly until sealed, and press pulse briefly.
     colloquial_terse: Blend the berries.
     atomic_subtasks:
@@ -7172,19 +7592,21 @@ tasks:
   sim_grounding:
     scene: kitchen_burger.xml
     object: burger_patty
-    start_xyz_m: [0.45, 0.12, 0.025]
+    start_xyz_m: [0.36, 0.04, 0.03]
     goal_xyz_m: [0.45, -0.05, 0.045]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Tip the boiled pasta from (0.450, 0.120, 0.025) m into the colander, shake it dry, and return it to the sauce pot at (0.450, -0.050, 0.045) m.
+    geometric_spatial: Tip the boiled pasta from (0.360, 0.040, 0.030) m into the colander, shake it dry, and return it to the sauce pot at (0.450, -0.050, 0.045) m.
     affordance_physical: Hot pasta and water are heavy and slosh, so tilt the pot slowly, shake the colander with small motions, and pour back steadily.
     colloquial_terse: Drain the pasta.
     atomic_subtasks:
@@ -7210,11 +7632,13 @@ tasks:
     object: coffee_mug
     start_xyz_m: [0.36, -0.22, 0.05]
     goal_xyz_m: [0.45, 0.0, 0.05]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -7246,11 +7670,13 @@ tasks:
     object: red_block
     start_xyz_m: [0.45, -0.08, 0.025]
     goal_xyz_m: [0.52, 0.24, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(red_block, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -7277,18 +7703,20 @@ tasks:
     scene: kitchen_coffee.xml
     object: coffee_mug
     start_xyz_m: [0.36, -0.22, 0.05]
-    goal_xyz_m: [0.56, -0.14, 0.07]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    goal_xyz_m: [0.38, -0.15, 0.038]
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(coffee_mug, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 3
   prompts:
-    geometric_spatial: Insert a coffee pod into the brewer chamber near (0.360, -0.220, 0.050) m, close the lever, brew, and empty the used pod into the waste bin at (0.560, -0.140, 0.070) m.
+    geometric_spatial: Insert a coffee pod into the brewer chamber near (0.360, -0.220, 0.050) m, close the lever, brew, and empty the used pod into the waste bin at (0.380, -0.150, 0.038) m.
     affordance_physical: Drop the pod in squarely, close the lever with a smooth press, and lift the hot used pod out by its rim.
     colloquial_terse: Brew a pod and bin it.
     atomic_subtasks:
@@ -7314,11 +7742,13 @@ tasks:
     object: blue_block
     start_xyz_m: [0.52, -0.04, 0.025]
     goal_xyz_m: [0.4, -0.24, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(blue_block, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -7350,11 +7780,13 @@ tasks:
     object: green_block
     start_xyz_m: [0.48, 0.04, 0.025]
     goal_xyz_m: [0.4, -0.24, 0.035]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(green_block, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
@@ -7384,19 +7816,21 @@ tasks:
   sim_grounding:
     scene: kitchen_burger.xml
     object: burger_patty
-    start_xyz_m: [0.45, 0.12, 0.025]
+    start_xyz_m: [0.36, 0.04, 0.03]
     goal_xyz_m: [0.52, 0.0, 0.048]
-    tolerance_xy_m: 0.04
-    tolerance_z_m: 0.03
-    min_lift_m: 0.0
+    tolerance_xy_m: 0.008
+    tolerance_z_m: 0.008
+    tilt_tolerance_deg: 15.0
+    distractors: true
+    min_lift_m: 0.02
     init_tcp_xyz_m: null
-    success_predicate: xy_err < 0.040 m and z_err < 0.030 m and gripper_width >= 0.030 m
+    success_predicate: released (no finger contact), supported by a non-robot body and at rest, xy_err <= 0.0080 m, |z_err| <= 0.0080 m, tilt <= 15 deg, and peak lift >= 0.02 m
     terminal_predicates: ['at(burger_patty, goal)', gripper_open]
     referent_in_scene: false
     instruction_covered_by_success: false
     episode_terminates_after_subtask: 1
   prompts:
-    geometric_spatial: Assemble the burger with the patty from (0.450, 0.120, 0.025) m placed at (0.520, 0.000, 0.048) m, then pour the beverage, plate the dessert, and clear the table.
+    geometric_spatial: Assemble the burger with the patty from (0.360, 0.040, 0.030) m placed at (0.520, 0.000, 0.048) m, then pour the beverage, plate the dessert, and clear the table.
     affordance_physical: Place each burger layer flat, pour without splashing, handle the dessert gently, and stack the cleared dishes without chipping them.
     colloquial_terse: Run the banquet service.
     atomic_subtasks:

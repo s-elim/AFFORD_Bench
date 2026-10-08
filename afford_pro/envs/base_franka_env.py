@@ -11,14 +11,25 @@ import numpy as np
 
 # Fingertip center along the hand's local +z axis (m).
 TCP_OFFSET_HAND = np.array([0.0, 0.0, 0.10], dtype=np.float64)
+GRIPPER_OPEN_WIDTH = 0.04  # per finger (m)
+# Commanded TCP targets are clipped to this box (m, world frame).
+WORKSPACE_LOW = np.array([0.20, -0.50, 0.0])
+WORKSPACE_HIGH = np.array([0.80, 0.50, 0.70])
+
+
+def _rot_z(yaw: float) -> np.ndarray:
+    c, s = np.cos(yaw), np.sin(yaw)
+    return np.array([[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]])
 
 
 class BaseFrankaEnv(gym.Env):
-    """Universal Gymnasium Environment for Franka Panda 7-DoF robot in MuJoCo.
+    """Franka Panda 7-DoF manipulation environment in MuJoCo.
 
-    Control: each env step converts a Cartesian TCP increment into a joint target with
-    damped-least-squares IK, then advances `n_substeps` physics steps while the arm is
-    interpolated kinematically toward that target (25 x 2 ms = 20 Hz by default).
+    Control (20 Hz): an action [dx, dy, dz, droll, dpitch, dyaw, grip] sets a TCP target relative to the
+    measured TCP; 6-DoF damped-least-squares IK (hand pointing down, commanded yaw) gives a joint target
+    that the arm's position servos track over `n_substeps` physics steps with gravity compensation.
+    Roll and pitch commands are not executed. The gripper is a force-limited position servo (<= ~70 N
+    per finger), so grasps hold only through contact friction.
     """
 
     metadata = {"render_modes": ["rgb_array", "human"], "render_fps": 20}
@@ -30,10 +41,12 @@ class BaseFrankaEnv(gym.Env):
         agentic_cam_size: tuple[int, int] = (640, 660),
         wrist_cam_size: tuple[int, int] = (300, 420),
         control_mode: str = "cartesian_delta",  # "cartesian_delta" or "joint_delta"
-        action_scale: float = 0.025,           # max per-axis delta per step in meters / radians
+        action_scale: float = 0.025,           # max per-axis TCP delta per step (m) / joint delta (rad)
+        yaw_scale: float = 0.05,               # max yaw delta per step (rad), i.e. 1 rad/s
         max_tcp_speed: float = 0.5,            # m/s cap on the commanded TCP displacement
+        max_finger_speed: float = 0.05,        # m/s cap on each finger's commanded opening (Franka Hand)
         n_substeps: int = 25,                  # physics steps per env step
-        settle_substeps: int = 40,             # physics steps run at reset before the first observation
+        settle_substeps: int = 40,             # minimum physics steps run at reset before the first observation
         max_episode_steps: int = 500,
         render_depth: bool = False,
     ):
@@ -44,70 +57,84 @@ class BaseFrankaEnv(gym.Env):
 
         self.model = mujoco.MjModel.from_xml_path(str(self.xml_path))
         self.data = mujoco.MjData(self.model)
+        self._ik_data = mujoco.MjData(self.model)
 
         self.render_mode = render_mode
         self.agentic_cam_size = agentic_cam_size
         self.wrist_cam_size = wrist_cam_size
         self.control_mode = control_mode
         self.action_scale = action_scale
+        self.yaw_scale = yaw_scale
         self.n_substeps = n_substeps
         self.settle_substeps = settle_substeps
         self.control_dt = n_substeps * self.model.opt.timestep
         self.max_tcp_step = max_tcp_speed * self.control_dt
+        self.max_finger_substep = max_finger_speed * self.model.opt.timestep
+        self.finger_cmd = GRIPPER_OPEN_WIDTH
         self.max_episode_steps = max_episode_steps
         self.render_depth = render_depth
 
         self.current_step = 0
+        m = self.model
         self.arm_joints = [f"joint{i}" for i in range(1, 8)]
-        arm_joint_ids = [mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_JOINT, name) for name in self.arm_joints]
-        self.arm_qpos_adr = [self.model.jnt_qposadr[j] for j in arm_joint_ids]
-        self.arm_dof_adr = [self.model.jnt_dofadr[j] for j in arm_joint_ids]
-        self.arm_joint_range = np.array([self.model.jnt_range[j] for j in arm_joint_ids])
-        # Position actuators driving the arm joints, if the scene defines them.
+        arm_joint_ids = [mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, name) for name in self.arm_joints]
+        self.arm_qpos_adr = [int(m.jnt_qposadr[j]) for j in arm_joint_ids]
+        self.arm_dof_adr = [int(m.jnt_dofadr[j]) for j in arm_joint_ids]
+        self.arm_joint_range = np.array([m.jnt_range[j] for j in arm_joint_ids])
         self.arm_actuator_ids = [
-            a for j in arm_joint_ids for a in range(self.model.nu)
-            if self.model.actuator_trntype[a] == mujoco.mjtTrn.mjTRN_JOINT and self.model.actuator_trnid[a, 0] == j
+            a for j in arm_joint_ids for a in range(m.nu)
+            if m.actuator_trntype[a] == mujoco.mjtTrn.mjTRN_JOINT and m.actuator_trnid[a, 0] == j
         ]
+        self.gripper_actuator_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_ACTUATOR, "actuator8")
+        # Servo velocity-feedforward gain kv/kp: the affine servo damps absolute joint velocity, so a
+        # moving target is offset by (kv/kp) * qdot to cancel the steady-state lag.
+        self.arm_servo_lead = np.array([m.actuator_biasprm[a, 2] / m.actuator_biasprm[a, 1] for a in self.arm_actuator_ids])
 
-        # Gripper fingers
-        finger_ids = [mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_JOINT, n) for n in ("finger_joint1", "finger_joint2")]
-        self.f1_adr, self.f2_adr = (self.model.jnt_qposadr[j] for j in finger_ids)
-        self.finger_dof_adr = [self.model.jnt_dofadr[j] for j in finger_ids]
-        self.hand_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_BODY, "hand")
-        self.robot_root_id = self.model.body_rootid[self.hand_id]
+        finger_ids = [mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, n) for n in ("finger_joint1", "finger_joint2")]
+        self.finger_qpos_adr = [int(m.jnt_qposadr[j]) for j in finger_ids]
+        self.finger_dof_adr = [int(m.jnt_dofadr[j]) for j in finger_ids]
+        self.finger_body_ids = {
+            mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, "left_finger"),
+            mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, "right_finger"),
+        }
+        self.hand_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, "hand")
+        self.robot_root_id = int(m.body_rootid[self.hand_id])
+        self.robot_body_ids = {b for b in range(m.nbody) if m.body_rootid[b] == self.robot_root_id}
+        # The scenes declare gravcomp="1" on the robot bodies (gravity compensation, as on the real
+        # Franka controller); it must be set in the XML because MuJoCo skips it when absent at compile time.
+        assert all(m.body_gravcomp[b] == 1.0 for b in self.robot_body_ids if b != self.robot_root_id or m.body_mass[b] > 0)
 
         # Free-floating bodies: qpos address -> dof address, and body id -> qpos address.
         self.free_qpos_to_dof: dict[int, int] = {}
         self.free_body_qposadr: dict[int, int] = {}
-        for j in range(self.model.njnt):
-            if self.model.jnt_type[j] == mujoco.mjtJoint.mjJNT_FREE:
-                self.free_qpos_to_dof[int(self.model.jnt_qposadr[j])] = int(self.model.jnt_dofadr[j])
-                self.free_body_qposadr[int(self.model.jnt_bodyid[j])] = int(self.model.jnt_qposadr[j])
+        for j in range(m.njnt):
+            if m.jnt_type[j] == mujoco.mjtJoint.mjJNT_FREE:
+                self.free_qpos_to_dof[int(m.jnt_qposadr[j])] = int(m.jnt_dofadr[j])
+                self.free_body_qposadr[int(m.jnt_bodyid[j])] = int(m.jnt_qposadr[j])
         # Bodies an env pins in place every substep; reset de-penetration leaves them alone.
         self.static_body_ids: set[int] = set()
 
         # Camera renderers
-        self.cam_agentic_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_CAMERA, "agentic_cam")
-        self.cam_wrist_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_CAMERA, "wrist_cam")
+        self.cam_agentic_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_CAMERA, "agentic_cam")
+        self.cam_wrist_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_CAMERA, "wrist_cam")
+        self.renderer_agentic = mujoco.Renderer(m, height=agentic_cam_size[0], width=agentic_cam_size[1])
+        self.renderer_wrist = mujoco.Renderer(m, height=wrist_cam_size[0], width=wrist_cam_size[1])
 
-        self.renderer_agentic = mujoco.Renderer(self.model, height=agentic_cam_size[0], width=agentic_cam_size[1])
-        self.renderer_wrist = mujoco.Renderer(self.model, height=wrist_cam_size[0], width=wrist_cam_size[1])
-
-        # Nominal ready joint configuration
+        # Nominal ready joint configuration and the hand orientation it defines (pointing down).
         self.ready_q = np.array([0.0, -0.6, 0.0, -2.2, 0.0, 1.6, 0.785], dtype=np.float64)
+        self._set_arm_state(self.ready_q)
+        mujoco.mj_forward(m, self.data)
+        r_ready = self.data.xmat[self.hand_id].reshape(3, 3).copy()
+        self._r_down = _rot_z(-self._yaw_of(r_ready)) @ r_ready
         # Optional initial TCP position (m); None starts at the ready pose.
         self.init_tcp_pos: np.ndarray | None = getattr(self, "init_tcp_pos", None)
-        self.gripper_width = 0.04
 
-        # Action space:
-        # If cartesian_delta: [dx, dy, dz, droll, dpitch, dyaw, gripper_cmd] (7,); rotation is not executed.
-        # If joint_delta: [dq1, dq2, dq3, dq4, dq5, dq6, dq7, gripper_cmd] (8,)
+        # Action space: [dx, dy, dz, droll, dpitch, dyaw, gripper_cmd]; roll and pitch are not executed.
         if self.control_mode == "cartesian_delta":
             self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(7,), dtype=np.float32)
         else:
             self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(8,), dtype=np.float32)
 
-        # Observation space
         obs_dict: dict[str, Any] = {
             "agentic_rgb": spaces.Box(low=0, high=255, shape=(*agentic_cam_size, 3), dtype=np.uint8),
             "wrist_rgb": spaces.Box(low=0, high=255, shape=(*wrist_cam_size, 3), dtype=np.uint8),
@@ -127,12 +154,26 @@ class BaseFrankaEnv(gym.Env):
         pass
 
     # ----------------------------------------------------------------- Kinematics & States
+    @staticmethod
+    def _yaw_of(rot: np.ndarray) -> float:
+        return float(np.arctan2(rot[1, 0], rot[0, 0]))
+
+    def _tcp_from(self, data: mujoco.MjData) -> np.ndarray:
+        rot = data.xmat[self.hand_id].reshape(3, 3)
+        return data.xpos[self.hand_id] + rot @ TCP_OFFSET_HAND
+
     @property
     def tcp_position(self) -> np.ndarray:
         """Tool Center Point (fingertip center) in the world frame (m); the Panda base is at the origin."""
-        mujoco.mj_forward(self.model, self.data)
-        rot = self.data.xmat[self.hand_id].reshape(3, 3)
-        return self.data.xpos[self.hand_id] + rot @ TCP_OFFSET_HAND
+        mujoco.mj_kinematics(self.model, self.data)
+        return self._tcp_from(self.data)
+
+    @property
+    def tcp_yaw(self) -> float:
+        """Hand yaw (rad) relative to the ready orientation; the finger closing axis is the hand y axis."""
+        mujoco.mj_kinematics(self.model, self.data)
+        rot = self.data.xmat[self.hand_id].reshape(3, 3) @ self._r_down.T
+        return self._yaw_of(rot)
 
     @property
     def tcp_pose(self) -> np.ndarray:
@@ -150,42 +191,73 @@ class BaseFrankaEnv(gym.Env):
     def joint_velocities(self) -> np.ndarray:
         return np.array([self.data.qvel[adr] for adr in self.arm_dof_adr], dtype=np.float64)
 
-    def solve_ik(self, target_pos: np.ndarray, max_iter: int = 40, tol: float = 0.002) -> bool:
-        """Solve Damped Least Squares IK targeting fingertip position."""
+    @property
+    def gripper_width(self) -> float:
+        """Measured opening of one finger (m), 0.0 closed .. 0.04 open."""
+        return float(np.mean([self.data.qpos[a] for a in self.finger_qpos_adr]))
+
+    def solve_ik(self, target_pos: np.ndarray, target_yaw: float, q_init: np.ndarray, max_iter: int = 60,
+                 tol: float = 1e-4) -> np.ndarray:
+        """6-DoF damped-least-squares IK on a scratch copy of the state: TCP position plus hand pointing
+        down with the given yaw. Returns the joint target; the simulated arm is not moved."""
+        m, d = self.model, self._ik_data
+        d.qpos[:] = self.data.qpos
+        for i, adr in enumerate(self.arm_qpos_adr):
+            d.qpos[adr] = q_init[i]
         target = np.asarray(target_pos, dtype=np.float64).reshape(3)
-        jacp = np.zeros((3, self.model.nv))
-        jacr = np.zeros((3, self.model.nv))
+        r_target = _rot_z(target_yaw) @ self._r_down
+        jacp = np.zeros((3, m.nv))
+        jacr = np.zeros((3, m.nv))
         for _ in range(max_iter):
-            mujoco.mj_forward(self.model, self.data)
-            cur_pos = self.tcp_position
-            err = target - cur_pos
-            if np.linalg.norm(err) < tol:
-                return True
-            mujoco.mj_jac(self.model, self.data, jacp, jacr, cur_pos, self.hand_id)
-            J = jacp[:, self.arm_dof_adr]
-            lam = 0.02
-            dq = J.T @ np.linalg.solve(J @ J.T + lam**2 * np.eye(3), err)
+            mujoco.mj_kinematics(m, d)
+            mujoco.mj_comPos(m, d)
+            tcp = self._tcp_from(d)
+            r_cur = d.xmat[self.hand_id].reshape(3, 3)
+            err_p = target - tcp
+            err_r = 0.5 * sum(np.cross(r_cur[:, k], r_target[:, k]) for k in range(3))
+            if np.linalg.norm(err_p) < tol and np.linalg.norm(err_r) < 1e-3:
+                break
+            mujoco.mj_jac(m, d, jacp, jacr, tcp, self.hand_id)
+            J = np.vstack([jacp[:, self.arm_dof_adr], jacr[:, self.arm_dof_adr]])
+            err = np.concatenate([err_p, 0.5 * err_r])
+            dq = J.T @ np.linalg.solve(J @ J.T + 1e-4 * np.eye(6), err)
             for i, adr in enumerate(self.arm_qpos_adr):
-                self.data.qpos[adr] = np.clip(self.data.qpos[adr] + 0.45 * dq[i], *self.arm_joint_range[i])
+                d.qpos[adr] = np.clip(d.qpos[adr] + dq[i], *self.arm_joint_range[i])
+        return np.array([d.qpos[adr] for adr in self.arm_qpos_adr])
+
+    def hand_collides(self, tcp: np.ndarray, yaw: float, finger: float, ignore: set[int]) -> bool:
+        """True if the robot, posed by IK at `tcp` and `yaw` with the given per-finger opening, would
+        penetrate a non-robot body outside `ignore` (or the pose is out of reach). Uses the scratch state;
+        the simulated arm is not moved."""
+        m, d = self.model, self._ik_data
+        self.solve_ik(tcp, yaw, self.joint_positions)
+        for adr in self.finger_qpos_adr:
+            d.qpos[adr] = finger
+        mujoco.mj_fwdPosition(m, d)
+        if np.linalg.norm(self._tcp_from(d) - tcp) > 0.002:
+            return True
+        for i in range(d.ncon):
+            c = d.contact[i]
+            b1, b2 = int(m.geom_bodyid[c.geom1]), int(m.geom_bodyid[c.geom2])
+            if (b1 in self.robot_body_ids) == (b2 in self.robot_body_ids) or c.dist > -0.0005:
+                continue
+            other = b2 if b1 in self.robot_body_ids else b1
+            if int(m.body_rootid[other]) not in ignore and other not in ignore:
+                return True
         return False
 
-    def set_gripper(self, width: float) -> None:
-        """Set parallel jaw gripper opening width (0.00 closed .. 0.04 open)."""
-        w = float(np.clip(width, 0.0, 0.04))
-        self.gripper_width = w
-        self.data.qpos[self.f1_adr] = w
-        self.data.qpos[self.f2_adr] = w
-
-    def _set_arm(self, q: np.ndarray, qdot: np.ndarray | None = None) -> None:
-        """Write arm joint positions (and velocities), keep the fingers at the commanded width."""
+    def _set_arm_state(self, q: np.ndarray, finger: float = GRIPPER_OPEN_WIDTH) -> None:
+        """Teleport the arm (reset only): joint positions, zero velocity, matching servo targets."""
         for i, (qa, da) in enumerate(zip(self.arm_qpos_adr, self.arm_dof_adr)):
             self.data.qpos[qa] = q[i]
-            self.data.qvel[da] = 0.0 if qdot is None else qdot[i]
+            self.data.qvel[da] = 0.0
         for a, qi in zip(self.arm_actuator_ids, q):
             self.data.ctrl[a] = qi
-        self.set_gripper(self.gripper_width)
-        for da in self.finger_dof_adr:
+        for qa, da in zip(self.finger_qpos_adr, self.finger_dof_adr):
+            self.data.qpos[qa] = finger
             self.data.qvel[da] = 0.0
+        self.finger_cmd = finger
+        self.data.ctrl[self.gripper_actuator_id] = 255.0 * finger / GRIPPER_OPEN_WIDTH
 
     def pin_free_body(self, qposadr: int, pos: np.ndarray, quat: np.ndarray | None = None) -> None:
         """Place a free body at a pose and zero its velocity."""
@@ -195,8 +267,24 @@ class BaseFrankaEnv(gym.Env):
         self.data.qvel[dof : dof + 6] = 0.0
 
     def _hold_bodies(self) -> None:
-        """Hook called before every physics substep to re-apply kinematic attachments."""
+        """Hook called before every physics substep to re-apply kinematic constraints (none by default)."""
         pass
+
+    def body_contacts(self, body_id: int) -> set[int]:
+        """Root body ids in contact with a body (robot contacts are reported per finger body or as the robot root)."""
+        out: set[int] = set()
+        for c in self.data.contact[: self.data.ncon]:
+            b1 = int(self.model.geom_bodyid[c.geom1])
+            b2 = int(self.model.geom_bodyid[c.geom2])
+            if body_id not in (b1, b2):
+                continue
+            other = b2 if b1 == body_id else b1
+            out.add(other if other in self.finger_body_ids else int(self.model.body_rootid[other]))
+        return out
+
+    def is_grasped(self, body_id: int) -> bool:
+        """Both finger bodies touch the body."""
+        return self.finger_body_ids <= self.body_contacts(body_id)
 
     # ----------------------------------------------------------------- Observation & Render
     def get_observation(self) -> dict[str, Any]:
@@ -233,32 +321,41 @@ class BaseFrankaEnv(gym.Env):
     # ----------------------------------------------------------------- Step & Reset
     def step(self, action: np.ndarray) -> tuple[dict[str, Any], float, bool, bool, dict[str, Any]]:
         self.current_step += 1
-        action = np.asarray(action, dtype=np.float32)
+        action = np.asarray(action, dtype=np.float64)
         q_start = self.joint_positions
 
         if self.control_mode == "cartesian_delta":
-            delta_xyz = action[:3].astype(np.float64) * self.action_scale
+            delta_xyz = action[:3] * self.action_scale
             norm = np.linalg.norm(delta_xyz)
             if norm > self.max_tcp_step:
                 delta_xyz *= self.max_tcp_step / norm
-            self.solve_ik(self.tcp_position + delta_xyz)
-            q_target = self.joint_positions
+            target_yaw = self.tcp_yaw + float(np.clip(action[5], -1.0, 1.0)) * self.yaw_scale
+            target_pos = np.clip(self.tcp_position + delta_xyz, WORKSPACE_LOW, WORKSPACE_HIGH)
+            q_target = self.solve_ik(target_pos, target_yaw, q_start)
         else:
             q_target = np.clip(q_start + action[:7] * self.action_scale, self.arm_joint_range[:, 0], self.arm_joint_range[:, 1])
-        gripper_action = action[-1]
 
-        # Gripper: continuous [-1, 1] mapped to [0.0, 0.04]
-        self.set_gripper(0.02 * (gripper_action + 1.0))
+        # Gripper: continuous [-1, 1] mapped to a per-finger opening target in [0.0, 0.04] m, approached
+        # at no more than max_finger_speed.
+        finger_target = 0.5 * GRIPPER_OPEN_WIDTH * (float(np.clip(action[-1], -1.0, 1.0)) + 1.0)
+        if finger_target > self.finger_cmd:
+            # Opening starts from the measured opening, not from a command wound below a held body.
+            self.finger_cmd = max(self.finger_cmd, min(self.gripper_width, finger_target))
 
-        # Physics integration: interpolate the arm to its target across the control period.
-        qdot = (q_target - q_start) / self.control_dt
+        # Servo targets move linearly to the IK solution across the control period (velocity feedforward
+        # while moving), then hold it.
+        qdot_cmd = (q_target - q_start) / self.control_dt
         for k in range(1, self.n_substeps + 1):
-            self._set_arm(q_start + (k / self.n_substeps) * (q_target - q_start), qdot)
+            q_cmd = q_start + (k / self.n_substeps) * (q_target - q_start)
+            lead = self.arm_servo_lead * qdot_cmd if k < self.n_substeps else 0.0
+            for a, qi in zip(self.arm_actuator_ids, q_cmd + lead):
+                self.data.ctrl[a] = qi
+            self.finger_cmd += float(np.clip(finger_target - self.finger_cmd, -self.max_finger_substep, self.max_finger_substep))
+            self.data.ctrl[self.gripper_actuator_id] = 255.0 * self.finger_cmd / GRIPPER_OPEN_WIDTH
             self._hold_bodies()
             mujoco.mj_step(self.model, self.data)
-        self._set_arm(q_target)
-        self._hold_bodies()
         mujoco.mj_forward(self.model, self.data)
+        self._after_step()
 
         obs = self.get_observation()
         reward = self.compute_reward()
@@ -267,6 +364,10 @@ class BaseFrankaEnv(gym.Env):
         info = {"success": terminated, "step": self.current_step}
 
         return obs, reward, terminated, truncated, info
+
+    def _after_step(self) -> None:
+        """Hook for per-step bookkeeping after physics integration."""
+        pass
 
     def reset(self, *, seed: int | None = None, options: dict[str, Any] | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
         super().reset(seed=seed)
@@ -278,17 +379,15 @@ class BaseFrankaEnv(gym.Env):
             # Derive the perturbation seed from the env RNG so reset(seed) fixes the whole layout.
             engine.begin_episode(self.model, int(self.np_random.integers(0, 2**31 - 1)))
 
-        self.gripper_width = 0.04
-        self._set_arm(self.ready_q)
+        self._set_arm_state(self.ready_q)
+        mujoco.mj_forward(self.model, self.data)
         start_tcp = self.tcp_position if self.init_tcp_pos is None else self.init_tcp_pos
         if engine is not None:
             start_tcp = engine.jitter_point(start_tcp)
-        self.solve_ik(start_tcp, max_iter=300, tol=0.001)
-        self._set_arm(self.joint_positions)
+        self._set_arm_state(self.solve_ik(start_tcp, 0.0, self.ready_q, max_iter=300, tol=2e-4))
 
         # Subclass hook for resetting object positions and applying perturbations
         self.reset_objects(options=options)
-        self._settle()
 
         obs = self.get_observation()
         return obs, {}
@@ -334,23 +433,24 @@ class BaseFrankaEnv(gym.Env):
         is below (lin_tol, ang_tol), or `max_substeps` (2 s) have elapsed.
         """
         q_hold = self.joint_positions
+        finger = self.gripper_width
         self._hold_bodies()
         self._depenetrate()
         for k in range(max_substeps):
-            self._set_arm(q_hold)
+            self._set_arm_state(q_hold, finger)
             self._hold_bodies()
             mujoco.mj_step(self.model, self.data)
             if k + 1 >= self.settle_substeps:
                 lin, ang = self._max_free_body_speed()
                 if lin < lin_tol and ang < ang_tol:
                     break
-        self._set_arm(q_hold)
+        self._set_arm_state(q_hold, finger)
         self._hold_bodies()
         mujoco.mj_forward(self.model, self.data)
 
     def reset_objects(self, options: dict[str, Any] | None = None) -> None:
-        """Override in task environment to configure or perturb object poses."""
-        pass
+        """Override in task environment to configure or perturb object poses, then call _settle()."""
+        self._settle()
 
     def compute_reward(self) -> float:
         """Override in task environment."""
