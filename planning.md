@@ -139,3 +139,28 @@ python scripts/evaluate_ood.py --checkpoint checkpoints/bc_state_industrial_best
 - **Showcase Videos**: [`docs/videos/*.mp4`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-Bench/docs/videos) (7 domain video demos).
 - **Master README**: [`README.md`](file:///D:/Selim%20Sarowar/Cursor_Projects/AFFORD-Bench/README.md).
 - **Remote Git Repository**: `https://github.com/s-elim/AFFORD_Bench.git` (`main`).
+
+---
+
+## 6. Frontier Complex Manipulation Task Architectures (Stage 2 Expansion Roadmap)
+
+To establish AFFORD-Bench as the definitive reality check for Vision-Language-Action (VLA) foundation models and visuomotor diffusion chunking, four frontier manipulation archetypes are formalized for the Stage 2 Extension Charter:
+
+### 6.1 Tool-Mediated Manipulation (Indirect Affordances)
+- **L-Hook Distal Retrieval**: The target object (gear or vial) is placed beyond direct kinematic reach ($x = 0.85\,\text{m}$). The arm grasps an L-shaped hook tool, hooks the interior profile, pulls it into the reachable workspace, and then re-grasps the object.
+- **Spatula Compliant Wedging**: A thin, flat object (patty or wafer) rests flush on a surface with zero clearance. The robot must align a spatula blade, press compliantly against the table surface, slide under the object, and lift it without toppling.
+- **Wrench / Socket Engagement**: Robot grasps an Allen key or socket wrench, aligns the polygonal tool tip into a recessed bolt head, and applies rotational torque.
+
+### 6.2 Non-Prehensile Manipulation (Sliding, Pivoting, Corrals)
+- **Table-Edge Singulation**: Flat thin parts that cannot be gripped from above are slid laterally across the table until 30% hangs over the edge, exposing a graspable lip.
+- **Fixture-Assisted Upright Pivoting**: A tall cylinder (pipette tube or bolt) lying flat on its side is pushed against a raised vertical fixture to pivot it $90^\circ$ upright before grasping.
+- **Corral Sweeping**: Multiple small scattered cylindrical pins are swept into a designated recessed tray using a flat pusher bar.
+
+### 6.3 Multi-Axis Twist-Lock & Detent Assembly
+- **Bayonet Push-and-Twist Fitting**: Two splined bodies require downward spring-loaded compression ($\Delta z = -12\,\text{mm}$), $45^\circ$ clockwise rotation, and release into a locking detent.
+- **Key Insertion & Deadbolt Rotation**: Flat key blade inserted into a $\pm 1.2\,\text{mm}$ keyway slot, rotated $90^\circ$ to disengage a sliding latch mechanism.
+- **Child-Resistant Push-and-Turn Caps**: Continuous downward axial force ($F_z \ge 20\,\text{N}$) while turning $180^\circ$ to disengage ratcheting teeth.
+
+### 6.4 Mid-Trajectory Dynamic Reactive Perturbations (Anti-Chunking Test)
+- **Impulse Nudge Mid-Approach**: At timestep $t = 30$ (mid-trajectory approach), the target object is shifted by $\Delta \mathbf{p} = \pm 4\,\text{cm}$ or bumped by an external force.
+- **Diagnostic Objective**: Directly tests whether action-chunking policies (ACT, Diffusion Policy with horizon $H=16$) execute blind open-loop playback or true closed-loop visual/tactile replanning.
