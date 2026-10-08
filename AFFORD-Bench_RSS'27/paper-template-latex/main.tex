@@ -26,6 +26,10 @@
 \definecolor{brandslate}{RGB}{80, 80, 80}
 \definecolor{boxbg}{RGB}{245, 247, 250}
 
+% Pre-submission marker: every \TODO must be resolved (or the macro emptied) before the Stage 1 freeze.
+\newcommand{\TODO}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+\newcommand{\TBD}{\textcolor{red}{\textbf{TBD}}}
+
 \pdfinfo{
    /Author (Anonymous)
    /Title  (AFFORD-Bench: An Affordance-Grounded Benchmark and Generalization Evaluation for Robot Learning)
@@ -42,7 +46,7 @@
 \maketitle
 
 \begin{abstract}
-Imitation learning policies and Vision-Language-Action (VLA) models have demonstrated remarkable empirical success in robotic manipulation. However, recent benchmark investigations, such as LIBERO-PRO and LIBERO-X, have uncovered an acute crisis in evaluation: high task completion rates frequently collapse under minor environmental perturbations, exposing policies that rely on rote trajectory memorization rather than genuine environmental comprehension. Crucially, existing benchmarks evaluate distribution shifts predominantly in narrow tabletop scenes via superficial visual or linguistic variations, ignoring the physical affordances---contact mechanics, kinematic clearances, dynamic friction, and compliance---that govern physical interaction. In this paper, we introduce \textbf{AFFORD-Bench}, a large-scale, policy-agnostic, affordance-grounded manipulation benchmark spanning \textbf{210 distinct physical tasks} across \textbf{7 specialized domains}: Industrial Precision, Culinary Operations, Domestic Tabletop, Cleanroom Laboratory Sciences, Long-Horizon Multi-Stage Sequences, Multi-Stage Precision Chaining, and Sequential Service \& Culinary Assembly. Built upon high-fidelity Franka Emika Panda MuJoCo simulation, AFFORD-Bench provides 10,500 expert demonstrations across dual-camera high-resolution RGB ($640\times 660$ workcell and $300\times 420$ wrist) alongside synchronized 3D metric depth and 7-DoF impedance states ($>2.2\times 10^6$ physical timesteps). Crucially, the dataset is policy-agnostic, supporting classical imitation learning, action-chunking diffusion, 3D point-cloud policies, offline reinforcement learning, and modern VLAs (OpenVLA, SmolVLA, AtomVLA). We formalize a hierarchical 5-level perturbation framework (L1--L5) spanning spatial-kinematic, physical-dynamic, visual-photometric, and compound subtask prompt composition across 35 benchmark evaluation suites. We detail standardized training and evaluation protocols, establish formal robustness metrics, and present preliminary empirical calibrations alongside our Stage 2 Extension Charter roadmap.
+Imitation learning policies and Vision-Language-Action (VLA) models report high success on standard manipulation benchmarks, yet LIBERO-PRO and LIBERO-X show that these numbers collapse under modest changes to object layout, appearance, or instruction wording, which points to memorization of nominal scenes. Existing robustness suites perturb mostly tabletop pick-and-place scenes and rarely vary the quantities that set whether a contact-rich task can succeed: placement tolerance, friction, and mass. We introduce \textbf{AFFORD-Bench}, a policy-agnostic MuJoCo benchmark with \textbf{210 tasks} across \textbf{7 domains} (industrial assembly, culinary, domestic tabletop, laboratory, long-horizon, precision chains, and service chains) on a simulated Franka Emika Panda. It ships oracle demonstrations with dual-camera RGB ($640\times 660$ workcell, $300\times 420$ wrist), optional metric depth, and proprioception in Robomimic HDF5, together with four instruction variants per task (metric, contact-conditioned, terse, and subtask-decomposed). We specify a five-level perturbation hierarchy (L1--L5) over spatial, photometric, physical, and compound shifts, organized as 35 evaluation suites, all implemented. Grasping is frictional, and success is a physical predicate on the settled state: the released body must rest within 2--2.5\,mm and $5^\circ$ of its goal in the precision domains (8\,mm and $15^\circ$ elsewhere). A closed-loop privileged oracle solves 96.6\% of nominal episodes, while null and uniform-random policies solve none.
 \end{abstract}
 
 \IEEEpeerreviewmaketitle
@@ -50,9 +54,9 @@ Imitation learning policies and Vision-Language-Action (VLA) models have demonst
 \section{Introduction}
 \label{sec:intro}
 
-The field of robot learning is undergoing a profound paradigm shift driven by the emergence of generalist Vision-Language-Action (VLA) models~\cite{kim2024openvla, octo2023, padalkar2023openx}, compact edge architectures such as SmolVLA~\cite{smolvla2025}, subtask-aware post-training frameworks like AtomVLA~\cite{atomvla2025}, and expressive action-chunking visuomotor policies~\cite{chi2023diffusion, zhao2023act}. By unifying multi-modal perception with end-to-end motor control, these architectures promise to endow robotic manipulators with cross-task generalization and zero-shot adaptability. 
+Generalist Vision-Language-Action (VLA) models~\cite{kim2024openvla, octo2023, padalkar2023openx}, compact VLAs such as SmolVLA~\cite{smolvla2025}, subtask-aware post-training such as AtomVLA~\cite{atomvla2025}, and action-chunking visuomotor policies~\cite{chi2023diffusion, zhao2023act} all promise transfer across tasks and scenes.
 
-However, measuring whether learned policies exhibit genuine physical generalizability remains an acute open challenge. Standardized evaluation suites such as LIBERO~\cite{liu2023libero} have become the de facto testing ground for policy comparison. Yet, rigorous post-hoc investigations by \citet{zhou2026liberopro} (LIBERO-PRO) and \citet{wang2026liberox} (LIBERO-X) revealed that the seemingly high success rates reported on standard benchmarks are severely inflated. When subjected to minor spatial offsets or altered visual conditions, policies that previously achieved over 90\% success suffer catastrophic degradation down to near 0\%. As established in both analyses, current models overfit to rote trajectory memorization and nominal scene layouts from demonstration data, lacking any grounded understanding of task goals.
+Measuring that transfer remains difficult. LIBERO~\cite{liu2023libero} is the de facto testbed, but \citet{zhou2026liberopro} (LIBERO-PRO) and \citet{wang2026liberox} (LIBERO-X) show that policies exceeding 90\% nominal success can fall to near 0\% under small spatial offsets, object swaps, or altered instructions, and attribute the gap to memorized trajectories and layouts.
 
 \begin{figure}[t]
 \centering
@@ -64,30 +68,30 @@ However, measuring whether learned policies exhibit genuine physical generalizab
     arr/.style={-{Stealth[length=3.5pt,width=2.5pt]}, thick, draw=black!70}
 ]
     % Domains column (7 domains)
-    \node[domainbox] (d1) {\color{brandblue}D1: Industrial (30)\\ \tiny Gear mesh, bolt pick, wiring};
-    \node[domainbox, below=1.2pt of d1] (d2) {\color{brandamber}D2: Culinary (30)\\ \tiny Flip patty, mug dock, slice};
-    \node[domainbox, below=1.2pt of d2] (d3) {\color{brandgreen}D3: Domestic (30)\\ \tiny Sorting, drawers, cups};
-    \node[domainbox, below=1.2pt of d3] (d4) {\color{brandpurple}D4: Laboratory (30)\\ \tiny Pipette, centrifuge, racks};
-    \node[domainbox, below=1.2pt of d4] (d5) {\color{brandred}D5: Long-Horizon (30)\\ \tiny Tool-use, multi-stage};
-    \node[domainbox, below=1.2pt of d5] (d6) {\color{brandteal}D6: Precision Chain (30)\\ \tiny Compound 2-3 step industrial};
-    \node[domainbox, below=1.2pt of d6] (d7) {\color{brandslate}D7: Service Chain (30)\\ \tiny Compound 2-3 step kitchen};
+    \node[domainbox] (d1) {\color{brandblue}D1: Industrial (30)\\ \tiny Shaft, gear, pin seating};
+    \node[domainbox, below=1.2pt of d1] (d2) {\color{brandamber}D2: Culinary (30)\\ \tiny Burger layers, mug, pod};
+    \node[domainbox, below=1.2pt of d2] (d3) {\color{brandgreen}D3: Domestic (30)\\ \tiny Sorting, stacking};
+    \node[domainbox, below=1.2pt of d3] (d4) {\color{brandpurple}D4: Laboratory (30)\\ \tiny Tubes, centrifuge, pipette};
+    \node[domainbox, below=1.2pt of d4] (d5) {\color{brandred}D5: Long-Horizon (30)\\ \tiny Multi-step instructions};
+    \node[domainbox, below=1.2pt of d5] (d6) {\color{brandteal}D6: Precision Chain (30)\\ \tiny 2--3 step industrial};
+    \node[domainbox, below=1.2pt of d6] (d7) {\color{brandslate}D7: Service Chain (30)\\ \tiny 2--3 step kitchen};
 
     % Core Engine (aligned with middle domain D4)
     \node[corebox, right=10pt of d4] (sim) {
-        \textbf{\color{brandblue}MuJoCo C++ Physical Simulation Engine}\\
-        \tiny Franka Emika Panda 7-DoF Arm $\cdot$ 20 Hz Cartesian Impedance\\
+        \textbf{\color{brandblue}MuJoCo Physical Simulation}\\
+        \tiny Franka Emika Panda 7-DoF $\cdot$ Cartesian delta actions via DLS IK\\
         \vspace{1pt}\hrule\vspace{1pt}
-        \textbf{Multi-Modal Observation Manifold $\Omega$}\\
+        \textbf{Observation Manifold $\Omega$}\\
         $\cdot$ Workcell RGB ($640\times 660$) $\cdot$ Wrist RGB ($300\times 420$)\\
-        $\cdot$ 3D Metric Depth $D \in \mathbb{R}^{H\times W}$ $\cdot$ 7-DoF Proprioception\\
+        $\cdot$ Metric Depth $D \in \mathbb{R}^{H\times W}$ $\cdot$ Proprioception\\
         \vspace{1pt}\hrule\vspace{1pt}
         \textbf{35 Benchmark Suites} ($7 \text{ Domains} \times 5 \text{ Regimes}$)
     };
 
     % Perturbation axes
-    \node[axisbox, right=10pt of sim.north east, yshift=-8pt] (p_spat) {\color{brandblue}Spatial\\ \tiny $\Delta \mathbf{x}, \Delta\theta, \epsilon_{\text{tol}}$};
-    \node[axisbox, below=2pt of p_spat] (p_phys) {\color{brandred}Physical\\ \tiny $\mu \in [0.1, 1.2], m_{\text{obj}}$};
-    \node[axisbox, below=2pt of p_phys] (p_vis) {\color{brandgreen}Visual\\ \tiny Light, specular};
+    \node[axisbox, right=10pt of sim.north east, yshift=-8pt] (p_spat) {\color{brandblue}Spatial\\ \tiny $\Delta \mathbf{x}, \Delta\theta$};
+    \node[axisbox, below=2pt of p_spat] (p_phys) {\color{brandred}Physical\\ \tiny $\mu, m_{\text{obj}}, \boldsymbol{\epsilon}$};
+    \node[axisbox, below=2pt of p_phys] (p_vis) {\color{brandgreen}Visual\\ \tiny Light, color};
 
     % Policy baselines
     \node[rectangle, rounded corners=3pt, draw=black!60, fill=gray!10, text width=6.6cm, align=center, font=\tiny\bfseries, below=3.5pt of sim] (policy) {
@@ -109,26 +113,27 @@ However, measuring whether learned policies exhibit genuine physical generalizab
 
     \draw[arr] (sim.south) -- (policy.north);
 \end{tikzpicture}
-\caption{\textbf{The AFFORD-Bench Architecture.} Spanning 210 tasks across 7 distinct domains, benchmarking out-of-distribution generalization across Spatial-Kinematic, Physical-Dynamic, and Visual-Photometric shifts in 35 standardized evaluation suites.}
+\caption{\textbf{The AFFORD-Bench Architecture.} 210 tasks in 7 domains, evaluated under spatial, physical, and visual shifts in 35 suites.}
 \label{fig:teaser}
 \end{figure}
 
-While LIBERO-PRO and LIBERO-X took vital steps by introducing independent and hierarchical perturbations, existing benchmarks remain constrained by a critical limitation: \textbf{the absence of physical affordance grounding}. In ecological psychology and robotics~\cite{gibson1979ecological}, an \textit{affordance} defines actionable properties between an agent and its physical environment. Real-world robotic manipulation is not merely a geometric or visual alignment problem; it is fundamentally governed by contact mechanics, surface friction, kinematic compliance, mass distributions, and clearance tolerances. In existing suites, tasks are largely limited to unconstrained tabletop pick-and-place operations in toy domestic scenes, where collisions and contact physics are trivialized. Consequently, they fail to evaluate whether a policy can adapt to variations in physical contact constraints (e.g., insertion resistance, grasping friction, pipette liquid aspiration, or high-tolerance gear meshing).
+LIBERO-PRO and LIBERO-X perturb layout, appearance, and language; COLOSSEUM~\cite{pumacay2024colosseum} adds physical-property axes over 20 RLBench tasks. None of them couples these shifts to the quantity that decides success in precision work: how much positional error the task tolerates. In the sense of affordance theory~\cite{gibson1979ecological}, whether a part can be seated depends jointly on clearance, friction, and mass, not on appearance alone. Contact-rich assembly simulators such as Factory~\cite{narang2022factory} and IndustReal~\cite{tang2023industreal} model these effects with high fidelity but target reinforcement learning on a few assemblies, not cross-domain evaluation of imitation and VLA policies.
 
-Furthermore, existing benchmark datasets are often tightly coupled to specific model classes (e.g., evaluating only VLAs or standard visuomotor policies). A truly foundational benchmark must be \textbf{policy-agnostic}---equally expressive and directly ingestible by classical imitation learning (BC), temporal diffusion and transformer chunking (Diffusion Policy, ACT), 3D point-cloud representations (DP3), modern foundation models (OpenVLA, SmolVLA, AtomVLA), and offline reinforcement learning (CQL, IQL).
+A benchmark should also be \textbf{policy-agnostic}: usable by behavior cloning, chunked diffusion and transformer policies (Diffusion Policy, ACT), point-cloud policies (DP3), VLAs (OpenVLA, SmolVLA, AtomVLA), and offline reinforcement learning (CQL, IQL).
 
-To bridge this foundational gap, this paper introduces \textbf{AFFORD-Bench}, an affordance-grounded, policy-agnostic benchmark designed to expose the boundary between visual memorization and physical generalizability. AFFORD-Bench advances robot learning along four primary axes:
+AFFORD-Bench contributes:
 \begin{enumerate}
-    \item \textbf{Scale and Domain Diversity}: We formulate \textbf{210 distinct physical manipulation tasks} across \textbf{7 specialized domains}: Industrial Precision, Culinary Operations, Domestic Tabletop, Cleanroom Laboratory Sciences, Long-Horizon Multi-Stage Sequences, Multi-Stage Precision Chaining, and Sequential Service \& Culinary Assembly.
-    \item \textbf{Policy-Agnostic Foundation}: Our dataset provides synchronized, rich multi-modal streams: high-resolution dual-camera RGB ($640\times 660$ workcell, $300\times 420$ wrist), 3D metric depth, full 7-DoF joint/Cartesian proprioception, and reward signals, packaged in standardized Robomimic HDF5 format directly compatible with any policy architecture.
-    \item \textbf{Hierarchical 5-Level Perturbation Manifold}: Inspired by LIBERO-PRO and LIBERO-X, we establish a progressive 5-level difficulty hierarchy (L1 nominal jitter, L2 spatial-kinematic shifts, L3 visual-photometric shifts, L4 physical-dynamic shifts, and L5 compound chaining \& composite OOD), spanning \textbf{35 standardized evaluation suites}.
-    \item \textbf{High-Throughput, Zero-Cost Reproducibility}: Using native C++ MuJoCo physics~\cite{todorov2012mujoco}, we synthesize 10,500 expert demonstrations (50 per task, $>2.2\times 10^6$ timesteps) via deterministic algorithmic oracles running at 40--50 FPS with zero external API costs.
+    \item \textbf{Task scale and domain spread}: \textbf{210 tasks} in \textbf{7 domains}, spanning industrial seating, culinary stacking, tabletop sorting, laboratory handling, and multi-step instructions.
+    \item \textbf{Policy-agnostic data}: dual-camera RGB ($640\times 660$ workcell, $300\times 420$ wrist), optional metric depth, joint and Cartesian proprioception, and success flags in Robomimic HDF5~\cite{mandlekar2021robomimic}, convertible to RLDS and LeRobot formats.
+    \item \textbf{Physical success at millimeter tolerance}: frictional, force-limited grasping with no attachment or goal snapping; success requires the released body to rest, supported, within 2--2.5\,mm and $5^\circ$ of its goal in the precision domains (8\,mm and $15^\circ$ elsewhere).
+    \item \textbf{Hierarchical perturbations}: a five-level hierarchy (L1 nominal, L2 spatial, L3 visual, L4 physical, L5 compound) yielding \textbf{35 suites}, all implemented (Sec.~\ref{sec:perturbations}).
+    \item \textbf{Multi-tier language}: four instruction variants per task (metric, contact-conditioned, terse, and subtask-decomposed with pre/post predicates), each annotated with whether the simulator evaluates what it asks.
 \end{enumerate}
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\linewidth, height=3.4cm]{figures/tasks_horizontal_vis.pdf}
-\caption{\textbf{Multi-Domain Qualitative Visualizations in AFFORD-Bench.} Synchronized multi-modal observations across representative tasks from all seven benchmark domains: (Row 1) Third-person workcell visual stream ($640\times 660$ RGB); (Row 2) Wrist-mounted eye-in-hand visual stream ($300\times 420$ RGB); (Row 3) Aligned 3D metric depth maps ($D_{\text{3D}}$, colored by physical meter distance). Spans industrial precision assembly (D1), commercial culinary operations (D2), domestic block sorting (D3), cleanroom pharmaceutical sciences (D4), long-horizon tool assembly (D5), multi-stage precision chaining (D6), and sequential culinary assembly (D7).}
+\caption{\textbf{Multi-Domain Qualitative Visualizations in AFFORD-Bench.} Representative tasks from all seven domains: (Row 1) workcell RGB ($640\times 660$); (Row 2) wrist RGB ($300\times 420$); (Row 3) metric depth rendered from the workcell camera (meters).}
 \label{fig:tasks_vis}
 \end{figure*}
 
@@ -136,161 +141,174 @@ To bridge this foundational gap, this paper introduces \textbf{AFFORD-Bench}, an
 \label{sec:related}
 
 \subsection{Robotic Manipulation Benchmarks}
-Benchmarking in robotic manipulation has evolved from single-domain suites to diverse simulation platforms. RLBench~\cite{james2020rlbench} and ManiSkill2~\cite{gu2023maniskill2} provided simulation suites for reinforcement learning and demonstration-guided policy learning. Robomimic~\cite{mandlekar2021robomimic} established standardized offline imitation learning pipelines and empirical evaluation protocols across varied human demonstration qualities. LIBERO~\cite{liu2023libero} introduced a 130-task suite structured around knowledge transfer in lifelong learning. However, these suites focus primarily on nominal execution without systematic physical out-of-distribution (OOD) testing.
+RLBench~\cite{james2020rlbench} and ManiSkill2~\cite{gu2023maniskill2} provide simulated suites for reinforcement and demonstration-guided learning. Robomimic~\cite{mandlekar2021robomimic} standardized offline imitation learning pipelines across demonstration qualities. LIBERO~\cite{liu2023libero} introduced 130 tasks for lifelong knowledge transfer. These suites evaluate mostly nominal execution without systematic out-of-distribution (OOD) testing.
 
 \subsection{OOD Robustness and Modern VLA Architectures}
-With the proliferation of large-scale pretrained models~\cite{padalkar2023openx, brohan2022rt1, brohan2023rt2, kim2024openvla, octo2023}, assessing policy robustness against distribution shifts has become critical. \citet{zhou2026liberopro} established LIBERO-PRO, illustrating that state-of-the-art policies achieve high success under nominal LIBERO conditions but collapse when subject to perturbed objects, initial states, or paraphrased instructions. Building on this, \citet{wang2026liberox} introduced LIBERO-X, demonstrating that prior benchmarks fail to evaluate compounded distribution shifts across hierarchical difficulty levels. Concurrently, the community has pushed toward efficient edge-deployable VLAs like \textbf{SmolVLA}~\cite{smolvla2025}, which utilizes a compact 450M parameter vision-language backbone with a flow-matching action expert to drastically reduce inference latency, and \textbf{AtomVLA}~\cite{atomvla2025}, which introduces atomic subtask decomposition paired with a predictive world model to mitigate error accumulation in long-horizon tasks. However, existing benchmarks evaluate these modern architectures primarily within standard domestic tabletop scenes, failing to probe contact dynamics, surface friction, or precision assembly.
+With large-scale pretrained policies~\cite{padalkar2023openx, brohan2022rt1, brohan2023rt2, kim2024openvla, octo2023}, robustness to distribution shift has become a primary question. LIBERO-PRO~\cite{zhou2026liberopro} shows that policies with high nominal LIBERO success collapse under perturbed objects, initial states, and instructions. LIBERO-X~\cite{wang2026liberox} adds hierarchical, cumulative perturbation levels. COLOSSEUM~\cite{pumacay2024colosseum} varies 14 factors, including physical properties, and reports 30--50\% degradation for single factors and at least 75\% for combined ones. SmolVLA~\cite{smolvla2025} pairs a compact vision-language backbone with a flow-matching action expert for low-cost hardware, and AtomVLA~\cite{atomvla2025} combines subtask decomposition with a predictive latent world model for offline post-training. These evaluations remain concentrated on domestic tabletop scenes with loose placement tolerances.
 
-\subsection{Affordance and Policy Learning Paradigms}
-Affordance theory~\cite{gibson1979ecological} posits that agents perceive objects in terms of potential physical interactions. In robotics, affordance-guided manipulation has been explored via contact-rich grasping~\cite{song2023grasping}, spatial affordance maps~\cite{shridhar2022cliport}, and explicit 3D representations such as 3D Diffusion Policy (DP3)~\cite{ze2024dp3}. While Diffusion Policy~\cite{chi2023diffusion} and Action Chunking with Transformers (ACT)~\cite{zhao2023act} achieve high tracking precision on low-cost hardware~\cite{fu2024mobilealoha}, their ability to generalize across physical affordance shifts remains uncharacterized at scale. Furthermore, offline reinforcement learning methods~\cite{kumar2020cql} require explicit state-transition tuples and reward signals, which are frequently omitted from VLA-specific benchmarks. AFFORD-Bench provides the first systematic benchmark unifying multi-domain manipulation with explicit affordance-space perturbation manifolds and a strictly policy-agnostic data architecture.
+\subsection{Affordance and Contact-Rich Manipulation}
+Affordance theory~\cite{gibson1979ecological} frames objects by the interactions they permit. In robotics this has motivated contact-rich grasping~\cite{song2023grasping}, spatial affordance maps~\cite{shridhar2022cliport}, and 3D policy representations such as DP3~\cite{ze2024dp3}. Factory~\cite{narang2022factory} and IndustReal~\cite{tang2023industreal} simulate contact-rich assembly with SDF collisions and transfer RL insertion and gear-meshing policies to a real Franka. Diffusion Policy~\cite{chi2023diffusion} and ACT~\cite{zhao2023act} reach high precision on low-cost hardware~\cite{fu2024mobilealoha}, but how they degrade as tolerance tightens or friction changes is not characterized at scale. Offline RL~\cite{kumar2020cql} additionally needs transitions and rewards that VLA-specific datasets often omit. AFFORD-Bench targets this combination of tolerance-indexed tasks, multi-domain coverage, and policy-agnostic data.
 
 \section{The AFFORD-Bench Formulation}
+\label{sec:formulation}
 \label{sec:benchmark}
 
-\subsection{Task Formulation as Affordance-Constrained MDPs}
-Following the formalisms in LIBERO-PRO~\cite{zhou2026liberopro} and extending them to physical affordances, we formalize each manipulation task as a tuple $\mathcal{T} = (\ell, \mathbf{e}, \mathcal{G})$, where $\ell$ is a natural language instruction prompt, $\mathbf{e} = (\mathcal{W}, \mathcal{O}, \mathbf{r}_0, \Phi)$ defines the physical environment configuration, and $\mathcal{G}$ is the goal affordance predicate. Here, $\mathcal{W}$ denotes workspace geometry, $\mathcal{O} = \{o_1, \dots, o_K\}$ is the set of physical objects in the scene, $\mathbf{r}_0$ is the initial kinematic configuration distribution, and $\Phi = (\mu, \mathbf{m}, \boldsymbol{\epsilon}_{\text{tol}})$ represents the physical affordance parameters governing contact dynamics (Coulomb surface friction $\mu$, object inertial mass distribution $\mathbf{m}$, and spatial clearance tolerance $\boldsymbol{\epsilon}_{\text{tol}}$).
+\subsection{Tasks as Goal-Conditioned MDPs}
+Each task is a tuple $\kappa = (\ell, \mathbf{e}, \mathcal{C}_{\text{aff}})$ with instruction $\ell$, environment $\mathbf{e} = (\mathcal{W}, \mathcal{O}, \rho_0, \Phi)$, and goal set $\mathcal{C}_{\text{aff}}$. $\mathcal{W}$ is the workspace geometry, $\mathcal{O} = \{o_1, \dots, o_K\}$ the object set with one evaluated body $o^\star \in \mathcal{O}$, $\rho_0$ the initial-state distribution, and $\Phi = (\mu, m, \boldsymbol{\epsilon})$ the physical parameters: sliding friction $\mu$ of $o^\star$, its mass $m$, and success tolerance $\boldsymbol{\epsilon} = (\epsilon_{xy}, \epsilon_z)$.
 
-Each task operates as an Affordance-Constrained Markov Decision Process $\mathcal{M} = \langle \mathcal{S}, \mathcal{A}, \mathcal{T}_p, \mathcal{R}, \Omega, \mathcal{C}_{\text{aff}} \rangle$, where $\mathcal{S}$ is the continuous state space of the robot and environment, $\mathcal{A} \subset \mathbb{R}^7$ is the action space representing 3D Cartesian end-effector delta velocity $\Delta \mathbf{p} \in \mathbb{R}^3$, delta rotation $\Delta \boldsymbol{\theta} \in \mathbb{R}^3$, and continuous gripper command $a_{\text{grip}} \in [-1, 1]$, $\mathcal{T}_p(s' \mid s, a)$ is the transition probability governed by MuJoCo multi-body physics, and $\mathcal{R}(s, a) \in \{0, 1\}$ is a sparse task completion indicator. 
+Each task induces an MDP $\mathcal{M} = \langle \mathcal{S}, \mathcal{A}, P, R, \Omega, H \rangle$. $\mathcal{S}$ is the joint robot-object state. An action $\mathbf{a} = (\Delta\mathbf{p}, \Delta\boldsymbol{\theta}, a_{\text{grip}}) \in [-1,1]^7$ commands a TCP position increment $0.025\,\Delta\mathbf{p}$\,m, capped at 2.5\,cm per step (0.5\,m/s) and tracked by damped-least-squares IK at 20\,Hz, a rotation increment $\Delta\boldsymbol{\theta}$ of which only the yaw component is executed ($0.05\,\Delta\theta_z$\,rad per step, hand pointing down), and a per-finger opening target $w = 0.02\,(a_{\text{grip}} + 1)$\,m, approached at no more than 0.05\,m/s by a force-limited parallel jaw (about 35\,N per finger). $P(s' \mid s, \mathbf{a})$ is given by MuJoCo~\cite{todorov2012mujoco} and is deterministic given $s$; all stochasticity enters through $\rho_0$ and the perturbation sampler, both seeded per episode. $R(s) = \mathbb{I}[s \in \mathcal{C}_{\text{aff}}]$ is sparse, and $H$ is the step budget.
 
-Crucially, $\mathcal{C}_{\text{aff}} \subset \mathcal{S} \times \mathcal{A}$ denotes the \textit{affordance constraint set}. For a task to be successfully completed, the terminal state trajectory must satisfy both geometric tolerances and contact stability:
+The goal set is a set of physical states:
 \begin{align}
-\mathcal{C}_{\text{aff}} = \Big\{ (s, a) \;\Big|\;& \|\mathbf{p}_{\text{obj}} - \mathbf{p}_{\text{goal}}\|_{\mathbf{W}} \le \boldsymbol{\epsilon}_{\text{tol}}, \notag \\
-& F_{\text{contact}} \le F_{\max}, \; \frac{F_{\text{friction}}}{F_{\text{normal}}} \le \mu \Big\},
+\mathcal{C}_{\text{aff}} = \big\{ s \;\big|\; & \|\mathbf{p}^{xy}_{o^\star} - \mathbf{g}^{xy}\|_2 \le \epsilon_{xy},\; |p^{z}_{o^\star} - g^{z}| \le \epsilon_z, \notag \\
+& \theta_{o^\star} \le \epsilon_\theta,\; \mathcal{F}(o^\star) = \emptyset,\; \mathcal{K}(o^\star) \neq \emptyset, \notag \\
+& \|\mathbf{v}_{o^\star}\| < v_{\text{rest}},\; \|\boldsymbol{\omega}_{o^\star}\| < \omega_{\text{rest}} \big\},
 \end{align}
-where $\mathbf{W} = \text{diag}(w_x, w_y, w_z)$ weights directional tolerance, $\boldsymbol{\epsilon}_{\text{tol}}$ represents insertion or placement thresholds, and $\mu$ is Coulomb surface friction. Expected policy competence is defined as:
+where $\theta_{o^\star}$ is the tilt of $o^\star$ from upright, $\mathcal{F}$ and $\mathcal{K}$ are the finger bodies and the non-robot bodies in contact with $o^\star$, $v_{\text{rest}} = 0.02$\,m/s, and $\omega_{\text{rest}} = 0.2$\,rad/s. The goal $\mathbf{g}$ is the resting pose of $o^\star$ at the task's target, found when the environment is built by lowering $o^\star$ onto its support and simulating it to rest; there is no attachment, snapping, or teleport, so a body that slides, tips, or binds on a rim fails. Targets with no stable resting pose, such as holding a pipette above a stand, are hold goals, for which $\mathcal{F}(o^\star)$ must contain both fingers instead. Every manipulation task also requires $o^\star$ to have been lifted by $h_{\min} = 2$\,cm (10--15\,cm for four lift-and-replace tasks), so pushing $o^\star$ to the goal does not count. For reach-and-press tasks the condition is $\|\mathbf{p}_{\text{tcp}} - \mathbf{g}\|_2 \le \epsilon_{xy}$ for 5 consecutive steps. Episodes terminate at the first $t \le H$ with $s_t \in \mathcal{C}_{\text{aff}}$, so policy competence is
 \begin{equation}
-J(\pi; \mathcal{T}) = \mathbb{P}_{\substack{s_0 \sim \mathbf{r}_0 \\ \tau \sim \pi}} \Big[ \exists t \le H, \; \mathcal{G}(s_t) = 1, \; (s_t, a_t) \in \mathcal{C}_{\text{aff}} \Big].
+J(\pi; \kappa) = \mathbb{P}_{s_0 \sim \rho_0,\; \tau \sim \pi}\big[\exists\, t \le H : s_t \in \mathcal{C}_{\text{aff}}\big].
 \end{equation}
+Contact forces are monitored, not part of success: an episode violates safety if $\|\mathbf{f}_c(s_t)\| > F_{\max}$ for some $t$, with $F_{\max}$ \TODO{set per domain}.
 
 \subsection{Policy-Agnostic Benchmark Architecture}
-Unlike benchmarks engineered exclusively for a single model family, AFFORD-Bench is architected to be completely policy-agnostic. The observation manifold $\mathbf{o}_t \in \Omega$ at each timestep comprises synchronized, multi-scale sensory modalities:
+The observation $\mathbf{o}_t \in \Omega$ comprises:
 \begin{enumerate}
-    \item \textbf{Third-Person Workcell RGB}: $640 \times 660 \times 3$ uint8 global camera monitoring overall scene layout and multi-object relationships;
-    \item \textbf{Wrist-Mounted Eye-in-Hand RGB}: $300 \times 420 \times 3$ uint8 camera mounted directly to the gripper flange for fine-grained contact and insertion tracking;
-    \item \textbf{Synchronized 3D Metric Depth}: Float32 depth maps $D \in \mathbb{R}^{640 \times 660}$ calibrated in physical meters, enabling direct point-cloud back-projection $\mathbf{P} = \mathbf{K}^{-1} [u, v, 1]^T D(u, v)$ for 3D policies (DP3);
-    \item \textbf{Complete Proprioceptive State}: 7-DoF joint positions $\mathbf{q} \in \mathbb{R}^7$, joint velocities $\dot{\mathbf{q}} \in \mathbb{R}^7$, end-effector Cartesian pose $\mathbf{x}_{\text{tcp}} \in \mathbb{R}^7$, and continuous gripper width $w \in [0, 0.08]\,\text{m}$;
-    \item \textbf{Reward and Termination Predicates}: Dense step-level rewards and terminal success flags enabling offline RL benchmarks (CQL, IQL).
+    \item \textbf{Workcell RGB}: $H \times W = 640 \times 660$, uint8;
+    \item \textbf{Wrist RGB}: $300 \times 420$, uint8, mounted at the gripper;
+    \item \textbf{Metric depth} (optional): float32 $D \in \mathbb{R}^{640 \times 660}$ in meters, back-projected as $\mathbf{P} = D(u,v)\,\mathbf{K}^{-1} [u, v, 1]^\top$ using the stored camera intrinsics $\mathbf{K}$ \TODO{store $\mathbf{K}$ and enable depth in the generator};
+    \item \textbf{Proprioception}: joint positions $\mathbf{q} \in \mathbb{R}^7$, velocities $\dot{\mathbf{q}} \in \mathbb{R}^7$, TCP pose $\mathbf{x}_{\text{tcp}} \in \mathbb{R}^7$ (position and $w$-first quaternion), and per-finger opening $w \in [0, 0.04]$\,m;
+    \item \textbf{Rewards and termination}: per-step sparse reward $R(s_t)$ and success flag.
 \end{enumerate}
 
 \begin{table*}[t]
 \centering
-\caption{\textbf{Comprehensive Taxonomy of the AFFORD-Bench Suite.} Spanning 210 formally defined physical tasks across 7 distinct domains, featuring diverse kinematic constraints, contact dynamics, and clearance tolerances across 35 benchmark evaluation suites.}
+\caption{\textbf{Taxonomy of the AFFORD-Bench Suite.} 210 tasks in 7 domains. Tolerances are the success thresholds $(\epsilon_{xy}, \epsilon_z, \epsilon_\theta)$; D5 tasks take the tier of their scene. D1, D3, and D7 scenes add two distractor bodies; tolerance-indexed variants are a Stage 2 deliverable.}
 \label{tab:domains}
 \scriptsize
 \setlength{\tabcolsep}{2.5pt}
 \renewcommand{\arraystretch}{0.91}
-\begin{tabularx}{\linewidth}{lccXcX}
+\begin{tabularx}{\linewidth}{lccXXc}
 \toprule
-\textbf{Domain} & \textbf{Task IDs} & \textbf{Count} & \textbf{Representative Manipulation Tasks} & \textbf{Clearance ($\epsilon$)} & \textbf{Dominant Contact Physics} \\
+\textbf{Domain} & \textbf{Task IDs} & \textbf{Count} & \textbf{Representative Manipulation Tasks} & \textbf{Evaluated Bodies} & \textbf{Tol. (mm / deg)} \\
 \midrule
-\textbf{D1: Industrial Precision} & 001--030 & 30 & Gear meshing, bolt insertion, cable routing, fixture latching & $\pm 2.0\text{--}5.0\,\text{mm}$ & High stiffness, rigid peg-in-hole friction \\
-\textbf{D2: Culinary Operations} & 031--060 & 30 & Patty flipping, espresso mug docking, slicing alignment, pouring & $\pm 5.0\text{--}12.0\,\text{mm}$ & Compliant contact, non-planar slipping \\
-\textbf{D3: Domestic Tabletop} & 061--090 & 30 & Color block sorting, drawer opening, stack packing, cup nesting & $\pm 8.0\text{--}20.0\,\text{mm}$ & Multi-body clutter, dynamic toppling \\
-\textbf{D4: Laboratory Sciences} & 091--120 & 30 & Pipette tip pickup, centrifuge vial docking, reagent mixing & $\pm 1.5\text{--}4.0\,\text{mm}$ & Precision alignment, fragile glass contact \\
-\textbf{D5: Long-Horizon Sequences} & 121--150 & 30 & Multi-stage assembly, tool-assisted latching, sequential routing & $\pm 3.0\text{--}10.0\,\text{mm}$ & Cumulative error accumulation, sub-goal chaining \\
-\textbf{D6: Precision Chaining} & 151--180 & 30 & Shaft-bearing-clamp, gasket-bolt-torque, terminal-wire-seal & $\pm 1.8\text{--}4.5\,\text{mm}$ & Compounded insertion tolerances, high torque \\
-\textbf{D7: Service Assembly} & 181--210 & 30 & Burger patty-cheese-bun, mug-brew-serve, plate-fork-napkin & $\pm 4.0\text{--}10.0\,\text{mm}$ & Dynamic re-grasping, multi-stage compliance \\
+\textbf{D1: Industrial Precision} & 001--030 & 30 & Shaft-in-bore, gear-on-shaft, pin-in-hole, kitting, fixture contact & Shaft, spur gear, dowel pin & 2 / 5 \\
+\textbf{D2: Culinary Operations} & 031--060 & 30 & Burger layer stacking, mug to drip tray, capsule to hopper & Patty, cheese, tomato, buns, mug, capsule & 8 / 15 \\
+\textbf{D3: Domestic Tabletop} & 061--090 & 30 & Color sorting, block stacking, relocation, touch & Two cubes, one cylinder & 8 / 15 \\
+\textbf{D4: Laboratory Sciences} & 091--120 & 30 & Tube racking, centrifuge loading, pipette positioning & Conical tube, microtube, pipette & 2 / 5 \\
+\textbf{D5: Long-Horizon Sequences} & 121--150 & 30 & Multi-step assembly, sorting, and service instructions & One per task (Stage 1) & 2 or 8 / 5 or 15 \\
+\textbf{D6: Precision Chaining} & 151--180 & 30 & 2--3 step industrial and laboratory chains & One per task (Stage 1) & 2.5 / 5 \\
+\textbf{D7: Service Assembly} & 181--210 & 30 & 2--3 step kitchen and household chains & One per task (Stage 1) & 8 / 15 \\
 \midrule
-\textbf{Total Benchmark Scope} & \textbf{001--210} & \textbf{210} & \textbf{7 Domains $\times$ 30 Tasks = 210 Tasks (35 Evaluation Suites)} & $\pm 1.5\text{--}20.0\,\text{mm}$ & \textbf{10,500 Demonstrations ($>2.2\times 10^6$ Steps)} \\
+\textbf{Total} & \textbf{001--210} & \textbf{210} & \textbf{7 Domains $\times$ 30 Tasks (35 Evaluation Suites)} & \textbf{16 rigid bodies} & \textbf{2--8 / 5--15} \\
 \bottomrule
 \end{tabularx}
 \end{table*}
 
 \subsection{Domain Architecture}
-As summarized in Table~\ref{tab:domains} and visualized in Figure~\ref{fig:tasks_vis}, AFFORD-Bench is partitioned into seven specialized domains, each comprising 30 distinct tasks:
-\textbf{D1: Industrial Precision} (Tasks 001--030) targets manufacturing operations requiring millimeter accuracy, including splined gear meshing, flange bolt insertion, and toggle clamping.
-\textbf{D2: Culinary Operations} (Tasks 031--060) simulates commercial food preparation, including spatula patty flips, espresso mug docking, and ingredient transfers.
-\textbf{D3: Domestic Tabletop} (Tasks 061--090) addresses common service robotics tasks involving color block segregation, cup nesting, drawer articulation, and clutter clearing.
-\textbf{D4: Laboratory Sciences} (Tasks 091--120) encompasses cleanroom biopharma tasks, including pipette tip mounting, centrifuge tube docking, and microplate well insertion.
-\textbf{D5: Long-Horizon Sequences} (Tasks 121--150) tests multi-phase tool acquisition, unlatching, re-orientation, and multi-part sub-assembly chaining across extended horizons up to 800 steps.
-\textbf{D6: Multi-Stage Precision Chaining} (Tasks 151--180) evaluates compound industrial workflows chaining 2--3 sequential actions in single continuous prompts (e.g., ``align shaft, press bearing, and lock clamp'').
-\textbf{D7: Sequential Service \& Culinary Assembly} (Tasks 181--210) benchmarks compound kitchen sequences chaining 2--3 sequential actions in single prompts (e.g., ``flip patty, place cheese, and top bun'').
+As summarized in Table~\ref{tab:domains} and Figure~\ref{fig:tasks_vis}, AFFORD-Bench has seven domains of 30 tasks each across five scenes:
+\textbf{D1: Industrial Precision} (001--030): shaft, gear, and pin seating in a jig, kitting, and fixture contact.
+\textbf{D2: Culinary Operations} (031--060): burger layer stacking, mug and capsule handling at an espresso station.
+\textbf{D3: Domestic Tabletop} (061--090): color sorting into bins, stacking, and relocation.
+\textbf{D4: Laboratory Sciences} (091--120): tube racking, centrifuge loading, and pipette positioning.
+\textbf{D5--D7} (121--210): instructions that chain 2--4 steps across industrial, laboratory, and kitchen scenes. In Stage 1 each of these tasks evaluates a single body, and the episode ends when that body reaches its goal, which in 57 of 90 tasks occurs before the last instructed step. Multi-body sequential predicates that score every step are a Stage 2 deliverable.
 
 \section{The Hierarchical Affordance Perturbation Framework}
 \label{sec:perturbations}
 
-To characterize the exact breakdown boundaries of learned policies, AFFORD-Bench structures environmental distribution shifts into a hierarchical 5-level difficulty progression (L1--L5):
+AFFORD-Bench organizes distribution shift into five levels:
 
-\textbf{Level 1: Nominal Kinematic Jitter (In-Distribution)}: Default scene configuration with minor initial pose jitter ($\|\Delta \mathbf{p}\| \le 1.0\,\text{cm}$), nominal Coulomb friction $\mu_0 = 0.70$, and nominal mass $m_0$. Serves as the sanity baseline for nominal memorization.
+\textbf{L1: Nominal (in-distribution).} The start of $o^\star$ is drawn from $\mathcal{U}(\pm 7\,\text{cm})$ per horizontal axis around its nominal position, yaw from $\mathcal{U}(-45^\circ, 45^\circ)$, and roll and pitch from $\mathcal{U}(-10^\circ, 10^\circ)$ at spawn, resolved by simulating the body to rest; the initial TCP is jittered by $\pm 1.5$\,cm per horizontal axis. Starts are rejection-sampled: $o^\star$ must rest flat on a single support (tilt below $3^\circ$, support height spread at most 2\,mm), have no fixture overhead, admit a collision-free top-down parallel-jaw grasp, and lie away from the goal. If no valid start is found, the scatter is shrunk to $\tfrac12$, $\tfrac14$, and $\tfrac1{10}$ before falling back to the nominal pose, so bodies that start in a compartment or seated on a shaft vary less than the nominal range. D1, D3, and D7 scenes add two distractor bodies of similar color or shape, dropped at random workspace positions at least 9\,cm from the start and goal.
 
-\textbf{Level 2: Extended Spatial-Kinematic Shifts ($\mathcal{P}_{\mathrm{spatial}}$)}: Bounded translation offsets $\mathbf{p}_{\text{init}} \sim \mathcal{U}(\mathbf{p}_0 - \boldsymbol{\delta}_{\mathbf{p}}, \mathbf{p}_0 + \boldsymbol{\delta}_{\mathbf{p}})$ with $\boldsymbol{\delta}_{\mathbf{p}} = [\pm 0.06, \pm 0.06, 0.0]^T\,\text{m}$ and yaw rotations $\theta_{\text{yaw}} \sim \mathcal{U}(-45^\circ, +45^\circ)$, probing whether the policy executes closed-loop visual servoing or open-loop trajectory recall.
+\textbf{L2: Spatial ($\mathcal{P}_{\mathrm{spatial}}$).} The start offset has radius $\mathcal{U}(7, 12)$\,cm in a uniformly random direction, outside the L1 support, and yaw magnitude $\mathcal{U}(45^\circ, 90^\circ)$, probing closed-loop servoing versus trajectory recall.
 
-\textbf{Level 3: Visual-Photometric Shifts ($\mathcal{P}_{\mathrm{visual}}$)}: Illumination intensity variations $I_{\text{light}} \in [0.5, 1.5]\,I_0$, 3D light position jitter ($\pm 0.5\,\text{m}$), and object surface color/specular shifts ($\pm 25\%$), evaluating photometric robustness without altering physical contact geometry.
+\textbf{L3: Visual ($\mathcal{P}_{\mathrm{visual}}$).} Light intensity in $[0.5, 1.5]\,I_0$, light position jitter of $\pm 0.5\,\text{m}$, and object color jitter of $\pm 25\%$, leaving geometry unchanged.
 
-\textbf{Level 4: Physical-Dynamic Affordance Shifts ($\mathcal{P}_{\mathrm{physics}}$)}: Surface Coulomb friction $\mu \sim \mathcal{U}(0.10, 1.20)$ and inertial mass scaling $m_{\text{obj}} \sim \mathcal{U}(0.5, 3.0)\,m_0$, evaluating grasp stability, slippage resistance, and contact compliance under identical visual coordinates.
+\textbf{L4: Physical ($\mathcal{P}_{\mathrm{physics}}$).} Sliding friction $\mu \sim \mathcal{U}(0.12, 0.25)$ on $o^\star$ and on both finger pads, and mass and rotational inertia of $o^\star$ scaled by $\mathcal{U}(1.8, 2.5)$, at identical visual coordinates. MuJoCo takes the larger friction of a contact pair, so pads and body are set together. In a probe with the oracle's grasp shifted 10--20\,mm along the hand's lateral axis, lifted 10\,cm, and carried 20\,cm at the speed cap (3 seeds per setting), L4 dropped 8 of 12 off-center grasps of a cube and a mug, against 0 of 12 at nominal; centered grasps of the same bodies were held but slid 3--13\,mm, and the 24\,mm shaft was dropped at L4 even when grasped centrally.
 
-\textbf{Level 5: Compound Chaining \& Composite OOD ($\mathcal{P}_{\mathrm{comp}}$)}: Simultaneous multi-axis shifts combined with multi-step sequential instructions, evaluating cumulative error accumulation across multi-subtask manipulation horizons.
+\textbf{L5: Compound ($\mathcal{P}_{\mathrm{comp}}$).} L2, L3, L4, and color shifts sampled jointly, combined with the multi-step instructions of D5--D7.
+
+\textbf{Physics and implementation.} All five levels are implemented. Lights, colors, friction, and masses are restored to nominal before each sample, and all sampling is seeded per episode. Grasping is frictional: the arm is driven by gravity-compensated joint position servos, the gripper is a force-limited tendon actuator, finger pads use stiff contacts (4\,ms time constant), and collisions use MuJoCo's native convex collision with multi-point contact. At reset, bodies are lifted out of any interpenetration and simulated to rest before the first observation.
 
 \section{Algorithmic Oracles and Dataset Synthesis}
 \label{sec:oracles}
 
-\subsection{Deterministic Universal Kinematic Solvers}
-Collecting thousands of high-quality human demonstrations via teleoperation is prohibitively labor-intensive and frequently exhibits inconsistent sub-optimal behaviors~\cite{mandlekar2021robomimic}. AFFORD-Bench circumvents these bottlenecks by deploying deterministic, closed-loop algorithmic oracles constructed via analytical kinematic solvers and waypoint interpolation. For each task family, the oracle solves for end-effector trajectories $\mathbf{x}_{\text{ee}}(t)$ using quintic minimum-jerk spline polynomials connecting pre-contact approach manifolds, contact alignment poses, insertion pathways, and release waypoints. Success is verified at every step using analytical kinematic predicates and simulation contact manifolds.
+\subsection{Closed-Loop Oracles}
+Teleoperated demonstrations are costly and inconsistent~\cite{mandlekar2021robomimic}. AFFORD-Bench instead uses a single privileged, closed-loop oracle for all 210 tasks that reads the pose of $o^\star$ at every step and acts through the same controller and action space as learned policies. It plans a grasp by checking candidate yaws, grasp heights, and finger pre-shapes with inverse kinematics and collision detection on a scratch copy of the state, approaches with a trapezoidal velocity profile (1.6\,m/s$^2$), closes and verifies a two-finger grasp (up to three attempts), carries $o^\star$ while correcting for its offset in the hand, rotates the hand if the fingers would collide at the goal, lowers $o^\star$ until it is supported, lifts and re-centers after a stalled insertion (up to three times), and opens until neither finger touches $o^\star$ before retracting. The oracle uses state that policies do not observe, so its success bounds solvability rather than predicting learned performance.
 
 \subsection{Demonstration Scale and Packaging}
-Using unbuffered parallel workers, the synthesis pipeline generates \textbf{50 expert demonstrations per task} across all 210 tasks, yielding \textbf{10,500 total demonstrations} and over \textbf{$2.2 \times 10^6$ physical timesteps}. Generation runs locally at an effective throughput of $42.4\,\text{FPS}$ with zero external API calls or financial cost. Demonstrations $\mathcal{D} = \{(\mathbf{o}_t, \mathbf{a}_t, r_t)\}_{t=0}^{T-1}$ are stored in standardized Robomimic HDF5 format with native train/validation splits (90\%/10\%) and full metadata attributes, directly compatible with OpenVLA, SmolVLA, AtomVLA, Octo, and Diffusion Policy.
+The generator records 50 demonstrations per task, 10,500 in total and over $2.2 \times 10^6$ timesteps, in Robomimic HDF5 with 90\%/10\% train/validation masks and per-episode metadata. Each demonstration is generated from its own seed, so the 50 demonstrations of a task start from distinct layouts \TODO{regenerate the dataset with the 20\,Hz controller and update the timestep count}. Conversion to RLDS (OpenVLA, Octo) and LeRobot (SmolVLA) formats is required for VLA training.
 
 \section{Training and Evaluation Protocols}
 \label{sec:protocols}
 
 \subsection{Standardized Closed-Loop Rollout Procedure}
-Policy evaluation executes closed-loop at $20\,\text{Hz}$ interacting with the MuJoCo Franka Emika Panda physics environment ($500\,\text{Hz}$ solver, $dt=0.002\,\text{s}$). For each task, evaluation is performed across $N=50$ episodes initialized with pseudo-random seeds strictly disjoint from training demonstration seeds ($\mathcal{S}_{\text{test}} \cap \mathcal{S}_{\text{train}} = \emptyset$). Maximum episode horizon is set to $H_{\max}=400$ steps for single-stage manipulation (D1--D4) and $H_{\max}=800$ steps for long-horizon and compound chaining sequences (D5--D7).
+Each policy step applies one action at 20\,Hz: the arm is interpolated to the IK joint target over 25 physics steps of 2\,ms, with commanded TCP speed capped at 0.5\,m/s. For each task we roll out $N=50$ episodes with evaluation seeds disjoint from data-generation seeds, with $H=400$ steps for D1--D4 and $H=800$ for D5--D7. Every suite, including nominal, draws its initial state from the evaluation seed.
 
 \subsection{Standardized Evaluation Suites}
-All models are evaluated across 35 distinct suites ($7 \text{ domains} \times 5 \text{ perturbation conditions}$): (1)~\textbf{Nominal (In-Distribution)}: Default scene layout, initial poses $\mathbf{p}_0 \pm \boldsymbol{\delta}_{\text{small}}$ ($<1\,\text{cm}$), nominal friction $\mu_0 = 0.70$, nominal mass $m_0$, and standard illumination $I_0$; (2)~\textbf{Spatial Generalization ($\mathcal{P}_{\mathrm{spatial}}$)}: Translation offsets $\pm 6\,\text{cm}$, yaw rotations $\pm 45^\circ$, and contracted insertion tolerances; (3)~\textbf{Visual Generalization ($\mathcal{P}_{\mathrm{visual}}$)}: Illumination intensities $I \in [0.5, 1.5]\,I_0$, random light vectors, and surface specular jitter; (4)~\textbf{Physical Generalization ($\mathcal{P}_{\mathrm{physics}}$)}: Friction variation $\mu \in [0.10, 1.20]$ and mass scalings $m \in [0.5, 3.0]\,m_0$; and (5)~\textbf{Composite OOD ($\mathcal{P}_{\mathrm{comp}}$)}: Simultaneous joint perturbation across all three axes.
+Models are evaluated on 35 suites (7 domains $\times$ 5 conditions): (1)~\textbf{Nominal}; (2)~\textbf{Spatial} ($\mathcal{P}_{\mathrm{spatial}}$); (3)~\textbf{Visual} ($\mathcal{P}_{\mathrm{visual}}$); (4)~\textbf{Physical} ($\mathcal{P}_{\mathrm{physics}}$); and (5)~\textbf{Composite} ($\mathcal{P}_{\mathrm{comp}}$), with parameters as in Sec.~\ref{sec:perturbations}. Language variants are evaluated as a separate axis on the nominal scene.
 
 \subsection{Quantitative Evaluation Metrics}
-We measure policy competence using four formal metrics: (i)~\textbf{Task Success Rate (SR)}: Binary terminal affordance satisfaction $\text{SR} = \frac{1}{N} \sum_{i=1}^N \mathbb{I}(\mathbf{s}_T^{(i)} \in \mathcal{C}_{\text{aff}})$; (ii)~\textbf{Physical Robustness Index (PRI)}: $\text{PRI}(\mathcal{P}) = (\text{SR}(\mathcal{P}) / \text{SR}(\text{Nominal})) \times 100\%$; (iii)~\textbf{Generalization Degradation Index (GDI)}: $\text{GDI} = 100\% - \text{PRI}$; and (iv)~\textbf{Force \& Collision Violation Rate (FVR)}: Fraction of episodes terminating due to contact collisions or excessive forces.
+We report: (i)~\textbf{Success Rate} $\text{SR} = \frac{1}{N} \sum_{i=1}^N \mathbb{I}[\exists\, t \le H : s^{(i)}_t \in \mathcal{C}_{\text{aff}}]$ with Wilson 95\% intervals over episodes and mean $\pm$ s.d. over 3 training seeds; (ii)~\textbf{Physical Robustness Index} $\text{PRI}(\mathcal{P}) = \text{SR}(\mathcal{P}) / \text{SR}(\text{Nominal}) \times 100\%$, defined when $\text{SR}(\text{Nominal}) > 0$; (iii)~\textbf{Generalization Degradation Index} $\text{GDI} = 100\% - \text{PRI}$; and (iv)~\textbf{Force Violation Rate} (FVR), the fraction of episodes violating $F_{\max}$.
 
 \section{Scientific Hypotheses \& Preliminary Calibration}
 \label{sec:hypotheses}
 
 \subsection{Core Scientific Hypotheses}
-We formalize three fundamental scientific hypotheses that AFFORD-Bench is designed to test:
+AFFORD-Bench is designed to test three hypotheses; $H_2$ requires tolerance-indexed variants and $H_3$ multi-body predicates (both Stage 2):
 \begin{itemize}
-    \item \textbf{Hypothesis 1 ($H_1$: Affordance Collapse vs. Appearance Memorization)}: \textit{Policies that achieve high nominal success by memorizing 2D visual trajectories will suffer asymmetric catastrophic failure ($>70\%$ relative drop) under physical-dynamic shifts ($\mathcal{P}_{\mathrm{physics}}$), even when target object 2D spatial coordinates remain identical to training.}
-    \item \textbf{Hypothesis 2 ($H_2$: Precision-Tolerance Fragility)}: \textit{Performance degradation under spatial perturbation is governed by kinematic clearance $\boldsymbol{\epsilon}_{\text{tol}}$. Tasks in D1, D4, and D6 ($\boldsymbol{\epsilon}_{\text{tol}} \le 3\,\text{mm}$) experience collapse at spatial displacements an order of magnitude smaller than domestic tasks in D3.}
-    \item \textbf{Hypothesis 3 ($H_3$: Error Compounding in Multi-Subtask Chains)}: \textit{Chained compound prompt domains (D6 and D7) exhibit compounded failure cascades where small contact deviations in step 1 propagate exponentially into terminal failures in subsequent steps, dropping PRI below 15\%.}
+    \item \textbf{$H_1$ (physical versus appearance shift)}: \textit{policies with high nominal success lose more under $\mathcal{P}_{\mathrm{physics}}$ than under $\mathcal{P}_{\mathrm{visual}}$ of matched severity, with object 2D coordinates unchanged.}
+    \item \textbf{$H_2$ (tolerance fragility)}: \textit{at fixed spatial shift, success decreases monotonically as $\epsilon_{xy}$ shrinks; tested with tolerance-indexed variants of D1 and D4 tasks at $\epsilon_{xy} \in \{2, 4, 8, 16\}$\,mm.}
+    \item \textbf{$H_3$ (error compounding)}: \textit{in D6 and D7, the success probability of a $k$-step chain falls below the product of its per-step success rates measured in isolation.}
 \end{itemize}
 
 \begin{table}[t]
 \centering
-\caption{\textbf{Stage 1 Preliminary Empirical Calibration \& Baselines.} Verified task solvability across domains under nominal and perturbed conditions.}
+\caption{\textbf{Stage 1 Calibration.} Success rate (\%) on the nominal suite (L1) and, for the oracle, the physical suite (L4). Oracle: privileged closed-loop expert, 5 reset seeds per task (150 episodes per domain). Random: uniform actions, 5 episodes per task. Null: never moves, gripper open, 1 episode per task. Random and null use $H = 400$; the oracle uses at most 600 steps. No task succeeds at reset. BC and Diffusion Policy results are pending.}
 \label{tab:prelim_results}
 \scriptsize
-\setlength{\tabcolsep}{2.5pt}
+\setlength{\tabcolsep}{1.9pt}
 \renewcommand{\arraystretch}{0.92}
-\begin{tabular}{lcccc}
+\begin{tabular}{lcccccc}
 \toprule
-\textbf{Task Domain} & \textbf{Oracle} & \textbf{Random} & \textbf{BC} & \textbf{Diffusion} \\
+\textbf{Task Domain} & \textbf{Oracle} & \textbf{Oracle (L4)} & \textbf{Random} & \textbf{Null} & \textbf{BC} & \textbf{Diffusion} \\
 \midrule
-D1: Industrial Precision & 100.0\% & 0.0\% & Calibrating & Calibrating \\
-D2: Culinary Operations & 100.0\% & 0.0\% & Calibrating & Calibrating \\
-D3: Domestic Tabletop & 100.0\% & 0.0\% & Calibrating & Calibrating \\
-D4: Laboratory Sciences & 100.0\% & 0.0\% & Calibrating & Calibrating \\
-D5: Long-Horizon Sequences & 100.0\% & 0.0\% & Calibrating & Calibrating \\
-D6: Precision Chaining & 100.0\% & 0.0\% & Calibrating & Calibrating \\
-D7: Service Assembly & 100.0\% & 0.0\% & Calibrating & Calibrating \\
+D1: Industrial Precision & 100.0 & 42.7 & 0.0 & 0.0 & \TBD & \TBD \\
+D2: Culinary Operations & 92.7 & 52.7 & 0.0 & 0.0 & -- & -- \\
+D3: Domestic Tabletop & 100.0 & 44.7 & 0.0 & 0.0 & \TBD & \TBD \\
+D4: Laboratory Sciences & 100.0 & 88.0 & 0.0 & 0.0 & -- & -- \\
+D5: Long-Horizon Sequences & 94.7 & 38.7 & 0.0 & 0.0 & -- & -- \\
+D6: Precision Chaining & 95.3 & 50.7 & 0.0 & 0.0 & -- & -- \\
+D7: Service Assembly & 93.3 & 22.0 & 0.0 & 0.0 & -- & -- \\
 \midrule
-\textbf{Benchmark Aggregate} & \textbf{100.0\%} & \textbf{0.0\%} & \multicolumn{2}{c}{\textbf{Stage 2 Charter Execution}} \\
+\textbf{All 210 tasks} & \textbf{96.6} & \textbf{48.5} & \textbf{0.0} & \textbf{0.0} & \multicolumn{2}{c}{\textbf{Stage 2}} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Preliminary Empirical Calibration}
-Table~\ref{tab:prelim_results} reports our Stage 1 verification baselines. Evaluating the deterministic algorithmic oracles across disjoint test seeds confirms 100\% nominal solvability across all 210 tasks, validating that the physical kinematic structures, tolerances, and contact predicates are fully feasible. Conversely, evaluating uniform random policies yields 0.0\% success across all domains, verifying that tasks cannot be solved via accidental contact or trivial drift.
+Table~\ref{tab:prelim_results} reports solvability under the protocol of Secs.~\ref{sec:formulation} and~\ref{sec:perturbations}. The oracle solves 1014 of 1050 nominal episodes (96.6\%; episode-level Wilson 95\% interval 95.3--97.5\%, which ignores correlation between episodes of the same task), all 30 tasks in each of D1, D3, and D4, and 192 of 210 tasks in every seed. Of its 36 failures, 29 are mug, bun, and capsule episodes in D2, D5, and D7; in the episodes we traced, the grasp was lost during transport and the dropped body landed on its side, which the top-down oracle cannot re-grasp. The other 7 are in D6: task 168 fails in every seed because the released pin settles 3.2\,mm from its goal against a 2.5\,mm tolerance, and task 155 fails in 2 of 5. Random actions solve none of 1050 episodes (upper 95\% bound 0.4\%) and the null policy none of 210 (1.8\%); the lift requirement and the release-and-rest predicate remove the trivially satisfied goals of earlier versions. Under L4 the same oracle, which does not adapt its grip or speed, succeeds in 48.5\% of episodes (45.5--51.5\%), from 88.0\% in D4 to 22.0\% in D7; we have not established what fraction of L4 episodes any policy can solve. In 9 of 630 resets (1.4\%) no valid scattered start existed and the nominal pose was used; task 12, a gear seated on its shaft, always starts from it. All results use one simulator build (MuJoCo 3.2.7) and MuJoCo Menagerie meshes for the Panda. Learned baselines on D1 and D3 will use 3 training seeds and 50 evaluation episodes per task.
 
 \section{Discussion and Stage 2 Extension Charter Roadmap}
 \label{sec:conclusion}
 
-In accordance with the RSS 2027 Shepherding Process, this Stage 1 Extended Abstract establishes the foundational methodology, task taxonomy, qualitative rendering suite, training/evaluation protocols, and affordance perturbation manifold of AFFORD-Bench. For the Stage 2 final submission, we outline our planned Extension Charter:
-(1)~\textit{Full Empirical Scaling Across All 210 Tasks}: Executing complete evaluation matrices (50 rollouts per condition $\times$ 210 tasks across 35 benchmark suites) across Diffusion Policy, ACT, OpenVLA, SmolVLA, AtomVLA, and DP3;
-(2)~\textit{Disentangled Perturbation Ablations}: Isolating the independent effects of $\mathcal{P}_{\mathrm{spatial}}$, $\mathcal{P}_{\mathrm{physics}}$, and $\mathcal{P}_{\mathrm{visual}}$ to map individual sensitivity frontiers; and
-(3)~\textit{Physical-to-Real Sim-to-Real Pilot}: Evaluating policy transfer onto a physical Franka Emika Panda workcell for representative D1 (gear meshing) and D4 (pipette docking) tasks.
-By uniting high physical precision, diverse real-world domains, rigorous protocols, and affordance-grounded perturbations, AFFORD-Bench provides the robotics community with an uncompromising benchmark to steer policy learning toward genuine physical generalizability.
+\subsection{Physical Hardware Correspondence and Sim-to-Real Feasibility}
+Controlled comparison across 210 tasks and 35 suites requires what hardware cannot provide: exact resets, perturbations sampled from known distributions, and ground-truth success labels. The full matrix of 50 episodes per task and condition is 52,500 rollouts per policy, each replayable from its seed; at two physical trials per minute including resets, that is about 440 robot-hours per policy, over which wear, recalibration, and lighting drift would confound the comparison. Simulation also exposes the quantities the perturbations act on, such as object pose, friction, and mass, so success is a measured predicate rather than an annotator judgment. We therefore treat simulation as the instrument for comparing policies and use hardware to test whether the rankings it produces hold on physical robots.
+
+The observation and data interfaces mirror common real-robot pipelines but are not identical to them. Each episode records a fixed third-person RGB stream, a wrist RGB stream, optional workcell metric depth, and joint and TCP proprioception, the same modality set as Franka workcells instrumented with Intel RealSense cameras and as ALOHA-style~\cite{zhao2023act} and LeRobot~\cite{cadene2024lerobot} setups with fixed and wrist cameras. Episodes are stored in Robomimic HDF5, whose per-step keys map directly onto the RLDS schema of Open X-Embodiment~\cite{padalkar2023openx} and the LeRobot dataset schema, so a single converter lets one training pipeline consume simulated and physical episodes \TODO{release the converter}. Three gaps remain: the simulated image sizes ($640\times660$, $300\times420$) differ from native RealSense modes and must be matched by cropping or re-rendering; the action is a Cartesian position increment, whereas SO-101 and Piper arms are commanded in joint space and ALOHA in bimanual joint space; and simulated bodies and fingertips are rigid, with contact softness set by the solver rather than by measured compliance. The pilot below is designed around these gaps.
+
+The Stage 2 Extension Charter includes a hardware pilot on two D1 tasks: peg insertion (Task 003) and gear meshing onto a seated shaft (Task 002). The primary platform is a Franka Panda with wrist and fixed RealSense cameras, Cartesian impedance control, and 3D-printed replicas of the simulated jig, pin, shaft, and gear at three clearances. Policies trained on simulated demonstrations, physical teleoperated demonstrations, and their union are evaluated under nominal, spatial ($\pm 3$\,cm, $\pm 45^\circ$), and physical (surface films for friction, added mass) conditions that replicate L2 and L4. We report the embodiment, 20 trials per condition, success as full seating verified by a depth gauge, and a fixture-based reset protocol, and we measure sim-to-real agreement as the rank correlation of per-condition success between simulation and hardware. SO-101 and Piper arms repeat the pilot at the loosest clearance as a low-cost cross-embodiment check rather than a precision test. The pilot is positioned against IndustReal~\cite{tang2023industreal}, which transfers RL insertion and gear-meshing policies on a Franka: our question is whether simulated perturbation rankings predict physical degradation for imitation and VLA policies, not whether a single policy transfers.
+
+\subsection{Stage 2 Extension Charter}
+In accordance with the RSS 2027 shepherding process, the Stage 2 charter comprises:
+(1)~\textit{Simulator fidelity}: tolerance-indexed task variants, multi-body predicates for D5--D7, and compliant fingertip models;
+(2)~\textit{Full empirical scaling}: 50 rollouts per condition $\times$ 210 tasks $\times$ 35 suites for Diffusion Policy, ACT, OpenVLA, SmolVLA, AtomVLA, and DP3;
+(3)~\textit{Disentangled ablations}: separate sensitivity curves for $\mathcal{P}_{\mathrm{spatial}}$, $\mathcal{P}_{\mathrm{physics}}$, $\mathcal{P}_{\mathrm{visual}}$, and tolerance; and
+(4)~\textit{Hardware pilot}: peg insertion and gear meshing as described above.
 
 \clearpage
+{\footnotesize
 \bibliographystyle{plainnat}
 \bibliography{references}
+}
 
 \end{document}
