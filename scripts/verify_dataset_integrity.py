@@ -78,8 +78,13 @@ def verify_file(hdf5_path: Path, expected_demos: int = 50) -> dict:
                     n_steps = len(d0["actions"])
                     if d0["obs/agentic_rgb"].shape != (n_steps, 640, 660, 3):
                         result["errors"].append(f"Bad agentic_rgb shape: {d0['obs/agentic_rgb'].shape}")
+                    elif float(np.mean(d0["obs/agentic_rgb"][0])) < 1.0:
+                        result["errors"].append("agentic_rgb is completely dark / black (mean < 1.0)")
+
                     if d0["obs/wrist_rgb"].shape != (n_steps, 300, 420, 3):
                         result["errors"].append(f"Bad wrist_rgb shape: {d0['obs/wrist_rgb'].shape}")
+                    elif float(np.mean(d0["obs/wrist_rgb"][0])) < 1.0:
+                        result["errors"].append("wrist_rgb is completely dark / black (mean < 1.0)")
                     if d0["obs/tcp_pose"].shape != (n_steps, 7):
                         result["errors"].append(f"Bad tcp_pose shape: {d0['obs/tcp_pose'].shape}")
                     if d0["obs/joint_positions"].shape != (n_steps, 7):
