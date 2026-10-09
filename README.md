@@ -3,13 +3,13 @@
 [![Target Venue: RSS 2027](https://img.shields.io/badge/Submission-RSS%202027%20Stage%201-blue.svg)](AFFORD-Bench_RSS'27/paper-template-latex/main.pdf)
 [![Physics: MuJoCo Native](https://img.shields.io/badge/MuJoCo-3.x%20C%2B%2B%20Native-brightgreen.svg)](https://mujoco.org)
 [![Dataset Standard: Robomimic HDF5](https://img.shields.io/badge/Dataset-Robomimic%20HDF5-orange.svg)](https://robomimic.github.io)
-[![Scale: 210 Tasks / 10,500 Demos Target](https://img.shields.io/badge/Scale-210%20Tasks%20%7C%2010%2C500%20Demos%20Target-purple.svg)]()
-[![Suites: 35 Benchmark Suites](https://img.shields.io/badge/Suites-35%20Benchmark%20Suites-darkblue.svg)]()
+[![Scale: 240 Tasks / 12,000 Demos Target](https://img.shields.io/badge/Scale-240%20Tasks%20%7C%2012%2C000%20Demos%20Target-purple.svg)]()
+[![Suites: 40 Benchmark Suites](https://img.shields.io/badge/Suites-40%20Benchmark%20Suites-darkblue.svg)]()
 [![Zero External Cost](https://img.shields.io/badge/External%20Cost-%240.00%20Zero-success.svg)]()
 
 **AFFORD-Bench** is a large-scale, **policy-agnostic**, affordance-grounded robot manipulation benchmark and dataset suite engineered to stress-test the out-of-distribution (OOD) physical generalization of any robot learning policy---ranging from **Classical Imitation Learning (BC, BeT)** and **Visuomotor Action Chunking (Diffusion Policy, ACT)** to **3D Point-Cloud Policies (DP3)**, **Vision-Language-Action (VLA) Foundation Models (OpenVLA, SmolVLA, AtomVLA, Octo)**, and **Offline Reinforcement Learning (CQL, IQL)**.
 
-Operating on a 7-DoF Franka Emika Panda manipulator simulated with contact physics in MuJoCo, AFFORD-Bench provides **210 formally defined physical manipulation tasks** across **7 distinct domains**, accompanied by a 100% local deterministic demonstration generator targeting **up to 10,500 demonstration episodes** (>2.2M physical timesteps), synchronized dual-camera perception ($640\times 660$ workcell and $300\times 420$ wrist), and optional **true physical 3D metric depth** (`--depth`).
+Operating on a 7-DoF Franka Emika Panda manipulator simulated with contact physics in MuJoCo, AFFORD-Bench provides **240 formally defined physical manipulation tasks** across **8 distinct domains**, accompanied by a 100% local deterministic demonstration generator targeting **up to 12,000 demonstration episodes** (50 demos/task, >2.5M physical timesteps), synchronized dual-camera perception ($640\times 660$ workcell and $300\times 420$ wrist), and optional **true physical 3D metric depth** (`--depth`).
 
 > 🌐 **Interactive Project Page**: Explore multi-modal videos, interactive domain tabs, perturbation hierarchies, and dataset schemas in [`docs/index.html`](docs/index.html).
 
@@ -31,7 +31,7 @@ AFFORD-Bench grounds robot learning in **ecological contact mechanics** across a
 - **LIBERO** (arXiv 2306.03310): Released dataset of 6,500 human SpaceMouse teleoperated demos across 130 tasks (50 core), evaluated with BDDL predicate conjunctions.
 - **LIBERO-PRO** (arXiv 2510.03827): Evaluation-only protocol evaluating 40 tasks across 4 perturbation axes (object, spatial, semantic, environment).
 - **LIBERO-X** (arXiv 2602.06556): Procedural benchmark with 600 tasks across diverse scenes, 2,520 VR teleoperated training demonstrations, and a 5-level hierarchical evaluation protocol (L1--L5).
-- **AFFORD-Bench**: 210 formally specified manipulation tasks across 7 domains $\times$ 5 hierarchical perturbation regimes (Nominal, Spatial, Physical-Coulomb friction & mass scaling, Visual, Composite OOD) = **35 Comprehensive Benchmark Suites**. Crucially, unlike LIBERO suites, AFFORD-Bench checks success physically (released, at rest, supported, within 2–8 mm tolerance tiers with zero artificial welds or magnetic snapping) and perturbs physical contact dynamics ($\mu \in [0.10, 1.20]$, payload mass $0.5\times$--$3.0\times$).
+- **AFFORD-Bench**: 240 formally specified manipulation tasks across 8 domains $\times$ 5 hierarchical perturbation regimes (Nominal, Spatial, Physical-Coulomb friction & mass scaling, Visual, Composite OOD) = **40 Comprehensive Benchmark Suites**. Crucially, unlike LIBERO suites, AFFORD-Bench checks success physically (released, at rest, supported, within 2–8 mm tolerance tiers with zero artificial welds or magnetic snapping) and perturbs physical contact dynamics ($\mu \in [0.10, 1.20]$, payload mass $0.5\times$--$3.0\times$). Fully compatible with Robomimic HDF5, LeRobot v2.0, and RLDS data formats.
 
 ---
 
@@ -65,8 +65,9 @@ python scripts/generate_all_150_tasks.py --domain lab --num-demos 50
 python scripts/generate_all_150_tasks.py --domain long_horizon --num-demos 50
 python scripts/generate_all_150_tasks.py --domain chain_precision --num-demos 50
 python scripts/generate_all_150_tasks.py --domain chain_service --num-demos 50
+python scripts/generate_all_150_tasks.py --domain frontier --num-demos 50
 
-# Or generate all 210 tasks across all domains with 3D metric depth
+# Or generate all 240 tasks across all 8 domains with 3D metric depth
 python scripts/generate_all_150_tasks.py --domain all --num-demos 50 --depth
 
 # Export 50 pre-settled initial simulator states per task (for zero-variance benchmark evaluation)
@@ -193,7 +194,7 @@ python scripts/generate_ood_eval_suites.py --domain all --perturbation combined_
 
 ---
 
-## 8. Benchmark Taxonomy (7 Domains $\times$ 30 Tasks = 210 Tasks)
+## 8. Benchmark Taxonomy (8 Domains $\times$ 30 Tasks = 240 Tasks)
 
 | Domain | Task Numbers | Tasks | Dominant Physics & Affordances | Clearances |
 | :--- | :---: | :---: | :--- | :---: |
@@ -201,10 +202,13 @@ python scripts/generate_ood_eval_suites.py --domain all --perturbation combined_
 | **D2: Culinary Operations** | 031–060 | 30 | Spatula burger patty flipping, portafilter espresso docking, food placement | $\pm 5.0\text{--}12.0\,\text{mm}$ |
 | **D3: Domestic Tabletop** | 061–090 | 30 | Color block sorting, drawer slide actuation, caddy packing, cup stacking | $\pm 8.0\text{--}20.0\,\text{mm}$ |
 | **D4: Cleanroom Laboratory** | 091–120 | 30 | Micropipette tip pickup, centrifuge vial docking, reagent mixing, tube transfer | $\pm 1.5\text{--}4.0\,\text{mm}$ |
-| **D5: Long-Horizon Sequences**| 121–150 | 30 | Multi-stage assembly, sequential tool acquisition, unlatching, sub-assembly chaining | $\pm 3.0\text{--}10.0\,\text{mm}$ |
-| **D6: Precision Chaining** | 151–180 | 30 | Chained 2–3 step industrial operations: shaft-bearing-clamp, gasket-bolt-torque | $\pm 1.8\text{--}4.5\,\text{mm}$ |
-| **D7: Service Assembly** | 181–210 | 30 | Chained 2–3 step culinary service: patty-cheese-bun, mug-brew-serve, plate-fork | $\pm 4.0\text{--}10.0\,\text{mm}$ |
-| **Total Benchmark Scope** | **001–210** | **210** | **7 Domains $\times$ 30 Tasks = 210 Tasks (35 Evaluation Suites)** | $\pm 1.5\text{--}20.0\,\text{mm}$ |
+| **D5: Multi-Stage Sequences\*** | 121–150 | 30 | Multi-stage assembly, sequential tool acquisition, unlatching, sub-assembly milestones | $\pm 3.0\text{--}10.0\,\text{mm}$ |
+| **D6: Precision Chaining\*** | 151–180 | 30 | Chained 2–3 step industrial operations: shaft-bearing-clamp, gasket-bolt-torque milestones | $\pm 1.8\text{--}4.5\,\text{mm}$ |
+| **D7: Service Assembly\*** | 181–210 | 30 | Chained 2–3 step culinary service: patty-cheese-bun, mug-brew-serve, plate-fork milestones | $\pm 4.0\text{--}10.0\,\text{mm}$ |
+| **D8: Frontier Complex Manipulation** | 211–240 | 30 | Compliant non-prehensile pushing/rolling, bimanual tool insertion, twist-lock detents, dynamic interlocking | $\pm 1.0\text{--}6.0\,\text{mm}$ |
+| **Total Benchmark Scope** | **001–240** | **240** | **8 Domains $\times$ 30 Tasks = 240 Tasks (40 Evaluation Suites)** | $\pm 1.0\text{--}20.0\,\text{mm}$ |
+
+*\*Note on D5–D7: Evaluates precision placement and insertion milestones of multi-stage operations under contact physics without artificial magnetic snapping or kinematic welds (see `configs/prompts_augmented.yaml` for full linguistic tier and subtask breakdown).*
 
 ---
 

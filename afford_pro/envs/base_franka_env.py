@@ -90,6 +90,12 @@ def _load_model_with_portable_assets(xml_path: Path) -> mujoco.MjModel:
         if file_name in assets:
             continue
         local_file = xml_path.parent / file_name
+        if not local_file.exists():
+            for sub in ("robots/assets", "textures", "objects", "tables"):
+                cand = xml_path.parent / sub / file_name
+                if cand.exists():
+                    local_file = cand
+                    break
         if local_file.exists():
             assets[file_name] = local_file.read_bytes()
             continue

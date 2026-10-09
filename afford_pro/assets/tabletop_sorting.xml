@@ -1,5 +1,5 @@
 <mujoco model="panda">
-  <compiler angle="radian" meshdir="D:/Selim Sarowar/Cursor_Projects/cap-x/capx/envs/assets/franka_pick_place/assets" autolimits="true"/>
+  <compiler angle="radian" meshdir="robots/assets" autolimits="true"/>
 
   <option integrator="implicitfast">
     <!-- Native multi-point convex contacts: without them cylinders on (thin) boxes rest on too few points and topple. -->
@@ -134,7 +134,7 @@
     <material name="pen_nib_mat" rgba="0.02 0.02 0.02 1.0"/>
     <material name="board_frame_mat" rgba="0.95 0.95 0.95 1.0"/>
     <material name="easel_mat" rgba="0.45 0.28 0.18 1.0"/>
-    <texture type="2d" name="cartoon_tex" file="D:/Selim Sarowar/Cursor_Projects/franka_drawing_sim/cartoon_only.png"/>
+    <texture type="2d" name="cartoon_tex" file="textures/cartoon_only.png"/>
     <material name="cartoon_mat" texture="cartoon_tex" specular="0.05" roughness="0.7"/>
   </asset>
 

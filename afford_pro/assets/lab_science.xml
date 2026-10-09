@@ -1,5 +1,5 @@
 <mujoco model="panda_lab_science">
-  <compiler angle="radian" meshdir="D:/Selim Sarowar/Cursor_Projects/cap-x/capx/envs/assets/franka_pick_place/assets" autolimits="true"/>
+  <compiler angle="radian" meshdir="robots/assets" autolimits="true"/>
 
   <option integrator="implicitfast">
     <!-- Native multi-point convex contacts: without them cylinders on (thin) boxes rest on too few points and topple. -->
