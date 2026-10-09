@@ -26,12 +26,27 @@ from afford_pro.task_definitions import DOMAIN_8_FRONTIER_TASKS
 
 
 class _NoRenderer:
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, model=None, height: int = 64, width: int = 64, *args, **kwargs) -> None:
+        self.height = height
+        self.width = width
+
+    def update_scene(self, *args, **kwargs) -> None:
+        pass
+
+    def render(self) -> np.ndarray:
+        return np.zeros((self.height, self.width, 3), dtype=np.uint8)
+
+    def enable_depth_rendering(self) -> None:
+        pass
+
+    def disable_depth_rendering(self) -> None:
+        pass
+
+    def close(self) -> None:
         pass
 
 
 base_env.mujoco.Renderer = _NoRenderer
-base_env.BaseFrankaEnv.get_observation = lambda self: {"tcp_pose": self.tcp_pose}
 
 
 def test_frontier_tasks_registered():

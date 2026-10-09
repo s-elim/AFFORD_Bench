@@ -78,6 +78,7 @@ def make_env_args(task_id: str, **env_kwargs: Any) -> str:
         "env_name": task_id,
         "type": ROBOMIMIC_GYM_TYPE,
         "env_kwargs": {"factory": "afford_pro.make", **env_kwargs},
+        "env_version": "0.1.0",
     })
 
 
@@ -111,9 +112,15 @@ class RobomimicHDF5Writer:
 
         # Root attributes (Robomimic & LIBERO canonical attributes)
         self.data_grp.attrs["env_name"] = env_name
+        self.data_grp.attrs["env"] = env_name
         self.data_grp.attrs["task_id"] = task_id
         self.data_grp.attrs["instruction"] = instruction
-        self.data_grp.attrs["env_args"] = env_args if env_args is not None else make_env_args(task_id)
+        env_args_str = env_args if env_args is not None else make_env_args(task_id)
+        self.data_grp.attrs["env_args"] = env_args_str
+        self.data_grp.attrs["env_info"] = env_args_str
+        self.data_grp.attrs["tag"] = "libero-v1"
+        self.data_grp.attrs["repository_version"] = "0.1.0"
+        self.data_grp.attrs["macros_image_convention"] = "opencv"
         self.data_grp.attrs["problem_info"] = json.dumps({
             "domain_name": env_name,
             "problem_name": task_id,
@@ -148,8 +155,9 @@ class RobomimicHDF5Writer:
         """Write observations and establish all canonical robosuite and LIBERO keys."""
         # 1. Write base observations
         for k, arr in obs_dict.items():
-            chunks = (1, *arr.shape[1:]) if arr.ndim >= 3 else True
-            group.create_dataset(k, data=arr, compression="gzip", chunks=chunks)
+            if k not in group:
+                chunks = (1, *arr.shape[1:]) if arr.ndim >= 3 else True
+                group.create_dataset(k, data=arr, compression="gzip", chunks=chunks)
 
         # 2. Derive proprioception keys if tcp_pose is present
         if "tcp_pose" in group:

@@ -159,6 +159,32 @@ def get_task_entry(task_id: str) -> TaskEntry:
 
 def make(task_id: str, **kwargs) -> BaseFrankaEnv:
     """Instantiate an AFFORD-Bench environment by task ID."""
+    kwargs = dict(kwargs)
+    # Framework arguments to absorb/ignore (Robomimic, Robosuite, LIBERO, Gymnasium)
+    for ignored_key in (
+        "factory", "env_name", "lang", "ignore_done", "use_object_obs",
+        "use_camera_obs", "camera_names", "camera_height", "camera_width",
+        "camera_heights", "camera_widths", "reward_shaping", "control_freq",
+        "gripper_visualization", "bddl_file_name", "bddl_file", "problem_name",
+    ):
+        kwargs.pop(ignored_key, None)
+
+    # Translate depth flag
+    if kwargs.pop("use_depth_obs", False) or kwargs.pop("camera_depths", False):
+        kwargs["render_depth"] = True
+
+    # Translate render flags if render_mode not explicitly provided
+    if "render_mode" not in kwargs:
+        if kwargs.pop("render", False) or kwargs.pop("has_renderer", False):
+            kwargs["render_mode"] = "human"
+        elif kwargs.pop("render_offscreen", False) or kwargs.pop("has_offscreen_renderer", False):
+            kwargs["render_mode"] = "rgb_array"
+    else:
+        kwargs.pop("render", None)
+        kwargs.pop("has_renderer", None)
+        kwargs.pop("render_offscreen", None)
+        kwargs.pop("has_offscreen_renderer", None)
+
     return get_task_entry(task_id).env_factory(**kwargs)
 
 
@@ -196,11 +222,13 @@ try:
                 id=f"afford_pro/{_tid}-v0",
                 entry_point="afford_pro.registry:make",
                 kwargs={"task_id": _tid},
+                disable_env_checker=True,
             )
             _gymnasium.register(
                 id=_tid,
                 entry_point="afford_pro.registry:make",
                 kwargs={"task_id": _tid},
+                disable_env_checker=True,
             )
         except Exception:
             pass

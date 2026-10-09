@@ -66,14 +66,8 @@ def _placeholder_asset_bytes(path: Path) -> bytes | None:
     return None
 
 
-def _load_model_with_portable_assets(xml_path: Path) -> mujoco.MjModel:
-    try:
-        return mujoco.MjModel.from_xml_path(str(xml_path))
-    except ValueError as exc:
-        if "Error opening file" not in str(exc):
-            raise
-
-    root = ET.fromstring(xml_path.read_text(encoding="utf-8"))
+def _load_model_from_xml_string(xml_text: str, base_dir: Path) -> mujoco.MjModel:
+    root = ET.fromstring(xml_text)
     compiler = root.find("compiler")
     if compiler is not None:
         compiler.set("meshdir", ".")
@@ -89,10 +83,10 @@ def _load_model_with_portable_assets(xml_path: Path) -> mujoco.MjModel:
             changed = True
         if file_name in assets:
             continue
-        local_file = xml_path.parent / file_name
+        local_file = base_dir / file_name
         if not local_file.exists():
             for sub in ("robots/assets", "textures", "objects", "tables"):
-                cand = xml_path.parent / sub / file_name
+                cand = base_dir / sub / file_name
                 if cand.exists():
                     local_file = cand
                     break
@@ -112,15 +106,198 @@ def _load_model_with_portable_assets(xml_path: Path) -> mujoco.MjModel:
             raise
         assets[file_name] = placeholder
         changed = True
-    if not changed:
-        raise
-    xml_text = ET.tostring(root, encoding="unicode")
-    return mujoco.MjModel.from_xml_string(xml_text, assets=assets)
+    new_xml_text = ET.tostring(root, encoding="unicode")
+    return mujoco.MjModel.from_xml_string(new_xml_text, assets=assets)
+
+
+def _load_model_with_portable_assets(xml_path: Path) -> mujoco.MjModel:
+    try:
+        return mujoco.MjModel.from_xml_path(str(xml_path))
+    except ValueError as exc:
+        if "Error opening file" not in str(exc):
+            raise
+    return _load_model_from_xml_string(xml_path.read_text(encoding="utf-8"), xml_path.parent)
 
 
 def _rot_z(yaw: float) -> np.ndarray:
     c, s = np.cos(yaw), np.sin(yaw)
     return np.array([[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]])
+
+
+def _quat_wxyz_to_axisangle(q_wxyz: np.ndarray) -> np.ndarray:
+    """Convert w-first MuJoCo quaternions (..., 4) [qw, qx, qy, qz] to 3-D axis-angle vectors."""
+    q = np.asarray(q_wxyz, dtype=np.float64)
+    w = np.clip(q[..., 0], -1.0, 1.0)
+    v = q[..., 1:]
+    angle = 2.0 * np.arccos(w)
+    s = np.sqrt(np.maximum(1.0 - w * w, 0.0))
+    small = s < 1e-7
+    scale = np.zeros_like(angle)
+    scale[~small] = angle[~small] / s[~small]
+    return (v * scale[..., np.newaxis]).astype(np.float64)
+
+
+class MjSimState:
+    """Wrapper around state array to provide .flatten() and numpy array compatibility."""
+
+    def __init__(self, state: np.ndarray, time: float = 0.0) -> None:
+        self._state = np.asarray(state, dtype=np.float64)
+        self.time = time
+
+    def flatten(self) -> np.ndarray:
+        return self._state.copy()
+
+    def __array__(self, dtype=None) -> np.ndarray:
+        return np.asarray(self._state, dtype=dtype)
+
+    def __len__(self) -> int:
+        return len(self._state)
+
+    def __getitem__(self, idx: Any) -> Any:
+        return self._state[idx]
+
+
+class MjModelAdapter:
+    """Proxy around mujoco.MjModel that adds get_xml() and forwards all model attributes."""
+
+    def __init__(self, model: mujoco.MjModel, env: BaseFrankaEnv) -> None:
+        self._model = model
+        self._env = env
+
+    def get_xml(self) -> str:
+        return self._env.get_model_xml()
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._model, name)
+
+
+class MjSimAdapter:
+    """Shim object providing robosuite / robomimic / LIBERO MjSim interface."""
+
+    def __init__(self, env: BaseFrankaEnv) -> None:
+        self._env = env
+
+    @property
+    def model(self) -> MjModelAdapter:
+        return MjModelAdapter(self._env.model, self._env)
+
+    @property
+    def data(self) -> mujoco.MjData:
+        return self._env.data
+
+    def forward(self) -> None:
+        mujoco.mj_forward(self._env.model, self._env.data)
+
+    def reset(self) -> None:
+        mujoco.mj_resetData(self._env.model, self._env.data)
+        self._env._set_arm_state(self._env.ready_q)
+        mujoco.mj_forward(self._env.model, self._env.data)
+
+    def step(self) -> None:
+        mujoco.mj_step(self._env.model, self._env.data)
+
+    def get_state(self) -> MjSimState:
+        return MjSimState(self._env.get_sim_state(), time=float(self._env.data.time))
+
+    def set_state_from_flattened(self, state: np.ndarray) -> None:
+        self._env.set_sim_state(state)
+        mujoco.mj_forward(self._env.model, self._env.data)
+
+
+class RobotAdapter:
+    """Lightweight adapter mimicking a robosuite robot for robomimic / LIBERO compatibility."""
+
+    def __init__(self, env: Any):
+        self.env = env
+        self.action_dim = env.action_space.shape[0] if getattr(env, "action_space", None) and env.action_space.shape else 7
+        self.robot_model = type("RobotModel", (), {
+            "naming_prefix": "robot0_",
+            "base_xpos_offset": {"table": lambda: np.zeros(3), "kitchen_table": lambda: np.zeros(3), "empty": np.zeros(3)},
+            "set_base_xpos": lambda *args: None,
+        })()
+        self.controller = type("Controller", (), {
+            "eef_name": "grip_site",
+            "use_delta": True,
+        })()
+        self.action_limits = (np.full(self.action_dim, -1.0), np.full(self.action_dim, 1.0))
+
+
+class CompatStepResult(tuple):
+    """Step result tuple (obs, reward, terminated, truncated, info) supporting 4-unpack (old gym / robomimic)
+    and 5-unpack (gymnasium)."""
+
+    def __new__(cls, obs: dict[str, Any], reward: float, terminated: bool, truncated: bool, info: dict[str, Any]):
+        return super().__new__(cls, (obs, float(reward), bool(terminated), bool(truncated), info))
+
+    @property
+    def obs(self) -> dict[str, Any]:
+        return self[0]
+
+    @property
+    def reward(self) -> float:
+        return self[1]
+
+    @property
+    def terminated(self) -> bool:
+        return self[2]
+
+    @property
+    def truncated(self) -> bool:
+        return self[3]
+
+    @property
+    def done(self) -> bool:
+        return bool(self[2] or self[3])
+
+    @property
+    def info(self) -> dict[str, Any]:
+        return self[4]
+
+    def __iter__(self):
+        try:
+            import inspect, dis
+            frame = inspect.currentframe().f_back
+            for ins in dis.get_instructions(frame.f_code):
+                if ins.offset == frame.f_lasti:
+                    if ins.opname == "UNPACK_SEQUENCE" and ins.argval == 4:
+                        return iter((self[0], self[1], bool(self[2] or self[3]), self[4]))
+                    break
+        except Exception:
+            pass
+        return super().__iter__()
+
+
+class CompatResetResult(dict):
+    """Reset result dictionary (for old gym / robomimic / LIBERO) that also supports 2-unpacking
+    `obs, info = env.reset()` for Gymnasium compatibility."""
+
+    def __init__(self, obs: dict[str, Any], info: dict[str, Any] | None = None):
+        super().__init__(obs)
+        self.info = info if info is not None else {}
+
+    @property
+    def obs(self) -> dict[str, Any]:
+        return self
+
+    def __getitem__(self, key: Any) -> Any:
+        if key == 0 and 0 not in self:
+            return self
+        if key == 1 and 1 not in self:
+            return self.info
+        return super().__getitem__(key)
+
+    def __iter__(self):
+        try:
+            import inspect, dis
+            frame = inspect.currentframe().f_back
+            for ins in dis.get_instructions(frame.f_code):
+                if ins.offset == frame.f_lasti:
+                    if ins.opname == "UNPACK_SEQUENCE" and ins.argval == 2:
+                        return iter((self, self.info))
+                    break
+        except Exception:
+            pass
+        return super().__iter__()
 
 
 class BaseFrankaEnv(gym.Env):
@@ -151,12 +328,21 @@ class BaseFrankaEnv(gym.Env):
         max_episode_steps: int = 500,
         render_depth: bool = False,
         invert_gripper_action: bool = False,
+        **kwargs: Any,
     ):
         super().__init__()
         self.xml_path = Path(xml_path)
         if not self.xml_path.exists():
             raise FileNotFoundError(f"Model XML not found at: {self.xml_path}")
         self._model_xml_str = self.xml_path.read_text(encoding="utf-8")
+
+        # Framework flag translation (Robomimic / LIBERO / Gymnasium)
+        if kwargs.get("use_depth_obs") or kwargs.get("camera_depths"):
+            render_depth = True
+        if kwargs.get("render") or kwargs.get("has_renderer"):
+            render_mode = "human"
+        self.extra_kwargs = kwargs
+        self._sim_adapter: MjSimAdapter | None = None
 
         self.model = _load_model_with_portable_assets(self.xml_path)
         self.data = mujoco.MjData(self.model)
@@ -168,66 +354,26 @@ class BaseFrankaEnv(gym.Env):
         self.control_mode = control_mode
         self.action_scale = action_scale
         self.yaw_scale = yaw_scale
+        self.max_tcp_speed = max_tcp_speed
+        self.max_finger_speed = max_finger_speed
         self.n_substeps = n_substeps
         self.settle_substeps = settle_substeps
-        self.control_dt = n_substeps * self.model.opt.timestep
-        self.max_tcp_step = max_tcp_speed * self.control_dt
-        self.max_finger_substep = max_finger_speed * self.model.opt.timestep
         self.finger_cmd = GRIPPER_OPEN_WIDTH
         self.max_episode_steps = max_episode_steps
         self.render_depth = render_depth
         self.invert_gripper_action = invert_gripper_action
-
         self.current_step = 0
-        m = self.model
-        self.arm_joints = [f"joint{i}" for i in range(1, 8)]
-        arm_joint_ids = [mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, name) for name in self.arm_joints]
-        self.arm_qpos_adr = [int(m.jnt_qposadr[j]) for j in arm_joint_ids]
-        self.arm_dof_adr = [int(m.jnt_dofadr[j]) for j in arm_joint_ids]
-        self.arm_joint_range = np.array([m.jnt_range[j] for j in arm_joint_ids])
-        self.arm_actuator_ids = [
-            a for j in arm_joint_ids for a in range(m.nu)
-            if m.actuator_trntype[a] == mujoco.mjtTrn.mjTRN_JOINT and m.actuator_trnid[a, 0] == j
-        ]
-        self.gripper_actuator_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_ACTUATOR, "actuator8")
-        # Servo velocity-feedforward gain kv/kp: the affine servo damps absolute joint velocity, so a
-        # moving target is offset by (kv/kp) * qdot to cancel the steady-state lag.
-        self.arm_servo_lead = np.array([m.actuator_biasprm[a, 2] / m.actuator_biasprm[a, 1] for a in self.arm_actuator_ids])
 
-        finger_ids = [mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, n) for n in ("finger_joint1", "finger_joint2")]
-        self.finger_qpos_adr = [int(m.jnt_qposadr[j]) for j in finger_ids]
-        self.finger_dof_adr = [int(m.jnt_dofadr[j]) for j in finger_ids]
-        self.finger_body_ids = {
-            mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, "left_finger"),
-            mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, "right_finger"),
-        }
-        self.hand_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, "hand")
-        self.robot_root_id = int(m.body_rootid[self.hand_id])
-        self.robot_body_ids = {b for b in range(m.nbody) if m.body_rootid[b] == self.robot_root_id}
-        # The scenes declare gravcomp="1" on the robot bodies (gravity compensation, as on the real
-        # Franka controller); it must be set in the XML because MuJoCo skips it when absent at compile time.
-        assert all(m.body_gravcomp[b] == 1.0 for b in self.robot_body_ids if b != self.robot_root_id or m.body_mass[b] > 0)
-
-        # Free-floating bodies: qpos address -> dof address, and body id -> qpos address.
-        self.free_qpos_to_dof: dict[int, int] = {}
-        self.free_body_qposadr: dict[int, int] = {}
-        for j in range(m.njnt):
-            if m.jnt_type[j] == mujoco.mjtJoint.mjJNT_FREE:
-                self.free_qpos_to_dof[int(m.jnt_qposadr[j])] = int(m.jnt_dofadr[j])
-                self.free_body_qposadr[int(m.jnt_bodyid[j])] = int(m.jnt_qposadr[j])
-        # Bodies an env pins in place every substep; reset de-penetration leaves them alone.
-        self.static_body_ids: set[int] = set()
+        self._cache_model_constants()
 
         # Camera renderers
-        self.cam_agentic_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_CAMERA, "agentic_cam")
-        self.cam_wrist_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_CAMERA, "wrist_cam")
-        self.renderer_agentic = mujoco.Renderer(m, height=agentic_cam_size[0], width=agentic_cam_size[1])
-        self.renderer_wrist = mujoco.Renderer(m, height=wrist_cam_size[0], width=wrist_cam_size[1])
+        self.renderer_agentic = mujoco.Renderer(self.model, height=agentic_cam_size[0], width=agentic_cam_size[1])
+        self.renderer_wrist = mujoco.Renderer(self.model, height=wrist_cam_size[0], width=wrist_cam_size[1])
 
         # Nominal ready joint configuration and the hand orientation it defines (pointing down).
         self.ready_q = np.array([0.0, -0.6, 0.0, -2.2, 0.0, 1.6, 0.785], dtype=np.float64)
         self._set_arm_state(self.ready_q)
-        mujoco.mj_forward(m, self.data)
+        mujoco.mj_forward(self.model, self.data)
         r_ready = self.data.xmat[self.hand_id].reshape(3, 3).copy()
         self._r_down = _rot_z(-self._yaw_of(r_ready)) @ r_ready
         # Optional initial TCP position (m); None starts at the ready pose.
@@ -245,13 +391,73 @@ class BaseFrankaEnv(gym.Env):
             "joint_positions": spaces.Box(low=-np.pi, high=np.pi, shape=(7,), dtype=np.float64),
             "joint_velocities": spaces.Box(low=-10.0, high=10.0, shape=(7,), dtype=np.float64),
             "tcp_pose": spaces.Box(low=-5.0, high=5.0, shape=(7,), dtype=np.float64),
-            "gripper_width": spaces.Box(low=0.0, high=0.05, shape=(1,), dtype=np.float64),
+            "gripper_width": spaces.Box(low=0.0, high=0.1, shape=(1,), dtype=np.float64),
+            # Robomimic & LIBERO aliases
+            "agentview_image": spaces.Box(low=0, high=255, shape=(*agentic_cam_size, 3), dtype=np.uint8),
+            "agentview_rgb": spaces.Box(low=0, high=255, shape=(*agentic_cam_size, 3), dtype=np.uint8),
+            "robot0_eye_in_hand_image": spaces.Box(low=0, high=255, shape=(*wrist_cam_size, 3), dtype=np.uint8),
+            "eye_in_hand_rgb": spaces.Box(low=0, high=255, shape=(*wrist_cam_size, 3), dtype=np.uint8),
+            "joint_states": spaces.Box(low=-np.pi, high=np.pi, shape=(7,), dtype=np.float64),
+            "robot0_joint_pos": spaces.Box(low=-np.pi, high=np.pi, shape=(7,), dtype=np.float64),
+            "robot0_joint_vel": spaces.Box(low=-10.0, high=10.0, shape=(7,), dtype=np.float64),
+            "robot0_eef_pos": spaces.Box(low=-5.0, high=5.0, shape=(3,), dtype=np.float64),
+            "ee_pos": spaces.Box(low=-5.0, high=5.0, shape=(3,), dtype=np.float64),
+            "gripper_states": spaces.Box(low=0.0, high=0.1, shape=(2,), dtype=np.float64),
+            "robot0_gripper_qpos": spaces.Box(low=0.0, high=0.1, shape=(2,), dtype=np.float64),
+            "robot0_eef_quat": spaces.Box(low=-1.01, high=1.01, shape=(4,), dtype=np.float64),
+            "ee_quat": spaces.Box(low=-1.01, high=1.01, shape=(4,), dtype=np.float64),
+            "ee_ori": spaces.Box(low=-4.0, high=4.0, shape=(3,), dtype=np.float64),
+            "ee_states": spaces.Box(low=-10.0, high=10.0, shape=(6,), dtype=np.float64),
         }
         if self.render_depth:
             obs_dict["agentic_depth"] = spaces.Box(low=0.0, high=10.0, shape=agentic_cam_size, dtype=np.float32)
+            obs_dict["wrist_depth"] = spaces.Box(low=0.0, high=10.0, shape=wrist_cam_size, dtype=np.float32)
+            obs_dict["agentview_depth"] = spaces.Box(low=0.0, high=10.0, shape=agentic_cam_size, dtype=np.float32)
+            obs_dict["eye_in_hand_depth"] = spaces.Box(low=0.0, high=10.0, shape=wrist_cam_size, dtype=np.float32)
         self.observation_space = spaces.Dict(obs_dict)
         self._setup_task()
         self.reset()
+
+    def _cache_model_constants(self) -> None:
+        """Cache joint, actuator, body, and camera indexing constants for the active model."""
+        m = self.model
+        self.control_dt = self.n_substeps * m.opt.timestep
+        self.max_tcp_step = self.max_tcp_speed * self.control_dt
+        self.max_finger_substep = self.max_finger_speed * m.opt.timestep
+
+        self.arm_joints = [f"joint{i}" for i in range(1, 8)]
+        arm_joint_ids = [mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, name) for name in self.arm_joints]
+        self.arm_qpos_adr = [int(m.jnt_qposadr[j]) for j in arm_joint_ids]
+        self.arm_dof_adr = [int(m.jnt_dofadr[j]) for j in arm_joint_ids]
+        self.arm_joint_range = np.array([m.jnt_range[j] for j in arm_joint_ids])
+        self.arm_actuator_ids = [
+            a for j in arm_joint_ids for a in range(m.nu)
+            if m.actuator_trntype[a] == mujoco.mjtTrn.mjTRN_JOINT and m.actuator_trnid[a, 0] == j
+        ]
+        self.gripper_actuator_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_ACTUATOR, "actuator8")
+        self.arm_servo_lead = np.array([m.actuator_biasprm[a, 2] / m.actuator_biasprm[a, 1] for a in self.arm_actuator_ids])
+
+        finger_ids = [mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, n) for n in ("finger_joint1", "finger_joint2")]
+        self.finger_qpos_adr = [int(m.jnt_qposadr[j]) for j in finger_ids]
+        self.finger_dof_adr = [int(m.jnt_dofadr[j]) for j in finger_ids]
+        self.finger_body_ids = {
+            mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, "left_finger"),
+            mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, "right_finger"),
+        }
+        self.hand_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, "hand")
+        self.robot_root_id = int(m.body_rootid[self.hand_id])
+        self.robot_body_ids = {b for b in range(m.nbody) if m.body_rootid[b] == self.robot_root_id}
+
+        self.free_qpos_to_dof: dict[int, int] = {}
+        self.free_body_qposadr: dict[int, int] = {}
+        for j in range(m.njnt):
+            if m.jnt_type[j] == mujoco.mjtJoint.mjJNT_FREE:
+                self.free_qpos_to_dof[int(m.jnt_qposadr[j])] = int(m.jnt_dofadr[j])
+                self.free_body_qposadr[int(m.jnt_bodyid[j])] = int(m.jnt_qposadr[j])
+        self.static_body_ids: set[int] = set()
+
+        self.cam_agentic_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_CAMERA, "agentic_cam")
+        self.cam_wrist_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_CAMERA, "wrist_cam")
 
     def _setup_task(self) -> None:
         """Hook for subclasses to initialize task-specific IDs and nominal poses before reset."""
@@ -392,12 +598,36 @@ class BaseFrankaEnv(gym.Env):
         return np.append(state, self.finger_cmd)
 
     def set_sim_state(self, state: np.ndarray) -> None:
-        """Inverse of `get_sim_state`."""
+        """Inverse of `get_sim_state`, with support for raw MuJoCo state arrays."""
         state = np.asarray(state, dtype=np.float64)
-        assert state.shape == (mujoco.mj_stateSize(self.model, SIM_STATE_SPEC) + 1,), state.shape
-        mujoco.mj_setState(self.model, self.data, state[:-1], SIM_STATE_SPEC)
-        self.finger_cmd = float(state[-1])
+        full_sz = mujoco.mj_stateSize(self.model, SIM_STATE_SPEC)
+        if len(state) == full_sz + 1:
+            mujoco.mj_setState(self.model, self.data, state[:-1], SIM_STATE_SPEC)
+            self.finger_cmd = float(state[-1])
+        elif len(state) == full_sz:
+            mujoco.mj_setState(self.model, self.data, state, SIM_STATE_SPEC)
+            self.finger_cmd = self.gripper_width
+        elif len(state) == self.model.nq + self.model.nv:
+            self.data.qpos[:] = state[: self.model.nq]
+            self.data.qvel[:] = state[self.model.nq :]
+            self.finger_cmd = self.gripper_width
+        elif len(state) == self.model.nq:
+            self.data.qpos[:] = state
+            self.data.qvel[:] = 0.0
+            self.finger_cmd = self.gripper_width
+        else:
+            raise ValueError(
+                f"State vector length {len(state)} does not match full state ({full_sz + 1}), "
+                f"spec state ({full_sz}), or qpos+qvel ({self.model.nq + self.model.nv})"
+            )
         mujoco.mj_forward(self.model, self.data)
+
+    @property
+    def sim(self) -> MjSimAdapter:
+        """Shim providing robosuite / robomimic / LIBERO MjSim interface."""
+        if not hasattr(self, "_sim_adapter") or self._sim_adapter is None:
+            self._sim_adapter = MjSimAdapter(self)
+        return self._sim_adapter
 
     def get_model_xml(self) -> str:
         """Return the XML string of the MuJoCo scene model."""
@@ -464,6 +694,27 @@ class BaseFrankaEnv(gym.Env):
             "gripper_width": np.array([self.gripper_width], dtype=np.float64),
         }
 
+        # Standard Robomimic & LIBERO aliases:
+        obs["agentview_image"] = agentic_rgb
+        obs["agentview_rgb"] = agentic_rgb
+        obs["robot0_eye_in_hand_image"] = wrist_rgb
+        obs["eye_in_hand_rgb"] = wrist_rgb
+        obs["joint_states"] = self.joint_positions
+        obs["robot0_joint_pos"] = self.joint_positions
+        obs["robot0_joint_vel"] = self.joint_velocities
+        obs["robot0_eef_pos"] = self.tcp_position
+        obs["ee_pos"] = self.tcp_position
+        obs["gripper_states"] = np.array([self.gripper_width, self.gripper_width], dtype=np.float64)
+        obs["robot0_gripper_qpos"] = np.array([self.gripper_width, self.gripper_width], dtype=np.float64)
+
+        quat_wxyz = self.tcp_pose[3:]
+        quat_xyzw = np.array([quat_wxyz[1], quat_wxyz[2], quat_wxyz[3], quat_wxyz[0]], dtype=np.float64)
+        obs["robot0_eef_quat"] = quat_xyzw
+        obs["ee_quat"] = quat_xyzw
+        axis_angle = _quat_wxyz_to_axisangle(quat_wxyz)
+        obs["ee_ori"] = axis_angle
+        obs["ee_states"] = np.concatenate([self.tcp_position, axis_angle])
+
         if self.render_depth:
             self.renderer_agentic.enable_depth_rendering()
             self.renderer_agentic.update_scene(self.data, camera=self.cam_agentic_id)
@@ -474,6 +725,9 @@ class BaseFrankaEnv(gym.Env):
             self.renderer_wrist.update_scene(self.data, camera=self.cam_wrist_id)
             obs["wrist_depth"] = self.renderer_wrist.render().copy()
             self.renderer_wrist.disable_depth_rendering()
+
+            obs["agentview_depth"] = obs["agentic_depth"]
+            obs["eye_in_hand_depth"] = obs["wrist_depth"]
 
         return obs
 
@@ -525,7 +779,7 @@ class BaseFrankaEnv(gym.Env):
         info = {"success": terminated, "step": self.current_step,
                 "robot_scene_force": self.robot_scene_force({getattr(self, "target_id", -1)})}
 
-        return obs, reward, terminated, truncated, info
+        return CompatStepResult(obs, reward, terminated, truncated, info)
 
     def _after_step(self) -> None:
         """Hook for per-step bookkeeping after physics integration."""
@@ -552,7 +806,116 @@ class BaseFrankaEnv(gym.Env):
         self.reset_objects(options=options)
 
         obs = self.get_observation()
-        return obs, {}
+        return CompatResetResult(obs, {})
+
+    def set_init_state(self, init_state: np.ndarray) -> dict[str, Any]:
+        """Restore simulator state from fixed initial state array and return fresh observations."""
+        s = np.asarray(init_state, dtype=np.float64)
+        if s.ndim == 2 and s.shape[0] == 1:
+            s = s[0]
+        self.set_sim_state(s)
+        return self.get_observation()
+
+    def regenerate_obs_from_state(self, state: np.ndarray) -> dict[str, Any]:
+        """Restore simulator state and return fresh observations (LIBERO metric.py API)."""
+        return self.set_init_state(state)
+
+    def reset_from_xml_string(self, xml_string: str) -> None:
+        """Reload MuJoCo model from an XML string (Robomimic / LIBERO replay API)."""
+        self._model_xml_str = xml_string
+        try:
+            new_model = _load_model_from_xml_string(xml_string, self.xml_path.parent)
+        except Exception:
+            new_model = mujoco.MjModel.from_xml_string(xml_string)
+        self.model = new_model
+        self.data = mujoco.MjData(self.model)
+        self._ik_data = mujoco.MjData(self.model)
+        self._cache_model_constants()
+        if hasattr(self, "renderer_agentic") and self.renderer_agentic is not None:
+            try:
+                self.renderer_agentic.close()
+            except Exception:
+                pass
+        if hasattr(self, "renderer_wrist") and self.renderer_wrist is not None:
+            try:
+                self.renderer_wrist.close()
+            except Exception:
+                pass
+        self.renderer_agentic = mujoco.Renderer(self.model, height=self.agentic_cam_size[0], width=self.agentic_cam_size[1])
+        self.renderer_wrist = mujoco.Renderer(self.model, height=self.wrist_cam_size[0], width=self.wrist_cam_size[1])
+        self._setup_task()
+        if hasattr(self, "_calibrate_goal") and getattr(self, "target_qposadr", None) is not None:
+            self._calibrate_goal()
+        self.reset()
+
+    def _get_obs(self) -> dict[str, Any]:
+        """Gym / Robomimic alias for get_observation()."""
+        return self.get_observation()
+
+    def _get_observations(self) -> dict[str, Any]:
+        """Robosuite / LIBERO alias for get_observation()."""
+        return self.get_observation()
+
+    def _check_success(self) -> bool:
+        """Robosuite / LIBERO alias for check_success()."""
+        return self.check_success()
+
+    def is_success(self) -> dict[str, bool]:
+        """Robomimic style success check dictionary."""
+        return {"task": bool(self.check_success())}
+
+    def _post_process(self) -> None:
+        """LIBERO / robosuite post-process hook (no-op)."""
+        pass
+
+    def _update_observables(self, force: bool = False) -> None:
+        """LIBERO / robosuite observables update hook (no-op)."""
+        pass
+
+    @property
+    def robots(self) -> list[Any]:
+        """LIBERO / robosuite robot list property."""
+        if not hasattr(self, "_robot_adapters") or self._robot_adapters is None:
+            self._robot_adapters = [RobotAdapter(self)]
+        return self._robot_adapters
+
+    @property
+    def obj_of_interest(self) -> list[str]:
+        """LIBERO obj_of_interest property."""
+        target = getattr(self, "target_name", None)
+        return [str(target)] if target is not None else []
+
+    def set_state(self, mujoco_state: np.ndarray) -> None:
+        """Alias for set_sim_state to match LIBERO / Robosuite API."""
+        self.set_sim_state(mujoco_state)
+
+    @property
+    def version(self) -> str:
+        """Robomimic env version property."""
+        import afford_pro
+        return getattr(afford_pro, "__version__", "0.1.0")
+
+    @property
+    def _visualizations(self) -> dict:
+        """LIBERO / robosuite visualizations property."""
+        return {}
+
+    @property
+    def action_dimension(self) -> int:
+        """Robomimic action dimension property."""
+        return 7
+
+    @property
+    def action_spec(self) -> tuple[np.ndarray, np.ndarray]:
+        """Robosuite action spec property (low, high)."""
+        return (self.action_space.low, self.action_space.high)
+
+    def seed(self, seed: int | None = None) -> list[int]:
+        """Legacy gym seed() method."""
+        if seed is not None:
+            self.reset(seed=seed)
+            return [seed]
+        return []
 
     def _depenetrate(self, max_iter: int = 30, slack: float = 0.001) -> None:
         """Raise free bodies until no contact penetrates by more than `slack` (m)."""
