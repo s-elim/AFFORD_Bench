@@ -99,10 +99,10 @@ def main():
         "--domain",
         type=str,
         default="all",
-        choices=["all", "industrial", "kitchen", "tabletop", "lab", "long_horizon", "chain_precision", "chain_service"],
+        choices=["all", "industrial", "kitchen", "tabletop", "lab", "long_horizon", "chain_precision", "chain_service", "frontier"],
     )
-    parser.add_argument("--start-task", type=int, default=1, help="First task number (1-210)")
-    parser.add_argument("--end-task", type=int, default=210, help="Last task number (1-210)")
+    parser.add_argument("--start-task", type=int, default=1, help="First task number (1-240)")
+    parser.add_argument("--end-task", type=int, default=240, help="Last task number (1-240)")
     parser.add_argument("--perturbation", type=str, default="nominal", choices=["nominal", "p1_object", "p2_spatial", "p3_visual", "combined_ood"])
     parser.add_argument("--output-dir", type=str, default="datasets")
     parser.add_argument("--seed", type=int, default=42)
@@ -110,7 +110,7 @@ def main():
                         help="Also record float32 metric depth for both cameras and their camera parameters (much larger files)")
     args = parser.parse_args()
 
-    all_task_ids = afford_pro.list_tasks()
+    all_task_ids = afford_pro.list_all_tasks(include_frontier=True)
     selected_tasks = []
 
     domain_match = {
@@ -121,6 +121,7 @@ def main():
         "long_horizon": "Long-Horizon",
         "chain_precision": "Precision Chaining",
         "chain_service": "Service & Culinary",
+        "frontier": "Frontier Complex",
     }
 
     for tid in all_task_ids:
@@ -134,7 +135,7 @@ def main():
     out_path = ROOT / args.output_dir
 
     print("\n" + "=" * 80)
-    print(f" AFFORD-Bench: MASSIVE MULTI-TASK DEMONSTRATION GENERATOR (210 TASKS)")
+    print(f" AFFORD-Bench: MASSIVE MULTI-TASK DEMONSTRATION GENERATOR (240 TASKS)")
     print(f" Target Tasks      : {len(selected_tasks)} tasks (Task #{args.start_task} to #{args.end_task})")
     print(f" Demos Per Task    : {args.num_demos}")
     print(f" Total Target Demos: {len(selected_tasks) * args.num_demos:,} demonstrations")

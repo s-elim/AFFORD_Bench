@@ -151,7 +151,7 @@ def main():
         "--domain",
         type=str,
         default="industrial",
-        choices=["all", "industrial", "kitchen", "tabletop", "lab", "long_horizon", "chain_precision", "chain_service"],
+        choices=["all", "industrial", "kitchen", "tabletop", "lab", "long_horizon", "chain_precision", "chain_service", "frontier"],
     )
     parser.add_argument("--task", type=str, default=None, help="Evaluate specifically on a single task ID")
     parser.add_argument(
@@ -180,7 +180,7 @@ def main():
         print(f"Loaded checkpoint '{ckpt_p.name}' ({policy_name}).", flush=True)
 
     # Resolve tasks
-    all_tasks = afford_pro.list_tasks()
+    all_tasks = afford_pro.list_all_tasks(include_frontier=True)
     selected_tasks = []
     if args.task:
         selected_tasks = [args.task]
@@ -195,6 +195,7 @@ def main():
             "long_horizon": "Long-Horizon",
             "chain_precision": "Precision Chaining",
             "chain_service": "Service & Culinary",
+            "frontier": "Frontier Complex",
         }
         target_dom = domain_match[args.domain]
         selected_tasks = [t for t in all_tasks if target_dom in afford_pro.get_task_entry(t).domain]

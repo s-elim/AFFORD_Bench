@@ -65,7 +65,7 @@ def export_task_initial_states(
 def main():
     parser = argparse.ArgumentParser(description="Export fixed initial simulator states for AFFORD-Bench tasks.")
     parser.add_argument("--domain", type=str, default="all",
-                        choices=["all", "industrial", "kitchen", "tabletop", "lab", "long_horizon", "chain_precision", "chain_service"])
+                        choices=["all", "industrial", "kitchen", "tabletop", "lab", "long_horizon", "chain_precision", "chain_service", "frontier"])
     parser.add_argument("--task", type=str, default=None, help="Export for a single task ID")
     parser.add_argument("--num-states", type=int, default=50, help="Number of fixed initial states per task")
     parser.add_argument("--output-dir", type=str, default="data/init_states")
@@ -73,7 +73,7 @@ def main():
     args = parser.parse_args()
 
     out_dir = ROOT / args.output_dir
-    all_tasks = afford_pro.list_tasks()
+    all_tasks = afford_pro.list_all_tasks(include_frontier=True)
 
     if args.task:
         selected_tasks = [args.task]
@@ -88,6 +88,7 @@ def main():
             "long_horizon": "Long-Horizon",
             "chain_precision": "Precision Chaining",
             "chain_service": "Service & Culinary",
+            "frontier": "Frontier Complex",
         }
         target_dom = domain_match[args.domain]
         selected_tasks = [t for t in all_tasks if target_dom in afford_pro.get_task_entry(t).domain]

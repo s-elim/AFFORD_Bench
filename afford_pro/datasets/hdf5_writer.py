@@ -1,9 +1,36 @@
-"""Robomimic-format HDF5 dataset writer.
+"""Robomimic and LIBERO compatible HDF5 dataset writer.
 
-Layout: data/demo_i/{actions, obs/<key>, rewards, dones, states}, attrs on `data` (env_args, env_name, task_id,
-instruction, total), num_samples and seed on each demo, and mask/{train, valid}. `env_args` is the JSON environment
-metadata that robomimic reads at startup ({"env_name", "type", "env_kwargs"}); `states` holds the simulator state
-before each action (BaseFrankaEnv.get_sim_state), so demos can be re-rendered after reset(seed).
+Layout:
+  data/
+    attrs:
+      env_args: JSON environment metadata ({"env_name", "type", "env_kwargs"}) read by robomimic.
+      problem_info: JSON problem description ({"domain_name", "problem_name", "language_instruction"}) read by LIBERO.
+      env_name, task_id, instruction, total, num_demos, model_file, language_instructions, prompt_variants.
+    demo_i/
+      actions: (T, 7) float32
+      rewards: (T,) float32
+      dones: (T,) uint8
+      states: (T, S) float64 full physics simulator state before actions[t]
+      obs/
+        # Canonical AFFORD-Bench keys:
+        agentic_rgb, wrist_rgb, joint_positions, joint_velocities, tcp_pose (7-D), gripper_width (1-D)
+        # Canonical Robomimic / robosuite keys (aliased/derived):
+        agentview_rgb, eye_in_hand_rgb, agentview_image, robot0_eye_in_hand_image,
+        robot0_joint_pos, robot0_joint_vel, robot0_eef_pos (3-D), robot0_eef_quat (4-D, scalar-last),
+        robot0_gripper_qpos (2-D)
+        # Canonical LIBERO keys:
+        joint_states (7-D), gripper_states (2-D), ee_pos (3-D), ee_ori (3-D axis-angle), ee_states (6-D)
+      next_obs/
+        All corresponding next-step observations for offline RL (BCQ, CQL, TD3-BC) and robomimic SequenceDataset.
+      attrs:
+        num_samples: T
+        seed: reset seed used for the demonstration
+        model_file: MuJoCo model XML string (used by robomimic playback_dataset and LIBERO reset_from_xml_string)
+        init_state: initial simulator state vector states[0] (used by LIBERO/robosuite state replay)
+        language_instruction: task language instruction
+  mask/
+    train: demo keys for training split
+    valid: demo keys for validation split
 """
 from __future__ import annotations
 
@@ -13,31 +40,49 @@ from typing import Any
 import h5py
 import numpy as np
 
-
 from afford_pro.task_definitions import get_augmented_prompts
 
 ROBOMIMIC_GYM_TYPE = 2  # robomimic EnvType.GYM_TYPE (robomimic 0.2.0, envs/env_base.py)
 
-# Standard aliases between AFFORD-Bench keys and canonical Robomimic / LIBERO loader keys
+# Direct 1-to-1 key aliases
 ROBOMIMIC_OBS_ALIASES = {
     "agentic_rgb": "agentview_rgb",
+    "agentview_rgb": "agentview_image",
     "wrist_rgb": "eye_in_hand_rgb",
-    "tcp_pose": "ee_states",
+    "eye_in_hand_rgb": "robot0_eye_in_hand_image",
     "joint_positions": "joint_states",
+    "joint_states": "robot0_joint_pos",
+    "joint_velocities": "robot0_joint_vel",
     "agentic_depth": "agentview_depth",
     "wrist_depth": "eye_in_hand_depth",
 }
 
 
+def _quat_wxyz_to_axisangle(q_wxyz: np.ndarray) -> np.ndarray:
+    """Convert w-first MuJoCo quaternions (..., 4) [qw, qx, qy, qz] to 3-D axis-angle vectors."""
+    q = np.asarray(q_wxyz, dtype=np.float64)
+    w = np.clip(q[..., 0], -1.0, 1.0)
+    v = q[..., 1:]
+    angle = 2.0 * np.arccos(w)
+    s = np.sqrt(np.maximum(1.0 - w * w, 0.0))
+    small = s < 1e-7
+    scale = np.zeros_like(angle)
+    scale[~small] = angle[~small] / s[~small]
+    return (v * scale[..., np.newaxis]).astype(np.float32)
+
+
 def make_env_args(task_id: str, **env_kwargs: Any) -> str:
     """robomimic environment metadata for an AFFORD-Bench task: `afford_pro.make(env_name, **env_kwargs)` rebuilds
     the environment (robomimic itself cannot construct it; the entry lets its loaders read the dataset)."""
-    return json.dumps({"env_name": task_id, "type": ROBOMIMIC_GYM_TYPE,
-                       "env_kwargs": {"factory": "afford_pro.make", **env_kwargs}})
+    return json.dumps({
+        "env_name": task_id,
+        "type": ROBOMIMIC_GYM_TYPE,
+        "env_kwargs": {"factory": "afford_pro.make", **env_kwargs},
+    })
 
 
 class RobomimicHDF5Writer:
-    """Creates robomimic-format HDF5 demonstration datasets."""
+    """Creates robomimic- and LIBERO-compatible HDF5 demonstration datasets."""
 
     def __init__(
         self,
@@ -55,6 +100,7 @@ class RobomimicHDF5Writer:
         self.env_name = env_name
         self.task_id = task_id
         self.instruction = instruction
+        self.model_file = str(model_file) if model_file is not None else None
         self.demo_count = 0
         self.total_samples = 0
 
@@ -63,13 +109,18 @@ class RobomimicHDF5Writer:
         self.data_grp = self.h5_file.create_group("data")
         self.mask_grp = self.h5_file.create_group("mask")
 
-        # Root attributes
+        # Root attributes (Robomimic & LIBERO canonical attributes)
         self.data_grp.attrs["env_name"] = env_name
         self.data_grp.attrs["task_id"] = task_id
         self.data_grp.attrs["instruction"] = instruction
         self.data_grp.attrs["env_args"] = env_args if env_args is not None else make_env_args(task_id)
-        if model_file is not None:
-            self.data_grp.attrs["model_file"] = str(model_file)
+        self.data_grp.attrs["problem_info"] = json.dumps({
+            "domain_name": env_name,
+            "problem_name": task_id,
+            "language_instruction": instruction,
+        })
+        if self.model_file is not None:
+            self.data_grp.attrs["model_file"] = self.model_file
 
         # Multi-tier language prompt variants (for LIBERO-PRO/X paraphrase evaluation)
         if prompt_variants is None or language_instructions is None:
@@ -93,6 +144,56 @@ class RobomimicHDF5Writer:
         if prompt_variants:
             self.data_grp.attrs["prompt_variants"] = json.dumps(prompt_variants)
 
+    def _populate_obs_group(self, group: h5py.Group, obs_dict: dict[str, np.ndarray]) -> None:
+        """Write observations and establish all canonical robosuite and LIBERO keys."""
+        # 1. Write base observations
+        for k, arr in obs_dict.items():
+            chunks = (1, *arr.shape[1:]) if arr.ndim >= 3 else True
+            group.create_dataset(k, data=arr, compression="gzip", chunks=chunks)
+
+        # 2. Derive proprioception keys if tcp_pose is present
+        if "tcp_pose" in group:
+            tcp_arr = group["tcp_pose"][()]  # (T, 7) [x, y, z, qw, qx, qy, qz]
+            ee_pos = tcp_arr[:, :3].astype(np.float32)
+            # MuJoCo w-first to 3D axis-angle
+            ee_ori = _quat_wxyz_to_axisangle(tcp_arr[:, 3:7])
+            # LIBERO standard 6-D [ee_pos, ee_ori]
+            ee_states = np.concatenate([ee_pos, ee_ori], axis=-1)
+            # robosuite scalar-last quaternion [qx, qy, qz, qw]
+            robot0_eef_quat = np.concatenate([tcp_arr[:, 4:7], tcp_arr[:, 3:4]], axis=-1).astype(np.float32)
+
+            for k, v in [
+                ("ee_pos", ee_pos),
+                ("robot0_eef_pos", ee_pos),
+                ("ee_ori", ee_ori),
+                ("ee_states", ee_states),
+                ("robot0_eef_quat", robot0_eef_quat),
+            ]:
+                if k not in group:
+                    group.create_dataset(k, data=v, compression="gzip")
+
+        # 3. Derive gripper keys if gripper_width is present
+        if "gripper_width" in group:
+            gw = group["gripper_width"][()]
+            T = len(gw)
+            if gw.ndim == 1:
+                gw_flat = gw.reshape(T, 1).astype(np.float32)
+                gripper_2d = np.repeat(gw_flat, 2, axis=-1)
+            elif gw.ndim == 2 and gw.shape[1] == 1:
+                gripper_2d = np.repeat(gw.astype(np.float32), 2, axis=-1)
+            else:
+                gripper_2d = gw.astype(np.float32)
+            for k, v in [("gripper_states", gripper_2d), ("robot0_gripper_qpos", gripper_2d)]:
+                if k not in group:
+                    group.create_dataset(k, data=v, compression="gzip")
+
+        # 4. Create standard aliases via hard links
+        for src_key, alias_key in ROBOMIMIC_OBS_ALIASES.items():
+            if src_key in group and alias_key not in group:
+                group[alias_key] = group[src_key]
+            elif alias_key in group and src_key not in group:
+                group[src_key] = group[alias_key]
+
     def add_demonstration(
         self,
         actions: list[np.ndarray] | np.ndarray,
@@ -102,6 +203,7 @@ class RobomimicHDF5Writer:
         states: np.ndarray | None = None,
         seed: int | None = None,
         language_instruction: str | None = None,
+        next_observations: dict[str, list[np.ndarray] | np.ndarray] | None = None,
     ) -> str:
         """Add a complete recorded episode to the dataset."""
         demo_key = f"demo_{self.demo_count}"
@@ -111,20 +213,26 @@ class RobomimicHDF5Writer:
         T = len(act_arr)
         ep_grp.create_dataset("actions", data=act_arr, compression="gzip")
 
-        # Observations
+        # Process observations
+        obs_arrays = {k: np.asarray(v) for k, v in observations.items()}
         obs_grp = ep_grp.create_group("obs")
-        for k, v in observations.items():
-            arr = np.asarray(v)
-            # Use chunks for large image arrays
-            chunks = (1, *arr.shape[1:]) if arr.ndim >= 3 else True
-            obs_grp.create_dataset(k, data=arr, compression="gzip", chunks=chunks)
+        self._populate_obs_group(obs_grp, obs_arrays)
 
-        # Robomimic / LIBERO observation key aliases (hard links to avoid duplicate storage)
-        for src_key, alias_key in ROBOMIMIC_OBS_ALIASES.items():
-            if src_key in obs_grp and alias_key not in obs_grp:
-                obs_grp[alias_key] = obs_grp[src_key]
-            elif alias_key in obs_grp and src_key not in obs_grp:
-                obs_grp[src_key] = obs_grp[alias_key]
+        # Process next_observations for offline RL (robomimic SequenceDataset, BCQ, CQL, TD3-BC)
+        next_obs_grp = ep_grp.create_group("next_obs")
+        if next_observations is not None:
+            next_obs_arrays = {k: np.asarray(v) for k, v in next_observations.items()}
+        else:
+            # Shifted observation sequence: next_obs[t] = obs[t+1] for t < T-1, and obs[T-1] for t = T-1
+            next_obs_arrays = {}
+            for k, arr in obs_arrays.items():
+                if len(arr) == T:
+                    shifted = np.empty_like(arr)
+                    shifted[:-1] = arr[1:]
+                    shifted[-1] = arr[-1]
+                    next_obs_arrays[k] = shifted
+        if next_obs_arrays:
+            self._populate_obs_group(next_obs_grp, next_obs_arrays)
 
         # Rewards & dones
         rew_arr = np.asarray(rewards, dtype=np.float32) if rewards is not None else np.zeros(T, dtype=np.float32)
@@ -132,13 +240,21 @@ class RobomimicHDF5Writer:
 
         ep_grp.create_dataset("rewards", data=rew_arr)
         ep_grp.create_dataset("dones", data=done_arr)
+
+        # States & initial state
         if states is not None and len(states):
-            states = np.asarray(states, dtype=np.float64)
-            assert len(states) == T, (states.shape, T)
-            ep_grp.create_dataset("states", data=states, compression="gzip")
+            states_arr = np.asarray(states, dtype=np.float64)
+            assert len(states_arr) == T, (states_arr.shape, T)
+            ep_grp.create_dataset("states", data=states_arr, compression="gzip")
+            # Per-demo init state attribute (LIBERO / robosuite standard)
+            ep_grp.attrs["init_state"] = states_arr[0]
+
+        # Per-demo attributes
         ep_grp.attrs["num_samples"] = T
         if seed is not None:
             ep_grp.attrs["seed"] = int(seed)
+        if self.model_file is not None:
+            ep_grp.attrs["model_file"] = self.model_file
 
         if language_instruction is None:
             language_instruction = self.language_instructions[self.demo_count % len(self.language_instructions)]
@@ -160,10 +276,10 @@ class RobomimicHDF5Writer:
         self.mask_grp.create_dataset("valid", data=valid_keys)
 
         self.data_grp.attrs["total"] = self.total_samples
+        self.data_grp.attrs["num_demos"] = self.demo_count
         self.h5_file.close()
         print(f"[RobomimicHDF5Writer] Closed {self.file_path}: {self.demo_count} demos ({self.total_samples} timesteps)")
 
 
 # Alias for general usage
 HDF5DatasetWriter = RobomimicHDF5Writer
-

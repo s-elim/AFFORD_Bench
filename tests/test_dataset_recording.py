@@ -29,7 +29,14 @@ class _NoRenderer:
 def _no_rendering(monkeypatch):
     monkeypatch.setattr(base_env.mujoco, "Renderer", _NoRenderer)
     monkeypatch.setattr(base_env.BaseFrankaEnv, "get_observation",
-                        lambda self: {"tcp_pose": self.tcp_pose, "joint_positions": self.joint_positions})
+                        lambda self: {
+                            "agentic_rgb": np.zeros((*self.agentic_cam_size, 3), dtype=np.uint8),
+                            "wrist_rgb": np.zeros((*self.wrist_cam_size, 3), dtype=np.uint8),
+                            "tcp_pose": self.tcp_pose,
+                            "joint_positions": self.joint_positions,
+                            "joint_velocities": self.joint_velocities,
+                            "gripper_width": np.array([self.gripper_width], dtype=np.float64),
+                        })
 
 
 def _generator():
@@ -62,17 +69,38 @@ def test_recorded_dataset_is_robomimic_loadable_and_restorable(tmp_path: Path):
         env_meta = json.loads(f["data"].attrs["env_args"])
         assert set(env_meta) == {"env_name", "type", "env_kwargs"} and env_meta["env_name"] == TASK
         assert env_meta["env_kwargs"]["perturbation_mode"] == "nominal"
+        # Robomimic & LIBERO metadata on root
         assert "model_file" in f["data"].attrs and "<mujoco" in f["data"].attrs["model_file"]
+        assert "problem_info" in f["data"].attrs
+        prob_info = json.loads(f["data"].attrs["problem_info"])
+        assert prob_info["problem_name"] == TASK and "language_instruction" in prob_info
+        assert "num_demos" in f["data"].attrs and int(f["data"].attrs["num_demos"]) == 2
         assert "language_instructions" in f["data"].attrs
         assert len(json.loads(f["data"].attrs["language_instructions"])) >= 1
 
         demo = f["data/demo_1"]
         seed = int(demo.attrs["seed"])
         assert "language_instruction" in demo.attrs
-        # Robomimic / LIBERO aliases exist and share exact underlying datasets
+        assert "model_file" in demo.attrs and "<mujoco" in demo.attrs["model_file"]
+        assert "init_state" in demo.attrs and len(demo.attrs["init_state"]) == demo["states"].shape[1]
+
+        # Robomimic / LIBERO observation schemas and aliases
         assert "ee_states" in demo["obs"] and "joint_states" in demo["obs"]
-        np.testing.assert_array_equal(demo["obs/ee_states"][()], demo["obs/tcp_pose"][()])
+        assert demo["obs/ee_states"].shape == (len(demo["actions"]), 6)  # 6-D pos + axis-angle
+        assert demo["obs/gripper_states"].shape == (len(demo["actions"]), 2)  # 2-D gripper qpos
+        assert demo["obs/robot0_gripper_qpos"].shape == (len(demo["actions"]), 2)
+        assert demo["obs/robot0_eef_pos"].shape == (len(demo["actions"]), 3)
+        assert demo["obs/robot0_eef_quat"].shape == (len(demo["actions"]), 4)
+
+        np.testing.assert_allclose(demo["obs/ee_pos"][()], demo["obs/tcp_pose"][:, :3], atol=1e-6)
+        np.testing.assert_allclose(demo["obs/robot0_eef_pos"][()], demo["obs/tcp_pose"][:, :3], atol=1e-6)
         np.testing.assert_array_equal(demo["obs/joint_states"][()], demo["obs/joint_positions"][()])
+
+        # next_obs group for offline RL (BCQ, CQL, TD3-BC)
+        assert "next_obs" in demo
+        assert "tcp_pose" in demo["next_obs"]
+        assert demo["next_obs/tcp_pose"].shape == demo["obs/tcp_pose"].shape
+        np.testing.assert_array_equal(demo["next_obs/tcp_pose"][:-1], demo["obs/tcp_pose"][1:])
 
         states, tcp, joints = demo["states"][()], demo["obs/tcp_pose"][()], demo["obs/joint_positions"][()]
         assert states.dtype == np.float64 and len(states) == len(demo["actions"])
@@ -83,6 +111,7 @@ def test_recorded_dataset_is_robomimic_loadable_and_restorable(tmp_path: Path):
         env.set_sim_state(states[t])
         np.testing.assert_allclose(env.tcp_pose, tcp[t], atol=1e-9)
         np.testing.assert_allclose(env.joint_positions, joints[t], atol=1e-9)
+
 
 
 def test_batch_generator_depth_flag(tmp_path: Path):
@@ -113,3 +142,32 @@ def test_export_and_restore_fixed_initial_states(tmp_path: Path):
     # Sim state read back matches exactly
     current_state = env.get_sim_state()
     np.testing.assert_allclose(current_state, loaded[1], atol=1e-9)
+
+
+def test_invert_gripper_action_adapter():
+    """invert_gripper_action maps robosuite/LIBERO -1 (open) / +1 (close) to Franka finger commands."""
+    env_default = afford_pro.make(TASK, invert_gripper_action=False)
+    env_inverted = afford_pro.make(TASK, invert_gripper_action=True)
+
+    env_default.reset(seed=1)
+    env_inverted.reset(seed=1)
+
+    # In default convention: +1 is open, -1 is close
+    env_default.step(np.array([0, 0, 0, 0, 0, 0, 1.0]))
+    w_default_open = env_default.gripper_width
+
+    # In inverted convention: -1 is open, +1 is close
+    env_inverted.step(np.array([0, 0, 0, 0, 0, 0, -1.0]))
+    w_inverted_open = env_inverted.gripper_width
+
+    np.testing.assert_allclose(w_default_open, w_inverted_open, atol=1e-3)
+
+
+def test_gym_auto_registration():
+    """Benchmark tasks are registered with gymnasium for drop-in gym.make() and robomimic EnvGym support."""
+    import gymnasium as gym
+    env = gym.make(TASK)
+    obs, info = env.reset(seed=42)
+    assert "tcp_pose" in obs and "joint_positions" in obs
+    env.close()
+

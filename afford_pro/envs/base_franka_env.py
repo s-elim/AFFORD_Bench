@@ -144,6 +144,7 @@ class BaseFrankaEnv(gym.Env):
         settle_substeps: int = 40,             # minimum physics steps run at reset before the first observation
         max_episode_steps: int = 500,
         render_depth: bool = False,
+        invert_gripper_action: bool = False,
     ):
         super().__init__()
         self.xml_path = Path(xml_path)
@@ -169,6 +170,7 @@ class BaseFrankaEnv(gym.Env):
         self.finger_cmd = GRIPPER_OPEN_WIDTH
         self.max_episode_steps = max_episode_steps
         self.render_depth = render_depth
+        self.invert_gripper_action = invert_gripper_action
 
         self.current_step = 0
         m = self.model
@@ -487,8 +489,10 @@ class BaseFrankaEnv(gym.Env):
             q_target = np.clip(q_start + action[:7] * self.action_scale, self.arm_joint_range[:, 0], self.arm_joint_range[:, 1])
 
         # Gripper: continuous [-1, 1] mapped to a per-finger opening target in [0.0, 0.04] m, approached
-        # at no more than max_finger_speed.
-        finger_target = 0.5 * GRIPPER_OPEN_WIDTH * (float(np.clip(action[-1], -1.0, 1.0)) + 1.0)
+        # at no more than max_finger_speed. If invert_gripper_action is True (robosuite/LIBERO convention),
+        # -1.0 commands open (0.04 m) and +1.0 commands closed (0.0 m).
+        grip_cmd = -float(action[-1]) if self.invert_gripper_action else float(action[-1])
+        finger_target = 0.5 * GRIPPER_OPEN_WIDTH * (float(np.clip(grip_cmd, -1.0, 1.0)) + 1.0)
         if finger_target > self.finger_cmd:
             # Opening starts from the measured opening, not from a command wound below a held body.
             self.finger_cmd = max(self.finger_cmd, min(self.gripper_width, finger_target))

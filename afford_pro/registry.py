@@ -184,3 +184,46 @@ def get_initial_states(task_id: str, init_states_dir: Path | str | None = None) 
             return None
     return None
 
+
+# ----------------------------------------------------------------- Gym & Gymnasium Registration
+# Registers all benchmark environments so robomimic EnvGym and standard RL frameworks can instantiate
+# environments via gym.make(task_id) or gymnasium.make(task_id).
+try:
+    import gymnasium as _gymnasium
+    for _tid in list(_TASK_REGISTRY.keys()):
+        try:
+            _gymnasium.register(
+                id=f"afford_pro/{_tid}-v0",
+                entry_point="afford_pro.registry:make",
+                kwargs={"task_id": _tid},
+            )
+            _gymnasium.register(
+                id=_tid,
+                entry_point="afford_pro.registry:make",
+                kwargs={"task_id": _tid},
+            )
+        except Exception:
+            pass
+except Exception:
+    pass
+
+try:
+    import gym as _gym
+    for _tid in list(_TASK_REGISTRY.keys()):
+        try:
+            _gym.register(
+                id=f"afford_pro/{_tid}-v0",
+                entry_point="afford_pro.registry:make",
+                kwargs={"task_id": _tid},
+            )
+            _gym.register(
+                id=_tid,
+                entry_point="afford_pro.registry:make",
+                kwargs={"task_id": _tid},
+            )
+        except Exception:
+            pass
+except Exception:
+    pass
+
+

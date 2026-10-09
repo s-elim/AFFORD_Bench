@@ -95,17 +95,40 @@ def verify_file(hdf5_path: Path, expected_demos: int = 50) -> dict:
                         if np.isnan(depth_sample).any() or np.isinf(depth_sample).any():
                             result["errors"].append("agentic_depth contains NaN or Inf")
 
-                    # Check Robomimic observation key aliases if present
-                    aliases = [
+                    # Check Robomimic / LIBERO observation key aliases if present
+                    direct_aliases = [
                         ("agentic_rgb", "agentview_rgb"),
+                        ("agentic_rgb", "agentview_image"),
                         ("wrist_rgb", "eye_in_hand_rgb"),
-                        ("tcp_pose", "ee_states"),
+                        ("wrist_rgb", "robot0_eye_in_hand_image"),
                         ("joint_positions", "joint_states"),
+                        ("joint_positions", "robot0_joint_pos"),
+                        ("joint_velocities", "robot0_joint_vel"),
                     ]
-                    for can_k, alias_k in aliases:
+                    for can_k, alias_k in direct_aliases:
                         if can_k in d0["obs"] and alias_k in d0["obs"]:
                             if d0["obs"][can_k].shape != d0["obs"][alias_k].shape:
                                 result["errors"].append(f"Shape mismatch between {can_k} and alias {alias_k}")
+
+                    # Check Robomimic & LIBERO derived proprioception shapes
+                    if "ee_states" in d0["obs"] and d0["obs/ee_states"].shape != (n_steps, 6):
+                        result["errors"].append(f"Bad ee_states shape (expected {(n_steps, 6)}): {d0['obs/ee_states'].shape}")
+                    if "ee_pos" in d0["obs"] and d0["obs/ee_pos"].shape != (n_steps, 3):
+                        result["errors"].append(f"Bad ee_pos shape: {d0['obs/ee_pos'].shape}")
+                    if "robot0_eef_pos" in d0["obs"] and d0["obs/robot0_eef_pos"].shape != (n_steps, 3):
+                        result["errors"].append(f"Bad robot0_eef_pos shape: {d0['obs/robot0_eef_pos'].shape}")
+                    if "robot0_eef_quat" in d0["obs"] and d0["obs/robot0_eef_quat"].shape != (n_steps, 4):
+                        result["errors"].append(f"Bad robot0_eef_quat shape: {d0['obs/robot0_eef_quat'].shape}")
+                    if "gripper_states" in d0["obs"] and d0["obs/gripper_states"].shape != (n_steps, 2):
+                        result["errors"].append(f"Bad gripper_states shape: {d0['obs/gripper_states'].shape}")
+                    if "robot0_gripper_qpos" in d0["obs"] and d0["obs/robot0_gripper_qpos"].shape != (n_steps, 2):
+                        result["errors"].append(f"Bad robot0_gripper_qpos shape: {d0['obs/robot0_gripper_qpos'].shape}")
+
+                    # Check next_obs group if present (for offline RL)
+                    if "next_obs" in d0:
+                        for k in ("tcp_pose", "joint_positions"):
+                            if k in d0["next_obs"] and d0["next_obs"][k].shape != d0["obs"][k].shape:
+                                result["errors"].append(f"next_obs/{k} shape mismatch with obs/{k}")
 
                 # Check rewards, dones, and terminal done flag
                 if "dones" in d0 and len(d0["dones"]) > 0:

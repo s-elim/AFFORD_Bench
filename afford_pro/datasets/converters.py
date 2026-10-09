@@ -71,11 +71,21 @@ class DatasetMeta:
 
 ROBOMIMIC_ALIASES_MAP = {
     "agentview_rgb": "agentic_rgb",
+    "agentview_image": "agentic_rgb",
     "eye_in_hand_rgb": "wrist_rgb",
-    "ee_states": "tcp_pose",
+    "robot0_eye_in_hand_image": "wrist_rgb",
     "joint_states": "joint_positions",
+    "robot0_joint_pos": "joint_positions",
+    "robot0_joint_vel": "joint_velocities",
     "agentview_depth": "agentic_depth",
     "eye_in_hand_depth": "wrist_depth",
+    "ee_states": "tcp_pose",
+    "ee_pos": "tcp_pose",
+    "robot0_eef_pos": "tcp_pose",
+    "ee_ori": "tcp_pose",
+    "robot0_eef_quat": "tcp_pose",
+    "gripper_states": "gripper_width",
+    "robot0_gripper_qpos": "gripper_width",
 }
 
 
