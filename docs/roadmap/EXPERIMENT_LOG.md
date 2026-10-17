@@ -116,6 +116,17 @@ output was inspected against its success criterion. Environment unless stated: W
   observation stored, canonical instructions); all 3 replays exact (object and joint deviation 0.0). The validator now
   treats any replay deviation as an error for files that carry provenance.
 
+## E-015 Reference-policy leaderboard on the 66 core tasks (2026-10-18, done)
+- Command: for each domain d in industrial, kitchen, tabletop, lab and policy p in oracle (5 episodes), random (3),
+  null (1): `python -I scripts/evaluate_policy_suite.py --policy p --domain d --tier core --suites
+  nominal,p1_object,p2_spatial,p3_visual,p4_physical,combined_ood --episodes n --out-dir
+  docs/roadmap/evidence/leaderboard_2026-10-18/p_d`; page data rebuilt with `python scripts/build_site_data.py`.
+- Seeds: evaluation block 200000 + 1000n + j. Success counts within H = 400 steps. About 2.5 h wall clock.
+- Outcome (core, task-bootstrap 95% CI in `data.js`): oracle 93.0 nominal, 93.6 L2, 93.0 L3, 91.8 L4, 90.6 L5,
+  93.0 color; per domain nominal: industrial 94.1, kitchen 99.0, tabletop 97.6, lab 75.0 (lab tasks that need more
+  than 400 steps or fail, e.g. `lab_micro_tube_to_rack_b`). Random 0/990 and null 0/396 episodes in every suite.
+  Nominal, p1 and p3 oracle rates are identical because the oracle reads the true pose and the layouts are paired.
+
 ## E-006 Generator and validator unit tests (2026-10-17)
 - `python -m pytest -q tests/test_dataset_validation.py tests/test_generation.py tests/test_task_registry.py tests/test_dataset_recording.py tests/test_converters.py`
 - Outcome: all pass (validator 15, generation 4, registry 638, recording + converters 13).

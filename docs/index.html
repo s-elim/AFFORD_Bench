@@ -1,1062 +1,165 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AFFORD-Bench: An Affordance-Grounded Benchmark and Generalization Evaluation for Robot Learning</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
-          colors: {
-            brand: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              800: '#1e40af',
-              900: '#1e3a8a',
-            },
-            accent: {
-              teal: '#0d9488',
-              amber: '#d97706',
-              purple: '#7c3aed',
-              rose: '#e11d48',
-            }
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    .glass-card {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(226, 232, 240, 0.8);
-    }
-    .gradient-text {
-      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #0d9488 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .tab-btn.active {
-      background-color: #1e40af;
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
-    }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AFFORD-Bench</title>
+  <meta name="description" content="AFFORD-Bench: a MuJoCo benchmark and dataset for millimeter-precision robot manipulation under spatial, visual, and physical shift.">
+  <link rel="stylesheet" href="site/style.css">
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-brand-500 selection:text-white">
+<body>
+  <nav class="nav" aria-label="Main">
+    <div class="wrap">
+      <a class="brand" href="#top">AFFORD-Bench</a>
+      <ul>
+        <li><a href="#leaderboard">Leaderboard</a></li>
+        <li><a href="#tasks">Tasks</a></li>
+        <li><a href="#suites">Suites</a></li>
+        <li><a href="#dataset">Dataset</a></li>
+        <li><a href="#use">Use</a></li>
+      </ul>
+    </div>
+  </nav>
 
-  <!-- Navigation Bar -->
-  <header class="sticky top-0 z-50 glass-card border-b border-slate-200/80 transition-all">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <span class="text-xl font-extrabold tracking-tight text-slate-900 flex items-center">
-          <span class="text-brand-600 mr-1.5">⚡</span> AFFORD-Bench
-        </span>
-        <span class="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-brand-100 text-brand-800 border border-brand-200">
-          RSS 2027 Shepherding
-        </span>
+  <header class="hero" id="top">
+    <div class="wrap">
+      <div class="eyebrow">Benchmark &amp; dataset &middot; RSS 2027 submission (anonymous)</div>
+      <h1>AFFORD-Bench</h1>
+      <p class="lede">Millimeter-precision manipulation on a simulated Franka Panda, evaluated under spatial, visual, and physical shift.</p>
+      <p class="sub">Success is physical: the released object must be supported, upright, and at rest within 2&ndash;8&nbsp;mm of its goal. Grasping is frictional; nothing is welded or snapped into place.</p>
+      <div class="links">
+        <a class="btn primary" href="../AFFORD-Bench_RSS%2727/paper-template-latex/main.pdf">Paper (PDF)</a>
+        <a class="btn" href="#leaderboard">Leaderboard</a>
+        <a class="btn" href="#dataset">Dataset card</a>
+        <a class="btn" href="#use">Evaluate a policy</a>
       </div>
-      <nav class="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-600">
-        <a href="#overview" class="hover:text-brand-600 transition">Overview</a>
-        <a href="#agnostic" class="hover:text-brand-600 transition">Policy Agnostic</a>
-        <a href="#domains" class="hover:text-brand-600 transition">7 Domains</a>
-        <a href="#perturbations" class="hover:text-brand-600 transition">Perturbation Levels</a>
-        <a href="#comparison" class="hover:text-brand-600 transition">Comparison</a>
-        <a href="#leaderboard" class="hover:text-brand-600 transition text-brand-700 font-semibold">Model Leaderboard</a>
-        <a href="#code" class="hover:text-brand-600 transition">Quickstart</a>
-        <a href="#charter" class="hover:text-brand-600 transition">Extension Charter</a>
-      </nav>
-      <div class="flex items-center space-x-3">
-        <a href="https://github.com/s-elim/AFFORD_Bench" target="_blank" rel="noopener noreferrer"
-           class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold bg-slate-900 text-white hover:bg-slate-800 transition shadow-sm">
-          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-          <span>GitHub</span>
-        </a>
-      </div>
+      <div class="stats" id="stats" aria-live="polite"></div>
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="relative pt-16 pb-20 overflow-hidden border-b border-slate-200 bg-white">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-      
-      <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-brand-700 border border-blue-200 mb-6">
-        <span>Robotics: Science and Systems (RSS) 2027</span>
-        <span>•</span>
-        <span>Stage 1 Shepherding Extended Abstract</span>
-      </div>
-
-      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 mb-6 leading-tight">
-        <span class="gradient-text">AFFORD-Bench</span>: An Affordance-Grounded Benchmark & Generalization Evaluation for Robot Learning
-      </h1>
-
-      <p class="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto mb-8 font-normal leading-relaxed">
-        A large-scale manipulation benchmark probing the boundary between rote visual memorization and genuine physical generalizability across <span class="font-semibold text-slate-900">210 distinct physical tasks</span>, <span class="font-semibold text-slate-900">7 specialized domains</span>, and a structured <span class="font-semibold text-slate-900">5-level perturbation hierarchy</span>.
-      </p>
-
-      <!-- Key Badge Counters -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto mb-10 text-left">
-        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-          <div class="text-2xl sm:text-3xl font-black text-brand-600">210</div>
-          <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Physical Tasks</div>
-        </div>
-        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-          <div class="text-2xl sm:text-3xl font-black text-brand-600">7</div>
-          <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Diverse Domains</div>
-        </div>
-        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-          <div class="text-2xl sm:text-3xl font-black text-brand-600">10,500</div>
-          <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Demonstrations</div>
-        </div>
-        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-          <div class="text-2xl sm:text-3xl font-black text-brand-600">35</div>
-          <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Evaluation Suites</div>
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="flex flex-wrap justify-center gap-4">
-        <a href="https://github.com/s-elim/AFFORD_Bench/blob/main/AFFORD-Bench_RSS'27/paper-template-latex/main.pdf" target="_blank"
-           class="inline-flex items-center px-6 py-3 rounded-xl font-semibold text-white bg-brand-600 hover:bg-brand-700 shadow-md shadow-brand-500/20 transition">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-          Read Paper PDF
-        </a>
-        <a href="#domains"
-           class="inline-flex items-center px-6 py-3 rounded-xl font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition border border-slate-200">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          Watch Video Gallery
-        </a>
-        <a href="#code"
-           class="inline-flex items-center px-6 py-3 rounded-xl font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition border border-slate-200">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          Get Started
-        </a>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Interactive 7-Domain Video Showcase -->
-  <section id="domains" class="py-20 bg-slate-100 border-b border-slate-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-12">
-        <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 mb-3">
-          Explore the 7 Physical Manipulation Domains
-        </h2>
-        <p class="text-slate-600">
-          Each domain contains 30 distinct tasks (210 total) executed by deterministic kinematic oracles at 20 Hz, capturing synchronized Workcell RGB ($640\times 660$), Wrist RGB ($300\times 420$), and 3D Metric Depth.
-        </p>
-      </div>
-
-      <!-- Domain Selector Tabs -->
-      <div class="flex flex-wrap justify-center gap-2 mb-8" id="domain-tabs">
-        <button onclick="switchDomain(0)" class="tab-btn active px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition">
-          D1: Industrial Precision
-        </button>
-        <button onclick="switchDomain(1)" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition">
-          D2: Culinary Operations
-        </button>
-        <button onclick="switchDomain(2)" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition">
-          D3: Domestic Tabletop
-        </button>
-        <button onclick="switchDomain(3)" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition">
-          D4: Laboratory Sciences
-        </button>
-        <button onclick="switchDomain(4)" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition">
-          D5: Long-Horizon Sequences
-        </button>
-        <button onclick="switchDomain(5)" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition">
-          D6: Precision Chaining
-        </button>
-        <button onclick="switchDomain(6)" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition">
-          D7: Service Assembly
-        </button>
-      </div>
-
-      <!-- Video Display Card -->
-      <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-w-5xl mx-auto">
-        <div class="relative bg-slate-900 aspect-[16/9] flex items-center justify-center">
-          <video id="domain-video" class="w-full h-full object-contain" autoplay loop muted playsinline>
-            <source src="videos/d1_industrial_shaft_assembly.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-        <div class="p-6 sm:p-8">
-          <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
-            <div>
-              <span id="domain-badge" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-brand-100 text-brand-800">
-                Domain 1 • 30 Tasks
-              </span>
-              <h3 id="domain-title" class="text-2xl font-bold text-slate-900 mt-2">
-                Industrial Precision: Shaft Assembly
-              </h3>
-            </div>
-            <div class="flex items-center space-x-4 text-sm font-medium text-slate-600">
-              <span class="flex items-center"><strong class="text-slate-900 mr-1.5">Clearance:</strong> <span id="domain-clearance">&plusmn;2.0 &ndash; 5.0 mm</span></span>
-              <span>•</span>
-              <span class="flex items-center"><strong class="text-slate-900 mr-1.5">Contact:</strong> <span id="domain-contact">Rigid peg-in-hole friction</span></span>
-            </div>
-          </div>
-          <p id="domain-desc" class="text-slate-600 text-base leading-relaxed">
-            High-precision assembly tasks requiring millimeter-level alignment tolerances, tight clearances, and rigid surface contact interactions. Tasks include splined gear meshing, flange bolt placement, structural shaft seating, and toggle-clamp latching.
-          </p>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Policy-Agnostic Philosophy Section -->
-  <section id="agnostic" class="py-20 bg-white border-b border-slate-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-16">
-        <span class="text-xs uppercase tracking-widest font-extrabold text-brand-600">Universal Policy Support</span>
-        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 mt-2 mb-4">
-          A Policy-Agnostic Benchmark: Built for Any Robot Learning Paradigm
-        </h2>
-        <p class="text-slate-600 text-lg">
-          AFFORD-Bench does not target a single algorithm or architecture. By recording full synchronized sensory streams and state representations, it natively supports 5 fundamental classes of robot learning policies.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        
-        <!-- Card 1 -->
-        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-white hover:shadow-lg transition">
-          <div class="w-12 h-12 rounded-xl bg-blue-100 text-brand-700 flex items-center justify-center font-bold text-xl mb-5">
-            1
-          </div>
-          <h3 class="text-xl font-bold text-slate-900 mb-2">Diffusion Policy (DP) &amp; Chunking</h3>
-          <p class="text-slate-600 text-sm leading-relaxed mb-4">
-            Supports temporal action diffusion models and expressive visuomotor sequence generators:
-          </p>
-          <ul class="text-xs font-mono space-y-1.5 text-slate-700">
-            <li class="flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-brand-500 mr-2"></span>Diffusion Policy (DP) (DDPM &amp; Flow Matching)</li>
-            <li class="flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-brand-500 mr-2"></span>Action Chunking with Transformers (ACT)</li>
-            <li class="flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-brand-500 mr-2"></span>Behavior Transformer (BeT) / Classical BC</li>
-          </ul>
-        </div>
-
-        <!-- Card 2 -->
-        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-white hover:shadow-lg transition">
-          <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xl mb-5">
-            2
-          </div>
-          <h3 class="text-xl font-bold text-slate-900 mb-2">Vision-Language-Action (VLA) Models</h3>
-          <p class="text-slate-600 text-sm leading-relaxed mb-4">
-            End-to-end multimodal foundation models and compact edge architectures:
-          </p>
-          <ul class="text-xs font-mono space-y-1.5 text-slate-700">
-            <li class="flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-purple-500 mr-2"></span>OpenVLA (7B Vision-Language Backbone)</li>
-            <li class="flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-purple-500 mr-2"></span>SmolVLA (450M Edge Flow-Matching VLA)</li>
-            <li class="flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-purple-500 mr-2"></span>AtomVLA (Subtask Planning &amp; World Model)</li>
-          </ul>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-white hover:shadow-lg transition">
-          <div class="w-12 h-12 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-xl mb-5">
-            3
-          </div>
-          <h3 class="text-xl font-bold text-slate-900 mb-2">3D Point Cloud (DP3) &amp; Offline RL</h3>
-          <p class="text-slate-600 text-sm leading-relaxed mb-4">
-            Direct 3D spatial representations and reinforcement learning from demonstrations:
-          </p>
-          <ul class="text-xs font-mono space-y-1.5 text-slate-700">
-            <li class="flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-teal-500 mr-2"></span>3D Diffusion Policy (DP3 via Point Clouds)</li>
-            <li class="flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-teal-500 mr-2"></span>Offline RL: CQL, IQL, TD3+BC</li>
-            <li class="flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-teal-500 mr-2"></span>Low-Level Joint &amp; Impedance State BC</li>
-          </ul>
-        </div>
-
-      </div>
-
-      <!-- Dataset Packaging Specification -->
-      <div class="mt-12 p-6 rounded-2xl border border-slate-200 bg-slate-900 text-white">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <main>
+    <section id="leaderboard">
+      <div class="wrap">
+        <div class="section-head">
           <div>
-            <h4 class="text-lg font-bold text-white mb-1">Standardized Robomimic / HDF5 Storage Schema</h4>
-            <p class="text-sm text-slate-400">
-              Each of the 210 HDF5 datasets includes pre-computed train/val masks and standardized keys for plug-and-play loading:
-            </p>
+            <h2>Leaderboard</h2>
+            <p id="lb-caption"></p>
           </div>
-          <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-mono bg-slate-800 text-teal-400 border border-slate-700">
-            Zero Format Conversion Needed
-          </span>
+          <div class="seg" role="group" aria-label="Task scope">
+            <button type="button" data-scope="core" aria-pressed="true">Core tasks (66)</button>
+            <button type="button" data-scope="all" aria-pressed="false">All tasks (210)</button>
+          </div>
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 text-xs font-mono">
-          <div class="bg-slate-800/80 p-3 rounded-lg border border-slate-700">
-            <span class="text-blue-400 font-bold block mb-1">obs/agentic_rgb</span>
-            <span class="text-slate-400">(N, 640, 660, 3) uint8</span>
+        <div class="table-wrap"><table id="lb"></table></div>
+        <p class="note">Learned baselines are not listed yet. A result enters this table only with its per-episode log from
+          <code>scripts/evaluate_policy_suite.py</code> (seeds, checkpoint hash, code version). The oracle reads the true object pose,
+          so its row bounds what is solvable rather than predicting learned performance.</p>
+      </div>
+    </section>
+
+    <section id="tasks">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Tasks</h2>
+            <p>210 tasks in 7 domains. Each was rebuilt and reset at runtime to check that its instruction matches what the simulator scores. Click a row for details.</p>
           </div>
-          <div class="bg-slate-800/80 p-3 rounded-lg border border-slate-700">
-            <span class="text-amber-400 font-bold block mb-1">obs/wrist_rgb</span>
-            <span class="text-slate-400">(N, 300, 420, 3) uint8</span>
+        </div>
+        <div class="legend" id="legend"></div>
+        <div class="controls">
+          <input id="q" type="search" placeholder="Search tasks, objects, instructions" aria-label="Search tasks">
+          <select id="domain" aria-label="Domain"></select>
+          <div class="seg" role="group" aria-label="Tier" id="tierSeg"></div>
+          <span class="count" id="taskCount"></span>
+        </div>
+        <div class="table-wrap tall"><table id="taskTable"></table></div>
+      </div>
+    </section>
+
+    <section id="suites">
+      <div class="wrap grid2">
+        <div>
+          <h2>Perturbation suites</h2>
+          <p class="note" style="margin:0 0 14px">Suites are paired: an evaluation seed gives the same layout in L1, L3, L4, and Color, and the same layout in L2 and L5, so a drop measures the perturbation, not a new scene.</p>
+          <div class="table-wrap"><table id="suiteTable"></table></div>
+        </div>
+        <div>
+          <h2>Physical calibration</h2>
+          <p class="note" style="margin:0 0 14px">Oracle success (%) on the core tasks when friction and object mass are fixed at each setting (3 episodes per task and cell). The current L4 range barely affects the expert; lower friction and heavier objects do. The range will be recalibrated on this curve.</p>
+          <div class="heat" id="heat" role="table" aria-label="Oracle success by friction and mass"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="dataset">
+      <div class="wrap">
+        <div class="section-head"><div><h2>Dataset</h2><p>Scripted-oracle demonstrations in Robomimic HDF5, one file per task. Not yet hosted for download.</p></div></div>
+        <div class="kv" id="dataKv"></div>
+        <div class="grid2">
+          <div>
+            <h3>Per demonstration</h3>
+<pre>data/demo_i/
+  actions   (T, 7) float32
+  rewards   (T,)   1 at first success
+  dones     (T,)   1 at first success
+  states    (T, 85) full MuJoCo state
+  obs/agentic_rgb  (T, 640, 660, 3)
+  obs/wrist_rgb    (T, 300, 420, 3)
+  obs/joint_positions, joint_velocities,
+      tcp_pose, gripper_width
+  attrs: seed, init_state, instruction
+mask/train, mask/valid   45 / 5</pre>
           </div>
-          <div class="bg-slate-800/80 p-3 rounded-lg border border-slate-700">
-            <span class="text-teal-400 font-bold block mb-1">obs/agentic_depth</span>
-            <span class="text-slate-400">(N, 640, 660) float32</span>
-          </div>
-          <div class="bg-slate-800/80 p-3 rounded-lg border border-slate-700">
-            <span class="text-purple-400 font-bold block mb-1">proprio &amp; actions</span>
-            <span class="text-slate-400">qpos, qvel, tcp, grip</span>
+          <div>
+            <h3>Known limitations of the current files</h3>
+            <ul class="plain" id="limits">
+              <li>No provenance attributes; produced by at least three generator runs.</li>
+              <li>Stored actions are float32 roundings of the executed ones: replays are close, not exact.</li>
+              <li>The state after the final action is not stored (offline-RL terminal transition).</li>
+              <li>114 demonstrations exceed the 500-step environment limit.</li>
+              <li>The generator now fixes all four; regenerated files replay bit-identically.</li>
+            </ul>
           </div>
         </div>
       </div>
+    </section>
 
-    </div>
-  </section>
-
-  <!-- Hierarchical Perturbation Levels Section -->
-  <section id="perturbations" class="py-20 bg-slate-100 border-b border-slate-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-16">
-        <span class="text-xs uppercase tracking-widest font-extrabold text-brand-600">Perturbation Manifold</span>
-        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 mt-2 mb-4">
-          Hierarchical 5-Level Generalization Protocol
-        </h2>
-        <p class="text-slate-600 text-lg">
-          Inspired by LIBERO-X and LIBERO-PRO, AFFORD-Bench establishes a progressive difficulty ladder to characterize exact failure boundaries across physical, spatial, and semantic shifts.
-        </p>
-      </div>
-
-      <div class="space-y-4 max-w-4xl mx-auto">
-        
-        <!-- Level 1 -->
-        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-start space-x-4">
-          <div class="px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-800 font-mono font-bold text-sm">L1</div>
-          <div class="flex-1">
-            <h4 class="text-lg font-bold text-slate-900">Level 1: Nominal Kinematic Jitter (In-Distribution)</h4>
-            <p class="text-sm text-slate-600 mt-1">
-              Standard demonstration distribution with minor initial position offsets (&le; 1 cm) and nominal MuJoCo surface friction (&mu; = 0.70). Serves as the sanity-check baseline for nominal memorization.
-            </p>
-          </div>
+    <section id="use">
+      <div class="wrap grid2">
+        <div>
+          <h2>Evaluate a policy</h2>
+          <p class="note" style="margin:0 0 14px">50 episodes per task and suite on the evaluation seed block, success within 400 steps, intervals from a bootstrap over tasks.</p>
+<pre>pip install -e .                    # pins mujoco==3.5.0
+python scripts/evaluate_policy_suite.py \
+  --checkpoint model.pt --tier core \
+  --suites nominal,p2_spatial,p3_visual,p4_physical,combined_ood \
+  --episodes 50 --out-dir results/my_policy</pre>
+          <details>
+            <summary>Train the included baselines</summary>
+<pre>python scripts/train_policy.py --policy bc --modality lowdim \
+  --domain tabletop --tier core --epochs 200 --seed 1 --tag seed1</pre>
+          </details>
         </div>
-
-        <!-- Level 2 -->
-        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-start space-x-4">
-          <div class="px-3 py-1.5 rounded-lg bg-blue-100 text-blue-800 font-mono font-bold text-sm">L2</div>
-          <div class="flex-1">
-            <h4 class="text-lg font-bold text-slate-900">Level 2: Extended Spatial-Kinematic Shifts (P_spatial)</h4>
-            <p class="text-sm text-slate-600 mt-1">
-              Translational displacements (&plusmn;6 cm in XY) and rotational yaw perturbations (&plusmn;45&deg;), evaluating whether the policy has learned spatial visual servoing or is executing open-loop trajectory replay.
-            </p>
-          </div>
-        </div>
-
-        <!-- Level 3 -->
-        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-start space-x-4">
-          <div class="px-3 py-1.5 rounded-lg bg-amber-100 text-amber-800 font-mono font-bold text-sm">L3</div>
-          <div class="flex-1">
-            <h4 class="text-lg font-bold text-slate-900">Level 3: Visual-Photometric Shifts (P_visual)</h4>
-            <p class="text-sm text-slate-600 mt-1">
-              Illumination intensity variations (0.5&times; &ndash; 1.5&times; nominal), 3D point light source position displacements, and object color/specular shifts, testing invariance to photometric distractor shifts.
-            </p>
-          </div>
-        </div>
-
-        <!-- Level 4 -->
-        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-start space-x-4">
-          <div class="px-3 py-1.5 rounded-lg bg-purple-100 text-purple-800 font-mono font-bold text-sm">L4</div>
-          <div class="flex-1">
-            <h4 class="text-lg font-bold text-slate-900">Level 4: Physical-Dynamic Affordance Shifts (P_physics)</h4>
-            <p class="text-sm text-slate-600 mt-1">
-              Coulomb contact friction scaling (&mu; &in; [0.10, 1.20]) and object inertial mass scaling (0.5&times; &ndash; 3.0&times;), probing grasp stability, contact compliance, and slip prevention without altering visual positions.
-            </p>
-          </div>
-        </div>
-
-        <!-- Level 5 -->
-        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-start space-x-4">
-          <div class="px-3 py-1.5 rounded-lg bg-rose-100 text-rose-800 font-mono font-bold text-sm">L5</div>
-          <div class="flex-1">
-            <h4 class="text-lg font-bold text-slate-900">Level 5: Compound Subtask Chaining & Composite OOD (P_comp)</h4>
-            <p class="text-sm text-slate-600 mt-1">
-              Simultaneous multi-axis shifts combined with multi-step sequential instructions (e.g., &ldquo;align shaft, press bearing, and lock clamp&rdquo;), exposing catastrophic error compounding across multi-subtask horizons.
-            </p>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Comprehensive Benchmark Comparison Table -->
-  <section id="comparison" class="py-20 bg-white border-b border-slate-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-16">
-        <span class="text-xs uppercase tracking-widest font-extrabold text-brand-600">Benchmark Landscape</span>
-        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 mt-2 mb-4">
-          Comparison with Leading Manipulation Benchmarks
-        </h2>
-        <p class="text-slate-600 text-lg">
-          How AFFORD-Bench advances beyond existing robot learning benchmarks in task diversity, physical grounding, sensing modalities, and policy agnosticism.
-        </p>
-      </div>
-
-      <!-- Benchmark Comparison High-Impact Figure -->
-      <div class="mb-12 bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
-        <div class="rounded-xl overflow-hidden border border-slate-200 bg-white shadow-inner">
-          <img src="images/benchmark_comparison.png" alt="AFFORD-Bench vs. LIBERO-PRO and LIBERO-X Comparison" class="w-full h-auto object-contain">
-        </div>
-        <div class="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500">
-          <p><strong class="text-slate-800">Figure: Benchmark Comparison: AFFORD-Bench vs. LIBERO-PRO & LIBERO-X.</strong> Side-by-side architectural contrast across physical dynamics ($\mu \in [0.12, 0.25]$ &amp; $2.5\times$ mass shifts), sensory modalities (dual RGB + 3D depth), policy universality (Diffusion Policy, ACT, Flow Matching, modern VLAs), domain breadth (7 real-world domains + Domain 8 reactive suite), task complexity (chained 2–3 step subgoals, $\pm 2.0\text{–}2.5\text{ mm}$ CAD tolerances), and demonstration scale (10,500 demonstrations, &gt;2.2M physical steps, 210 tasks).</p>
-          <a href="images/benchmark_comparison.png" target="_blank" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-white border border-slate-300 font-semibold text-slate-700 hover:bg-slate-100 transition whitespace-nowrap shadow-xs">
-            <span>View Full-Res Image</span>
-            <svg class="w-3.5 h-3.5 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-          </a>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-md">
-        <table class="w-full text-left border-collapse text-sm">
-          <thead>
-            <tr class="bg-slate-900 text-white font-mono text-xs uppercase tracking-wider">
-              <th class="p-4">Benchmark Feature</th>
-              <th class="p-4">LIBERO (2023)</th>
-              <th class="p-4">LIBERO-PRO (2026)</th>
-              <th class="p-4">LIBERO-X (2026)</th>
-              <th class="p-4 bg-brand-700 text-white font-bold">AFFORD-Bench (Ours)</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-200 text-slate-700">
-            <tr class="hover:bg-slate-50">
-              <td class="p-4 font-semibold text-slate-900">Total Unique Tasks</td>
-              <td class="p-4">130 Tasks (50 Core)</td>
-              <td class="p-4">40 Evaluation Tasks</td>
-              <td class="p-4">600 Tasks</td>
-              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">210 Formally Defined Tasks</td>
-            </tr>
-            <tr class="hover:bg-slate-50">
-              <td class="p-4 font-semibold text-slate-900">Distinct Domain Breadth</td>
-              <td class="p-4">4 (Spatial, Object, Goal, 100)</td>
-              <td class="p-4">4 Suites (Perturbed)</td>
-              <td class="p-4">Diverse Tabletop/Kitchen/Study</td>
-              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">7 Real-World Domains + Frontier Suite</td>
-            </tr>
-            <tr class="hover:bg-slate-50">
-              <td class="p-4 font-semibold text-slate-900">Observation Modalities</td>
-              <td class="p-4">RGB (128&times;128)</td>
-              <td class="p-4">RGB (128&times;128)</td>
-              <td class="p-4">Dual RGB (256&times;256)</td>
-              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">Dual RGB (640&times;660, 300&times;420) + Metric Depth</td>
-            </tr>
-            <tr class="hover:bg-slate-50">
-              <td class="p-4 font-semibold text-slate-900">Physical Affordance Grounding</td>
-              <td class="p-4 text-rose-500 font-semibold">&cross; Nominal Only</td>
-              <td class="p-4 text-rose-500 font-semibold">&cross; Object/Pose Shifts</td>
-              <td class="p-4 text-amber-600 font-semibold">Partial (L1-L5 Spatial/Obj)</td>
-              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">&check; Friction (&mu;), Mass, Sub-mm Clearances</td>
-            </tr>
-            <tr class="hover:bg-slate-50">
-              <td class="p-4 font-semibold text-slate-900">Multi-Subtask Language Prompts</td>
-              <td class="p-4">LIBERO-10 Conjunctions</td>
-              <td class="p-4">3 Paraphrases per Task</td>
-              <td class="p-4">Atomic Subtask Tags (L5)</td>
-              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">&check; 4 Tiers per Task (Geometric, Affordance, Colloquial, Atomic)</td>
-            </tr>
-            <tr class="hover:bg-slate-50">
-              <td class="p-4 font-semibold text-slate-900">Policy Agnostic Support</td>
-              <td class="p-4">Primarily BC / DP</td>
-              <td class="p-4">VLAs (OpenVLA, &pi;0)</td>
-              <td class="p-4">VLAs (OpenVLA, Octo)</td>
-              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">&check; BC, DP, ACT, DP3, VLAs, Offline RL (CQL, IQL)</td>
-            </tr>
-            <tr class="hover:bg-slate-50">
-              <td class="p-4 font-semibold text-slate-900">Demonstration Training Data</td>
-              <td class="p-4">6,500 Demos (Human SpaceMouse)</td>
-              <td class="p-4 text-slate-400">None (Evaluation Only)</td>
-              <td class="p-4">2,520 Demos (Human VR Teleop)</td>
-              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">10,500 Target Demos (100% Local Generator)</td>
-            </tr>
-            <tr class="hover:bg-slate-50">
-              <td class="p-4 font-semibold text-slate-900">Simulation Throughput &amp; Cost</td>
-              <td class="p-4">Robosuite (~15 FPS)</td>
-              <td class="p-4">Robosuite (~15 FPS)</td>
-              <td class="p-4">Robosuite (~15 FPS)</td>
-              <td class="p-4 bg-blue-50/60 font-bold text-brand-700">Native MuJoCo C++ (25&ndash;50 FPS), $0 Cost</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Modern VLA & Robot Policy Leaderboard Section -->
-  <section id="leaderboard" class="py-20 bg-slate-50 border-b border-slate-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-14">
-        <span class="text-xs uppercase tracking-widest font-extrabold text-brand-600">Empirical Benchmark Results</span>
-        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 mt-2 mb-4">
-          AFFORD-Bench VLA &amp; Policy Leaderboard
-        </h2>
-        <p class="text-slate-600 text-lg">
-          Rigorous benchmarking of 10 modern foundation VLAs and visuomotor policies across CAD sub-millimeter tolerances (&plusmn;2.0&ndash;2.5 mm), extreme friction shifts (&mu; &in; [0.12, 0.25]), and mid-trajectory reactive perturbations.
-        </p>
-        <div class="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs">
-          <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-800 font-medium border border-blue-200">
-            <strong>GDI</strong>: Generalization Degradation Index &darr; (Lower is better)
-          </span>
-          <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-medium border border-emerald-200">
-            <strong>PRI</strong>: Physical Robustness Index &uarr; (Higher is better)
-          </span>
-          <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-800 font-medium border border-purple-200">
-            <strong>RRR</strong>: Reactive Recovery Ratio &uarr; (Post-perturbation recovery)
-          </span>
-        </div>
-      </div>
-
-      <!-- Leaderboard High-Impact Figure -->
-      <div class="mb-12 bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
-        <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-inner">
-          <img src="images/model_performance_comparison.png" alt="AFFORD-Bench VLA & Policy Benchmark Comparison" class="w-full h-auto object-contain">
-        </div>
-        <div class="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500">
-          <p><strong class="text-slate-800">Figure: Foundation Model &amp; Policy Performance Comparison.</strong> Multi-axis evaluation of 8 robot learning architectures across nominal (L1), spatial (L2), visual (L3), physical (L4) generalization axes, CAD &plusmn;2.0&ndash;2.5 mm precision insertions, and mid-trajectory reactive recovery (RRR). Highlights continuous flow matching (&pi;<sub>0.5</sub>), 3D token representations (SpatialVLA), and latent world models (AtomVLA) outperforming discrete token quantization (OpenVLA).</p>
-          <a href="images/model_performance_comparison.png" target="_blank" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-white border border-slate-300 font-semibold text-slate-700 hover:bg-slate-100 transition whitespace-nowrap shadow-xs">
-            <span>View Full-Res Image</span>
-            <svg class="w-3.5 h-3.5 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-          </a>
-        </div>
-      </div>
-
-      <!-- Leaderboard Table -->
-      <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-md bg-white mb-12">
-        <table class="w-full text-left border-collapse text-sm">
-          <thead>
-            <tr class="bg-slate-900 text-white font-mono text-xs uppercase tracking-wider">
-              <th class="p-4">Model Architecture</th>
-              <th class="p-4">Action Mode</th>
-              <th class="p-4 text-center">L1 Nom.</th>
-              <th class="p-4 text-center">L2 Spat.</th>
-              <th class="p-4 text-center">L3 Vis.</th>
-              <th class="p-4 text-center bg-amber-950/60 text-amber-200">L4 Phys.</th>
-              <th class="p-4 text-center">L5 Comp.</th>
-              <th class="p-4 text-center bg-blue-950/60 text-blue-200">CAD 2mm</th>
-              <th class="p-4 text-center">RRR (%)</th>
-              <th class="p-4 text-center font-bold">GDI (%)</th>
-              <th class="p-4 text-center font-bold text-emerald-400">PRI (%)</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-200 text-slate-700">
-            <!-- Oracle -->
-            <tr class="bg-slate-50/70 font-semibold text-slate-900 hover:bg-slate-100/80">
-              <td class="p-4 flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                <span>Oracle (Closed-Loop)</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 font-normal">Upper Bound</span>
-              </td>
-              <td class="p-4 text-xs font-mono text-slate-500">Continuous (20Hz, H=1)</td>
-              <td class="p-4 text-center font-bold text-emerald-700">99.8%</td>
-              <td class="p-4 text-center">98.2%</td>
-              <td class="p-4 text-center">99.8%</td>
-              <td class="p-4 text-center bg-amber-50/70 font-bold text-amber-800">47.3%</td>
-              <td class="p-4 text-center">44.1%</td>
-              <td class="p-4 text-center bg-blue-50/70 font-bold text-blue-800">99.7%</td>
-              <td class="p-4 text-center font-bold text-purple-700">94.7%</td>
-              <td class="p-4 text-center font-mono">27.5%</td>
-              <td class="p-4 text-center font-mono font-bold text-emerald-700">47.4%</td>
-            </tr>
-            <!-- pi0.5 / pi0 -->
-            <tr class="hover:bg-slate-50">
-              <td class="p-4 font-semibold text-slate-900 flex items-center gap-2">
-                <span class="text-brand-600 font-mono text-xs">01</span>
-                <span>&pi;<sub>0.5</sub> / &pi;<sub>0</sub></span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">Flow Expert</span>
-              </td>
-              <td class="p-4 text-xs font-mono text-slate-500">Continuous Flow (50Hz, H=30)</td>
-              <td class="p-4 text-center font-bold text-slate-900">88.4%</td>
-              <td class="p-4 text-center">62.3%</td>
-              <td class="p-4 text-center">79.1%</td>
-              <td class="p-4 text-center bg-amber-50/40 text-amber-700 font-medium">31.8%</td>
-              <td class="p-4 text-center">22.5%</td>
-              <td class="p-4 text-center bg-blue-50/40 text-blue-700 font-bold">84.1%</td>
-              <td class="p-4 text-center text-purple-700">45.0%</td>
-              <td class="p-4 text-center font-mono">44.7%</td>
-              <td class="p-4 text-center font-mono font-semibold text-emerald-700">36.0%</td>
-            </tr>
-            <!-- SpatialVLA -->
-            <tr class="hover:bg-slate-50">
-              <td class="p-4 font-semibold text-slate-900 flex items-center gap-2">
-                <span class="text-brand-600 font-mono text-xs">02</span>
-                <span>SpatialVLA</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700">3D Point Tokens</span>
-              </td>
-              <td class="p-4 text-xs font-mono text-slate-500">3D Tokens (20Hz, H=16)</td>
-              <td class="p-4 text-center font-bold text-slate-900">87.6%</td>
-              <td class="p-4 text-center font-bold text-indigo-700 bg-indigo-50/40">74.8%</td>
-              <td class="p-4 text-center">78.2%</td>
-              <td class="p-4 text-center bg-amber-50/40 text-amber-700">28.6%</td>
-              <td class="p-4 text-center">25.4%</td>
-              <td class="p-4 text-center bg-blue-50/40 text-blue-700 font-bold">85.3%</td>
-              <td class="p-4 text-center text-purple-700">54.0%</td>
-              <td class="p-4 text-center font-mono">40.9%</td>
-              <td class="p-4 text-center font-mono font-semibold text-emerald-700">32.6%</td>
-            </tr>
-            <!-- AtomVLA -->
-            <tr class="hover:bg-slate-50 bg-teal-50/20">
-              <td class="p-4 font-semibold text-slate-900 flex items-center gap-2">
-                <span class="text-brand-600 font-mono text-xs">03</span>
-                <span>AtomVLA</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-teal-100 text-teal-800">World Model</span>
-              </td>
-              <td class="p-4 text-xs font-mono text-slate-500">Latent Rollout (20Hz, H=16)</td>
-              <td class="p-4 text-center font-bold text-slate-900">85.2%</td>
-              <td class="p-4 text-center">58.7%</td>
-              <td class="p-4 text-center">76.4%</td>
-              <td class="p-4 text-center bg-amber-50/40 text-amber-700 font-bold">34.2%</td>
-              <td class="p-4 text-center font-bold text-teal-800">26.8%</td>
-              <td class="p-4 text-center bg-blue-50/40 text-blue-700">81.2%</td>
-              <td class="p-4 text-center font-bold text-purple-800 bg-purple-50/60">61.5%</td>
-              <td class="p-4 text-center font-mono font-bold text-teal-700">42.5%</td>
-              <td class="p-4 text-center font-mono font-bold text-emerald-700">40.1%</td>
-            </tr>
-            <!-- CoT-VLA -->
-            <tr class="hover:bg-slate-50">
-              <td class="p-4 font-semibold text-slate-900 flex items-center gap-2">
-                <span class="text-brand-600 font-mono text-xs">04</span>
-                <span>CoT-VLA</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">Affordance CoT</span>
-              </td>
-              <td class="p-4 text-xs font-mono text-slate-500">Spatial CoT (10Hz, H=16)</td>
-              <td class="p-4 text-center font-bold text-slate-900">83.1%</td>
-              <td class="p-4 text-center">66.4%</td>
-              <td class="p-4 text-center">72.0%</td>
-              <td class="p-4 text-center bg-amber-50/40 text-amber-700">29.1%</td>
-              <td class="p-4 text-center">24.0%</td>
-              <td class="p-4 text-center bg-blue-50/40 text-blue-700">79.5%</td>
-              <td class="p-4 text-center text-purple-700">38.2%</td>
-              <td class="p-4 text-center font-mono">42.4%</td>
-              <td class="p-4 text-center font-mono font-semibold text-emerald-700">35.0%</td>
-            </tr>
-            <!-- Diffusion Policy -->
-            <tr class="hover:bg-slate-50">
-              <td class="p-4 font-semibold text-slate-900 flex items-center gap-2">
-                <span class="text-brand-600 font-mono text-xs">05</span>
-                <span>Diffusion Policy</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">Visuomotor DP</span>
-              </td>
-              <td class="p-4 text-xs font-mono text-slate-500">Denoising Head (20Hz, H=16)</td>
-              <td class="p-4 text-center font-bold text-slate-900">81.5%</td>
-              <td class="p-4 text-center">36.2%</td>
-              <td class="p-4 text-center">44.8%</td>
-              <td class="p-4 text-center bg-amber-50/40 text-amber-700">24.1%</td>
-              <td class="p-4 text-center">12.9%</td>
-              <td class="p-4 text-center bg-blue-50/40 text-blue-700">78.4%</td>
-              <td class="p-4 text-center text-purple-700 font-semibold">58.0%</td>
-              <td class="p-4 text-center font-mono text-rose-600">63.8%</td>
-              <td class="p-4 text-center font-mono text-emerald-700">29.6%</td>
-            </tr>
-            <!-- ACT -->
-            <tr class="hover:bg-slate-50">
-              <td class="p-4 font-semibold text-slate-900 flex items-center gap-2">
-                <span class="text-brand-600 font-mono text-xs">06</span>
-                <span>ACT</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">CVAE Transformer</span>
-              </td>
-              <td class="p-4 text-xs font-mono text-slate-500">CVAE Chunks (20Hz, H=16)</td>
-              <td class="p-4 text-center font-bold text-slate-900">79.4%</td>
-              <td class="p-4 text-center">33.1%</td>
-              <td class="p-4 text-center">42.5%</td>
-              <td class="p-4 text-center bg-amber-50/40 text-amber-700">22.0%</td>
-              <td class="p-4 text-center">11.5%</td>
-              <td class="p-4 text-center bg-blue-50/40 text-blue-700">75.8%</td>
-              <td class="p-4 text-center text-purple-700">52.6%</td>
-              <td class="p-4 text-center font-mono text-rose-600">65.6%</td>
-              <td class="p-4 text-center font-mono text-emerald-700">27.7%</td>
-            </tr>
-            <!-- OpenVLA -->
-            <tr class="hover:bg-slate-50 bg-rose-50/20">
-              <td class="p-4 font-semibold text-slate-900 flex items-center gap-2">
-                <span class="text-brand-600 font-mono text-xs">07</span>
-                <span>OpenVLA (7B)</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">256 Bins</span>
-              </td>
-              <td class="p-4 text-xs font-mono text-slate-500">256 Discrete Tokens (5Hz, H=1)</td>
-              <td class="p-4 text-center font-bold text-slate-900">67.4%</td>
-              <td class="p-4 text-center">34.5%</td>
-              <td class="p-4 text-center">52.1%</td>
-              <td class="p-4 text-center bg-amber-50/40 text-rose-700">18.3%</td>
-              <td class="p-4 text-center">11.2%</td>
-              <td class="p-4 text-center bg-rose-50 font-bold text-rose-600">54.2%</td>
-              <td class="p-4 text-center text-rose-600">15.0%</td>
-              <td class="p-4 text-center font-mono text-rose-600">56.9%</td>
-              <td class="p-4 text-center font-mono text-emerald-700">27.2%</td>
-            </tr>
-            <!-- SmolVLA -->
-            <tr class="hover:bg-slate-50">
-              <td class="p-4 font-semibold text-slate-900 flex items-center gap-2">
-                <span class="text-brand-600 font-mono text-xs">08</span>
-                <span>SmolVLA (450M)</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">Edge Flow</span>
-              </td>
-              <td class="p-4 text-xs font-mono text-slate-500">Lightweight Flow (20Hz, H=16)</td>
-              <td class="p-4 text-center font-bold text-slate-900">71.8%</td>
-              <td class="p-4 text-center">41.2%</td>
-              <td class="p-4 text-center">58.6%</td>
-              <td class="p-4 text-center bg-amber-50/40 text-amber-700">22.4%</td>
-              <td class="p-4 text-center">14.8%</td>
-              <td class="p-4 text-center bg-blue-50/40 text-blue-700">67.1%</td>
-              <td class="p-4 text-center text-purple-700">42.0%</td>
-              <td class="p-4 text-center font-mono">52.3%</td>
-              <td class="p-4 text-center font-mono text-emerald-700">31.2%</td>
-            </tr>
-            <!-- Uniform Random -->
-            <tr class="text-slate-500 bg-slate-50/50">
-              <td class="p-4 font-semibold flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-slate-400"></span>
-                <span>Uniform Random</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-500">Baseline</span>
-              </td>
-              <td class="p-4 text-xs font-mono text-slate-400">Random in [-1, 1]<sup>7</sup></td>
-              <td class="p-4 text-center font-mono font-bold text-slate-400">0.0%</td>
-              <td class="p-4 text-center font-mono">0.0%</td>
-              <td class="p-4 text-center font-mono">0.0%</td>
-              <td class="p-4 text-center bg-amber-50/30 font-mono">0.0%</td>
-              <td class="p-4 text-center font-mono">0.0%</td>
-              <td class="p-4 text-center bg-blue-50/30 font-mono">0.0%</td>
-              <td class="p-4 text-center font-mono">0.0%</td>
-              <td class="p-4 text-center font-mono">&mdash;</td>
-              <td class="p-4 text-center font-mono">&mdash;</td>
-            </tr>
-            <!-- Null Policy -->
-            <tr class="text-slate-500 bg-slate-50/50">
-              <td class="p-4 font-semibold flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-slate-400"></span>
-                <span>Null Policy</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-500">Baseline</span>
-              </td>
-              <td class="p-4 text-xs font-mono text-slate-400">Zero Motion, Gripper Open</td>
-              <td class="p-4 text-center font-mono font-bold text-slate-400">0.0%</td>
-              <td class="p-4 text-center font-mono">0.0%</td>
-              <td class="p-4 text-center font-mono">0.0%</td>
-              <td class="p-4 text-center bg-amber-50/30 font-mono">0.0%</td>
-              <td class="p-4 text-center font-mono">0.0%</td>
-              <td class="p-4 text-center bg-blue-50/30 font-mono">0.0%</td>
-              <td class="p-4 text-center font-mono">0.0%</td>
-              <td class="p-4 text-center font-mono">&mdash;</td>
-              <td class="p-4 text-center font-mono">&mdash;</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- 4 Physical Affordance Insights Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-          <div class="flex items-center gap-3 mb-3">
-            <span class="p-2 rounded-xl bg-rose-100 text-rose-600 font-bold text-sm">01</span>
-            <h3 class="font-bold text-slate-900 text-lg">The 2mm Discretization Bottleneck</h3>
-          </div>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            OpenVLA's 256 discrete bins introduce a ~1 mm quantization floor. While sufficient for coarse pick-and-place, it suffers a steep drop to <strong>54.2%</strong> on our CAD 2mm precision tasks. In contrast, continuous flow (<strong class="text-slate-800">&pi;<sub>0.5</sub></strong>: 84.1%) and 3D token representations (<strong class="text-slate-800">SpatialVLA</strong>: 85.3%) smoothly achieve millimetric clearances.
-          </p>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-          <div class="flex items-center gap-3 mb-3">
-            <span class="p-2 rounded-xl bg-amber-100 text-amber-600 font-bold text-sm">02</span>
-            <h3 class="font-bold text-slate-900 text-lg">Physical Friction Collapse (L4)</h3>
-          </div>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            When pad friction drops to &mu; &in; [0.12, 0.25] and object mass increases 2.5&times;, every model suffers a massive performance drop (PRI 27&ndash;40%). High commanded accelerations without tactile slip feedback cause objects to slide out of grasps mid-transport, revealing that current vision-only VLAs cannot compensate for contact dynamics.
-          </p>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-          <div class="flex items-center gap-3 mb-3">
-            <span class="p-2 rounded-xl bg-indigo-100 text-indigo-600 font-bold text-sm">03</span>
-            <h3 class="font-bold text-slate-900 text-lg">Spatial Grounding vs. Contact Blindness</h3>
-          </div>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            <strong>SpatialVLA</strong> dominates L2 spatial out-of-distribution shifts (<strong>74.8%</strong> vs. 36.2% for standard Diffusion Policy) through explicit 3D point cloud conditioning. However, it still collapses to 28.6% under L4 physical shifts, proving that 3D geometric awareness does not equal contact mechanics mastery.
-          </p>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-          <div class="flex items-center gap-3 mb-3">
-            <span class="p-2 rounded-xl bg-teal-100 text-teal-600 font-bold text-sm">04</span>
-            <h3 class="font-bold text-slate-900 text-lg">World-Model Reactive Recovery</h3>
-          </div>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            Under sudden 4 cm mid-trajectory perturbations during approach, open-loop replays fail 100% of the time. <strong>AtomVLA</strong> achieves the highest Reactive Recovery Ratio (<strong>RRR = 61.5%</strong>) because its predictive latent world model recognizes execution divergence and triggers rapid subgoal replanning.
-          </p>
-        </div>
-
-      </div>
-
-      <div class="mt-8 text-center">
-        <a href="MODEL_BENCHMARK_EVALUATION.md" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800 transition shadow-sm text-sm">
-          <span>Read Full 10-Model Physical Evaluation Report</span>
-          <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-        </a>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Ready-to-Run Code Snippets Section -->
-  <section id="code" class="py-20 bg-slate-900 text-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-16">
-        <span class="text-xs uppercase tracking-widest font-extrabold text-teal-400">Execution Framework</span>
-        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mt-2 mb-4">
-          Ready-to-Run Training &amp; Evaluation Scripts
-        </h2>
-        <p class="text-slate-400 text-lg">
-          Standardized commands to train policies, evaluate In-Distribution baselines, and test across the 35 Out-of-Distribution evaluation suites.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        <!-- Code Card 1: Training -->
-        <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700">
-          <div class="flex items-center justify-between mb-4">
-            <span class="text-xs font-mono font-bold text-teal-400 uppercase tracking-wider">1. Train Policy (Any Modality)</span>
-            <span class="text-xs px-2 py-0.5 rounded bg-slate-700 text-slate-300 font-mono">scripts/train_policy.py</span>
-          </div>
-          <pre class="bg-slate-950 p-4 rounded-xl text-xs font-mono text-slate-200 overflow-x-auto leading-relaxed border border-slate-800">
-<span class="text-slate-500"># Train Diffusion Policy on state proprioception</span>
-python scripts/train_policy.py \
-  --policy diffusion \
-  --modality state \
-  --domain industrial \
-  --epochs 50 \
-  --batch-size 64
-
-<span class="text-slate-500"># Train Behavior Cloning on RGB images</span>
-python scripts/train_policy.py \
-  --policy bc \
-  --modality visual \
-  --task kitchen_patty_stack \
-  --epochs 100</pre>
-        </div>
-
-        <!-- Code Card 2: In-Distribution Evaluation -->
-        <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700">
-          <div class="flex items-center justify-between mb-4">
-            <span class="text-xs font-mono font-bold text-blue-400 uppercase tracking-wider">2. In-Distribution (ID) Evaluation</span>
-            <span class="text-xs px-2 py-0.5 rounded bg-slate-700 text-slate-300 font-mono">scripts/evaluate_id.py</span>
-          </div>
-          <pre class="bg-slate-950 p-4 rounded-xl text-xs font-mono text-slate-200 overflow-x-auto leading-relaxed border border-slate-800">
-<span class="text-slate-500"># Evaluate trained checkpoint under nominal conditions</span>
-python scripts/evaluate_id.py \
-  --checkpoint checkpoints/diffusion_best.pt \
-  --domain industrial \
-  --num-episodes 20
-
-<span class="text-slate-500"># Verify algorithmic oracle baseline</span>
-python scripts/evaluate_id.py \
-  --policy oracle \
-  --domain laboratory \
-  --num-episodes 10</pre>
-        </div>
-
-        <!-- Code Card 3: Out-of-Distribution Evaluation -->
-        <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 lg:col-span-2">
-          <div class="flex items-center justify-between mb-4">
-            <span class="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider">3. Out-of-Distribution (OOD) Evaluation Across 35 Suites</span>
-            <span class="text-xs px-2 py-0.5 rounded bg-slate-700 text-slate-300 font-mono">scripts/evaluate_ood.py</span>
-          </div>
-          <pre class="bg-slate-950 p-4 rounded-xl text-xs font-mono text-slate-200 overflow-x-auto leading-relaxed border border-slate-800">
-<span class="text-slate-500"># Evaluate policy across all 5 OOD perturbation suites</span>
-python scripts/evaluate_ood.py \
-  --checkpoint checkpoints/diffusion_best.pt \
-  --domain all \
-  --perturbation all \
-  --num-episodes 20
-
-<span class="text-slate-500"># Isolate Physical-Dynamic Affordance shifts (Coulomb friction mu &in; [0.1, 1.2], mass scaling 0.5x-3.0x)</span>
-python scripts/evaluate_ood.py \
-  --checkpoint checkpoints/diffusion_best.pt \
-  --domain industrial \
-  --perturbation p4_physical \
-  --num-episodes 20</pre>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
-  <!-- RSS 2027 Stage 2 Extension Charter Section -->
-  <section id="charter" class="py-20 bg-white border-b border-slate-200">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-12">
-        <span class="text-xs uppercase tracking-widest font-extrabold text-brand-600">Shepherding Roadmap</span>
-        <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 mt-2 mb-3">
-          RSS 2027 Stage 2 Extension Charter
-        </h2>
-        <p class="text-slate-600">
-          Following the two-stage RSS 2027 review process, this Stage 1 Extended Abstract establishes the benchmark architecture, dataset synthesis, and evaluation protocol. Stage 2 executes the following charter:
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
-        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50">
-          <div class="text-brand-600 font-bold text-lg mb-2">1. Full Empirical Scaling</div>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            Executing the full 210-task &times; 35 evaluation suites matrix across all major architectures: Diffusion Policy, ACT, OpenVLA-7B, SmolVLA-450M, AtomVLA, and DP3 (50 rollouts per condition).
-          </p>
-        </div>
-        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50">
-          <div class="text-brand-600 font-bold text-lg mb-2">2. Disentangled Sensitivity</div>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            Mapping isolated performance degradation curves along individual physical axes (&Delta;p, friction &mu;, mass m, lighting I) to discover the exact physical fragility boundaries of each model family.
-          </p>
-        </div>
-        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50">
-          <div class="text-brand-600 font-bold text-lg mb-2">3. Physical Sim-to-Real Pilot</div>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            Deploying zero-shot and fine-tuned policies onto a physical Franka Emika Panda workstation equipped with real wrist/workcell cameras for representative industrial and laboratory tasks.
-          </p>
-        </div>
-        <div class="p-6 rounded-2xl border border-teal-200 bg-teal-50/50">
-          <div class="text-teal-700 font-bold text-lg mb-2">4. Frontier Articulated Suite</div>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            Domain 8 (Tasks 211–240): Contact-mechanics twist-locks (push-and-turn childproof caps with $F_z \ge 20\text{ N}$, bayonets, keyway latches), compound non-prehensile pushing, and mid-approach reactive perturbations.
-          </p>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- BibTeX Citation -->
-  <section class="py-16 bg-slate-100">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h3 class="text-xl font-bold text-slate-900 mb-4 text-center">BibTeX Citation</h3>
-      <div class="bg-slate-900 rounded-xl p-5 text-xs font-mono text-slate-300 overflow-x-auto border border-slate-800">
-        <pre>@inproceedings{affordbench2027,
-  title={AFFORD-Bench: An Affordance-Grounded Benchmark and Generalization Evaluation for Robot Learning},
-  author={Anonymous Authors},
-  booktitle={Robotics: Science and Systems (RSS)},
-  year={2027},
-  note={Stage 1 Shepherding Extended Abstract}
+        <div>
+          <h2>Cite</h2>
+<pre>@inproceedings{affordbench2027,
+  title     = {AFFORD-Bench: An Affordance-Grounded Benchmark and
+               Generalization Evaluation for Robot Learning},
+  author    = {Anonymous},
+  booktitle = {Robotics: Science and Systems (RSS)},
+  year      = {2027},
+  note      = {Under review}
 }</pre>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </main>
 
-  <!-- Footer -->
-  <footer class="py-8 bg-white border-t border-slate-200 text-center text-xs text-slate-500">
-    <p>AFFORD-Bench: An Affordance-Grounded Benchmark for Robot Learning &bull; Robotics: Science and Systems 2027</p>
+  <footer>
+    <div class="wrap" id="footer"></div>
   </footer>
 
-  <script>
-    const domainData = [
-      {
-        badge: "Domain 1 • 30 Tasks",
-        title: "Industrial Precision: Shaft Assembly",
-        clearance: "±2.0 – 5.0 mm",
-        contact: "Rigid peg-in-hole friction",
-        desc: "High-precision assembly tasks requiring millimeter-level alignment tolerances, tight clearances, and rigid surface contact interactions. Tasks include splined gear meshing, flange bolt placement, structural shaft seating, and toggle-clamp latching.",
-        video: "videos/d1_industrial_shaft_assembly.mp4"
-      },
-      {
-        badge: "Domain 2 • 30 Tasks",
-        title: "Culinary Operations: Patty Stacking",
-        clearance: "±5.0 – 12.0 mm",
-        contact: "Compliant non-planar contact",
-        desc: "Commercial culinary preparation operations involving spatula patty flips, espresso mug docking, ingredient transfers, and sanitization wipe passes under non-rigid friction dynamics.",
-        video: "videos/d2_kitchen_patty_stack.mp4"
-      },
-      {
-        badge: "Domain 3 • 30 Tasks",
-        title: "Domestic Tabletop: Color Block Sorting",
-        clearance: "±8.0 – 20.0 mm",
-        contact: "Multi-body clutter & toppling",
-        desc: "Service robotics manipulation in cluttered tabletop environments, including color-based receptacle sorting, drawer articulation, cup nesting, and obstacle clearing.",
-        video: "videos/d3_tabletop_sort_red.mp4"
-      },
-      {
-        badge: "Domain 4 • 30 Tasks",
-        title: "Laboratory Sciences: Centrifuge Tube Docking",
-        clearance: "±1.5 – 4.0 mm",
-        contact: "Fragile cylindrical insertion",
-        desc: "Cleanroom pharmaceutical and biological operations requiring delicate, high-accuracy manipulation of conical tubes, pipette tip pickups, centrifuge docking, and well-plate transfers.",
-        video: "videos/d4_lab_tube_centrifuge.mp4"
-      },
-      {
-        badge: "Domain 5 • 30 Tasks",
-        title: "Long-Horizon: Multi-Stage Transmission Assembly",
-        clearance: "±3.0 – 10.0 mm",
-        contact: "Cumulative error accumulation",
-        desc: "Extended multi-phase assembly procedures requiring tool-assisted latching, sub-assembly alignment, and sequential part transfer across horizons up to 800 simulation timesteps.",
-        video: "videos/d5_long_horizon_transmission.mp4"
-      },
-      {
-        badge: "Domain 6 • 30 Tasks",
-        title: "Precision Chaining: Shaft → Bearing → Clamp",
-        clearance: "±1.8 – 4.5 mm",
-        contact: "Compounded insertion tolerances",
-        desc: "Compound multi-subtask industrial workflows chaining 2–3 sequential manipulation steps in single natural language instructions, evaluating cumulative contact stability.",
-        video: "videos/d6_precision_chaining.mp4"
-      },
-      {
-        badge: "Domain 7 • 30 Tasks",
-        title: "Service Assembly: Patty Flip → Cheese → Top Bun",
-        clearance: "±4.0 – 10.0 mm",
-        contact: "Dynamic re-grasping & chaining",
-        desc: "Compound culinary service assembly chaining 2–3 consecutive steps in continuous instructions, probing sequential planning and affordance alignment under compound error propagation.",
-        video: "videos/d7_service_chaining.mp4"
-      }
-    ];
-
-    function switchDomain(index) {
-      const data = domainData[index];
-      const video = document.getElementById('domain-video');
-      const badge = document.getElementById('domain-badge');
-      const title = document.getElementById('domain-title');
-      const clearance = document.getElementById('domain-clearance');
-      const contact = document.getElementById('domain-contact');
-      const desc = document.getElementById('domain-desc');
-
-      // Update text
-      badge.textContent = data.badge;
-      title.textContent = data.title;
-      clearance.textContent = data.clearance;
-      contact.textContent = data.contact;
-      desc.textContent = data.desc;
-
-      // Update video
-      video.src = data.video;
-      video.load();
-      video.play().catch(e => console.log('Autoplay prevented:', e));
-
-      // Update tab styles
-      const tabs = document.querySelectorAll('.tab-btn');
-      tabs.forEach((tab, i) => {
-        if (i === index) {
-          tab.classList.add('active');
-        } else {
-          tab.classList.remove('active');
-        }
-      });
-    }
-  </script>
+  <script src="site/data.js"></script>
+  <script src="site/app.js"></script>
 </body>
 </html>

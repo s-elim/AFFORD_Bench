@@ -1,0 +1,437 @@
+{
+ "settings": {
+  "checkpoint": "None",
+  "policy": "oracle",
+  "task": "None",
+  "domain": "industrial",
+  "tier": "core",
+  "suites": "nominal,p1_object,p2_spatial,p3_visual,p4_physical,combined_ood",
+  "episodes": "5",
+  "horizon": "400",
+  "seed_base": "200000",
+  "replan": "None",
+  "use_init_states": "False",
+  "device": "cpu",
+  "out_dir": "docs\\roadmap\\evidence\\leaderboard_2026-10-18\\oracle_industrial"
+ },
+ "checkpoint_sha256": null,
+ "provenance": {
+  "timestamp_utc": "2026-10-17T12:21:49+00:00",
+  "command": [
+   "scripts/evaluate_policy_suite.py",
+   "--policy",
+   "oracle",
+   "--domain",
+   "industrial",
+   "--tier",
+   "core",
+   "--suites",
+   "nominal,p1_object,p2_spatial,p3_visual,p4_physical,combined_ood",
+   "--episodes",
+   "5",
+   "--out-dir",
+   "docs/roadmap/evidence/leaderboard_2026-10-18/oracle_industrial"
+  ],
+  "python": "3.13.5",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+   "mujoco": "3.5.0",
+   "numpy": "2.2.6",
+   "h5py": "3.12.1",
+   "gymnasium": "1.3.0",
+   "torch": "2.10.0+cpu",
+   "scipy": "1.18.1"
+  },
+  "git": {
+   "commit": "25e647914a4cc2569e5a5261f1d30bb56c150545",
+   "branch": "main",
+   "dirty": true,
+   "modified_tracked_files": [
+    "AFFORD-Bench_RSS'27/paper-template-latex/figures/benchmark_comparison.pdf",
+    "AFFORD-Bench_RSS'27/paper-template-latex/figures/benchmark_comparison.png",
+    "AFFORD-Bench_RSS'27/paper-template-latex/figures/model_performance_comparison.pdf",
+    "AFFORD-Bench_RSS'27/paper-template-latex/figures/model_performance_comparison.png",
+    "AFFORD-Bench_RSS'27/paper-template-latex/figures/tasks_horizontal_vis.pdf",
+    "AFFORD-Bench_RSS'27/paper-template-latex/figures/tasks_horizontal_vis.png",
+    "AFFORD-Bench_RSS'27/paper-template-latex/figures/tasks_visualization.pdf",
+    "AFFORD-Bench_RSS'27/paper-template-latex/figures/tasks_visualization.png",
+    "AFFORD-Bench_RSS'27/paper-template-latex/main.pdf",
+    "AFFORD-Bench_RSS'27/paper-template-latex/main.tex",
+    "AFFORD-Bench_RSS'27/paper-template-latex/references.bib",
+    "BENCHMARK_RESULTS.md",
+    "README.md",
+    "afford_pro/datasets/converters.py",
+    "afford_pro/datasets/hdf5_writer.py",
+    "afford_pro/oracles/base_oracle.py",
+    "afford_pro/perturbations/engine.py",
+    "afford_pro/task_definitions.py",
+    "docs/FRONTIER_COMPLEX_TASKS.md",
+    "docs/MODEL_BENCHMARK_EVALUATION.md",
+    "docs/images/benchmark_comparison.png",
+    "docs/images/model_performance_comparison.png",
+    "docs/images/tasks_horizontal_vis.png",
+    "docs/images/tasks_visualization.png",
+    "docs/index.html",
+    "docs/reviews/vla_model_benchmark_comparison_2026-10-08.csv",
+    "docs/reviews/vla_model_benchmark_comparison_2026-10-08.json",
+    "gitignore",
+    "planning.md",
+    "requirements-ci.txt",
+    "scripts/evaluate_id.py",
+    "scripts/evaluate_ood.py",
+    "scripts/evaluate_vla_baselines.py",
+    "scripts/generate_all_150_tasks.py",
+    "scripts/generate_benchmark_comparison_figure.py",
+    "scripts/generate_demos.py",
+    "scripts/generate_model_comparison_figure.py",
+    "scripts/generate_paper_figures.py",
+    "scripts/sanity_baselines.py",
+    "scripts/train_policy.py",
+    "setup.py",
+    "tests/test_dataset_recording.py"
+   ]
+  },
+  "asset_sha256": {
+   "industrial_assembly.xml": "29293bb841cedd003875ec6417f54f9c92b6e9a314cac16d4279f454a2837cdd",
+   "kitchen_burger.xml": "1679ae97e1f61d1e741bc6db692d895757acdcf2476fe4d17f0e4f2e340d9b31",
+   "kitchen_coffee.xml": "d1f77eb317e3aee1bab9301996aaafadcbe8288822754492c73fdfbda3d2f567",
+   "lab_science.xml": "6fe40860c97f9a28759937b356e602707e289a87f00bc765b67f4188382e7c3f",
+   "tabletop_sorting.xml": "023c3f03a0c772cb23a9bef09d511773825c9e5d2a5234f0cdfdcba2ca643834",
+   "twist_lock_fixtures.xml": "6c682efbc8539b7327c4f848fedd7e4e72df4d6831690a6ac4cf230878126ea8",
+   "__non_xml_assets__": "c1e58a29601b203fb295487faf70a01201628c3e61924a1d54dc4c25707c4137"
+  },
+  "source_sha256": {
+   "task_definitions.py": "6a9cc3c7ff435b810f41ea6c685ff8548af1b8908b32de0f38445d5d852abbd3",
+   "registry.py": "87884d2322aa99e44967b726bc0d7287622ffbb676abb72f4f43ff45430755c2",
+   "envs/base_franka_env.py": "717f1714ada00fa81cd13fc4cdadb6154fa14765ab3f39fecc25e11261257571",
+   "envs/parametric_env.py": "12c6eab39c5ff24566dc2f65f573e1b52b3034f7d7d2ebcdd670d23db687975b",
+   "envs/frontier_env.py": "1a17dd12349dc33e4b62e884d8c650817bb05439641b523665ad70fab509b0c7",
+   "oracles/base_oracle.py": "8f2f2ae4051a56197b00b1e1a5b8d70c346efe0dc480786857908b8f073bed74",
+   "oracles/parametric_oracle.py": "fe91cca6b23891ee45345f4e500e5ba674a99f3c4b2a94133f4c1a7173f4798f",
+   "oracles/frontier_oracle.py": "8ce646b3d9718df10a20cffc19a8f1c32a4f7b225c92e1aa23e88bec870e8d65",
+   "oracles/twist_lock_oracle.py": "c16249bdcc86118af8fb95241d2da42ce9a49186d8877f8f15b63fa00db030d7",
+   "perturbations/engine.py": "04939dad5eb99c2f7ff5d64f8d9916d1048731604fd7735e6b95fb1cc0d35d39",
+   "datasets/hdf5_writer.py": "496be14e53556bbb8af228ecddf158912cc1276804d4c1388a03f9f6fe815ce0"
+  }
+ },
+ "summary": {
+  "nominal": {
+   "successes": 80,
+   "episodes": 85,
+   "tasks": 17,
+   "rate": 0.9411764705882353,
+   "wilson95": [
+    0.8695856154916024,
+    0.9746148399665875
+   ],
+   "task_cluster_bootstrap95": [
+    0.8588235294117647,
+    1.0
+   ],
+   "per_task_rate": {
+    "industrial_shaft_assembly": 1.0,
+    "industrial_gear_mesh": 1.0,
+    "industrial_pin_insertion": 1.0,
+    "industrial_shaft_to_pallet": 1.0,
+    "industrial_gear_to_pallet": 1.0,
+    "industrial_pin_to_pallet": 1.0,
+    "industrial_shaft_to_cup": 1.0,
+    "industrial_gear_to_tray": 1.0,
+    "industrial_pin_to_tray": 0.4,
+    "industrial_shaft_flip": 1.0,
+    "industrial_gear_flip": 1.0,
+    "industrial_pin_reposition": 0.8,
+    "industrial_tray_kitting_slot1": 1.0,
+    "industrial_tray_kitting_slot2": 1.0,
+    "industrial_tray_kitting_slot3": 0.8,
+    "industrial_clear_feeder_spindle": 1.0,
+    "industrial_clear_inbound_tray": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 100.0,
+   "GDI_pct": 0.0,
+   "subsets": {
+    "unmarked_goal": {
+     "tasks": 2,
+     "episodes": 10,
+     "rate": 1.0
+    },
+    "near_fixed_start": {
+     "tasks": 6,
+     "episodes": 30,
+     "rate": 1.0
+    },
+    "other": {
+     "tasks": 10,
+     "episodes": 50,
+     "rate": 0.9
+    }
+   }
+  },
+  "p1_object": {
+   "successes": 80,
+   "episodes": 85,
+   "tasks": 17,
+   "rate": 0.9411764705882353,
+   "wilson95": [
+    0.8695856154916024,
+    0.9746148399665875
+   ],
+   "task_cluster_bootstrap95": [
+    0.8588235294117647,
+    1.0
+   ],
+   "per_task_rate": {
+    "industrial_shaft_assembly": 1.0,
+    "industrial_gear_mesh": 1.0,
+    "industrial_pin_insertion": 1.0,
+    "industrial_shaft_to_pallet": 1.0,
+    "industrial_gear_to_pallet": 1.0,
+    "industrial_pin_to_pallet": 1.0,
+    "industrial_shaft_to_cup": 1.0,
+    "industrial_gear_to_tray": 1.0,
+    "industrial_pin_to_tray": 0.4,
+    "industrial_shaft_flip": 1.0,
+    "industrial_gear_flip": 1.0,
+    "industrial_pin_reposition": 0.8,
+    "industrial_tray_kitting_slot1": 1.0,
+    "industrial_tray_kitting_slot2": 1.0,
+    "industrial_tray_kitting_slot3": 0.8,
+    "industrial_clear_feeder_spindle": 1.0,
+    "industrial_clear_inbound_tray": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 100.0,
+   "GDI_pct": 0.0,
+   "subsets": {
+    "unmarked_goal": {
+     "tasks": 2,
+     "episodes": 10,
+     "rate": 1.0
+    },
+    "near_fixed_start": {
+     "tasks": 6,
+     "episodes": 30,
+     "rate": 1.0
+    },
+    "other": {
+     "tasks": 10,
+     "episodes": 50,
+     "rate": 0.9
+    }
+   }
+  },
+  "p2_spatial": {
+   "successes": 83,
+   "episodes": 85,
+   "tasks": 17,
+   "rate": 0.9764705882352941,
+   "wilson95": [
+    0.9182130031207928,
+    0.9935234887740522
+   ],
+   "task_cluster_bootstrap95": [
+    0.9411764705882353,
+    1.0
+   ],
+   "per_task_rate": {
+    "industrial_shaft_assembly": 1.0,
+    "industrial_gear_mesh": 1.0,
+    "industrial_pin_insertion": 1.0,
+    "industrial_shaft_to_pallet": 1.0,
+    "industrial_gear_to_pallet": 1.0,
+    "industrial_pin_to_pallet": 1.0,
+    "industrial_shaft_to_cup": 1.0,
+    "industrial_gear_to_tray": 1.0,
+    "industrial_pin_to_tray": 0.8,
+    "industrial_shaft_flip": 1.0,
+    "industrial_gear_flip": 1.0,
+    "industrial_pin_reposition": 1.0,
+    "industrial_tray_kitting_slot1": 1.0,
+    "industrial_tray_kitting_slot2": 0.8,
+    "industrial_tray_kitting_slot3": 1.0,
+    "industrial_clear_feeder_spindle": 1.0,
+    "industrial_clear_inbound_tray": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 103.75,
+   "GDI_pct": -3.75,
+   "subsets": {
+    "unmarked_goal": {
+     "tasks": 2,
+     "episodes": 10,
+     "rate": 1.0
+    },
+    "near_fixed_start": {
+     "tasks": 6,
+     "episodes": 30,
+     "rate": 0.9666666666666667
+    },
+    "other": {
+     "tasks": 10,
+     "episodes": 50,
+     "rate": 0.98
+    }
+   }
+  },
+  "p3_visual": {
+   "successes": 80,
+   "episodes": 85,
+   "tasks": 17,
+   "rate": 0.9411764705882353,
+   "wilson95": [
+    0.8695856154916024,
+    0.9746148399665875
+   ],
+   "task_cluster_bootstrap95": [
+    0.8588235294117647,
+    1.0
+   ],
+   "per_task_rate": {
+    "industrial_shaft_assembly": 1.0,
+    "industrial_gear_mesh": 1.0,
+    "industrial_pin_insertion": 1.0,
+    "industrial_shaft_to_pallet": 1.0,
+    "industrial_gear_to_pallet": 1.0,
+    "industrial_pin_to_pallet": 1.0,
+    "industrial_shaft_to_cup": 1.0,
+    "industrial_gear_to_tray": 1.0,
+    "industrial_pin_to_tray": 0.4,
+    "industrial_shaft_flip": 1.0,
+    "industrial_gear_flip": 1.0,
+    "industrial_pin_reposition": 0.8,
+    "industrial_tray_kitting_slot1": 1.0,
+    "industrial_tray_kitting_slot2": 1.0,
+    "industrial_tray_kitting_slot3": 0.8,
+    "industrial_clear_feeder_spindle": 1.0,
+    "industrial_clear_inbound_tray": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 100.0,
+   "GDI_pct": 0.0,
+   "subsets": {
+    "unmarked_goal": {
+     "tasks": 2,
+     "episodes": 10,
+     "rate": 1.0
+    },
+    "near_fixed_start": {
+     "tasks": 6,
+     "episodes": 30,
+     "rate": 1.0
+    },
+    "other": {
+     "tasks": 10,
+     "episodes": 50,
+     "rate": 0.9
+    }
+   }
+  },
+  "p4_physical": {
+   "successes": 79,
+   "episodes": 85,
+   "tasks": 17,
+   "rate": 0.9294117647058824,
+   "wilson95": [
+    0.8544394064253049,
+    0.9672490368873332
+   ],
+   "task_cluster_bootstrap95": [
+    0.8588235294117647,
+    0.9882352941176471
+   ],
+   "per_task_rate": {
+    "industrial_shaft_assembly": 0.8,
+    "industrial_gear_mesh": 1.0,
+    "industrial_pin_insertion": 1.0,
+    "industrial_shaft_to_pallet": 1.0,
+    "industrial_gear_to_pallet": 1.0,
+    "industrial_pin_to_pallet": 1.0,
+    "industrial_shaft_to_cup": 1.0,
+    "industrial_gear_to_tray": 1.0,
+    "industrial_pin_to_tray": 0.6,
+    "industrial_shaft_flip": 1.0,
+    "industrial_gear_flip": 1.0,
+    "industrial_pin_reposition": 0.6,
+    "industrial_tray_kitting_slot1": 1.0,
+    "industrial_tray_kitting_slot2": 1.0,
+    "industrial_tray_kitting_slot3": 0.8,
+    "industrial_clear_feeder_spindle": 1.0,
+    "industrial_clear_inbound_tray": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 98.75,
+   "GDI_pct": 1.25,
+   "subsets": {
+    "unmarked_goal": {
+     "tasks": 2,
+     "episodes": 10,
+     "rate": 1.0
+    },
+    "near_fixed_start": {
+     "tasks": 6,
+     "episodes": 30,
+     "rate": 1.0
+    },
+    "other": {
+     "tasks": 10,
+     "episodes": 50,
+     "rate": 0.88
+    }
+   }
+  },
+  "combined_ood": {
+   "successes": 79,
+   "episodes": 85,
+   "tasks": 17,
+   "rate": 0.9294117647058824,
+   "wilson95": [
+    0.8544394064253049,
+    0.9672490368873332
+   ],
+   "task_cluster_bootstrap95": [
+    0.8470588235294118,
+    0.9882352941176471
+   ],
+   "per_task_rate": {
+    "industrial_shaft_assembly": 0.4,
+    "industrial_gear_mesh": 1.0,
+    "industrial_pin_insertion": 1.0,
+    "industrial_shaft_to_pallet": 0.8,
+    "industrial_gear_to_pallet": 1.0,
+    "industrial_pin_to_pallet": 1.0,
+    "industrial_shaft_to_cup": 1.0,
+    "industrial_gear_to_tray": 1.0,
+    "industrial_pin_to_tray": 0.8,
+    "industrial_shaft_flip": 1.0,
+    "industrial_gear_flip": 1.0,
+    "industrial_pin_reposition": 1.0,
+    "industrial_tray_kitting_slot1": 1.0,
+    "industrial_tray_kitting_slot2": 1.0,
+    "industrial_tray_kitting_slot3": 0.8,
+    "industrial_clear_feeder_spindle": 1.0,
+    "industrial_clear_inbound_tray": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 98.75,
+   "GDI_pct": 1.25,
+   "subsets": {
+    "unmarked_goal": {
+     "tasks": 2,
+     "episodes": 10,
+     "rate": 1.0
+    },
+    "near_fixed_start": {
+     "tasks": 6,
+     "episodes": 30,
+     "rate": 1.0
+    },
+    "other": {
+     "tasks": 10,
+     "episodes": 50,
+     "rate": 0.88
+    }
+   }
+  }
+ }
+}
