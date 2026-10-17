@@ -255,6 +255,8 @@ def export_reports(out_dir: Path):
             "gdi_degradation_pct": idx["gdi"],
             "pri_physical_pct": idx["pri"],
             "notes": data["notes"],
+            "empirical_evaluation": name in ("Oracle (Closed-Loop)", "Uniform Random", "Null Policy"),
+            "is_synthetic_projection": name not in ("Oracle (Closed-Loop)", "Uniform Random", "Null Policy"),
         }
         rows.append(item)
 
@@ -275,7 +277,15 @@ def export_reports(out_dir: Path):
 def main():
     parser = argparse.ArgumentParser(description="AFFORD-Bench VLA Model Evaluation Suite")
     parser.add_argument("--export-dir", type=Path, default=ROOT / "docs" / "reviews")
+    parser.add_argument("--allow-synthetic-profiles", action="store_true", help="Allow printing/exporting hardcoded synthetic architectural projections (not empirical rollouts)")
     args = parser.parse_args()
+    if not args.allow_synthetic_profiles:
+        raise SystemExit(
+            "[SCIENTIFIC INTEGRITY GUARD] scripts/evaluate_vla_baselines.py contains hardcoded architectural "
+            "projections in BENCHMARK_PROFILES rather than live checkpoint evaluations. Use scripts/evaluate_id.py "
+            "and scripts/evaluate_ood.py for empirical rollouts, or pass --allow-synthetic-profiles to inspect "
+            "the historical projection table."
+        )
 
     print_leaderboard()
     export_reports(args.export_dir)

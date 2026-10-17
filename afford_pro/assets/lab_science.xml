@@ -1,7 +1,7 @@
 <mujoco model="panda_lab_science">
   <compiler angle="radian" meshdir="robots/assets" autolimits="true"/>
 
-  <option integrator="implicitfast">
+  <option integrator="implicitfast" cone="elliptic" impratio="10">
     <!-- Native multi-point convex contacts: without them cylinders on (thin) boxes rest on too few points and topple. -->
     <flag multiccd="enable" nativeccd="enable"/>
   </option>
@@ -368,7 +368,7 @@
                     <geom mesh="link7_7" material="white" class="visual"/>
                     <geom mesh="link7_c" class="collision"/>
                     <body name="hand" pos="0 0 0.107" quat="0.9238795 0 0 -0.3826834" gravcomp="1">
-                      <camera name="wrist_cam" pos="0.05 0 0.06" xyaxes="0 1 0 -1 0 0" fovy="65"/>
+                      <camera name="wrist_cam" pos="0.07 0.0 0.02" xyaxes="0 -1 0 -0.857 0 -0.514" fovy="65"/>
                       <inertial mass="0.73" pos="-0.01 0 0.03" diaginertia="0.001 0.0025 0.0017"/>
                       <geom mesh="hand_0" material="off_white" class="visual"/>
                       <geom mesh="hand_1" material="black" class="visual"/>

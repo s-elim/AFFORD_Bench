@@ -68,7 +68,7 @@ def run_episode(
     step_count = 0
 
     if policy_name == "oracle":
-        oracle.generate_episode(seed=seed)
+        oracle.generate_episode(seed=seed, reset=(init_state is None))
         success = env.check_success()
         return success, env.current_step, time.monotonic() - t0
 
@@ -185,7 +185,7 @@ def main():
         print(f"Loaded checkpoint '{ckpt_p.name}' ({policy_name}).", flush=True)
 
     # Select tasks
-    all_tasks = afford_pro.list_all_tasks(include_frontier=True)
+    all_tasks = afford_pro.list_all_tasks(include_frontier=(args.domain == "frontier"))
     selected_tasks = []
     if args.task:
         selected_tasks = [args.task]

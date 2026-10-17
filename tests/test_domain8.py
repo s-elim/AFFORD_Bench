@@ -46,7 +46,9 @@ class _NoRenderer:
         pass
 
 
-base_env.mujoco.Renderer = _NoRenderer
+@pytest.fixture(autouse=True)
+def _patch_renderer(monkeypatch):
+    monkeypatch.setattr(base_env.mujoco, "Renderer", _NoRenderer)
 
 
 def test_frontier_tasks_registered():

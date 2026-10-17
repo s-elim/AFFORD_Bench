@@ -153,8 +153,16 @@ class RobomimicHDF5Writer:
 
     def _populate_obs_group(self, group: h5py.Group, obs_dict: dict[str, np.ndarray]) -> None:
         """Write observations and establish all canonical robosuite and LIBERO keys."""
-        # 1. Write base observations
+        # 1. Write base observations (skip alias targets whose source key is present so Step 4 links them)
+        derived_or_aliased = set(ROBOMIMIC_OBS_ALIASES.values()) | {
+            "ee_pos", "robot0_eef_pos", "ee_ori", "ee_states", "robot0_eef_quat", "ee_quat",
+            "gripper_states", "robot0_gripper_qpos", "wrist_image",
+        }
         for k, arr in obs_dict.items():
+            if k in derived_or_aliased and (
+                "agentic_rgb" in obs_dict or "wrist_rgb" in obs_dict or "tcp_pose" in obs_dict
+            ):
+                continue
             if k not in group:
                 chunks = (1, *arr.shape[1:]) if arr.ndim >= 3 else True
                 group.create_dataset(k, data=arr, compression="gzip", chunks=chunks)

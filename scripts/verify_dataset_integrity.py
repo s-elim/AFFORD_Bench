@@ -76,12 +76,12 @@ def verify_file(hdf5_path: Path, expected_demos: int = 50) -> dict:
                 # Check shapes for demo_0
                 if not result["errors"]:
                     n_steps = len(d0["actions"])
-                    if d0["obs/agentic_rgb"].shape != (n_steps, 640, 660, 3):
+                    if d0["obs/agentic_rgb"].shape not in ((n_steps, 640, 660, 3), (n_steps, 128, 128, 3)):
                         result["errors"].append(f"Bad agentic_rgb shape: {d0['obs/agentic_rgb'].shape}")
                     elif float(np.mean(d0["obs/agentic_rgb"][0])) < 1.0:
                         result["errors"].append("agentic_rgb is completely dark / black (mean < 1.0)")
 
-                    if d0["obs/wrist_rgb"].shape != (n_steps, 300, 420, 3):
+                    if d0["obs/wrist_rgb"].shape not in ((n_steps, 300, 420, 3), (n_steps, 128, 128, 3)):
                         result["errors"].append(f"Bad wrist_rgb shape: {d0['obs/wrist_rgb'].shape}")
                     elif float(np.mean(d0["obs/wrist_rgb"][0])) < 1.0:
                         result["errors"].append("wrist_rgb is completely dark / black (mean < 1.0)")
@@ -144,7 +144,26 @@ def verify_file(hdf5_path: Path, expected_demos: int = 50) -> dict:
                         result["errors"].append("demo_0 rewards[-1] is not 1.0 (success reward missing)")
 
             # Check env_args attribute (Robomimic metadata)
-            if "env_args" in data_grp.attrs:
+                if "states" not in d0:
+                    result["errors"].append("demo_0 missing 'states' dataset (state replay unsupported)")
+                if "next_obs" not in d0:
+                    result["errors"].append("demo_0 missing 'next_obs' group (offline RL unsupported)")
+                bad_done = sum(1 for dk in demo_keys if "dones" not in data_grp[dk] or len(data_grp[dk]["dones"]) == 0 or data_grp[dk]["dones"][-1] != 1)
+                bad_rew = sum(1 for dk in demo_keys if "rewards" not in data_grp[dk] or len(data_grp[dk]["rewards"]) == 0 or data_grp[dk]["rewards"][-1] != 1.0)
+                if bad_done > 0:
+                    result["errors"].append(f"{bad_done}/{len(demo_keys)} demos missing terminal dones[-1]==1")
+                if bad_rew > 0:
+                    result["errors"].append(f"{bad_rew}/{len(demo_keys)} demos missing terminal rewards[-1]==1.0")
+                if len(demo_keys) >= 2 and "obs" in d0 and "obs" in data_grp[demo_keys[1]]:
+                    d1 = data_grp[demo_keys[1]]
+                    if "joint_positions" in d0["obs"] and "joint_positions" in d1["obs"]:
+                        if np.allclose(d0["obs/joint_positions"][0], d1["obs/joint_positions"][0]) and d0["actions"].shape == d1["actions"].shape and np.allclose(d0["actions"], d1["actions"]):
+                            result["errors"].append("demo_0 and demo_1 have identical initial states and actions (cloned episodes)")
+            if "mask" not in f or "train" not in f["mask"] or "valid" not in f["mask"]:
+                result["errors"].append("Missing mask/train or mask/valid split groups")
+            if "env_args" not in data_grp.attrs:
+                result["errors"].append("Missing data.attrs['env_args'] metadata")
+            elif "env_args" in data_grp.attrs:
                 try:
                     import json
                     meta = json.loads(data_grp.attrs["env_args"])

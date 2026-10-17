@@ -31,13 +31,17 @@ class BaseOracle:
         self.last_states = np.zeros((0, 0))
         self.last_seed: int | None = None
 
-    def generate_episode(self, seed: int | None = None, options: dict[str, Any] | None = None) -> Episode:
+    def generate_episode(self, seed: int | None = None, options: dict[str, Any] | None = None,
+                         reset: bool = True) -> Episode:
         """Generate one rollout; returns (actions, observations, rewards, dones) aligned to T steps.
 
         observations[t] and `last_states[t]` describe the state before actions[t]; rewards[t] and dones[t] are the
         reward and termination returned by the step that executes actions[t], so a successful demonstration
         ends with dones[-1] = True."""
-        obs, _ = self.env.reset(seed=seed, options=options)
+        if reset:
+            obs, _ = self.env.reset(seed=seed, options=options)
+        else:
+            obs = self.env.get_observation()
         self.last_seed = seed
         self._obs: dict[str, list[np.ndarray]] = {k: [v] for k, v in obs.items()}
         self._states: list[np.ndarray] = [self.env.get_sim_state()] if hasattr(self.env, "get_sim_state") else []

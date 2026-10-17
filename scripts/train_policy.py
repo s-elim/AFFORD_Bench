@@ -355,7 +355,9 @@ def main():
             "chain_service": "chain_",
         }
         pfx = domain_prefix_map[args.domain]
-        target_files = sorted(list(data_dir.glob(f"{pfx}*_nominal.hdf5")))
+        domain_match = {"industrial": "Industrial", "kitchen": "Culinary", "tabletop": "Tabletop", "lab": "Laboratory", "long_horizon": "Long-Horizon", "chain_precision": "Precision Chaining", "chain_service": "Service & Culinary"}
+        target_dom = domain_match[args.domain]
+        target_files = [data_dir / f"{t}_nominal.hdf5" for t in afford_pro.list_tasks() if target_dom in afford_pro.get_task_entry(t).domain]
 
     existing_files = [p for p in target_files if p.exists()]
     if not existing_files:

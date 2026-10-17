@@ -180,7 +180,7 @@ def main():
         print(f"Loaded checkpoint '{ckpt_p.name}' ({policy_name}).", flush=True)
 
     # Resolve tasks
-    all_tasks = afford_pro.list_all_tasks(include_frontier=True)
+    all_tasks = afford_pro.list_all_tasks(include_frontier=(args.domain == "frontier"))
     selected_tasks = []
     if args.task:
         selected_tasks = [args.task]
@@ -202,7 +202,7 @@ def main():
 
     # Resolve perturbation splits
     if args.perturbation == "all":
-        perturbation_splits = ["nominal", "p1_object", "p2_spatial", "p3_visual", "combined_ood"]
+        perturbation_splits = ["nominal", "p1_object", "p2_spatial", "p3_visual", "p4_physical", "combined_ood"]
     else:
         perturbation_splits = [args.perturbation]
 

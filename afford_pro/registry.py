@@ -216,20 +216,24 @@ def get_initial_states(task_id: str, init_states_dir: Path | str | None = None) 
 # environments via gym.make(task_id) or gymnasium.make(task_id).
 try:
     import gymnasium as _gymnasium
+    _gym_reg = getattr(_gymnasium.envs, "registry", {})
     for _tid in list(_TASK_REGISTRY.keys()):
         try:
-            _gymnasium.register(
-                id=f"afford_pro/{_tid}-v0",
-                entry_point="afford_pro.registry:make",
-                kwargs={"task_id": _tid},
-                disable_env_checker=True,
-            )
-            _gymnasium.register(
-                id=_tid,
-                entry_point="afford_pro.registry:make",
-                kwargs={"task_id": _tid},
-                disable_env_checker=True,
-            )
+            _ns_id = f"afford_pro/{_tid}-v0"
+            if _ns_id not in _gym_reg:
+                _gymnasium.register(
+                    id=_ns_id,
+                    entry_point="afford_pro.registry:make",
+                    kwargs={"task_id": _tid},
+                    disable_env_checker=True,
+                )
+            if _tid not in _gym_reg:
+                _gymnasium.register(
+                    id=_tid,
+                    entry_point="afford_pro.registry:make",
+                    kwargs={"task_id": _tid},
+                    disable_env_checker=True,
+                )
         except Exception:
             pass
 except Exception:
@@ -237,18 +241,22 @@ except Exception:
 
 try:
     import gym as _gym
+    _legacy_reg = getattr(_gym.envs, "registry", {})
     for _tid in list(_TASK_REGISTRY.keys()):
         try:
-            _gym.register(
-                id=f"afford_pro/{_tid}-v0",
-                entry_point="afford_pro.registry:make",
-                kwargs={"task_id": _tid},
-            )
-            _gym.register(
-                id=_tid,
-                entry_point="afford_pro.registry:make",
-                kwargs={"task_id": _tid},
-            )
+            _ns_id = f"afford_pro/{_tid}-v0"
+            if _ns_id not in _legacy_reg:
+                _gym.register(
+                    id=_ns_id,
+                    entry_point="afford_pro.registry:make",
+                    kwargs={"task_id": _tid},
+                )
+            if _tid not in _legacy_reg:
+                _gym.register(
+                    id=_tid,
+                    entry_point="afford_pro.registry:make",
+                    kwargs={"task_id": _tid},
+                )
         except Exception:
             pass
 except Exception:

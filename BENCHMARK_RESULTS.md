@@ -1,4 +1,6 @@
-# AFFORD-PRO-150 Benchmark Evaluation Report
+# AFFORD-PRO-150 Benchmark Evaluation Report (Historical Smoke Test)
+
+> **[AUDIT PROVENANCE NOTE]**: This file records a legacy 9-task, 1-episode-per-split (`n=1`) oracle smoke test generated prior to the October 8, 2026 physics hardening (`cba995e`) and excludes the `p4_physical` perturbation split. For the verified post-hardening 210-task calibration (5 seeds/task, including `p4_physical`), see [`docs/reviews/sanity_baselines_2026-10-08.csv`](docs/reviews/sanity_baselines_2026-10-08.csv) and Table II of [`AFFORD-Bench_RSS'27/paper-template-latex/main.tex`](AFFORD-Bench_RSS'27/paper-template-latex/main.tex).
 
 - **Evaluated Policy**: `ORACLE`
 - **Total Evaluated Tasks**: `9`

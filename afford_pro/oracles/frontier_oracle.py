@@ -57,7 +57,7 @@ class FrontierOracle(ParametricOracle):
         for _ in range(50):
             if dof is not None and np.linalg.norm(env.data.qvel[dof : dof + 3]) < 0.01:
                 break
-            env.step(np.array([0, 0, 0, 0, 0, 0, OPEN]))
+            self.act(np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, OPEN]))
 
     def _execute_push_phase(self, min_push: float) -> None:
         """Push the object along the table surface before picking and placing."""

@@ -17,7 +17,7 @@ REST_ANG_SPEED = 0.2    # rad/s
 PRESS_DWELL_STEPS = 5   # consecutive 20 Hz steps the TCP must stay within tolerance (0.25 s)
 PAD_BELOW_TCP = 0.0115  # finger pads extend this far below the TCP (m)
 # (scatter scale, attempts) rounds of start rejection sampling before the nominal fallback.
-RESET_SCATTER_SCHEDULE = ((1.0, 16), (0.5, 8), (0.25, 8), (0.1, 8))
+RESET_SCATTER_SCHEDULE = ((1.0, 16), (0.5, 8), (0.25, 8), (0.1, 8), (0.05, 8))
 WORKSPACE_X = (0.33, 0.66)
 WORKSPACE_Y = (-0.32, 0.32)
 CUBE_BODIES = ("red_block", "blue_block")
@@ -347,6 +347,13 @@ class ParametricFrankaEnv(BaseFrankaEnv):
             self._try_start_pose(q_arm, self.nominal_obj_pos.copy(), np.array([1.0, 0.0, 0.0, 0.0]), strict=False)
         self.start_z = float(self.data.xpos[self.target_id][2])
         self.peak_z = self.start_z
+        self.dwell = 0
+
+    def set_sim_state(self, state: np.ndarray) -> None:
+        super().set_sim_state(state)
+        if hasattr(self, "target_id") and self.target_id is not None:
+            self.start_z = float(self.data.xpos[self.target_id][2])
+            self.peak_z = self.start_z
         self.dwell = 0
 
     def _try_start_pose(self, q_arm: np.ndarray, pos: np.ndarray, quat: np.ndarray, strict: bool = True) -> bool:

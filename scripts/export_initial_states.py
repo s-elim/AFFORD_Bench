@@ -37,6 +37,7 @@ def export_task_initial_states(
     task_base_seed = base_seed + entry.task_number * 1000
 
     env = afford_pro.make(task_id, perturbation_mode="nominal")
+    env.get_observation = lambda: {}
     states = []
     seeds = []
 
@@ -73,7 +74,7 @@ def main():
     args = parser.parse_args()
 
     out_dir = ROOT / args.output_dir
-    all_tasks = afford_pro.list_all_tasks(include_frontier=True)
+    all_tasks = afford_pro.list_all_tasks(include_frontier=(args.domain == "frontier" or args.task is not None))
 
     if args.task:
         selected_tasks = [args.task]

@@ -20,18 +20,18 @@ import afford_pro
 from afford_pro.datasets.hdf5_writer import RobomimicHDF5Writer, make_env_args
 
 
+from scripts.verify_dataset_integrity import verify_file
+
+
 def is_task_already_done(hdf5_path: Path, target_demos: int) -> bool:
-    """Check if the dataset already contains at least target_demos demonstrations."""
+    """Check if the dataset already contains at least target_demos valid, post-hardening demonstrations."""
     if not hdf5_path.exists():
         return False
     try:
-        with h5py.File(str(hdf5_path), "r") as f:
-            if "data" in f:
-                keys = [k for k in f["data"].keys() if k.startswith("demo_")]
-                return len(keys) >= target_demos
+        res = verify_file(hdf5_path, expected_demos=target_demos)
+        return bool(res.get("valid", False))
     except Exception:
         return False
-    return False
 
 
 def generate_task_demos(
@@ -63,17 +63,16 @@ def generate_task_demos(
         env_args=make_env_args(task_id, perturbation_mode=perturbation, render_depth=depth),
         model_file=model_xml,
     )
-    if depth:
-        env.reset(seed=base_seed)
-        for key, value in env.camera_parameters().items():
-            writer.data_grp.attrs[f"camera_{key}"] = value
+    env.reset(seed=base_seed)
+    for key, value in env.camera_parameters().items():
+        writer.data_grp.attrs[f"camera_{key}"] = value
 
     t0 = time.monotonic()
     collected = 0
     total_steps = 0
     attempt = 0
 
-    while collected < num_demos and attempt < num_demos * 3:
+    while collected < num_demos and attempt < num_demos * 8:
         ep_seed = base_seed + attempt
         attempt += 1
 
@@ -88,6 +87,7 @@ def generate_task_demos(
                 print(f"    -> [{collected:2d}/{num_demos}] Demos collected ({total_steps:5d} steps, {fps:.0f} FPS)", flush=True)
 
     writer.close()
+    env.close()
     duration = time.monotonic() - t0
     return collected, total_steps, duration
 
@@ -103,14 +103,19 @@ def main():
     )
     parser.add_argument("--start-task", type=int, default=1, help="First task number (1-240)")
     parser.add_argument("--end-task", type=int, default=240, help="Last task number (1-240)")
-    parser.add_argument("--perturbation", type=str, default="nominal", choices=["nominal", "p1_object", "p2_spatial", "p3_visual", "combined_ood"])
+    parser.add_argument(
+        "--perturbation",
+        type=str,
+        default="nominal",
+        choices=["nominal", "p1_object", "p2_spatial", "p3_visual", "p4_physical", "combined_ood"],
+    )
     parser.add_argument("--output-dir", type=str, default="datasets")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--depth", action="store_true",
                         help="Also record float32 metric depth for both cameras and their camera parameters (much larger files)")
     args = parser.parse_args()
 
-    all_task_ids = afford_pro.list_all_tasks(include_frontier=True)
+    all_task_ids = afford_pro.list_all_tasks(include_frontier=(args.domain == "frontier"))
     selected_tasks = []
 
     domain_match = {

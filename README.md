@@ -3,13 +3,15 @@
 [![Target Venue: RSS 2027](https://img.shields.io/badge/Submission-RSS%202027%20Stage%201-blue.svg)](AFFORD-Bench_RSS'27/paper-template-latex/main.pdf)
 [![Physics: MuJoCo Native](https://img.shields.io/badge/MuJoCo-3.x%20C%2B%2B%20Native-brightgreen.svg)](https://mujoco.org)
 [![Dataset Standard: Robomimic HDF5](https://img.shields.io/badge/Dataset-Robomimic%20HDF5-orange.svg)](https://robomimic.github.io)
-[![Scale: 240 Tasks / 12,000 Demos Target](https://img.shields.io/badge/Scale-240%20Tasks%20%7C%2012%2C000%20Demos%20Target-purple.svg)]()
-[![Suites: 40 Benchmark Suites](https://img.shields.io/badge/Suites-40%20Benchmark%20Suites-darkblue.svg)]()
+[![Scale: 210 Core Tasks (+30 Stage 2 Frontier)](https://img.shields.io/badge/Scale-210%20Core%20Tasks%20%28%2B30%20Stage%202%29-purple.svg)]()
+[![Suites: 35 Core Benchmark Suites](https://img.shields.io/badge/Suites-35%20Core%20Benchmark%20Suites-darkblue.svg)]()
 [![Zero External Cost](https://img.shields.io/badge/External%20Cost-%240.00%20Zero-success.svg)]()
 
 **AFFORD-Bench** is a large-scale, **policy-agnostic**, affordance-grounded robot manipulation benchmark and dataset suite engineered to stress-test the out-of-distribution (OOD) physical generalization of any robot learning policy---ranging from **Classical Imitation Learning (BC, BeT)** and **Visuomotor Action Chunking (Diffusion Policy, ACT)** to **3D Point-Cloud Policies (DP3)**, **Vision-Language-Action (VLA) Foundation Models (OpenVLA, SmolVLA, AtomVLA, Octo)**, and **Offline Reinforcement Learning (CQL, IQL)**.
 
-Operating on a 7-DoF Franka Emika Panda manipulator simulated with contact physics in MuJoCo, AFFORD-Bench provides **240 formally defined physical manipulation tasks** across **8 distinct domains**, accompanied by a 100% local deterministic demonstration generator targeting **up to 12,000 demonstration episodes** (50 demos/task, >2.5M physical timesteps), synchronized dual-camera perception ($640\times 660$ workcell and $300\times 420$ wrist), and optional **true physical 3D metric depth** (`--depth`).
+Operating on a 7-DoF Franka Emika Panda manipulator simulated with contact physics in MuJoCo, AFFORD-Bench provides **210 core physical manipulation tasks** across **7 distinct domains** (35 evaluation suites, targeting **10,500 demonstration episodes** at 50 demos/task; plus a 30-task **Domain 8 Stage 2 Frontier Charter** containing 14 validated non-prehensile and reactive probe tasks), synchronized dual-camera perception ($640\times 660$ workcell and $300\times 420$ wrist), and optional **true physical 3D metric depth** (`--depth`).
+
+> **Dataset Provenance Note**: The 210 `datasets/*_nominal.hdf5` files currently on disk were generated on October 3, 2026 (`128x128` RGB, pre-hardening physics) and fail `python scripts/verify_dataset_integrity.py`. Regenerate datasets with the current physics and oracle before training Stage 2 baselines.
 
 > 🌐 **Interactive Project Page**: Explore multi-modal videos, interactive domain tabs, perturbation hierarchies, and dataset schemas in [`docs/index.html`](docs/index.html).
 

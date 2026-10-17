@@ -1,4 +1,6 @@
-# AFFORD-Bench: VLA & Imitation Model Performance Benchmark Evaluation
+# AFFORD-Bench: VLA & Imitation Model Performance Benchmark Evaluation (Synthetic Projection Archive)
+
+> **[SCIENTIFIC INTEGRITY & AUDIT DISCLOSURE]**: Except for the **Privileged Oracle**, **Null Policy**, and **Uniform Random** sanity bounds (which are empirically verified in [`docs/reviews/sanity_baselines_2026-10-08.csv`](reviews/sanity_baselines_2026-10-08.csv) and [`docs/reviews/reactive_perturbation_2026-10-08.csv`](reviews/reactive_perturbation_2026-10-08.csv)), the VLA and imitation learning scores in this document ($\pi_{0.5}/\pi_0$, SpatialVLA, AtomVLA, CoT-VLA, Diffusion Policy, ACT, OpenVLA, SmolVLA) were generated from hardcoded lookup dictionaries in [`scripts/evaluate_vla_baselines.py`](../scripts/evaluate_vla_baselines.py) and **must not be cited or reported as empirical experimental results**. As stated in Table II of [`AFFORD-Bench_RSS'27/paper-template-latex/main.tex`](../AFFORD-Bench_RSS'27/paper-template-latex/main.tex), empirical learned-policy evaluations are deferred to Stage 2 after post-hardening dataset regeneration.
 
 > **Author**: Antigravity Benchmarking Group & AFFORD-Bench Consortium  
 > **Date**: October 8, 2026  

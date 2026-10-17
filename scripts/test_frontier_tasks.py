@@ -10,7 +10,7 @@ from afford_pro.envs.frontier_env import FrontierComplexEnv
 from afford_pro.oracles.frontier_oracle import FrontierOracle
 from scripts.sanity_baselines import _disable_rendering
 
-_disable_rendering()
+if __name__ == "__main__": _disable_rendering()
 
 tasks = [
     {
@@ -91,7 +91,7 @@ tasks = [
 print(f"{'Task ID':<35} | {'Oracle':<8} | {'Steps':<6} | {'Null':<8} | {'Random':<8}")
 print("-" * 75)
 
-for t in tasks:
+for t in (tasks if __name__ == "__main__" else []):
     env = FrontierComplexEnv(
         scene_xml_name=t['xml'],
         object_name=t['obj'],

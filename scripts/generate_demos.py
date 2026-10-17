@@ -22,7 +22,7 @@ def main():
     parser.add_argument("--task", type=str, default="industrial_shaft_assembly", choices=available_tasks, help="Task ID")
     parser.add_argument("--num-demos", type=int, default=5, help="Number of successful demonstration episodes to collect")
     parser.add_argument("--perturbation", type=str, default="nominal", choices=[
-        "nominal", "p1_object", "p2_spatial", "p3_visual", "p4_distractor", "combined_ood"
+        "nominal", "p1_object", "p2_spatial", "p3_visual", "p4_physical", "combined_ood"
     ])
     parser.add_argument("--output-dir", type=str, default="datasets")
     parser.add_argument("--seed", type=int, default=42)
@@ -58,17 +58,18 @@ def main():
         model_file=model_xml,
     )
 
-    if args.depth:
-        env.reset(seed=args.seed)
-        for key, value in env.camera_parameters().items():
-            writer.data_grp.attrs[f"camera_{key}"] = value
+    env.reset(seed=args.seed)
+    for key, value in env.camera_parameters().items():
+        writer.data_grp.attrs[f"camera_{key}"] = value
 
     t0 = time.monotonic()
     collected = 0
     total_steps = 0
+    attempt = 0
 
-    for ep in range(args.num_demos):
-        ep_seed = args.seed + ep
+    while collected < args.num_demos and attempt < args.num_demos * 8:
+        ep_seed = args.seed + attempt
+        attempt += 1
         ep_t0 = time.monotonic()
 
         actions, observations, rewards, dones = oracle.generate_episode(seed=ep_seed)

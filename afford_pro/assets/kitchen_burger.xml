@@ -1,7 +1,7 @@
 <mujoco model="panda_burger_kitchen">
   <compiler angle="radian" meshdir="robots/assets" autolimits="true"/>
 
-  <option integrator="implicitfast">
+  <option integrator="implicitfast" cone="elliptic" impratio="10">
     <!-- Native multi-point convex contacts: without them cylinders on (thin) boxes rest on too few points and topple. -->
     <flag multiccd="enable" nativeccd="enable"/>
   </option>

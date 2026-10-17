@@ -40,7 +40,7 @@ def main():
         "--perturbation",
         type=str,
         default="combined_ood",
-        choices=["all", "p1_object", "p2_spatial", "p3_visual", "combined_ood"],
+        choices=["all", "p1_object", "p2_spatial", "p3_visual", "p4_physical", "combined_ood"],
     )
     parser.add_argument("--num-demos", type=int, default=10, help="Number of evaluation demonstrations per task")
     parser.add_argument("--output-dir", type=str, default="datasets/eval_suites")
@@ -68,7 +68,7 @@ def main():
             selected_tasks.append(tid)
 
     perturbation_list = (
-        ["p1_object", "p2_spatial", "p3_visual", "combined_ood"]
+        ["p1_object", "p2_spatial", "p3_visual", "p4_physical", "combined_ood"]
         if args.perturbation == "all"
         else [args.perturbation]
     )
