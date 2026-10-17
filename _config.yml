@@ -1,0 +1,20 @@
+# GitHub Pages (Jekyll) settings. The project page is docs/index.html; the repository root renders README.md.
+# Internal records, code, and data are not published as pages (they stay in the repository).
+title: AFFORD-Bench
+exclude:
+  - docs/roadmap
+  - docs/reviews
+  - docs/quarantine
+  - afford_pro
+  - afford_pro.egg-info
+  - scripts
+  - tests
+  - configs
+  - data
+  - datasets
+  - checkpoints
+  - scratch
+  - libero_pro_full_text.txt
+  - planning.md
+  - requirements-ci.txt
+  - setup.py

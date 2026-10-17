@@ -9,6 +9,9 @@ build/
 
 # Large Datasets & Media (>100MB GitHub limit)
 datasets/*.hdf5
+datasets/**/*.hdf5
+*.hdf5.partial
+*.partial
 datasets/*.h5
 *.mp4
 *.avi
@@ -27,6 +30,7 @@ ENV/
 .idea/
 .DS_Store
 Thumbs.db
+MUJOCO_LOG.TXT
 *.swp
 *.log
 
@@ -42,6 +46,7 @@ Thumbs.db
 
 # Model Checkpoints
 checkpoints/*.pt
+checkpoints/**/*.pt
 checkpoints/*.pth
 checkpoints/*.bin
 !checkpoints/.gitkeep
