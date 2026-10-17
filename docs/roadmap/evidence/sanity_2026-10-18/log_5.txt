@@ -1,0 +1,36 @@
+[006] industrial_nut_thread_align: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[014] industrial_shaft_to_cup: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[022] industrial_tray_kitting_slot3: oracle=0.80 (H=400: 0.80) oracle_L4=0.80 random=0.00 null=0.00 reset_success=False pose_varies=True
+[030] industrial_ready_home_return: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[038] kitchen_pod_into_hopper: oracle=0.40 (H=400: 0.40) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[046] kitchen_patty_flip: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[054] kitchen_caddy_slot2_fill: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[062] tabletop_sort_green: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[070] tabletop_red_center_table: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[078] tabletop_stack_blue_on_red: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[086] tabletop_clear_right_quadrant: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[094] lab_pipette_to_microplate: oracle=0.80 (H=400: 0.80) oracle_L4=0.80 random=0.00 null=0.00 reset_success=False pose_varies=True
+[102] lab_tube_rack_b_inspect: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[110] lab_bench_wipe_pass_2: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[118] lab_micro_cap_snap_dwell: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[126] long_horizon_burger_service_plating: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[134] long_horizon_industrial_kitting_full: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[142] long_horizon_industrial_qa_rework: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[150] long_horizon_grand_challenge_150: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[158] chain_tube_centrifuge_rack: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[166] chain_gasket_flange_align: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[174] chain_cryovial_dewar_storage: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[182] chain_espresso_mug_brew_serve: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[190] chain_pancake_flip_syrup_serve: oracle=0.80 (H=400: 0.60) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[198] chain_fruit_bowl_arrange_center: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+[206] chain_groceries_bag_unload_fridge: oracle=1.00 (H=400: 1.00) oracle_L4=1.00 random=0.00 null=0.00 reset_success=False pose_varies=True
+
+Domain                                   Oracle  Or.L4  Random   Null
+Industrial & Manufacturing                95.0%  95.0%   0.0%   0.0%
+Culinary & Kitchen Operations             80.0% 100.0%   0.0%   0.0%
+Tabletop & Domestic                      100.0% 100.0%   0.0%   0.0%
+Laboratory & Life Sciences                95.0%  95.0%   0.0%   0.0%
+Long-Horizon Multi-Stage                 100.0% 100.0%   0.0%   0.0%
+Multi-Stage Precision Chaining           100.0% 100.0%   0.0%   0.0%
+Sequential Service & Culinary Assembly    95.0% 100.0%   0.0%   0.0%
+Wrote docs\roadmap\evidence\sanity_2026-10-18\part_5.csv

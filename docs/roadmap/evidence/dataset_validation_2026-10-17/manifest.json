@@ -1,0 +1,2102 @@
+[
+ {
+  "file": "chain_bearing_housing_press_nominal.hdf5",
+  "task_id": "chain_bearing_housing_press",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5844,
+  "size_bytes": 2824902583,
+  "sha256": null
+ },
+ {
+  "file": "chain_biscuit_jam_butter_plate_nominal.hdf5",
+  "task_id": "chain_biscuit_jam_butter_plate",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 8878,
+  "size_bytes": 4218518015,
+  "sha256": null
+ },
+ {
+  "file": "chain_blender_fruit_lid_pulse_nominal.hdf5",
+  "task_id": "chain_blender_fruit_lid_pulse",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6363,
+  "size_bytes": 2946743489,
+  "sha256": null
+ },
+ {
+  "file": "chain_bolt_flange_torque_nominal.hdf5",
+  "task_id": "chain_bolt_flange_torque",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5889,
+  "size_bytes": 2945112953,
+  "sha256": null
+ },
+ {
+  "file": "chain_bottle_uncap_pour_glass_nominal.hdf5",
+  "task_id": "chain_bottle_uncap_pour_glass",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7154,
+  "size_bytes": 1629395950,
+  "sha256": null
+ },
+ {
+  "file": "chain_bread_slice_toast_plate_nominal.hdf5",
+  "task_id": "chain_bread_slice_toast_plate",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 8100,
+  "size_bytes": 3840521592,
+  "sha256": null
+ },
+ {
+  "file": "chain_burger_flip_cheese_top_nominal.hdf5",
+  "task_id": "chain_burger_flip_cheese_top",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 8354,
+  "size_bytes": 11620725980,
+  "sha256": null
+ },
+ {
+  "file": "chain_bushing_shaft_inspect_nominal.hdf5",
+  "task_id": "chain_bushing_shaft_inspect",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6226,
+  "size_bytes": 3159124680,
+  "sha256": null
+ },
+ {
+  "file": "chain_cereal_pour_milk_spoon_nominal.hdf5",
+  "task_id": "chain_cereal_pour_milk_spoon",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7338,
+  "size_bytes": 1680877777,
+  "sha256": null
+ },
+ {
+  "file": "chain_coffee_pod_eject_tray_nominal.hdf5",
+  "task_id": "chain_coffee_pod_eject_tray",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5963,
+  "size_bytes": 1278139553,
+  "sha256": null
+ },
+ {
+  "file": "chain_conical_tube_decant_nominal.hdf5",
+  "task_id": "chain_conical_tube_decant",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7014,
+  "size_bytes": 1602101740,
+  "sha256": null
+ },
+ {
+  "file": "chain_crimping_wire_terminal_nominal.hdf5",
+  "task_id": "chain_crimping_wire_terminal",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6474,
+  "size_bytes": 3057122006,
+  "sha256": null
+ },
+ {
+  "file": "chain_cryovial_dewar_storage_nominal.hdf5",
+  "task_id": "chain_cryovial_dewar_storage",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6957,
+  "size_bytes": 1663659398,
+  "sha256": null
+ },
+ {
+  "file": "chain_cup_stack_shelf_align_nominal.hdf5",
+  "task_id": "chain_cup_stack_shelf_align",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7394,
+  "size_bytes": 1727497359,
+  "sha256": null
+ },
+ {
+  "file": "chain_cutlery_fork_knife_napkin_nominal.hdf5",
+  "task_id": "chain_cutlery_fork_knife_napkin",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5619,
+  "size_bytes": 1234616734,
+  "sha256": null
+ },
+ {
+  "file": "chain_cuvette_spectro_measure_nominal.hdf5",
+  "task_id": "chain_cuvette_spectro_measure",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6071,
+  "size_bytes": 1481477506,
+  "sha256": null
+ },
+ {
+  "file": "chain_dining_table_clear_wipe_nominal.hdf5",
+  "task_id": "chain_dining_table_clear_wipe",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6078,
+  "size_bytes": 1401734373,
+  "sha256": null
+ },
+ {
+  "file": "chain_drawer_sort_utensil_close_nominal.hdf5",
+  "task_id": "chain_drawer_sort_utensil_close",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6692,
+  "size_bytes": 1534869745,
+  "sha256": null
+ },
+ {
+  "file": "chain_egg_crack_whisk_pour_nominal.hdf5",
+  "task_id": "chain_egg_crack_whisk_pour",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5666,
+  "size_bytes": 2660433032,
+  "sha256": null
+ },
+ {
+  "file": "chain_espresso_mug_brew_serve_nominal.hdf5",
+  "task_id": "chain_espresso_mug_brew_serve",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5919,
+  "size_bytes": 1283519286,
+  "sha256": null
+ },
+ {
+  "file": "chain_fixture_toggle_lock_nominal.hdf5",
+  "task_id": "chain_fixture_toggle_lock",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6200,
+  "size_bytes": 3143209749,
+  "sha256": null
+ },
+ {
+  "file": "chain_fruit_bowl_arrange_center_nominal.hdf5",
+  "task_id": "chain_fruit_bowl_arrange_center",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5760,
+  "size_bytes": 1380951701,
+  "sha256": null
+ },
+ {
+  "file": "chain_fuse_terminal_insert_nominal.hdf5",
+  "task_id": "chain_fuse_terminal_insert",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6644,
+  "size_bytes": 3121116717,
+  "sha256": null
+ },
+ {
+  "file": "chain_gasket_flange_align_nominal.hdf5",
+  "task_id": "chain_gasket_flange_align",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5939,
+  "size_bytes": 2970131629,
+  "sha256": null
+ },
+ {
+  "file": "chain_gear_shaft_washer_nominal.hdf5",
+  "task_id": "chain_gear_shaft_washer",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5923,
+  "size_bytes": 2861610953,
+  "sha256": null
+ },
+ {
+  "file": "chain_grand_master_banquet_service_nominal.hdf5",
+  "task_id": "chain_grand_master_banquet_service",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 9622,
+  "size_bytes": 4450689713,
+  "sha256": null
+ },
+ {
+  "file": "chain_groceries_bag_unload_fridge_nominal.hdf5",
+  "task_id": "chain_groceries_bag_unload_fridge",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6460,
+  "size_bytes": 1464024919,
+  "sha256": null
+ },
+ {
+  "file": "chain_ice_cube_tray_fill_freeze_nominal.hdf5",
+  "task_id": "chain_ice_cube_tray_fill_freeze",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5969,
+  "size_bytes": 1356174458,
+  "sha256": null
+ },
+ {
+  "file": "chain_master_cleanroom_assembly_nominal.hdf5",
+  "task_id": "chain_master_cleanroom_assembly",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7721,
+  "size_bytes": 1851417537,
+  "sha256": null
+ },
+ {
+  "file": "chain_micro_tube_cap_dock_nominal.hdf5",
+  "task_id": "chain_micro_tube_cap_dock",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6927,
+  "size_bytes": 1656937468,
+  "sha256": null
+ },
+ {
+  "file": "chain_microwave_dish_cover_start_nominal.hdf5",
+  "task_id": "chain_microwave_dish_cover_start",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6302,
+  "size_bytes": 1368481393,
+  "sha256": null
+ },
+ {
+  "file": "chain_o_ring_shaft_seat_nominal.hdf5",
+  "task_id": "chain_o_ring_shaft_seat",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5884,
+  "size_bytes": 2844140715,
+  "sha256": null
+ },
+ {
+  "file": "chain_pancake_flip_syrup_serve_nominal.hdf5",
+  "task_id": "chain_pancake_flip_syrup_serve",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6952,
+  "size_bytes": 3258575011,
+  "sha256": null
+ },
+ {
+  "file": "chain_pasta_strainer_sauce_pot_nominal.hdf5",
+  "task_id": "chain_pasta_strainer_sauce_pot",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5303,
+  "size_bytes": 2521143613,
+  "sha256": null
+ },
+ {
+  "file": "chain_pcb_chip_socket_nominal.hdf5",
+  "task_id": "chain_pcb_chip_socket",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5928,
+  "size_bytes": 2864467420,
+  "sha256": null
+ },
+ {
+  "file": "chain_petri_dish_streak_incubate_nominal.hdf5",
+  "task_id": "chain_petri_dish_streak_incubate",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7730,
+  "size_bytes": 1758770654,
+  "sha256": null
+ },
+ {
+  "file": "chain_pin_align_press_nominal.hdf5",
+  "task_id": "chain_pin_align_press",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6560,
+  "size_bytes": 3178265245,
+  "sha256": null
+ },
+ {
+  "file": "chain_pipette_aspirate_dispense_nominal.hdf5",
+  "task_id": "chain_pipette_aspirate_dispense",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 8305,
+  "size_bytes": 1878575763,
+  "sha256": null
+ },
+ {
+  "file": "chain_pipette_tip_eject_nominal.hdf5",
+  "task_id": "chain_pipette_tip_eject",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7693,
+  "size_bytes": 1779260045,
+  "sha256": null
+ },
+ {
+  "file": "chain_pizza_sauce_cheese_bake_nominal.hdf5",
+  "task_id": "chain_pizza_sauce_cheese_bake",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6519,
+  "size_bytes": 2958693773,
+  "sha256": null
+ },
+ {
+  "file": "chain_plate_dishrack_cabinet_nominal.hdf5",
+  "task_id": "chain_plate_dishrack_cabinet",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6495,
+  "size_bytes": 1519205562,
+  "sha256": null
+ },
+ {
+  "file": "chain_pulley_belt_tension_nominal.hdf5",
+  "task_id": "chain_pulley_belt_tension",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5904,
+  "size_bytes": 2853266283,
+  "sha256": null
+ },
+ {
+  "file": "chain_reagent_vial_mix_nominal.hdf5",
+  "task_id": "chain_reagent_vial_mix",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6402,
+  "size_bytes": 1551532711,
+  "sha256": null
+ },
+ {
+  "file": "chain_salad_toss_dressing_bowl_nominal.hdf5",
+  "task_id": "chain_salad_toss_dressing_bowl",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5430,
+  "size_bytes": 2567426366,
+  "sha256": null
+ },
+ {
+  "file": "chain_sandwich_meat_lettuce_cut_nominal.hdf5",
+  "task_id": "chain_sandwich_meat_lettuce_cut",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6874,
+  "size_bytes": 3466065658,
+  "sha256": null
+ },
+ {
+  "file": "chain_sensor_bracket_mount_nominal.hdf5",
+  "task_id": "chain_sensor_bracket_mount",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6740,
+  "size_bytes": 3301454655,
+  "sha256": null
+ },
+ {
+  "file": "chain_shaft_bearing_clamp_nominal.hdf5",
+  "task_id": "chain_shaft_bearing_clamp",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6255,
+  "size_bytes": 9502702659,
+  "sha256": null
+ },
+ {
+  "file": "chain_shaft_key_slot_insert_nominal.hdf5",
+  "task_id": "chain_shaft_key_slot_insert",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6521,
+  "size_bytes": 3155997801,
+  "sha256": null
+ },
+ {
+  "file": "chain_slide_cover_inspect_nominal.hdf5",
+  "task_id": "chain_slide_cover_inspect",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6813,
+  "size_bytes": 1602594125,
+  "sha256": null
+ },
+ {
+  "file": "chain_spark_plug_socket_nominal.hdf5",
+  "task_id": "chain_spark_plug_socket",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6584,
+  "size_bytes": 3191267543,
+  "sha256": null
+ },
+ {
+  "file": "chain_sushi_rice_fish_roll_nominal.hdf5",
+  "task_id": "chain_sushi_rice_fish_roll",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5400,
+  "size_bytes": 2562324145,
+  "sha256": null
+ },
+ {
+  "file": "chain_table_condiment_caddy_nominal.hdf5",
+  "task_id": "chain_table_condiment_caddy",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5755,
+  "size_bytes": 1370762967,
+  "sha256": null
+ },
+ {
+  "file": "chain_taco_shell_beef_salsa_nominal.hdf5",
+  "task_id": "chain_taco_shell_beef_salsa",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5717,
+  "size_bytes": 2613646131,
+  "sha256": null
+ },
+ {
+  "file": "chain_tea_bag_kettle_steep_nominal.hdf5",
+  "task_id": "chain_tea_bag_kettle_steep",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7014,
+  "size_bytes": 1601393632,
+  "sha256": null
+ },
+ {
+  "file": "chain_trash_can_liner_tie_nominal.hdf5",
+  "task_id": "chain_trash_can_liner_tie",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6207,
+  "size_bytes": 1418641639,
+  "sha256": null
+ },
+ {
+  "file": "chain_tube_centrifuge_rack_nominal.hdf5",
+  "task_id": "chain_tube_centrifuge_rack",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6106,
+  "size_bytes": 1478784668,
+  "sha256": null
+ },
+ {
+  "file": "chain_valve_manifold_tighten_nominal.hdf5",
+  "task_id": "chain_valve_manifold_tighten",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6230,
+  "size_bytes": 3162018366,
+  "sha256": null
+ },
+ {
+  "file": "chain_well_plate_seal_nominal.hdf5",
+  "task_id": "chain_well_plate_seal",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7060,
+  "size_bytes": 1683221288,
+  "sha256": null
+ },
+ {
+  "file": "chain_wine_cork_open_pour_nominal.hdf5",
+  "task_id": "chain_wine_cork_open_pour",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7363,
+  "size_bytes": 1695320029,
+  "sha256": null
+ },
+ {
+  "file": "chain_wire_harness_clip_nominal.hdf5",
+  "task_id": "chain_wire_harness_clip",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7367,
+  "size_bytes": 3375822379,
+  "sha256": null
+ },
+ {
+  "file": "industrial_andon_green_verify_nominal.hdf5",
+  "task_id": "industrial_andon_green_verify",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1939,
+  "size_bytes": 1001050848,
+  "sha256": null
+ },
+ {
+  "file": "industrial_bearing_press_nominal.hdf5",
+  "task_id": "industrial_bearing_press",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5945,
+  "size_bytes": 2890905132,
+  "sha256": null
+ },
+ {
+  "file": "industrial_bolt_pickup_nominal.hdf5",
+  "task_id": "industrial_bolt_pickup",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6655,
+  "size_bytes": 3264227169,
+  "sha256": null
+ },
+ {
+  "file": "industrial_cable_harness_plug_nominal.hdf5",
+  "task_id": "industrial_cable_harness_plug",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6645,
+  "size_bytes": 3309642811,
+  "sha256": null
+ },
+ {
+  "file": "industrial_clear_feeder_spindle_nominal.hdf5",
+  "task_id": "industrial_clear_feeder_spindle",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5850,
+  "size_bytes": 2784750083,
+  "sha256": null
+ },
+ {
+  "file": "industrial_clear_inbound_tray_nominal.hdf5",
+  "task_id": "industrial_clear_inbound_tray",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6273,
+  "size_bytes": 3136635560,
+  "sha256": null
+ },
+ {
+  "file": "industrial_estop_button_press_nominal.hdf5",
+  "task_id": "industrial_estop_button_press",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1659,
+  "size_bytes": 833182579,
+  "sha256": null
+ },
+ {
+  "file": "industrial_fuse_seat_nominal.hdf5",
+  "task_id": "industrial_fuse_seat",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6031,
+  "size_bytes": 3029439511,
+  "sha256": null
+ },
+ {
+  "file": "industrial_gear_flip_nominal.hdf5",
+  "task_id": "industrial_gear_flip",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 4621,
+  "size_bytes": 2133569950,
+  "sha256": null
+ },
+ {
+  "file": "industrial_gear_mesh_nominal.hdf5",
+  "task_id": "industrial_gear_mesh",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6090,
+  "size_bytes": 2984068752,
+  "sha256": null
+ },
+ {
+  "file": "industrial_gear_to_pallet_nominal.hdf5",
+  "task_id": "industrial_gear_to_pallet",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5946,
+  "size_bytes": 2937736481,
+  "sha256": null
+ },
+ {
+  "file": "industrial_gear_to_tray_nominal.hdf5",
+  "task_id": "industrial_gear_to_tray",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5439,
+  "size_bytes": 2579755520,
+  "sha256": null
+ },
+ {
+  "file": "industrial_inspection_dwell_nominal.hdf5",
+  "task_id": "industrial_inspection_dwell",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1573,
+  "size_bytes": 823745331,
+  "sha256": null
+ },
+ {
+  "file": "industrial_jaw_clamp_actuation_nominal.hdf5",
+  "task_id": "industrial_jaw_clamp_actuation",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1687,
+  "size_bytes": 848734950,
+  "sha256": null
+ },
+ {
+  "file": "industrial_nut_thread_align_nominal.hdf5",
+  "task_id": "industrial_nut_thread_align",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5905,
+  "size_bytes": 2869057213,
+  "sha256": null
+ },
+ {
+  "file": "industrial_pallet_scan_dwell_nominal.hdf5",
+  "task_id": "industrial_pallet_scan_dwell",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1605,
+  "size_bytes": 808340845,
+  "sha256": null
+ },
+ {
+  "file": "industrial_pcb_chip_insert_nominal.hdf5",
+  "task_id": "industrial_pcb_chip_insert",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6039,
+  "size_bytes": 3048998446,
+  "sha256": null
+ },
+ {
+  "file": "industrial_pin_insertion_nominal.hdf5",
+  "task_id": "industrial_pin_insertion",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6298,
+  "size_bytes": 3082099041,
+  "sha256": null
+ },
+ {
+  "file": "industrial_pin_reposition_nominal.hdf5",
+  "task_id": "industrial_pin_reposition",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6472,
+  "size_bytes": 3147527052,
+  "sha256": null
+ },
+ {
+  "file": "industrial_pin_to_pallet_nominal.hdf5",
+  "task_id": "industrial_pin_to_pallet",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6146,
+  "size_bytes": 3062853323,
+  "sha256": null
+ },
+ {
+  "file": "industrial_pin_to_tray_nominal.hdf5",
+  "task_id": "industrial_pin_to_tray",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5985,
+  "size_bytes": 2907929228,
+  "sha256": null
+ },
+ {
+  "file": "industrial_ready_home_return_nominal.hdf5",
+  "task_id": "industrial_ready_home_return",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1949,
+  "size_bytes": 1085917573,
+  "sha256": null
+ },
+ {
+  "file": "industrial_relay_switch_seat_nominal.hdf5",
+  "task_id": "industrial_relay_switch_seat",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6354,
+  "size_bytes": 2959053904,
+  "sha256": null
+ },
+ {
+  "file": "industrial_shaft_assembly_nominal.hdf5",
+  "task_id": "industrial_shaft_assembly",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6204,
+  "size_bytes": 9477771389,
+  "sha256": null
+ },
+ {
+  "file": "industrial_shaft_flip_nominal.hdf5",
+  "task_id": "industrial_shaft_flip",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5595,
+  "size_bytes": 2815002021,
+  "sha256": null
+ },
+ {
+  "file": "industrial_shaft_to_cup_nominal.hdf5",
+  "task_id": "industrial_shaft_to_cup",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5577,
+  "size_bytes": 2814972516,
+  "sha256": null
+ },
+ {
+  "file": "industrial_shaft_to_pallet_nominal.hdf5",
+  "task_id": "industrial_shaft_to_pallet",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5946,
+  "size_bytes": 3023544956,
+  "sha256": null
+ },
+ {
+  "file": "industrial_tray_kitting_slot1_nominal.hdf5",
+  "task_id": "industrial_tray_kitting_slot1",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6862,
+  "size_bytes": 3441639983,
+  "sha256": null
+ },
+ {
+  "file": "industrial_tray_kitting_slot2_nominal.hdf5",
+  "task_id": "industrial_tray_kitting_slot2",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6333,
+  "size_bytes": 3008156802,
+  "sha256": null
+ },
+ {
+  "file": "industrial_tray_kitting_slot3_nominal.hdf5",
+  "task_id": "industrial_tray_kitting_slot3",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6502,
+  "size_bytes": 3157917522,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_bottom_bun_to_board_nominal.hdf5",
+  "task_id": "kitchen_bottom_bun_to_board",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7630,
+  "size_bytes": 3589644694,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_bun_lid_close_dwell_nominal.hdf5",
+  "task_id": "kitchen_bun_lid_close_dwell",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1528,
+  "size_bytes": 739248027,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_caddy_slot1_fill_nominal.hdf5",
+  "task_id": "kitchen_caddy_slot1_fill",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6574,
+  "size_bytes": 3076329263,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_caddy_slot2_fill_nominal.hdf5",
+  "task_id": "kitchen_caddy_slot2_fill",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6026,
+  "size_bytes": 3011450203,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_cheese_place_nominal.hdf5",
+  "task_id": "kitchen_cheese_place",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5812,
+  "size_bytes": 2712886622,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_cheese_to_board_nominal.hdf5",
+  "task_id": "kitchen_cheese_to_board",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5689,
+  "size_bytes": 2627802364,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_cheese_to_plate_nominal.hdf5",
+  "task_id": "kitchen_cheese_to_plate",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6056,
+  "size_bytes": 2775367539,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_counter_wipe_pass_nominal.hdf5",
+  "task_id": "kitchen_counter_wipe_pass",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1500,
+  "size_bytes": 731526060,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_drip_tray_wipe_pass_nominal.hdf5",
+  "task_id": "kitchen_drip_tray_wipe_pass",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1566,
+  "size_bytes": 333182115,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_espresso_spout_align_nominal.hdf5",
+  "task_id": "kitchen_espresso_spout_align",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1421,
+  "size_bytes": 309478440,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_grill_led_verify_nominal.hdf5",
+  "task_id": "kitchen_grill_led_verify",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1696,
+  "size_bytes": 815906812,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_mug_return_bin_nominal.hdf5",
+  "task_id": "kitchen_mug_return_bin",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 9306,
+  "size_bytes": 2187356093,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_mug_to_espresso_nominal.hdf5",
+  "task_id": "kitchen_mug_to_espresso",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7962,
+  "size_bytes": 1776101891,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_mug_to_serving_tray_nominal.hdf5",
+  "task_id": "kitchen_mug_to_serving_tray",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6546,
+  "size_bytes": 1500000106,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_patty_flip_nominal.hdf5",
+  "task_id": "kitchen_patty_flip",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 4852,
+  "size_bytes": 2289756872,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_patty_grill_return_nominal.hdf5",
+  "task_id": "kitchen_patty_grill_return",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5597,
+  "size_bytes": 2643773537,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_patty_stack_nominal.hdf5",
+  "task_id": "kitchen_patty_stack",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5672,
+  "size_bytes": 7992399182,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_patty_to_plate_nominal.hdf5",
+  "task_id": "kitchen_patty_to_plate",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6660,
+  "size_bytes": 3086842180,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_pod_into_hopper_nominal.hdf5",
+  "task_id": "kitchen_pod_into_hopper",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7245,
+  "size_bytes": 1770069266,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_pod_return_caddy_nominal.hdf5",
+  "task_id": "kitchen_pod_return_caddy",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 8933,
+  "size_bytes": 2082860646,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_pod_to_tray_nominal.hdf5",
+  "task_id": "kitchen_pod_to_tray",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7996,
+  "size_bytes": 1894189707,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_press_brew_button_nominal.hdf5",
+  "task_id": "kitchen_press_brew_button",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1287,
+  "size_bytes": 318088938,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_ready_standby_nominal.hdf5",
+  "task_id": "kitchen_ready_standby",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1800,
+  "size_bytes": 927709096,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_tomato_place_nominal.hdf5",
+  "task_id": "kitchen_tomato_place",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6030,
+  "size_bytes": 2775274171,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_tomato_to_board_nominal.hdf5",
+  "task_id": "kitchen_tomato_to_board",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6029,
+  "size_bytes": 2774800214,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_tomato_to_plate_nominal.hdf5",
+  "task_id": "kitchen_tomato_to_plate",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6083,
+  "size_bytes": 2775246684,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_top_bun_crown_nominal.hdf5",
+  "task_id": "kitchen_top_bun_crown",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7315,
+  "size_bytes": 3670253637,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_top_bun_to_board_nominal.hdf5",
+  "task_id": "kitchen_top_bun_to_board",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6380,
+  "size_bytes": 3199413661,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_tray_cheese_restock_nominal.hdf5",
+  "task_id": "kitchen_tray_cheese_restock",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5398,
+  "size_bytes": 2516589906,
+  "sha256": null
+ },
+ {
+  "file": "kitchen_tray_tomato_restock_nominal.hdf5",
+  "task_id": "kitchen_tray_tomato_restock",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5930,
+  "size_bytes": 2730295140,
+  "sha256": null
+ },
+ {
+  "file": "lab_bench_center_scan_nominal.hdf5",
+  "task_id": "lab_bench_center_scan",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1451,
+  "size_bytes": 377163688,
+  "sha256": null
+ },
+ {
+  "file": "lab_bench_wipe_pass_1_nominal.hdf5",
+  "task_id": "lab_bench_wipe_pass_1",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1800,
+  "size_bytes": 419545969,
+  "sha256": null
+ },
+ {
+  "file": "lab_bench_wipe_pass_2_nominal.hdf5",
+  "task_id": "lab_bench_wipe_pass_2",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1798,
+  "size_bytes": 411579370,
+  "sha256": null
+ },
+ {
+  "file": "lab_centrifuge_display_press_nominal.hdf5",
+  "task_id": "lab_centrifuge_display_press",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1699,
+  "size_bytes": 423380028,
+  "sha256": null
+ },
+ {
+  "file": "lab_centrifuge_lid_touch_nominal.hdf5",
+  "task_id": "lab_centrifuge_lid_touch",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1746,
+  "size_bytes": 420959348,
+  "sha256": null
+ },
+ {
+  "file": "lab_conical_tube_to_plate_nominal.hdf5",
+  "task_id": "lab_conical_tube_to_plate",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7167,
+  "size_bytes": 1665473221,
+  "sha256": null
+ },
+ {
+  "file": "lab_micro_cap_snap_dwell_nominal.hdf5",
+  "task_id": "lab_micro_cap_snap_dwell",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1796,
+  "size_bytes": 430209221,
+  "sha256": null
+ },
+ {
+  "file": "lab_micro_tube_return_nominal.hdf5",
+  "task_id": "lab_micro_tube_return",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 29565,
+  "size_bytes": 6875265942,
+  "sha256": null
+ },
+ {
+  "file": "lab_micro_tube_to_center_nominal.hdf5",
+  "task_id": "lab_micro_tube_to_center",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6162,
+  "size_bytes": 1457658990,
+  "sha256": null
+ },
+ {
+  "file": "lab_micro_tube_to_plate_nominal.hdf5",
+  "task_id": "lab_micro_tube_to_plate",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7173,
+  "size_bytes": 1665965379,
+  "sha256": null
+ },
+ {
+  "file": "lab_micro_tube_to_rack_b_nominal.hdf5",
+  "task_id": "lab_micro_tube_to_rack_b",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 25013,
+  "size_bytes": 5676932966,
+  "sha256": null
+ },
+ {
+  "file": "lab_microcentrifuge_rotor_inspect_nominal.hdf5",
+  "task_id": "lab_microcentrifuge_rotor_inspect",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1707,
+  "size_bytes": 416669005,
+  "sha256": null
+ },
+ {
+  "file": "lab_microplate_optical_scan_nominal.hdf5",
+  "task_id": "lab_microplate_optical_scan",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1590,
+  "size_bytes": 341295643,
+  "sha256": null
+ },
+ {
+  "file": "lab_pick_micropipette_nominal.hdf5",
+  "task_id": "lab_pick_micropipette",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6310,
+  "size_bytes": 1574860938,
+  "sha256": null
+ },
+ {
+  "file": "lab_pipette_dock_stand_nominal.hdf5",
+  "task_id": "lab_pipette_dock_stand",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7031,
+  "size_bytes": 1579977526,
+  "sha256": null
+ },
+ {
+  "file": "lab_pipette_plunger_press_nominal.hdf5",
+  "task_id": "lab_pipette_plunger_press",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1550,
+  "size_bytes": 403807882,
+  "sha256": null
+ },
+ {
+  "file": "lab_pipette_to_centrifuge_tube_nominal.hdf5",
+  "task_id": "lab_pipette_to_centrifuge_tube",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7614,
+  "size_bytes": 1844518331,
+  "sha256": null
+ },
+ {
+  "file": "lab_pipette_to_microplate_nominal.hdf5",
+  "task_id": "lab_pipette_to_microplate",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7919,
+  "size_bytes": 1797400708,
+  "sha256": null
+ },
+ {
+  "file": "lab_pipette_to_tube_mouth_nominal.hdf5",
+  "task_id": "lab_pipette_to_tube_mouth",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7866,
+  "size_bytes": 1897791467,
+  "sha256": null
+ },
+ {
+  "file": "lab_pipette_to_well_corner_nominal.hdf5",
+  "task_id": "lab_pipette_to_well_corner",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 8211,
+  "size_bytes": 1884207732,
+  "sha256": null
+ },
+ {
+  "file": "lab_plate_skirt_align_nominal.hdf5",
+  "task_id": "lab_plate_skirt_align",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1754,
+  "size_bytes": 394277773,
+  "sha256": null
+ },
+ {
+  "file": "lab_ready_standby_nominal.hdf5",
+  "task_id": "lab_ready_standby",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1915,
+  "size_bytes": 478516075,
+  "sha256": null
+ },
+ {
+  "file": "lab_transfer_test_tube_nominal.hdf5",
+  "task_id": "lab_transfer_test_tube",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6798,
+  "size_bytes": 4873419794,
+  "sha256": null
+ },
+ {
+  "file": "lab_tube_cap_tighten_dwell_nominal.hdf5",
+  "task_id": "lab_tube_cap_tighten_dwell",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1692,
+  "size_bytes": 406031358,
+  "sha256": null
+ },
+ {
+  "file": "lab_tube_rack_a_inspect_nominal.hdf5",
+  "task_id": "lab_tube_rack_a_inspect",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1608,
+  "size_bytes": 384931509,
+  "sha256": null
+ },
+ {
+  "file": "lab_tube_rack_b_inspect_nominal.hdf5",
+  "task_id": "lab_tube_rack_b_inspect",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1649,
+  "size_bytes": 392694457,
+  "sha256": null
+ },
+ {
+  "file": "lab_tube_rack_b_to_center_nominal.hdf5",
+  "task_id": "lab_tube_rack_b_to_center",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5399,
+  "size_bytes": 1316686531,
+  "sha256": null
+ },
+ {
+  "file": "lab_tube_return_rack_a_nominal.hdf5",
+  "task_id": "lab_tube_return_rack_a",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6667,
+  "size_bytes": 1603085269,
+  "sha256": null
+ },
+ {
+  "file": "lab_tube_slot1_to_slot3_nominal.hdf5",
+  "task_id": "lab_tube_slot1_to_slot3",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5790,
+  "size_bytes": 1386362151,
+  "sha256": null
+ },
+ {
+  "file": "lab_tube_to_centrifuge_nominal.hdf5",
+  "task_id": "lab_tube_to_centrifuge",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7230,
+  "size_bytes": 1704579623,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_burger_patty_cheese_nominal.hdf5",
+  "task_id": "long_horizon_burger_patty_cheese",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5652,
+  "size_bytes": 2638324158,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_burger_service_plating_nominal.hdf5",
+  "task_id": "long_horizon_burger_service_plating",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5649,
+  "size_bytes": 2608101516,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_espresso_service_complete_nominal.hdf5",
+  "task_id": "long_horizon_espresso_service_complete",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 8410,
+  "size_bytes": 1986457421,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_gear_pin_subassembly_nominal.hdf5",
+  "task_id": "long_horizon_gear_pin_subassembly",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5878,
+  "size_bytes": 2840833956,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_gourmet_burger_classic_nominal.hdf5",
+  "task_id": "long_horizon_gourmet_burger_classic",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7098,
+  "size_bytes": 3560713855,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_grand_challenge_150_nominal.hdf5",
+  "task_id": "long_horizon_grand_challenge_150",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6232,
+  "size_bytes": 3162564679,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_industrial_cell_startup_nominal.hdf5",
+  "task_id": "long_horizon_industrial_cell_startup",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6132,
+  "size_bytes": 3111473805,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_industrial_disassembly_nominal.hdf5",
+  "task_id": "long_horizon_industrial_disassembly",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6178,
+  "size_bytes": 3156985060,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_industrial_jig_clamp_cycle_nominal.hdf5",
+  "task_id": "long_horizon_industrial_jig_clamp_cycle",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6160,
+  "size_bytes": 3126691269,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_industrial_kitting_full_nominal.hdf5",
+  "task_id": "long_horizon_industrial_kitting_full",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6779,
+  "size_bytes": 3373577482,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_industrial_qa_rework_nominal.hdf5",
+  "task_id": "long_horizon_industrial_qa_rework",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6045,
+  "size_bytes": 3026283216,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_kitchen_breakfast_set_nominal.hdf5",
+  "task_id": "long_horizon_kitchen_breakfast_set",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 8789,
+  "size_bytes": 2070254458,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_kitchen_burger_and_coffee_nominal.hdf5",
+  "task_id": "long_horizon_kitchen_burger_and_coffee",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5666,
+  "size_bytes": 2646614495,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_kitchen_clean_prep_cycle_nominal.hdf5",
+  "task_id": "long_horizon_kitchen_clean_prep_cycle",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6632,
+  "size_bytes": 3080764739,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_kitchen_rush_burger_nominal.hdf5",
+  "task_id": "long_horizon_kitchen_rush_burger",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6424,
+  "size_bytes": 3220904450,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_kitchen_tray_clearoff_nominal.hdf5",
+  "task_id": "long_horizon_kitchen_tray_clearoff",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6004,
+  "size_bytes": 3001024469,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_lab_biohazard_clear_nominal.hdf5",
+  "task_id": "long_horizon_lab_biohazard_clear",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6851,
+  "size_bytes": 1644733450,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_lab_centrifugation_run_nominal.hdf5",
+  "task_id": "long_horizon_lab_centrifugation_run",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7599,
+  "size_bytes": 1791746949,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_lab_complete_dilution_nominal.hdf5",
+  "task_id": "long_horizon_lab_complete_dilution",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7201,
+  "size_bytes": 1642413522,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_lab_incubator_cycle_nominal.hdf5",
+  "task_id": "long_horizon_lab_incubator_cycle",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7441,
+  "size_bytes": 1783014934,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_lab_pcr_assay_prep_nominal.hdf5",
+  "task_id": "long_horizon_lab_pcr_assay_prep",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7592,
+  "size_bytes": 1725590541,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_lab_tube_serial_transfer_nominal.hdf5",
+  "task_id": "long_horizon_lab_tube_serial_transfer",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 7311,
+  "size_bytes": 1751764890,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_pod_brew_cycle_nominal.hdf5",
+  "task_id": "long_horizon_pod_brew_cycle",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 8247,
+  "size_bytes": 2011378664,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_tabletop_bin_reversal_nominal.hdf5",
+  "task_id": "long_horizon_tabletop_bin_reversal",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 8426,
+  "size_bytes": 1820191560,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_tabletop_complete_sort_nominal.hdf5",
+  "task_id": "long_horizon_tabletop_complete_sort",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5746,
+  "size_bytes": 1253342206,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_tabletop_dual_bin_sort_nominal.hdf5",
+  "task_id": "long_horizon_tabletop_dual_bin_sort",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6070,
+  "size_bytes": 1384156992,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_tabletop_pyramid_stack_nominal.hdf5",
+  "task_id": "long_horizon_tabletop_pyramid_stack",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5672,
+  "size_bytes": 1274912430,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_tabletop_tidy_workspace_nominal.hdf5",
+  "task_id": "long_horizon_tabletop_tidy_workspace",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5670,
+  "size_bytes": 1236061785,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_transmission_assembly_nominal.hdf5",
+  "task_id": "long_horizon_transmission_assembly",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6251,
+  "size_bytes": 3170284434,
+  "sha256": null
+ },
+ {
+  "file": "long_horizon_transmission_qa_palletize_nominal.hdf5",
+  "task_id": "long_horizon_transmission_qa_palletize",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5988,
+  "size_bytes": 3026041120,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_blue_bin_inspect_nominal.hdf5",
+  "task_id": "tabletop_blue_bin_inspect",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1456,
+  "size_bytes": 342070929,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_blue_center_table_nominal.hdf5",
+  "task_id": "tabletop_blue_center_table",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5754,
+  "size_bytes": 1340257667,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_blue_to_green_bin_nominal.hdf5",
+  "task_id": "tabletop_blue_to_green_bin",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6190,
+  "size_bytes": 1474669843,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_blue_to_red_bin_nominal.hdf5",
+  "task_id": "tabletop_blue_to_red_bin",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6226,
+  "size_bytes": 1376432814,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_blue_touch_nominal.hdf5",
+  "task_id": "tabletop_blue_touch",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1500,
+  "size_bytes": 348873055,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_clear_left_quadrant_nominal.hdf5",
+  "task_id": "tabletop_clear_left_quadrant",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5618,
+  "size_bytes": 1285346414,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_clear_right_quadrant_nominal.hdf5",
+  "task_id": "tabletop_clear_right_quadrant",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5925,
+  "size_bytes": 1293917618,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_green_bin_inspect_nominal.hdf5",
+  "task_id": "tabletop_green_bin_inspect",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1410,
+  "size_bytes": 360990398,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_green_center_table_nominal.hdf5",
+  "task_id": "tabletop_green_center_table",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5377,
+  "size_bytes": 1300631026,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_green_to_blue_bin_nominal.hdf5",
+  "task_id": "tabletop_green_to_blue_bin",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6048,
+  "size_bytes": 1441812742,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_green_to_red_bin_nominal.hdf5",
+  "task_id": "tabletop_green_to_red_bin",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6322,
+  "size_bytes": 1471837177,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_green_touch_nominal.hdf5",
+  "task_id": "tabletop_green_touch",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1545,
+  "size_bytes": 377706227,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_home_ready_nominal.hdf5",
+  "task_id": "tabletop_home_ready",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1782,
+  "size_bytes": 424460459,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_push_blue_forward_nominal.hdf5",
+  "task_id": "tabletop_push_blue_forward",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5669,
+  "size_bytes": 1326943829,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_push_red_forward_nominal.hdf5",
+  "task_id": "tabletop_push_red_forward",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5921,
+  "size_bytes": 1346340771,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_red_bin_inspect_nominal.hdf5",
+  "task_id": "tabletop_red_bin_inspect",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1455,
+  "size_bytes": 320012270,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_red_center_table_nominal.hdf5",
+  "task_id": "tabletop_red_center_table",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5145,
+  "size_bytes": 1192513542,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_red_to_blue_bin_nominal.hdf5",
+  "task_id": "tabletop_red_to_blue_bin",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6271,
+  "size_bytes": 1438820202,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_red_to_green_bin_nominal.hdf5",
+  "task_id": "tabletop_red_to_green_bin",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5496,
+  "size_bytes": 1302957565,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_red_touch_nominal.hdf5",
+  "task_id": "tabletop_red_touch",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1500,
+  "size_bytes": 349633828,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_sort_blue_nominal.hdf5",
+  "task_id": "tabletop_sort_blue",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5822,
+  "size_bytes": 1337918804,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_sort_green_nominal.hdf5",
+  "task_id": "tabletop_sort_green",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5377,
+  "size_bytes": 1316338050,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_sort_red_nominal.hdf5",
+  "task_id": "tabletop_sort_red",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5683,
+  "size_bytes": 3722341194,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_stack_blue_on_red_nominal.hdf5",
+  "task_id": "tabletop_stack_blue_on_red",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5770,
+  "size_bytes": 1303214170,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_stack_green_on_blue_nominal.hdf5",
+  "task_id": "tabletop_stack_green_on_blue",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5673,
+  "size_bytes": 1352333183,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_stack_red_on_blue_nominal.hdf5",
+  "task_id": "tabletop_stack_red_on_blue",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5884,
+  "size_bytes": 1328975386,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_swap_blue_green_nominal.hdf5",
+  "task_id": "tabletop_swap_blue_green",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6132,
+  "size_bytes": 1445800576,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_swap_green_red_nominal.hdf5",
+  "task_id": "tabletop_swap_green_red",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 5599,
+  "size_bytes": 1316650245,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_swap_red_blue_nominal.hdf5",
+  "task_id": "tabletop_swap_red_blue",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 6114,
+  "size_bytes": 1354161158,
+  "sha256": null
+ },
+ {
+  "file": "tabletop_table_center_sweep_nominal.hdf5",
+  "task_id": "tabletop_table_center_sweep",
+  "mode": "nominal",
+  "status": "VALID_WITH_WARNINGS",
+  "n_demos": 50,
+  "total_steps": 1500,
+  "size_bytes": 356495092,
+  "sha256": null
+ }
+]

@@ -1,0 +1,27 @@
+diff --git a/AFFORD-Bench_RSS'27/paper-template-latex/main.tex b/AFFORD-Bench_RSS'27/paper-template-latex/main.tex
+index 2757e60..5fdf44d 100644
+--- a/AFFORD-Bench_RSS'27/paper-template-latex/main.tex
++++ b/AFFORD-Bench_RSS'27/paper-template-latex/main.tex
+@@ -223,11 +223,11 @@ AFFORD-Bench organizes distribution shift into five levels:
+ 
+ \textbf{L3: Visual ($\mathcal{P}_{\mathrm{visual}}$).} Light intensity in $[0.5, 1.5]\,I_0$, light position jitter of $\pm 0.5\,\text{m}$, and object color jitter of $\pm 25\%$, leaving geometry unchanged.
+ 
+-\textbf{L4: Physical ($\mathcal{P}_{\mathrm{physics}}$).} Sliding friction $\mu \sim \mathcal{U}(0.12, 0.25)$ on $o^\star$ and on both finger pads, and mass and rotational inertia of $o^\star$ scaled by $\mathcal{U}(1.8, 2.5)$, at identical visual coordinates. MuJoCo takes the larger friction of a contact pair, so pads and body are set together. In a probe with the oracle's grasp shifted 10--20\,mm along the hand's lateral axis, lifted 10\,cm, and carried 20\,cm at the speed cap (3 seeds per setting), L4 dropped 8 of 12 off-center grasps of a cube and a mug, against 0 of 12 at nominal; centered grasps of the same bodies were held but slid 3--13\,mm, and the 24\,mm shaft was dropped at L4 even when grasped centrally.
++\textbf{L4: Physical ($\mathcal{P}_{\mathrm{physics}}$).} Sliding friction $\mu \sim \mathcal{U}(0.12, 0.25)$ on $o^\star$ and on both finger pads, and mass and rotational inertia of $o^\star$ scaled by $\mathcal{U}(1.8, 2.5)$, at identical visual coordinates. MuJoCo takes the larger friction of a contact pair, so pads and body are set together. In a probe with the oracle's grasp shifted 10--20\,mm along the hand's lateral axis, lifted 10\,cm, and carried 20\,cm at the speed cap (3 seeds per setting), L4 dropped 8 of 12 off-center grasps of a cube and a mug, against 0 of 12 at nominal; centered grasps of the same bodies were held but slid 3--13\,mm, and under MuJoCo's default pyramidal friction cone ($\text{impratio}=1$) the 24\,mm shaft was dropped at L4 even when grasped centrally, whereas elliptic friction cones ($\text{impratio}=10$) hold centered shaft and mug grasps ($<5$\,mm slip) while dropping 20\,mm off-center grasps.
+ 
+ \textbf{L5: Compound ($\mathcal{P}_{\mathrm{comp}}$).} L2, L3, L4, and color shifts sampled jointly, combined with the multi-step instructions of D5--D7.
+ 
+-\textbf{Physics and implementation.} All five levels are implemented. Lights, colors, friction, and masses are restored to nominal before each sample, and all sampling is seeded per episode. Grasping is frictional: the arm is driven by gravity-compensated joint position servos, the gripper is a force-limited tendon actuator, finger pads use stiff contacts (4\,ms time constant), and collisions use MuJoCo's native convex collision with multi-point contact. At reset, bodies are lifted out of any interpenetration and simulated to rest before the first observation.
++\textbf{Physics and implementation.} All five levels are implemented. Lights, colors, friction, and masses are restored to nominal before each sample, and all sampling is seeded per episode. Grasping is frictional: the arm is driven by gravity-compensated joint position servos, the gripper is a force-limited tendon actuator, finger pads use stiff contacts (4\,ms time constant) with elliptic friction cones ($\text{impratio}=10$), and collisions use MuJoCo's native convex collision with multi-point contact. At reset, bodies are lifted out of any interpenetration and simulated to rest before the first observation.
+ 
+ \section{Algorithmic Oracles and Dataset Synthesis}
+ \label{sec:oracles}
+@@ -242,7 +242,7 @@ The generator records 50 successful oracle demonstrations per task (10,500 in to
+ \label{sec:protocols}
+ 
+ \subsection{Standardized Closed-Loop Rollout Procedure}
+-Each policy step applies one action at 20\,Hz: the arm is interpolated to the IK joint target over 25 physics steps of 2\,ms, with commanded TCP speed capped at 0.5\,m/s. For each task we roll out $N=50$ episodes with evaluation seeds disjoint from data-generation seeds, with $H=400$ steps for D1--D4 and $H=800$ for D5--D7. Every suite, including nominal, draws its initial state from the evaluation seed.
++Each policy step applies one action at 20\,Hz: the arm is interpolated to the IK joint target over 25 physics steps of 2\,ms, with commanded TCP speed capped at 0.5\,m/s. For each task we roll out $N=50$ episodes with evaluation seeds disjoint from data-generation seeds, with an evaluation step budget of $H=400$ steps (environment step cap $500$; Stage 2 multi-body chains extend $H$ to $800$). Every suite, including nominal, draws its initial state from the evaluation seed.
+ 
+ \subsection{Standardized Evaluation Suites}
+ Models are evaluated on 35 suites (7 domains $\times$ 5 conditions): (1)~\textbf{Nominal}; (2)~\textbf{Spatial} ($\mathcal{P}_{\mathrm{spatial}}$); (3)~\textbf{Visual} ($\mathcal{P}_{\mathrm{visual}}$); (4)~\textbf{Physical} ($\mathcal{P}_{\mathrm{physics}}$); and (5)~\textbf{Composite} ($\mathcal{P}_{\mathrm{comp}}$), with parameters as in Sec.~\ref{sec:perturbations}. Language variants are evaluated as a separate axis on the nominal scene.

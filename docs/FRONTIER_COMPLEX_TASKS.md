@@ -1,5 +1,12 @@
 # Frontier complex manipulation: specification of Domain 8 (Tasks 211–240)
 
+> **Status update 2026-10-17** (`docs/roadmap/`): the registry now defines all 30 Domain 8 tasks
+> (`afford_pro.list_frontier_tasks()`: 8 tool use, 7 push-and-grasp, 1 push-overhang, 7 twist-lock, 7 reactive
+> perturbation), with environments and oracles. None has passed the task audit used for the core tasks (instruction
+> vs. simulated bodies, goal calibration, oracle/null/random floors on the current physics), so Domain 8 is not part of
+> the validated benchmark. The scene XMLs now use elliptic friction cones (impratio 10), not the pyramidal cones
+> described below. Text below is the 2026-10-08 specification.
+
 Status (2026-10-08): **Stage 2 proposal.** No Domain 8 asset, task definition, oracle, or success predicate
 exists in the code yet. The only implemented part is the reactive-perturbation probe of Section 5
 (`scripts/test_reactive_perturbation.py`), which runs on existing Stage 1 tasks. This document turns

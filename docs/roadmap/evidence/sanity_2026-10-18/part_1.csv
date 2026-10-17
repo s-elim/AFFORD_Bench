@@ -1,0 +1,28 @@
+task_number,task_id,domain,success_at_reset,oracle_sr,oracle_sr_physical,random_sr,null_sr,reset_pose_varies,start_fallback_rate,oracle_sr_h,oracle_sr_physical_h,oracle_mean_steps,oracle_max_steps
+2,industrial_gear_mesh,Industrial & Manufacturing,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,126.6,129
+10,industrial_relay_switch_seat,Industrial & Manufacturing,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,127.2,134
+18,industrial_gear_flip,Industrial & Manufacturing,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,94.4,101
+26,industrial_andon_green_verify,Industrial & Manufacturing,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,39.0,40
+34,kitchen_top_bun_crown,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,126.6,133
+42,kitchen_cheese_to_plate,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,121.6,123
+50,kitchen_bun_lid_close_dwell,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,30.6,31
+58,kitchen_counter_wipe_pass,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,30.0,30
+66,tabletop_green_to_red_bin,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,130.6,145
+74,tabletop_swap_blue_green,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,106.6,115
+82,tabletop_red_touch,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,30.0,30
+90,tabletop_home_ready,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,35.4,36
+98,lab_pipette_dock_stand,Laboratory & Life Sciences,False,1.0,0.4,0.0,0.0,True,0.0,1.0,0.4,127.4,182
+106,lab_pipette_to_tube_mouth,Laboratory & Life Sciences,False,1.0,0.8,0.0,0.0,True,0.0,1.0,0.8,139.6,202
+114,lab_pipette_to_centrifuge_tube,Laboratory & Life Sciences,False,1.0,0.8,0.0,0.0,True,0.0,1.0,0.8,140.6,196
+122,long_horizon_gear_pin_subassembly,Long-Horizon Multi-Stage,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,119.2,126
+130,long_horizon_tabletop_dual_bin_sort,Long-Horizon Multi-Stage,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,110.6,115
+138,long_horizon_industrial_disassembly,Long-Horizon Multi-Stage,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,125.6,134
+146,long_horizon_industrial_cell_startup,Long-Horizon Multi-Stage,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,122.2,127
+154,chain_bolt_flange_torque,Multi-Stage Precision Chaining,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,120.0,121
+162,chain_slide_cover_inspect,Multi-Stage Precision Chaining,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,103.2,108
+170,chain_sensor_bracket_mount,Multi-Stage Precision Chaining,False,0.2,0.6,0.0,0.0,True,0.0,0.2,0.6,507.2,600
+178,chain_crimping_wire_terminal,Multi-Stage Precision Chaining,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,128.2,137
+186,chain_sandwich_meat_lettuce_cut,Sequential Service & Culinary Assembly,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,127.8,133
+194,chain_plate_dishrack_cabinet,Sequential Service & Culinary Assembly,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,119.8,133
+202,chain_microwave_dish_cover_start,Sequential Service & Culinary Assembly,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,134.4,191
+210,chain_grand_master_banquet_service,Sequential Service & Culinary Assembly,False,0.8,1.0,0.0,0.0,True,0.0,0.6,1.0,307.4,600

@@ -1,0 +1,27 @@
+task_number,task_id,domain,success_at_reset,oracle_sr,oracle_sr_physical,random_sr,null_sr,reset_pose_varies,start_fallback_rate,oracle_sr_h,oracle_sr_physical_h,oracle_mean_steps,oracle_max_steps
+5,industrial_bolt_pickup,Industrial & Manufacturing,False,0.8,1.0,0.0,0.0,True,0.0,0.8,1.0,230.0,600
+13,industrial_pin_to_pallet,Industrial & Manufacturing,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,125.6,128
+21,industrial_tray_kitting_slot2,Industrial & Manufacturing,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,142.2,199
+29,industrial_clear_inbound_tray,Industrial & Manufacturing,False,1.0,0.8,0.0,0.0,True,0.0,1.0,0.8,121.4,124
+37,kitchen_press_brew_button,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,25.8,26
+45,kitchen_pod_return_caddy,Culinary & Kitchen Operations,False,1.0,0.6,0.0,0.0,True,0.0,1.0,0.6,163.0,171
+53,kitchen_caddy_slot1_fill,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,136.6,200
+61,tabletop_sort_red,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,110.6,113
+69,tabletop_blue_to_green_bin,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,116.0,123
+77,tabletop_stack_green_on_blue,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,123.6,145
+85,tabletop_clear_left_quadrant,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,109.6,115
+93,lab_pick_micropipette,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,125.2,179
+101,lab_tube_rack_a_inspect,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,32.2,33
+109,lab_bench_wipe_pass_1,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,36.0,36
+117,lab_tube_cap_tighten_dwell,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,33.8,34
+125,long_horizon_gourmet_burger_classic,Long-Horizon Multi-Stage,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,127.6,136
+133,long_horizon_lab_tube_serial_transfer,Long-Horizon Multi-Stage,False,0.8,1.0,0.0,0.0,True,0.0,0.8,1.0,278.2,600
+141,long_horizon_lab_biohazard_clear,Long-Horizon Multi-Stage,False,0.8,1.0,0.0,0.0,True,0.0,0.8,1.0,278.2,600
+149,long_horizon_lab_complete_dilution,Long-Horizon Multi-Stage,False,0.8,1.0,0.0,0.0,True,0.0,0.8,1.0,235.2,600
+157,chain_pipette_aspirate_dispense,Multi-Stage Precision Chaining,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,138.8,193
+165,chain_o_ring_shaft_seat,Multi-Stage Precision Chaining,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,119.2,126
+173,chain_cuvette_spectro_measure,Multi-Stage Precision Chaining,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,123.4,130
+181,chain_burger_flip_cheese_top,Sequential Service & Culinary Assembly,False,0.8,1.0,0.0,0.0,True,0.0,0.6,1.0,307.4,600
+189,chain_egg_crack_whisk_pour,Sequential Service & Culinary Assembly,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,119.2,126
+197,chain_trash_can_liner_tie,Sequential Service & Culinary Assembly,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,122.0,142
+205,chain_wine_cork_open_pour,Sequential Service & Culinary Assembly,False,1.0,1.0,0.0,0.0,True,0.3333333333333333,1.0,1.0,134.4,139

@@ -1,260 +1,150 @@
 # AFFORD-Bench: An Affordance-Grounded Benchmark and Generalization Evaluation for Robot Learning
 
-[![Target Venue: RSS 2027](https://img.shields.io/badge/Submission-RSS%202027%20Stage%201-blue.svg)](AFFORD-Bench_RSS'27/paper-template-latex/main.pdf)
-[![Physics: MuJoCo Native](https://img.shields.io/badge/MuJoCo-3.x%20C%2B%2B%20Native-brightgreen.svg)](https://mujoco.org)
-[![Dataset Standard: Robomimic HDF5](https://img.shields.io/badge/Dataset-Robomimic%20HDF5-orange.svg)](https://robomimic.github.io)
-[![Scale: 210 Core Tasks (+30 Stage 2 Frontier)](https://img.shields.io/badge/Scale-210%20Core%20Tasks%20%28%2B30%20Stage%202%29-purple.svg)]()
-[![Suites: 35 Core Benchmark Suites](https://img.shields.io/badge/Suites-35%20Core%20Benchmark%20Suites-darkblue.svg)]()
-[![Zero External Cost](https://img.shields.io/badge/External%20Cost-%240.00%20Zero-success.svg)]()
+AFFORD-Bench is a MuJoCo benchmark for robot manipulation policies on a simulated Franka Emika Panda. Success is a
+physical predicate on the settled state: the released body must be supported, at rest, upright, and within 2-2.5 mm
+(precision domains) or 8 mm of its goal, after having been lifted. Grasping is frictional; there is no attachment,
+snapping, or teleport. Demonstrations come from a privileged closed-loop scripted oracle and are stored as
+Robomimic HDF5 with converters to LeRobot and RLDS.
 
-**AFFORD-Bench** is a large-scale, **policy-agnostic**, affordance-grounded robot manipulation benchmark and dataset suite engineered to stress-test the out-of-distribution (OOD) physical generalization of any robot learning policy---ranging from **Classical Imitation Learning (BC, BeT)** and **Visuomotor Action Chunking (Diffusion Policy, ACT)** to **3D Point-Cloud Policies (DP3)**, **Vision-Language-Action (VLA) Foundation Models (OpenVLA, SmolVLA, AtomVLA, Octo)**, and **Offline Reinforcement Learning (CQL, IQL)**.
+Target venue: RSS 2027 (Stage 1 extended abstract, `AFFORD-Bench_RSS'27/paper-template-latex/`).
 
-Operating on a 7-DoF Franka Emika Panda manipulator simulated with contact physics in MuJoCo, AFFORD-Bench provides **210 core physical manipulation tasks** across **7 distinct domains** (35 evaluation suites, targeting **10,500 demonstration episodes** at 50 demos/task; plus a 30-task **Domain 8 Stage 2 Frontier Charter** containing 14 validated non-prehensile and reactive probe tasks), synchronized dual-camera perception ($640\times 660$ workcell and $300\times 420$ wrist), and optional **true physical 3D metric depth** (`--depth`).
+## Status (2026-10-17)
 
-> **Dataset Provenance Note**: The 210 `datasets/*_nominal.hdf5` files currently on disk were generated on October 3, 2026 (`128x128` RGB, pre-hardening physics) and fail `python scripts/verify_dataset_integrity.py`. Regenerate datasets with the current physics and oracle before training Stage 2 baselines.
+| Item | State | Evidence |
+| --- | --- | --- |
+| Task inventory | 210 registered tasks in 7 domains; **66 validated core tasks** (D1-D4), 35 fixed-point reach tasks, 109 instruction mismatches (all D5-D7 chains included) | `afford_pro/task_tiers.py`, `docs/roadmap/evidence/task_audit_2026-10-17.json` |
+| Dataset | 210 files x 50 demos = 10,500 demos, 1,230,842 steps; every episode validated (0 errors, documented warnings) | `docs/roadmap/evidence/dataset_validation_2026-10-17/` |
+| Sanity floors | Oracle 95.7% nominal, 95.0% L4; random 0/1050; null 0/210 | `docs/roadmap/evidence/sanity_2026-10-18/summary.md` |
+| L4 physical suite | At the specified range (mu 0.12-0.25, mass x1.8-2.5) it does not lower oracle success; lower friction and heavier bodies do (16% at mu 0.02, x5). Recalibration pending | `docs/roadmap/evidence/l4_sweep_2026-10-18.csv` |
+| Learned baselines | Not reported yet. Pipeline check: low-dim BC 16/20 on one task; the in-repo diffusion model does not learn (use a reference implementation) | `docs/roadmap/evidence/pipeline_check_2026-10-17/` |
+| Licence | MIT (`LICENSE`), code and data. Robot meshes: Apache-2.0 (MuJoCo Menagerie), see `afford_pro/assets/robots/NOTICE.md` | - |
 
-> 🌐 **Interactive Project Page**: Explore multi-modal videos, interactive domain tabs, perturbation hierarchies, and dataset schemas in [`docs/index.html`](docs/index.html).
+The working plan, findings, and claim-by-claim evidence are in `docs/roadmap/` (`ROADMAP.md`, `PROGRESS.md`,
+`AUDIT_REPORT.md`, `CLAIM_EVIDENCE_LEDGER.md`, `EXPERIMENT_LOG.md`, `LITERATURE_COMPARISON.md`). Files under
+`docs/quarantine/` are not experimental results.
 
----
-
-## 1. Overview: Physical Affordances & Policy-Agnostic Benchmark Architecture
-
-Recent investigations by **LIBERO** (130 tasks, 50 core), **LIBERO-PRO** (40 evaluation tasks, 4 perturbation axes), and **LIBERO-X** (600 tasks across Kitchen, Study, and Living scenes, shipping 2,520 VR teleoperated demonstrations) revealed that seemingly high success rates on existing imitation learning benchmarks often reflect rote memorization of nominal camera views and initial poses rather than generalized physical understanding. When exposed to minor spatial displacements or visual shifts, policy performance degrades precipitously.
-
-AFFORD-Bench grounds robot learning in **ecological contact mechanics** across a **policy-agnostic** architecture:
-- **Universal Policy Support**: Directly ingestible by BC, ACT, Diffusion Policy, 3D Point-Cloud policies (DP3), VLAs (OpenVLA, SmolVLA, AtomVLA), and Offline RL (CQL, IQL).
-- **Coulomb Friction Variation ($\mu \in [0.10, 1.20]$)**: Grasping forces must prevent slippage without crushing objects.
-- **Dynamic Payload Scaling ($0.5\times$--$3.0\times$)**: Transport dynamics require inertial compensation.
-- **Sub-Millimeter Clearances ($\pm 1.5\,\text{mm} \le \epsilon \le \pm 20.0\,\text{mm}$)**: Assembly requires compliance along insertion manifolds.
-- **Multi-Tier Language Grounding**: Multi-tier linguistic descriptions per task (colloquial, geometric, physical affordance, atomic subtasks in `configs/prompts_augmented.yaml`) evaluating physical placement tolerances.
-- **Synchronized Multi-Modal Perception**: Dual-view RGB ($640\times 660$ and $300\times 420$) aligned with optional metric depth ($D_{\text{3D}}$ via `--depth`).
-
-### Benchmark Positioning: LIBERO, LIBERO-PRO, LIBERO-X, and AFFORD-Bench
-- **LIBERO** (arXiv 2306.03310): Released dataset of 6,500 human SpaceMouse teleoperated demos across 130 tasks (50 core), evaluated with BDDL predicate conjunctions.
-- **LIBERO-PRO** (arXiv 2510.03827): Evaluation-only protocol evaluating 40 tasks across 4 perturbation axes (object, spatial, semantic, environment).
-- **LIBERO-X** (arXiv 2602.06556): Procedural benchmark with 600 tasks across diverse scenes, 2,520 VR teleoperated training demonstrations, and a 5-level hierarchical evaluation protocol (L1--L5).
-- **AFFORD-Bench**: 240 formally specified manipulation tasks across 8 domains $\times$ 5 hierarchical perturbation regimes (Nominal, Spatial, Physical-Coulomb friction & mass scaling, Visual, Composite OOD) = **40 Comprehensive Benchmark Suites**. Crucially, unlike LIBERO suites, AFFORD-Bench checks success physically (released, at rest, supported, within 2–8 mm tolerance tiers with zero artificial welds or magnetic snapping) and perturbs physical contact dynamics ($\mu \in [0.10, 1.20]$, payload mass $0.5\times$--$3.0\times$). Fully compatible with Robomimic HDF5, LeRobot v2.0, and RLDS data formats.
-
----
-
-## 2. Quickstart & Installation
+## Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/s-elim/AFFORD_Bench.git
-cd AFFORD_Bench
-
-# Create and activate conda environment
-conda create -n afford_bench python=3.10 -y
-conda activate afford_bench
-
-# Install package in editable mode with dependencies
-pip install -e .
+conda create -n afford_bench python=3.10 -y && conda activate afford_bench
+pip install -e .            # pins mujoco==3.5.0, the build used for all data and numbers
+pip install torch           # only for training/evaluating learned policies
+python -m pytest -q tests   # about 2,400 tests, a few minutes on CPU
 ```
 
----
+All reported numbers use MuJoCo 3.5.0 and the Panda meshes in `afford_pro/assets/robots/assets/`. Results with other
+MuJoCo builds can differ, because contact resolution changes between releases.
 
-## 3. Demonstration Data Generation & Integrity Verification
+## Tasks and tiers
 
-AFFORD-Bench provides local, deterministic demonstration synthesis powered by closed-loop kinematic oracles ($0.00 external API cost):
+| Domain | Tasks | Core / reach / mismatch | Tolerance (xy, tilt) |
+| --- | --- | --- | --- |
+| D1 Industrial precision | 001-030 | 17 / 6 / 7 | 2 mm, 5 deg |
+| D2 Culinary operations | 031-060 | 20 / 7 / 3 | 8 mm, 15 deg |
+| D3 Domestic tabletop | 061-090 | 17 / 8 / 5 | 8 mm, 15 deg |
+| D4 Laboratory | 091-120 | 12 / 14 / 4 | 2 mm, 5 deg |
+| D5 Long-horizon | 121-150 | 0 / 0 / 30 | scene tier |
+| D6 Precision chains | 151-180 | 0 / 0 / 30 | 2.5 mm, 5 deg |
+| D7 Service chains | 181-210 | 0 / 0 / 30 | 8 mm, 15 deg |
+
+- **core**: the instruction names the simulated body and the success predicate covers the whole instruction.
+- **reach**: the fingertip center must stay within tolerance of a fixed world point for 5 steps; instructions that
+  mention wiping, pressing, or inspecting describe actions that are not simulated. Report separately.
+- **instruction_mismatch**: the named object is not the simulated body, the chain ends after its first evaluated
+  body, or the predicate contradicts the instruction (`afford_pro.task_tiers.mismatch_reason(task_id)`).
+
+```python
+import afford_pro
+from afford_pro.task_tiers import tasks_in_tier, mismatch_reason
+core = tasks_in_tier("core")                    # 66 task ids
+env = afford_pro.make(core[0], perturbation_mode="nominal")
+```
+
+Domain 8 (tasks 211-240, `afford_pro.list_frontier_tasks()`) is a Stage 2 extension and has not been validated.
+
+## Perturbation suites (`afford_pro/perturbations/engine.py`)
+
+| Suite | What changes |
+| --- | --- |
+| `nominal` (L1) | Start of the evaluated body U(+-7 cm) per axis, yaw U(+-45 deg), roll/pitch U(+-10 deg) resolved by settling; TCP jitter +-1.5 cm. Rejection-sampled, shrinking to 1/2, 1/4, 1/10, 1/20 of the range; in 29 tasks the start varies by < 1 cm |
+| `p1_object` | Color of the evaluated body x U(0.75, 1.25) |
+| `p2_spatial` (L2) | Start offset radius U(7, 12) cm in a random direction, yaw magnitude U(45, 90) deg |
+| `p3_visual` (L3) | Light position +-0.5 m, diffuse x U(0.5, 1.5) clipped at 1 (the key light brightens by at most x1.11) |
+| `p4_physical` (L4) | Sliding friction U(0.12, 0.25) on the body and finger pads; mass and inertia x U(1.8, 2.5) |
+| `combined_ood` (L5) | L2 + L3 + L4 + color |
+
+Nominal model parameters are restored and the sampler is re-seeded at every `reset(seed)`.
+
+## Data generation and validation
 
 ```bash
-# Generate 50 demonstrations per task for a specific domain (optionally append --depth for metric depth)
+# Generate (skips valid files, refuses to overwrite invalid ones, records provenance, writes atomically)
 python scripts/generate_all_150_tasks.py --domain industrial --num-demos 50
-python scripts/generate_all_150_tasks.py --domain kitchen --num-demos 50
-python scripts/generate_all_150_tasks.py --domain tabletop --num-demos 50
-python scripts/generate_all_150_tasks.py --domain lab --num-demos 50
-python scripts/generate_all_150_tasks.py --domain long_horizon --num-demos 50
-python scripts/generate_all_150_tasks.py --domain chain_precision --num-demos 50
-python scripts/generate_all_150_tasks.py --domain chain_service --num-demos 50
-python scripts/generate_all_150_tasks.py --domain frontier --num-demos 50
+python scripts/generate_demos.py --task tabletop_sort_red --num-demos 5 --output-dir datasets/scratch
 
-# Or generate all 240 tasks across all 8 domains with 3D metric depth
-python scripts/generate_all_150_tasks.py --domain all --num-demos 50 --depth
+# Validate every episode (+ replay 3 demos per file under the current code)
+python scripts/validate_datasets.py --replay-per-file 3 --workers 8 --out-dir docs/roadmap/evidence/dataset_validation
 
-# Export 50 pre-settled initial simulator states per task (for zero-variance benchmark evaluation)
-python scripts/export_initial_states.py --domain all
-
-# Verify dataset integrity (shapes, channels, metric depth, robomimic aliases, and step counts)
-python scripts/verify_dataset_integrity.py
+# Runtime task audit and sanity floors
+python scripts/audit_tasks.py --out docs/roadmap/evidence/task_audit.json
+python scripts/sanity_baselines.py --shard 0/8 --out part_0.csv --episodes-out episodes_0.csv
+python scripts/aggregate_sanity.py --dir <folder with part_*.csv and episodes_*.csv>
 ```
 
----
+Episode seeds are `42 + 1000 * task_number + k` for generation and `200000 + 1000 * task_number + j` for evaluation.
 
-## 4. Policy Training (`scripts/train_policy.py`)
+### Dataset schema (Robomimic HDF5)
 
-Train robot manipulation policies (Diffusion Policy and Behavioral Cloning) on the generated Robomimic HDF5 demonstration datasets. Supports both ultra-fast state-based training and full visuomotor training.
+`data/demo_i/{actions (T,7) float32, rewards (T,), dones (T,), states (T,85) float64, obs/*, next_obs/*}` with
+`obs/agentic_rgb (T,640,660,3)`, `obs/wrist_rgb (T,300,420,3)`, `obs/{joint_positions, joint_velocities, tcp_pose,
+gripper_width}` and robomimic/LIBERO aliases (hard links); per-demo `seed`, `init_state`, `language_instruction`;
+root `env_args`, `problem_info`, `model_file`, camera intrinsics and poses; `mask/{train, valid}` (45/5).
 
-### Fast State-Based Policy Training
-Trains on 22-dimensional proprioceptive states (joint positions, joint velocities, end-effector Cartesian pose, and gripper width) and 7D relative action chunks:
+Known limitations of the released files (details in `docs/roadmap/AUDIT_REPORT.md`):
+- no provenance attributes (code version, simulator version, command); produced by at least three generator runs;
+- the state after the last action is not stored and `next_obs[T-1]` repeats `obs[T-1]`;
+- 114 demos exceed the 500-step environment limit (130 exceed the evaluation budget H = 400);
+- per-demo `language_instruction` rotates over four variants; the metric variant states nominal, not actual, start
+  coordinates;
+- recorded actions are float32 roundings of the executed float64 actions, so replaying them reproduces the success
+  step for 595 of 630 sampled demos (median deviation 0.02 mm) rather than all;
+- 6 files store observation aliases as copies (larger files, same content).
+
+Files generated with the current generator carry provenance, the final observation and state, and canonical
+instructions, contain only demos within the environment limit, and replay bit-identically. See also
+`docs/DATASET_CARD.md`.
+
+## Training and evaluation
 
 ```bash
-# Train Diffusion Policy on Industrial domain (runs in minutes on CPU/GPU)
-python scripts/train_policy.py --policy diffusion --modality state --domain industrial --epochs 20 --batch-size 64
-
-# Train Behavioral Cloning (BC) policy on Kitchen domain
-python scripts/train_policy.py --policy bc --modality state --domain kitchen --epochs 25 --batch-size 64
-
-# Train Diffusion Policy on Multi-Stage Precision Chaining domain
-python scripts/train_policy.py --policy diffusion --modality state --domain chain_precision --epochs 25 --batch-size 64
-
-# Train on a single specific task
-python scripts/train_policy.py --policy diffusion --modality state --task industrial_shaft_assembly --epochs 20
+# Low-dim (proprioception + object pose), image + proprioception, or proprioception-only (blind ablation)
+python scripts/train_policy.py --policy bc --modality lowdim --domain tabletop --tier core --epochs 200 --seed 1
+python scripts/evaluate_policy_suite.py --checkpoint checkpoints/bc_lowdim_tabletop_core_seed1_best.pt \
+    --domain tabletop --tier core --suites nominal,p2_spatial,p3_visual,p4_physical,combined_ood --episodes 50 \
+    --out-dir results/bc_lowdim_tabletop_seed1
+python scripts/evaluate_policy_suite.py --policy oracle --task tabletop_sort_red --episodes 10
 ```
 
-### Visuomotor Policy Training
-Trains end-to-end visuomotor representations consuming agentic camera observations ($640\times 660$), wrist observations ($300\times 420$), and proprioception:
+`evaluate_policy_suite.py` writes one row per episode (seed, success, steps, peak contact force) and a summary with
+Wilson and task-clustered bootstrap intervals, PRI and GDI against nominal on paired seeds, and the force violation
+rate (F_max = 150 N; the oracle itself exceeds it in 4.8% of episodes). `evaluate_id.py` and `evaluate_ood.py` are thin
+wrappers around it. Checkpoints store their input normalizer, the dataset files, and the code provenance, and are
+selected by validation loss.
 
-```bash
-# Train Visuomotor Diffusion Policy on Tabletop domain
-python scripts/train_policy.py --policy diffusion --modality visual --domain tabletop --epochs 30 --batch-size 32
-
-# Train Visuomotor BC Policy on Cleanroom Laboratory domain
-python scripts/train_policy.py --policy bc --modality visual --domain lab --epochs 30 --batch-size 32
-```
-
-**Training CLI Options**:
-- `--policy`: Policy architecture (`diffusion` or `bc`).
-- `--modality`: Observation input modality (`state` or `visual`).
-- `--domain`: Target domain (`industrial`, `kitchen`, `tabletop`, `lab`, `long_horizon`, `chain_precision`, `chain_service`, or `all`).
-- `--task`: Optional single task ID (e.g. `industrial_shaft_assembly`).
-- `--epochs`: Total training epochs (default: `20`).
-- `--batch-size`: Batch size (default: `64`).
-- `--chunk-size`: Action chunking horizon $H$ (default: `16`).
-- `--save-dir`: Checkpoint output directory (default: `checkpoints/`).
-
----
-
-## 5. In-Distribution (ID) Policy Evaluation (`scripts/evaluate_id.py`)
-
-Evaluate trained checkpoints or reference baselines under standard **In-Distribution (Nominal)** conditions using disjoint test seeds:
-
-```bash
-# Evaluate a trained policy checkpoint on an entire domain
-python scripts/evaluate_id.py --checkpoint checkpoints/diffusion_state_industrial_best.pt --domain industrial --num-episodes 20
-
-# Evaluate a trained checkpoint on a single task
-python scripts/evaluate_id.py --checkpoint checkpoints/diffusion_state_industrial_shaft_assembly_best.pt --task industrial_shaft_assembly --num-episodes 20
-
-# Evaluate reference closed-loop Oracle baseline
-python scripts/evaluate_id.py --policy oracle --domain kitchen --num-episodes 10
-
-# Evaluate Random exploration baseline
-python scripts/evaluate_id.py --policy random --domain tabletop --num-episodes 5
-```
-
-**Output Metrics**:
-- **Success Rate ($SR_{\text{ID}}$)**: Percentage of successful task completions under nominal conditions.
-- **Average Episode Length**: Mean physical execution steps to task success.
-- **Execution Throughput**: Step execution latency and real-time factor.
-
----
-
-## 6. Out-Of-Distribution (OOD) Policy Evaluation (`scripts/evaluate_ood.py`)
-
-Benchmark policy resilience against environmental shifts across the **5 canonical perturbation regimes**:
-
-1. **Spatial-Kinematic (`p2_spatial`)**: Coordinate offsets $\pm 6\,\text{cm}$, yaw rotations $\pm 30^\circ$, tolerance contraction.
-2. **Physical-Dynamic (`p1_object` / `p4_physical`)**: Coulomb friction $\mu \in [0.10, 1.20]$, payload mass scaling $0.5\times$--$3.0\times$.
-3. **Visual-Photometric (`p3_visual`)**: Illumination shifts $[0.4, 2.2]\,I_0$, randomized lighting direction, camera jitter.
-4. **Composite Multi-Axis OOD (`combined_ood`)**: Simultaneous multi-axis distribution shift.
-5. **All Regimes (`all`)**: Evaluates across all five regimes and computes aggregate robustness indices.
-
-```bash
-# Evaluate a trained policy checkpoint across all OOD regimes on Industrial domain
-python scripts/evaluate_ood.py --checkpoint checkpoints/diffusion_state_industrial_best.pt --domain industrial --perturbation all --num-episodes 10
-
-# Evaluate reference Oracle across Physical perturbations on Kitchen domain
-python scripts/evaluate_ood.py --policy oracle --domain kitchen --perturbation p1_object --num-episodes 10
-
-# Evaluate against Composite Multi-Axis OOD shifts
-python scripts/evaluate_ood.py --policy oracle --domain tabletop --perturbation combined_ood --num-episodes 10
-```
-
-**Quantitative Generalization Metrics Computed**:
-- **Perturbation Resilience Index (PRI)**:
-  $$\text{PRI}(\mathcal{P}) = \frac{\text{SR}(\mathcal{P})}{\text{SR}(\text{Nominal})} \in [0.0, 1.0] \quad (\text{Higher is better})$$
-- **Generalization Degradation Index (GDI)**:
-  $$\text{GDI}(\mathcal{P}) = \frac{\text{SR}(\text{Nominal}) - \text{SR}(\mathcal{P})}{\text{SR}(\text{Nominal})} \times 100\% \quad (\text{Lower is better})$$
-
----
-
-## 7. Generating OOD Evaluation Suites (`scripts/generate_ood_eval_suites.py`)
-
-Generate offline perturbed evaluation demonstration suites for benchmark distribution shift testing:
-
-```bash
-# Generate Spatial OOD evaluation suite for Industrial domain
-python scripts/generate_ood_eval_suites.py --domain industrial --perturbation p2_spatial --num-demos 10
-
-# Generate Physical-Dynamic OOD suite for Kitchen domain
-python scripts/generate_ood_eval_suites.py --domain kitchen --perturbation p1_object --num-demos 10
-
-# Generate Composite Multi-Axis OOD evaluation suites across all domains
-python scripts/generate_ood_eval_suites.py --domain all --perturbation combined_ood --num-demos 5
-```
-
----
-
-## 8. Benchmark Taxonomy (8 Domains $\times$ 30 Tasks = 240 Tasks)
-
-| Domain | Task Numbers | Tasks | Dominant Physics & Affordances | Clearances |
-| :--- | :---: | :---: | :--- | :---: |
-| **D1: Industrial Precision** | 001–030 | 30 | High-stiffness assembly, splined shafts, gear meshing, toggle clamping | $\pm 2.0\text{--}5.0\,\text{mm}$ |
-| **D2: Culinary Operations** | 031–060 | 30 | Spatula burger patty flipping, portafilter espresso docking, food placement | $\pm 5.0\text{--}12.0\,\text{mm}$ |
-| **D3: Domestic Tabletop** | 061–090 | 30 | Color block sorting, drawer slide actuation, caddy packing, cup stacking | $\pm 8.0\text{--}20.0\,\text{mm}$ |
-| **D4: Cleanroom Laboratory** | 091–120 | 30 | Micropipette tip pickup, centrifuge vial docking, reagent mixing, tube transfer | $\pm 1.5\text{--}4.0\,\text{mm}$ |
-| **D5: Multi-Stage Sequences\*** | 121–150 | 30 | Multi-stage assembly, sequential tool acquisition, unlatching, sub-assembly milestones | $\pm 3.0\text{--}10.0\,\text{mm}$ |
-| **D6: Precision Chaining\*** | 151–180 | 30 | Chained 2–3 step industrial operations: shaft-bearing-clamp, gasket-bolt-torque milestones | $\pm 1.8\text{--}4.5\,\text{mm}$ |
-| **D7: Service Assembly\*** | 181–210 | 30 | Chained 2–3 step culinary service: patty-cheese-bun, mug-brew-serve, plate-fork milestones | $\pm 4.0\text{--}10.0\,\text{mm}$ |
-| **D8: Frontier Complex Manipulation** | 211–240 | 30 | Compliant non-prehensile pushing/rolling, bimanual tool insertion, twist-lock detents, dynamic interlocking | $\pm 1.0\text{--}6.0\,\text{mm}$ |
-| **Total Benchmark Scope** | **001–240** | **240** | **8 Domains $\times$ 30 Tasks = 240 Tasks (40 Evaluation Suites)** | $\pm 1.0\text{--}20.0\,\text{mm}$ |
-
-*\*Note on D5–D7: Evaluates precision placement and insertion milestones of multi-stage operations under contact physics without artificial magnetic snapping or kinematic welds (see `configs/prompts_augmented.yaml` for full linguistic tier and subtask breakdown).*
-
----
-
-## 9. Repository Layout
+## Repository layout
 
 ```text
-AFFORD_Bench/
-├── README.md                           # Master documentation & benchmark usage
-├── setup.py                            # Pip installable package (afford_pro)
-├── afford_pro/
-│   ├── __init__.py                     # API: make(), list_tasks(), get_oracle()
-│   ├── registry.py                     # Master 210-task & oracle registry
-│   ├── task_definitions.py            # Formal definitions for all 210 manipulation tasks
-│   ├── envs/                           # Gymnasium environments
-│   │   ├── base_franka_env.py          # Franka Panda MuJoCo base env with 3D metric depth
-│   │   ├── industrial/                 # Domain 1: Industrial Precision Assembly (Tasks 001–030)
-│   │   ├── kitchen/                    # Domain 2: Culinary Operations (Tasks 031–060)
-│   │   ├── tabletop/                   # Domain 3: Domestic Manipulation (Tasks 061–090)
-│   │   ├── lab/                        # Domain 4: Laboratory Sciences (Tasks 091–120)
-│   │   └── long_horizon/               # Domain 5, 6, 7: Long-Horizon & Chained Sequences (Tasks 121–210)
-│   ├── oracles/                        # Deterministic Closed-Loop Algorithmic Solvers
-│   ├── perturbations/                  # Affordance-Grounded Perturbation Engine (Spatial, Physics, Visual)
-│   └── datasets/                       # Universal Robomimic HDF5 dataset writer
-├── AFFORD-Bench_RSS'27/
-│   └── paper-template-latex/           # RSS 2027 Stage 1 Extended Abstract LaTeX source
-│       ├── main.tex                    # Strict 6-page manuscript source
-│       ├── main.pdf                    # Compiled publication-grade PDF
-│       ├── references.bib              # Verified bibliography
-│       └── figures/                    # PDF and PNG publication figures
-└── scripts/
-    ├── train_policy.py                 # Ready-to-run PyTorch policy training harness
-    ├── evaluate_id.py                  # In-Distribution (ID) evaluation script
-    ├── evaluate_ood.py                 # Out-Of-Distribution (OOD) evaluation script
-    ├── generate_ood_eval_suites.py     # OOD evaluation suite dataset generator
-    ├── generate_all_150_tasks.py       # Batch demonstration synthesis pipeline
-    ├── verify_dataset_integrity.py     # Dataset schema and metric depth verification script
-    └── generate_paper_figures.py       # High-resolution multi-modal visualization generator
+afford_pro/            package: task definitions and tiers, environments, oracles, perturbations,
+                       datasets (writer, generation, validation, replay, converters), evaluation, learning, provenance
+scripts/               generation, validation, audits, sanity baselines, sweeps, training, evaluation, converters
+tests/                 unit tests (registry, validation, generation, recording, converters, prompts, frontier)
+configs/               multi-tier instruction variants with grounding flags
+docs/roadmap/          plan, progress, audit, claim ledger, experiment log, literature comparison, evidence/
+docs/quarantine/       withdrawn synthetic projections (not results)
+AFFORD-Bench_RSS'27/   paper source (main.tex, references.bib, figures/)
 ```
 
----
-
-## 10. Citation
-
-If you use **AFFORD-Bench** or its datasets in your research, please cite our RSS 2027 Stage 1 Extended Abstract:
+## Citation
 
 ```bibtex
 @inproceedings{affordbench2027,
@@ -262,6 +152,6 @@ If you use **AFFORD-Bench** or its datasets in your research, please cite our RS
   author    = {Anonymous},
   booktitle = {Robotics: Science and Systems (RSS)},
   year      = {2027},
-  note      = {Stage 1 Extended Abstract}
+  note      = {Under review}
 }
 ```

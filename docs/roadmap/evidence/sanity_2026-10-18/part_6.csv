@@ -1,0 +1,27 @@
+task_number,task_id,domain,success_at_reset,oracle_sr,oracle_sr_physical,random_sr,null_sr,reset_pose_varies,start_fallback_rate,oracle_sr_h,oracle_sr_physical_h,oracle_mean_steps,oracle_max_steps
+7,industrial_pcb_chip_insert,Industrial & Manufacturing,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,138.2,144
+15,industrial_gear_to_tray,Industrial & Manufacturing,False,0.8,1.0,0.0,0.0,True,0.0,0.8,1.0,208.2,600
+23,industrial_estop_button_press,Industrial & Manufacturing,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,33.4,34
+31,kitchen_patty_stack,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,111.0,113
+39,kitchen_mug_to_serving_tray,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,128.6,132
+47,kitchen_top_bun_to_board,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,127.0,135
+55,kitchen_tray_cheese_restock,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,108.2,113
+63,tabletop_sort_blue,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,108.8,115
+71,tabletop_green_center_table,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,106.6,120
+79,tabletop_red_bin_inspect,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,29.0,29
+87,tabletop_push_red_forward,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,108.2,118
+95,lab_micro_tube_to_rack_b,Laboratory & Life Sciences,False,0.0,0.2,0.0,0.0,True,0.0,0.0,0.2,600.0,600
+103,lab_conical_tube_to_plate,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,180.0,212
+111,lab_tube_rack_b_to_center,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,106.8,111
+119,lab_bench_center_scan,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,29.4,30
+127,long_horizon_espresso_service_complete,Long-Horizon Multi-Stage,False,1.0,0.2,0.0,0.0,True,0.0,1.0,0.2,169.0,187
+135,long_horizon_kitchen_breakfast_set,Long-Horizon Multi-Stage,False,1.0,0.2,0.0,0.0,True,0.0,1.0,0.2,169.0,187
+143,long_horizon_tabletop_bin_reversal,Long-Horizon Multi-Stage,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,144.6,150
+151,chain_shaft_bearing_clamp,Multi-Stage Precision Chaining,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,122.2,127
+159,chain_micro_tube_cap_dock,Multi-Stage Precision Chaining,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,158.4,203
+167,chain_spark_plug_socket,Multi-Stage Precision Chaining,False,0.8,0.8,0.0,0.0,True,0.0,0.8,0.8,226.4,600
+175,chain_valve_manifold_tighten,Multi-Stage Precision Chaining,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,122.2,127
+183,chain_bread_slice_toast_plate,Sequential Service & Culinary Assembly,False,1.0,0.6,0.0,0.0,True,0.0,0.6,0.6,303.0,562
+191,chain_cutlery_fork_knife_napkin,Sequential Service & Culinary Assembly,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,110.6,113
+199,chain_bottle_uncap_pour_glass,Sequential Service & Culinary Assembly,False,1.0,1.0,0.0,0.0,True,0.3333333333333333,1.0,1.0,144.2,170
+207,chain_coffee_pod_eject_tray,Sequential Service & Culinary Assembly,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,134.4,191

@@ -1,5 +1,11 @@
 # AFFORD-Bench: Master Strategic Roadmap & Reviewer Action Plan
 
+> **Superseded 2026-10-17.** The current plan, status, and evidence are in `docs/roadmap/` (`ROADMAP.md`,
+> `PROGRESS.md`, `AUDIT_REPORT.md`, `CLAIM_EVIDENCE_LEDGER.md`). Several items marked done below do not hold:
+> 1.2 the released datasets contain no depth; 1.5 the public GitHub Pages site links the author's account to the paper
+> (A-25); 1.6b the comparison figure was withdrawn for unsupported claims about other benchmarks (A-03); and the
+> "100% oracle" and "60-80% nominal" figures were not measured (current oracle: 95.3%; no learned baseline yet).
+
 **Target Conference**: Robotics: Science and Systems (RSS) 2027 (Athens, Greece)  
 **Track**: Two-Stage Shepherding Process (Stage 1 Extended Abstract $\rightarrow$ Stage 2 Extension Charter)  
 **Paper Title**: *AFFORD-Bench: An Affordance-Grounded Benchmark and Generalization Evaluation for Robot Learning*  

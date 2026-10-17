@@ -1,0 +1,992 @@
+{
+ "n_tasks": 210,
+ "n_oracle_episodes": 2100,
+ "groups": {
+  "all 210": {
+   "oracle_nominal_budget": {
+    "successes": 1001,
+    "episodes": 1050,
+    "tasks": 210,
+    "rate": 0.9533333333333334,
+    "wilson95": [
+     0.9388394486269194,
+     0.9645222402037135
+    ],
+    "task_cluster_bootstrap95": [
+     0.9342857142857143,
+     0.9704761904761905
+    ]
+   },
+   "oracle_nominal_H400": {
+    "successes": 993,
+    "episodes": 1050,
+    "tasks": 210,
+    "rate": 0.9457142857142857,
+    "wilson95": [
+     0.9303135177258763,
+     0.9578656217126449
+    ],
+    "task_cluster_bootstrap95": [
+     0.9238095238095239,
+     0.9647619047619047
+    ]
+   },
+   "oracle_L4_budget": {
+    "successes": 1007,
+    "episodes": 1050,
+    "tasks": 210,
+    "rate": 0.959047619047619,
+    "wilson95": [
+     0.9452926570518647,
+     0.9694559438228516
+    ],
+    "task_cluster_bootstrap95": [
+     0.9438095238095238,
+     0.9733333333333334
+    ]
+   },
+   "oracle_L4_H400": {
+    "successes": 998,
+    "episodes": 1050,
+    "tasks": 210,
+    "rate": 0.9504761904761905,
+    "wilson95": [
+     0.9356325948805575,
+     0.9620356379280335
+    ],
+    "task_cluster_bootstrap95": [
+     0.9295238095238095,
+     0.9685714285714285
+    ]
+   },
+   "random": {
+    "successes": 0,
+    "episodes": 1050,
+    "tasks": 210,
+    "rate": 0.0,
+    "wilson95": [
+     0.0,
+     0.0036451961426844284
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   },
+   "null": {
+    "successes": 0,
+    "episodes": 210,
+    "tasks": 210,
+    "rate": 0.0,
+    "wilson95": [
+     0.0,
+     0.017964050759283236
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "domain: Industrial & Manufacturing": {
+   "oracle_nominal_budget": {
+    "successes": 143,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.9533333333333334,
+    "wilson95": [
+     0.9068135276008725,
+     0.9772134508387381
+    ],
+    "task_cluster_bootstrap95": [
+     0.9066666666666666,
+     0.9866666666666667
+    ]
+   },
+   "oracle_nominal_H400": {
+    "successes": 143,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.9533333333333334,
+    "wilson95": [
+     0.9068135276008725,
+     0.9772134508387381
+    ],
+    "task_cluster_bootstrap95": [
+     0.9066666666666666,
+     0.9866666666666667
+    ]
+   },
+   "oracle_L4_budget": {
+    "successes": 141,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.94,
+    "wilson95": [
+     0.8899102291652979,
+     0.9681159557907947
+    ],
+    "task_cluster_bootstrap95": [
+     0.8933333333333333,
+     0.98
+    ]
+   },
+   "oracle_L4_H400": {
+    "successes": 141,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.94,
+    "wilson95": [
+     0.8899102291652979,
+     0.9681159557907947
+    ],
+    "task_cluster_bootstrap95": [
+     0.8933333333333333,
+     0.98
+    ]
+   },
+   "random": {
+    "successes": 0,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.0,
+    "wilson95": [
+     1.734723475976807e-18,
+     0.0249702443680766
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   },
+   "null": {
+    "successes": 0,
+    "episodes": 30,
+    "tasks": 30,
+    "rate": 0.0,
+    "wilson95": [
+     0.0,
+     0.11351339317396876
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "domain: Culinary & Kitchen Operations": {
+   "oracle_nominal_budget": {
+    "successes": 146,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.9733333333333334,
+    "wilson95": [
+     0.9334461094878556,
+     0.989582059177032
+    ],
+    "task_cluster_bootstrap95": [
+     0.9266666666666666,
+     1.0
+    ]
+   },
+   "oracle_nominal_H400": {
+    "successes": 146,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.9733333333333334,
+    "wilson95": [
+     0.9334461094878556,
+     0.989582059177032
+    ],
+    "task_cluster_bootstrap95": [
+     0.9266666666666666,
+     1.0
+    ]
+   },
+   "oracle_L4_budget": {
+    "successes": 146,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.9733333333333334,
+    "wilson95": [
+     0.9334461094878556,
+     0.989582059177032
+    ],
+    "task_cluster_bootstrap95": [
+     0.94,
+     1.0
+    ]
+   },
+   "oracle_L4_H400": {
+    "successes": 146,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.9733333333333334,
+    "wilson95": [
+     0.9334461094878556,
+     0.989582059177032
+    ],
+    "task_cluster_bootstrap95": [
+     0.94,
+     1.0
+    ]
+   },
+   "random": {
+    "successes": 0,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.0,
+    "wilson95": [
+     1.734723475976807e-18,
+     0.0249702443680766
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   },
+   "null": {
+    "successes": 0,
+    "episodes": 30,
+    "tasks": 30,
+    "rate": 0.0,
+    "wilson95": [
+     0.0,
+     0.11351339317396876
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "domain: Tabletop & Domestic": {
+   "oracle_nominal_budget": {
+    "successes": 150,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 1.0,
+    "wilson95": [
+     0.9750297556319235,
+     1.0
+    ],
+    "task_cluster_bootstrap95": [
+     1.0,
+     1.0
+    ]
+   },
+   "oracle_nominal_H400": {
+    "successes": 150,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 1.0,
+    "wilson95": [
+     0.9750297556319235,
+     1.0
+    ],
+    "task_cluster_bootstrap95": [
+     1.0,
+     1.0
+    ]
+   },
+   "oracle_L4_budget": {
+    "successes": 150,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 1.0,
+    "wilson95": [
+     0.9750297556319235,
+     1.0
+    ],
+    "task_cluster_bootstrap95": [
+     1.0,
+     1.0
+    ]
+   },
+   "oracle_L4_H400": {
+    "successes": 150,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 1.0,
+    "wilson95": [
+     0.9750297556319235,
+     1.0
+    ],
+    "task_cluster_bootstrap95": [
+     1.0,
+     1.0
+    ]
+   },
+   "random": {
+    "successes": 0,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.0,
+    "wilson95": [
+     1.734723475976807e-18,
+     0.0249702443680766
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   },
+   "null": {
+    "successes": 0,
+    "episodes": 30,
+    "tasks": 30,
+    "rate": 0.0,
+    "wilson95": [
+     0.0,
+     0.11351339317396876
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "domain: Laboratory & Life Sciences": {
+   "oracle_nominal_budget": {
+    "successes": 141,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.94,
+    "wilson95": [
+     0.8899102291652979,
+     0.9681159557907947
+    ],
+    "task_cluster_bootstrap95": [
+     0.8733333333333333,
+     0.9866666666666667
+    ]
+   },
+   "oracle_nominal_H400": {
+    "successes": 136,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.9066666666666666,
+    "wilson95": [
+     0.8494360687243842,
+     0.9435881325229135
+    ],
+    "task_cluster_bootstrap95": [
+     0.8066666666666666,
+     0.98
+    ]
+   },
+   "oracle_L4_budget": {
+    "successes": 145,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.9666666666666667,
+    "wilson95": [
+     0.9243482038212211,
+     0.9856795681019074
+    ],
+    "task_cluster_bootstrap95": [
+     0.9133333333333333,
+     1.0
+    ]
+   },
+   "oracle_L4_H400": {
+    "successes": 138,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.92,
+    "wilson95": [
+     0.8653786362494686,
+     0.953646358481347
+    ],
+    "task_cluster_bootstrap95": [
+     0.82,
+     1.0
+    ]
+   },
+   "random": {
+    "successes": 0,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.0,
+    "wilson95": [
+     1.734723475976807e-18,
+     0.0249702443680766
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   },
+   "null": {
+    "successes": 0,
+    "episodes": 30,
+    "tasks": 30,
+    "rate": 0.0,
+    "wilson95": [
+     0.0,
+     0.11351339317396876
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "domain: Long-Horizon Multi-Stage": {
+   "oracle_nominal_budget": {
+    "successes": 140,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.9333333333333333,
+    "wilson95": [
+     0.8816376448839411,
+     0.9633881433303926
+    ],
+    "task_cluster_bootstrap95": [
+     0.88,
+     0.9733333333333334
+    ]
+   },
+   "oracle_nominal_H400": {
+    "successes": 140,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.9333333333333333,
+    "wilson95": [
+     0.8816376448839411,
+     0.9633881433303926
+    ],
+    "task_cluster_bootstrap95": [
+     0.88,
+     0.9733333333333334
+    ]
+   },
+   "oracle_L4_budget": {
+    "successes": 140,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.9333333333333333,
+    "wilson95": [
+     0.8816376448839411,
+     0.9633881433303926
+    ],
+    "task_cluster_bootstrap95": [
+     0.8933333333333333,
+     0.9666666666666667
+    ]
+   },
+   "oracle_L4_H400": {
+    "successes": 140,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.9333333333333333,
+    "wilson95": [
+     0.8816376448839411,
+     0.9633881433303926
+    ],
+    "task_cluster_bootstrap95": [
+     0.8933333333333333,
+     0.9666666666666667
+    ]
+   },
+   "random": {
+    "successes": 0,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.0,
+    "wilson95": [
+     1.734723475976807e-18,
+     0.0249702443680766
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   },
+   "null": {
+    "successes": 0,
+    "episodes": 30,
+    "tasks": 30,
+    "rate": 0.0,
+    "wilson95": [
+     0.0,
+     0.11351339317396876
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "domain: Multi-Stage Precision Chaining": {
+   "oracle_nominal_budget": {
+    "successes": 138,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.92,
+    "wilson95": [
+     0.8653786362494686,
+     0.953646358481347
+    ],
+    "task_cluster_bootstrap95": [
+     0.8466666666666667,
+     0.98
+    ]
+   },
+   "oracle_nominal_H400": {
+    "successes": 138,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.92,
+    "wilson95": [
+     0.8653786362494686,
+     0.953646358481347
+    ],
+    "task_cluster_bootstrap95": [
+     0.8466666666666667,
+     0.98
+    ]
+   },
+   "oracle_L4_budget": {
+    "successes": 141,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.94,
+    "wilson95": [
+     0.8899102291652979,
+     0.9681159557907947
+    ],
+    "task_cluster_bootstrap95": [
+     0.8866666666666667,
+     0.98
+    ]
+   },
+   "oracle_L4_H400": {
+    "successes": 139,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.9266666666666666,
+    "wilson95": [
+     0.8734642066329596,
+     0.9585611848396149
+    ],
+    "task_cluster_bootstrap95": [
+     0.8666666666666667,
+     0.98
+    ]
+   },
+   "random": {
+    "successes": 0,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.0,
+    "wilson95": [
+     1.734723475976807e-18,
+     0.0249702443680766
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   },
+   "null": {
+    "successes": 0,
+    "episodes": 30,
+    "tasks": 30,
+    "rate": 0.0,
+    "wilson95": [
+     0.0,
+     0.11351339317396876
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "domain: Sequential Service & Culinary Assembly": {
+   "oracle_nominal_budget": {
+    "successes": 143,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.9533333333333334,
+    "wilson95": [
+     0.9068135276008725,
+     0.9772134508387381
+    ],
+    "task_cluster_bootstrap95": [
+     0.9133333333333333,
+     0.9866666666666667
+    ]
+   },
+   "oracle_nominal_H400": {
+    "successes": 140,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.9333333333333333,
+    "wilson95": [
+     0.8816376448839411,
+     0.9633881433303926
+    ],
+    "task_cluster_bootstrap95": [
+     0.88,
+     0.9866666666666667
+    ]
+   },
+   "oracle_L4_budget": {
+    "successes": 144,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.96,
+    "wilson95": [
+     0.915486535783444,
+     0.9815408393979256
+    ],
+    "task_cluster_bootstrap95": [
+     0.92,
+     0.9933333333333333
+    ]
+   },
+   "oracle_L4_H400": {
+    "successes": 144,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.96,
+    "wilson95": [
+     0.915486535783444,
+     0.9815408393979256
+    ],
+    "task_cluster_bootstrap95": [
+     0.92,
+     0.9933333333333333
+    ]
+   },
+   "random": {
+    "successes": 0,
+    "episodes": 150,
+    "tasks": 30,
+    "rate": 0.0,
+    "wilson95": [
+     1.734723475976807e-18,
+     0.0249702443680766
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   },
+   "null": {
+    "successes": 0,
+    "episodes": 30,
+    "tasks": 30,
+    "rate": 0.0,
+    "wilson95": [
+     0.0,
+     0.11351339317396876
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "tier: core": {
+   "oracle_nominal_budget": {
+    "successes": 314,
+    "episodes": 330,
+    "tasks": 66,
+    "rate": 0.9515151515151515,
+    "wilson95": [
+     0.922700782451617,
+     0.9699384992382448
+    ],
+    "task_cluster_bootstrap95": [
+     0.9121212121212121,
+     0.9818181818181818
+    ]
+   },
+   "oracle_nominal_H400": {
+    "successes": 309,
+    "episodes": 330,
+    "tasks": 66,
+    "rate": 0.9363636363636364,
+    "wilson95": [
+     0.9046803759977421,
+     0.9580045673803793
+    ],
+    "task_cluster_bootstrap95": [
+     0.8878787878787879,
+     0.9757575757575757
+    ]
+   },
+   "oracle_L4_budget": {
+    "successes": 314,
+    "episodes": 330,
+    "tasks": 66,
+    "rate": 0.9515151515151515,
+    "wilson95": [
+     0.922700782451617,
+     0.9699384992382448
+    ],
+    "task_cluster_bootstrap95": [
+     0.9212121212121213,
+     0.9787878787878788
+    ]
+   },
+   "oracle_L4_H400": {
+    "successes": 307,
+    "episodes": 330,
+    "tasks": 66,
+    "rate": 0.9303030303030303,
+    "wilson95": [
+     0.8975917081463142,
+     0.9531114999071112
+    ],
+    "task_cluster_bootstrap95": [
+     0.8787878787878788,
+     0.9727272727272728
+    ]
+   },
+   "random": {
+    "successes": 0,
+    "episodes": 330,
+    "tasks": 66,
+    "rate": 0.0,
+    "wilson95": [
+     0.0,
+     0.011506835712569085
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   },
+   "null": {
+    "successes": 0,
+    "episodes": 66,
+    "tasks": 66,
+    "rate": 0.0,
+    "wilson95": [
+     0.0,
+     0.05500255701354129
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "tier: reach": {
+   "oracle_nominal_budget": {
+    "successes": 175,
+    "episodes": 175,
+    "tasks": 35,
+    "rate": 1.0,
+    "wilson95": [
+     0.9785203115316479,
+     1.0
+    ],
+    "task_cluster_bootstrap95": [
+     1.0,
+     1.0
+    ]
+   },
+   "oracle_nominal_H400": {
+    "successes": 175,
+    "episodes": 175,
+    "tasks": 35,
+    "rate": 1.0,
+    "wilson95": [
+     0.9785203115316479,
+     1.0
+    ],
+    "task_cluster_bootstrap95": [
+     1.0,
+     1.0
+    ]
+   },
+   "oracle_L4_budget": {
+    "successes": 175,
+    "episodes": 175,
+    "tasks": 35,
+    "rate": 1.0,
+    "wilson95": [
+     0.9785203115316479,
+     1.0
+    ],
+    "task_cluster_bootstrap95": [
+     1.0,
+     1.0
+    ]
+   },
+   "oracle_L4_H400": {
+    "successes": 175,
+    "episodes": 175,
+    "tasks": 35,
+    "rate": 1.0,
+    "wilson95": [
+     0.9785203115316479,
+     1.0
+    ],
+    "task_cluster_bootstrap95": [
+     1.0,
+     1.0
+    ]
+   },
+   "random": {
+    "successes": 0,
+    "episodes": 175,
+    "tasks": 35,
+    "rate": 0.0,
+    "wilson95": [
+     0.0,
+     0.02147968846835207
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   },
+   "null": {
+    "successes": 0,
+    "episodes": 35,
+    "tasks": 35,
+    "rate": 0.0,
+    "wilson95": [
+     6.938893903907228e-18,
+     0.09890099232440402
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "tier: instruction_mismatch": {
+   "oracle_nominal_budget": {
+    "successes": 512,
+    "episodes": 545,
+    "tasks": 109,
+    "rate": 0.9394495412844037,
+    "wilson95": [
+     0.9161845213033051,
+     0.9565629585048643
+    ],
+    "task_cluster_bootstrap95": [
+     0.9119266055045872,
+     0.9651376146788991
+    ]
+   },
+   "oracle_nominal_H400": {
+    "successes": 509,
+    "episodes": 545,
+    "tasks": 109,
+    "rate": 0.9339449541284404,
+    "wilson95": [
+     0.9099072286677911,
+     0.9519081323953907
+    ],
+    "task_cluster_bootstrap95": [
+     0.9045871559633027,
+     0.9614678899082569
+    ]
+   },
+   "oracle_L4_budget": {
+    "successes": 518,
+    "episodes": 545,
+    "tasks": 109,
+    "rate": 0.9504587155963303,
+    "wilson95": [
+     0.9288800041166214,
+     0.9657317131815231
+    ],
+    "task_cluster_bootstrap95": [
+     0.9284403669724771,
+     0.9706422018348624
+    ]
+   },
+   "oracle_L4_H400": {
+    "successes": 516,
+    "episodes": 545,
+    "tasks": 109,
+    "rate": 0.9467889908256881,
+    "wilson95": [
+     0.9246250969643798,
+     0.9626985411704397
+    ],
+    "task_cluster_bootstrap95": [
+     0.9229357798165138,
+     0.9688073394495413
+    ]
+   },
+   "random": {
+    "successes": 0,
+    "episodes": 545,
+    "tasks": 109,
+    "rate": 0.0,
+    "wilson95": [
+     0.0,
+     0.006999213996967975
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   },
+   "null": {
+    "successes": 0,
+    "episodes": 109,
+    "tasks": 109,
+    "rate": 0.0,
+    "wilson95": [
+     0.0,
+     0.034042973751325124
+    ],
+    "task_cluster_bootstrap95": [
+     0.0,
+     0.0
+    ]
+   }
+  }
+ },
+ "success_at_reset_tasks": [],
+ "oracle_nominal_failure_tasks": [
+  "chain_biscuit_jam_butter_plate",
+  "chain_bread_slice_toast_plate",
+  "chain_burger_flip_cheese_top",
+  "chain_fuse_terminal_insert",
+  "chain_grand_master_banquet_service",
+  "chain_pancake_flip_syrup_serve",
+  "chain_pin_align_press",
+  "chain_sensor_bracket_mount",
+  "chain_shaft_key_slot_insert",
+  "chain_spark_plug_socket",
+  "chain_wire_harness_clip",
+  "industrial_bolt_pickup",
+  "industrial_gear_to_tray",
+  "industrial_pin_reposition",
+  "industrial_pin_to_tray",
+  "industrial_tray_kitting_slot3",
+  "kitchen_bottom_bun_to_board",
+  "kitchen_pod_into_hopper",
+  "lab_micro_tube_to_rack_b",
+  "lab_pipette_to_microplate",
+  "lab_pipette_to_well_corner",
+  "lab_transfer_test_tube",
+  "lab_tube_slot1_to_slot3",
+  "long_horizon_lab_biohazard_clear",
+  "long_horizon_lab_complete_dilution",
+  "long_horizon_lab_incubator_cycle",
+  "long_horizon_lab_pcr_assay_prep",
+  "long_horizon_lab_tube_serial_transfer",
+  "long_horizon_pod_brew_cycle",
+  "long_horizon_tabletop_complete_sort",
+  "long_horizon_tabletop_tidy_workspace"
+ ],
+ "oracle_nominal_over_horizon_tasks": [
+  "chain_burger_flip_cheese_top",
+  "chain_grand_master_banquet_service",
+  "chain_pancake_flip_syrup_serve",
+  "lab_micro_tube_return"
+ ]
+}

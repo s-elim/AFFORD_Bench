@@ -1,0 +1,27 @@
+task_number,task_id,domain,success_at_reset,oracle_sr,oracle_sr_physical,random_sr,null_sr,reset_pose_varies,start_fallback_rate,oracle_sr_h,oracle_sr_physical_h,oracle_mean_steps,oracle_max_steps
+8,industrial_fuse_seat,Industrial & Manufacturing,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,131.0,136
+16,industrial_pin_to_tray,Industrial & Manufacturing,False,0.4,0.8,0.0,0.0,True,0.3333333333333333,0.4,0.8,406.8,600
+24,industrial_inspection_dwell,Industrial & Manufacturing,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,31.6,32
+32,kitchen_cheese_place,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,117.0,119
+40,kitchen_patty_to_plate,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,130.2,133
+48,kitchen_tomato_to_board,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,121.0,122
+56,kitchen_tray_tomato_restock,Culinary & Kitchen Operations,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,117.0,121
+64,tabletop_red_to_green_bin,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,108.2,111
+72,tabletop_blue_center_table,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,108.0,115
+80,tabletop_green_bin_inspect,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,28.6,29
+88,tabletop_push_blue_forward,Tabletop & Domestic,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,106.2,113
+96,lab_tube_return_rack_a,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,128.2,141
+104,lab_micro_tube_to_plate,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,148.6,157
+112,lab_micro_tube_to_center,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,135.2,149
+120,lab_ready_standby,Laboratory & Life Sciences,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,38.4,39
+128,long_horizon_pod_brew_cycle,Long-Horizon Multi-Stage,False,0.4,0.8,0.0,0.0,True,0.0,0.4,0.8,414.4,600
+136,long_horizon_kitchen_clean_prep_cycle,Long-Horizon Multi-Stage,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,130.2,133
+144,long_horizon_kitchen_tray_clearoff,Long-Horizon Multi-Stage,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,120.6,131
+152,chain_gear_shaft_washer,Multi-Stage Precision Chaining,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,119.2,126
+160,chain_pipette_tip_eject,Multi-Stage Precision Chaining,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,137.6,194
+168,chain_fuse_terminal_insert,Multi-Stage Precision Chaining,False,0.6,0.8,0.0,0.0,True,0.0,0.6,0.8,318.4,600
+176,chain_pulley_belt_tension,Multi-Stage Precision Chaining,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,119.2,126
+184,chain_salad_toss_dressing_bowl,Sequential Service & Culinary Assembly,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,111.2,119
+192,chain_cereal_pour_milk_spoon,Sequential Service & Culinary Assembly,False,1.0,1.0,0.0,0.0,True,0.3333333333333333,1.0,1.0,136.0,140
+200,chain_biscuit_jam_butter_plate,Sequential Service & Culinary Assembly,False,0.6,0.6,0.0,0.0,True,0.0,0.6,0.6,328.8,600
+208,chain_ice_cube_tray_fill_freeze,Sequential Service & Culinary Assembly,False,1.0,1.0,0.0,0.0,True,0.0,1.0,1.0,120.8,140

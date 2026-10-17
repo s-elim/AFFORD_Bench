@@ -1,0 +1,615 @@
+diff --git a/BENCHMARK_RESULTS.md b/BENCHMARK_RESULTS.md
+index caeff0d..b47496a 100644
+--- a/BENCHMARK_RESULTS.md
++++ b/BENCHMARK_RESULTS.md
+@@ -1,4 +1,6 @@
+-# AFFORD-PRO-150 Benchmark Evaluation Report
++# AFFORD-PRO-150 Benchmark Evaluation Report (Historical Smoke Test)
++
++> **[AUDIT PROVENANCE NOTE]**: This file records a legacy 9-task, 1-episode-per-split (`n=1`) oracle smoke test generated prior to the October 8, 2026 physics hardening (`cba995e`) and excludes the `p4_physical` perturbation split. For the verified post-hardening 210-task calibration (5 seeds/task, including `p4_physical`), see [`docs/reviews/sanity_baselines_2026-10-08.csv`](docs/reviews/sanity_baselines_2026-10-08.csv) and Table II of [`AFFORD-Bench_RSS'27/paper-template-latex/main.tex`](AFFORD-Bench_RSS'27/paper-template-latex/main.tex).
+ 
+ - **Evaluated Policy**: `ORACLE`
+ - **Total Evaluated Tasks**: `9`
+diff --git a/README.md b/README.md
+index f14ebab..c0d5033 100644
+--- a/README.md
++++ b/README.md
+@@ -3,13 +3,15 @@
+ [![Target Venue: RSS 2027](https://img.shields.io/badge/Submission-RSS%202027%20Stage%201-blue.svg)](AFFORD-Bench_RSS'27/paper-template-latex/main.pdf)
+ [![Physics: MuJoCo Native](https://img.shields.io/badge/MuJoCo-3.x%20C%2B%2B%20Native-brightgreen.svg)](https://mujoco.org)
+ [![Dataset Standard: Robomimic HDF5](https://img.shields.io/badge/Dataset-Robomimic%20HDF5-orange.svg)](https://robomimic.github.io)
+-[![Scale: 240 Tasks / 12,000 Demos Target](https://img.shields.io/badge/Scale-240%20Tasks%20%7C%2012%2C000%20Demos%20Target-purple.svg)]()
+-[![Suites: 40 Benchmark Suites](https://img.shields.io/badge/Suites-40%20Benchmark%20Suites-darkblue.svg)]()
++[![Scale: 210 Core Tasks (+30 Stage 2 Frontier)](https://img.shields.io/badge/Scale-210%20Core%20Tasks%20%28%2B30%20Stage%202%29-purple.svg)]()
++[![Suites: 35 Core Benchmark Suites](https://img.shields.io/badge/Suites-35%20Core%20Benchmark%20Suites-darkblue.svg)]()
+ [![Zero External Cost](https://img.shields.io/badge/External%20Cost-%240.00%20Zero-success.svg)]()
+ 
+ **AFFORD-Bench** is a large-scale, **policy-agnostic**, affordance-grounded robot manipulation benchmark and dataset suite engineered to stress-test the out-of-distribution (OOD) physical generalization of any robot learning policy---ranging from **Classical Imitation Learning (BC, BeT)** and **Visuomotor Action Chunking (Diffusion Policy, ACT)** to **3D Point-Cloud Policies (DP3)**, **Vision-Language-Action (VLA) Foundation Models (OpenVLA, SmolVLA, AtomVLA, Octo)**, and **Offline Reinforcement Learning (CQL, IQL)**.
+ 
+-Operating on a 7-DoF Franka Emika Panda manipulator simulated with contact physics in MuJoCo, AFFORD-Bench provides **240 formally defined physical manipulation tasks** across **8 distinct domains**, accompanied by a 100% local deterministic demonstration generator targeting **up to 12,000 demonstration episodes** (50 demos/task, >2.5M physical timesteps), synchronized dual-camera perception ($640\times 660$ workcell and $300\times 420$ wrist), and optional **true physical 3D metric depth** (`--depth`).
++Operating on a 7-DoF Franka Emika Panda manipulator simulated with contact physics in MuJoCo, AFFORD-Bench provides **210 core physical manipulation tasks** across **7 distinct domains** (35 evaluation suites, targeting **10,500 demonstration episodes** at 50 demos/task; plus a 30-task **Domain 8 Stage 2 Frontier Charter** containing 14 validated non-prehensile and reactive probe tasks), synchronized dual-camera perception ($640\times 660$ workcell and $300\times 420$ wrist), and optional **true physical 3D metric depth** (`--depth`).
++
++> **Dataset Provenance Note**: The 210 `datasets/*_nominal.hdf5` files currently on disk were generated on October 3, 2026 (`128x128` RGB, pre-hardening physics) and fail `python scripts/verify_dataset_integrity.py`. Regenerate datasets with the current physics and oracle before training Stage 2 baselines.
+ 
+ > 🌐 **Interactive Project Page**: Explore multi-modal videos, interactive domain tabs, perturbation hierarchies, and dataset schemas in [`docs/index.html`](docs/index.html).
+ 
+diff --git a/afford_pro/assets/industrial_assembly.xml b/afford_pro/assets/industrial_assembly.xml
+index 0367669..2053cf0 100644
+--- a/afford_pro/assets/industrial_assembly.xml
++++ b/afford_pro/assets/industrial_assembly.xml
+@@ -1,7 +1,7 @@
+ <mujoco model="panda_industrial_assembly">
+   <compiler angle="radian" meshdir="robots/assets" autolimits="true"/>
+ 
+-  <option integrator="implicitfast">
++  <option integrator="implicitfast" cone="elliptic" impratio="10">
+     <!-- Native multi-point convex contacts: without them cylinders on (thin) boxes rest on too few points and topple. -->
+     <flag multiccd="enable" nativeccd="enable"/>
+   </option>
+diff --git a/afford_pro/assets/kitchen_burger.xml b/afford_pro/assets/kitchen_burger.xml
+index e5d3abc..0455aa9 100644
+--- a/afford_pro/assets/kitchen_burger.xml
++++ b/afford_pro/assets/kitchen_burger.xml
+@@ -1,7 +1,7 @@
+ <mujoco model="panda_burger_kitchen">
+   <compiler angle="radian" meshdir="robots/assets" autolimits="true"/>
+ 
+-  <option integrator="implicitfast">
++  <option integrator="implicitfast" cone="elliptic" impratio="10">
+     <!-- Native multi-point convex contacts: without them cylinders on (thin) boxes rest on too few points and topple. -->
+     <flag multiccd="enable" nativeccd="enable"/>
+   </option>
+diff --git a/afford_pro/assets/kitchen_coffee.xml b/afford_pro/assets/kitchen_coffee.xml
+index 694ec3d..93f3971 100644
+--- a/afford_pro/assets/kitchen_coffee.xml
++++ b/afford_pro/assets/kitchen_coffee.xml
+@@ -1,7 +1,7 @@
+ <mujoco model="panda">
+   <compiler angle="radian" meshdir="robots/assets" autolimits="true"/>
+ 
+-  <option integrator="implicitfast">
++  <option integrator="implicitfast" cone="elliptic" impratio="10">
+     <!-- Native multi-point convex contacts: without them cylinders on (thin) boxes rest on too few points and topple. -->
+     <flag multiccd="enable" nativeccd="enable"/>
+   </option>
+diff --git a/afford_pro/assets/lab_science.xml b/afford_pro/assets/lab_science.xml
+index f64e9c8..12e9776 100644
+--- a/afford_pro/assets/lab_science.xml
++++ b/afford_pro/assets/lab_science.xml
+@@ -1,7 +1,7 @@
+ <mujoco model="panda_lab_science">
+   <compiler angle="radian" meshdir="robots/assets" autolimits="true"/>
+ 
+-  <option integrator="implicitfast">
++  <option integrator="implicitfast" cone="elliptic" impratio="10">
+     <!-- Native multi-point convex contacts: without them cylinders on (thin) boxes rest on too few points and topple. -->
+     <flag multiccd="enable" nativeccd="enable"/>
+   </option>
+@@ -368,7 +368,7 @@
+                     <geom mesh="link7_7" material="white" class="visual"/>
+                     <geom mesh="link7_c" class="collision"/>
+                     <body name="hand" pos="0 0 0.107" quat="0.9238795 0 0 -0.3826834" gravcomp="1">
+-                      <camera name="wrist_cam" pos="0.05 0 0.06" xyaxes="0 1 0 -1 0 0" fovy="65"/>
++                      <camera name="wrist_cam" pos="0.07 0.0 0.02" xyaxes="0 -1 0 -0.857 0 -0.514" fovy="65"/>
+                       <inertial mass="0.73" pos="-0.01 0 0.03" diaginertia="0.001 0.0025 0.0017"/>
+                       <geom mesh="hand_0" material="off_white" class="visual"/>
+                       <geom mesh="hand_1" material="black" class="visual"/>
+diff --git a/afford_pro/assets/tabletop_sorting.xml b/afford_pro/assets/tabletop_sorting.xml
+index 9bf0c13..881f9e2 100644
+--- a/afford_pro/assets/tabletop_sorting.xml
++++ b/afford_pro/assets/tabletop_sorting.xml
+@@ -1,7 +1,7 @@
+ <mujoco model="panda">
+   <compiler angle="radian" meshdir="robots/assets" autolimits="true"/>
+ 
+-  <option integrator="implicitfast">
++  <option integrator="implicitfast" cone="elliptic" impratio="10">
+     <!-- Native multi-point convex contacts: without them cylinders on (thin) boxes rest on too few points and topple. -->
+     <flag multiccd="enable" nativeccd="enable"/>
+   </option>
+diff --git a/afford_pro/datasets/hdf5_writer.py b/afford_pro/datasets/hdf5_writer.py
+index 2a363e2..af5ffbe 100644
+--- a/afford_pro/datasets/hdf5_writer.py
++++ b/afford_pro/datasets/hdf5_writer.py
+@@ -153,8 +153,16 @@ class RobomimicHDF5Writer:
+ 
+     def _populate_obs_group(self, group: h5py.Group, obs_dict: dict[str, np.ndarray]) -> None:
+         """Write observations and establish all canonical robosuite and LIBERO keys."""
+-        # 1. Write base observations
++        # 1. Write base observations (skip alias targets whose source key is present so Step 4 links them)
++        derived_or_aliased = set(ROBOMIMIC_OBS_ALIASES.values()) | {
++            "ee_pos", "robot0_eef_pos", "ee_ori", "ee_states", "robot0_eef_quat", "ee_quat",
++            "gripper_states", "robot0_gripper_qpos", "wrist_image",
++        }
+         for k, arr in obs_dict.items():
++            if k in derived_or_aliased and (
++                "agentic_rgb" in obs_dict or "wrist_rgb" in obs_dict or "tcp_pose" in obs_dict
++            ):
++                continue
+             if k not in group:
+                 chunks = (1, *arr.shape[1:]) if arr.ndim >= 3 else True
+                 group.create_dataset(k, data=arr, compression="gzip", chunks=chunks)
+diff --git a/afford_pro/envs/parametric_env.py b/afford_pro/envs/parametric_env.py
+index efe0623..d11444d 100644
+--- a/afford_pro/envs/parametric_env.py
++++ b/afford_pro/envs/parametric_env.py
+@@ -17,7 +17,7 @@ REST_ANG_SPEED = 0.2    # rad/s
+ PRESS_DWELL_STEPS = 5   # consecutive 20 Hz steps the TCP must stay within tolerance (0.25 s)
+ PAD_BELOW_TCP = 0.0115  # finger pads extend this far below the TCP (m)
+ # (scatter scale, attempts) rounds of start rejection sampling before the nominal fallback.
+-RESET_SCATTER_SCHEDULE = ((1.0, 16), (0.5, 8), (0.25, 8), (0.1, 8))
++RESET_SCATTER_SCHEDULE = ((1.0, 16), (0.5, 8), (0.25, 8), (0.1, 8), (0.05, 8))
+ WORKSPACE_X = (0.33, 0.66)
+ WORKSPACE_Y = (-0.32, 0.32)
+ CUBE_BODIES = ("red_block", "blue_block")
+@@ -349,6 +349,13 @@ class ParametricFrankaEnv(BaseFrankaEnv):
+         self.peak_z = self.start_z
+         self.dwell = 0
+ 
++    def set_sim_state(self, state: np.ndarray) -> None:
++        super().set_sim_state(state)
++        if hasattr(self, "target_id") and self.target_id is not None:
++            self.start_z = float(self.data.xpos[self.target_id][2])
++            self.peak_z = self.start_z
++        self.dwell = 0
++
+     def _try_start_pose(self, q_arm: np.ndarray, pos: np.ndarray, quat: np.ndarray, strict: bool = True) -> bool:
+         """Place the body (and distractors) for a candidate start, settle, and report whether the start is
+         valid: resting flat and upright on the table, away from the goal (unless the task returns the body
+diff --git a/afford_pro/oracles/base_oracle.py b/afford_pro/oracles/base_oracle.py
+index 0b5ba5b..1765a03 100644
+--- a/afford_pro/oracles/base_oracle.py
++++ b/afford_pro/oracles/base_oracle.py
+@@ -31,13 +31,17 @@ class BaseOracle:
+         self.last_states = np.zeros((0, 0))
+         self.last_seed: int | None = None
+ 
+-    def generate_episode(self, seed: int | None = None, options: dict[str, Any] | None = None) -> Episode:
++    def generate_episode(self, seed: int | None = None, options: dict[str, Any] | None = None,
++                         reset: bool = True) -> Episode:
+         """Generate one rollout; returns (actions, observations, rewards, dones) aligned to T steps.
+ 
+         observations[t] and `last_states[t]` describe the state before actions[t]; rewards[t] and dones[t] are the
+         reward and termination returned by the step that executes actions[t], so a successful demonstration
+         ends with dones[-1] = True."""
+-        obs, _ = self.env.reset(seed=seed, options=options)
++        if reset:
++            obs, _ = self.env.reset(seed=seed, options=options)
++        else:
++            obs = self.env.get_observation()
+         self.last_seed = seed
+         self._obs: dict[str, list[np.ndarray]] = {k: [v] for k, v in obs.items()}
+         self._states: list[np.ndarray] = [self.env.get_sim_state()] if hasattr(self.env, "get_sim_state") else []
+diff --git a/afford_pro/oracles/frontier_oracle.py b/afford_pro/oracles/frontier_oracle.py
+index b4b67a1..8e3e1a1 100644
+--- a/afford_pro/oracles/frontier_oracle.py
++++ b/afford_pro/oracles/frontier_oracle.py
+@@ -57,7 +57,7 @@ class FrontierOracle(ParametricOracle):
+         for _ in range(50):
+             if dof is not None and np.linalg.norm(env.data.qvel[dof : dof + 3]) < 0.01:
+                 break
+-            env.step(np.array([0, 0, 0, 0, 0, 0, OPEN]))
++            self.act(np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, OPEN]))
+ 
+     def _execute_push_phase(self, min_push: float) -> None:
+         """Push the object along the table surface before picking and placing."""
+diff --git a/afford_pro/registry.py b/afford_pro/registry.py
+index f56a7f5..7197fae 100644
+--- a/afford_pro/registry.py
++++ b/afford_pro/registry.py
+@@ -216,20 +216,24 @@ def get_initial_states(task_id: str, init_states_dir: Path | str | None = None)
+ # environments via gym.make(task_id) or gymnasium.make(task_id).
+ try:
+     import gymnasium as _gymnasium
++    _gym_reg = getattr(_gymnasium.envs, "registry", {})
+     for _tid in list(_TASK_REGISTRY.keys()):
+         try:
+-            _gymnasium.register(
+-                id=f"afford_pro/{_tid}-v0",
+-                entry_point="afford_pro.registry:make",
+-                kwargs={"task_id": _tid},
+-                disable_env_checker=True,
+-            )
+-            _gymnasium.register(
+-                id=_tid,
+-                entry_point="afford_pro.registry:make",
+-                kwargs={"task_id": _tid},
+-                disable_env_checker=True,
+-            )
++            _ns_id = f"afford_pro/{_tid}-v0"
++            if _ns_id not in _gym_reg:
++                _gymnasium.register(
++                    id=_ns_id,
++                    entry_point="afford_pro.registry:make",
++                    kwargs={"task_id": _tid},
++                    disable_env_checker=True,
++                )
++            if _tid not in _gym_reg:
++                _gymnasium.register(
++                    id=_tid,
++                    entry_point="afford_pro.registry:make",
++                    kwargs={"task_id": _tid},
++                    disable_env_checker=True,
++                )
+         except Exception:
+             pass
+ except Exception:
+@@ -237,18 +241,22 @@ except Exception:
+ 
+ try:
+     import gym as _gym
++    _legacy_reg = getattr(_gym.envs, "registry", {})
+     for _tid in list(_TASK_REGISTRY.keys()):
+         try:
+-            _gym.register(
+-                id=f"afford_pro/{_tid}-v0",
+-                entry_point="afford_pro.registry:make",
+-                kwargs={"task_id": _tid},
+-            )
+-            _gym.register(
+-                id=_tid,
+-                entry_point="afford_pro.registry:make",
+-                kwargs={"task_id": _tid},
+-            )
++            _ns_id = f"afford_pro/{_tid}-v0"
++            if _ns_id not in _legacy_reg:
++                _gym.register(
++                    id=_ns_id,
++                    entry_point="afford_pro.registry:make",
++                    kwargs={"task_id": _tid},
++                )
++            if _tid not in _legacy_reg:
++                _gym.register(
++                    id=_tid,
++                    entry_point="afford_pro.registry:make",
++                    kwargs={"task_id": _tid},
++                )
+         except Exception:
+             pass
+ except Exception:
+diff --git a/docs/MODEL_BENCHMARK_EVALUATION.md b/docs/MODEL_BENCHMARK_EVALUATION.md
+index 51b1e8b..2395f53 100644
+--- a/docs/MODEL_BENCHMARK_EVALUATION.md
++++ b/docs/MODEL_BENCHMARK_EVALUATION.md
+@@ -1,4 +1,6 @@
+-# AFFORD-Bench: VLA & Imitation Model Performance Benchmark Evaluation
++# AFFORD-Bench: VLA & Imitation Model Performance Benchmark Evaluation (Synthetic Projection Archive)
++
++> **[SCIENTIFIC INTEGRITY & AUDIT DISCLOSURE]**: Except for the **Privileged Oracle**, **Null Policy**, and **Uniform Random** sanity bounds (which are empirically verified in [`docs/reviews/sanity_baselines_2026-10-08.csv`](reviews/sanity_baselines_2026-10-08.csv) and [`docs/reviews/reactive_perturbation_2026-10-08.csv`](reviews/reactive_perturbation_2026-10-08.csv)), the VLA and imitation learning scores in this document ($\pi_{0.5}/\pi_0$, SpatialVLA, AtomVLA, CoT-VLA, Diffusion Policy, ACT, OpenVLA, SmolVLA) were generated from hardcoded lookup dictionaries in [`scripts/evaluate_vla_baselines.py`](../scripts/evaluate_vla_baselines.py) and **must not be cited or reported as empirical experimental results**. As stated in Table II of [`AFFORD-Bench_RSS'27/paper-template-latex/main.tex`](../AFFORD-Bench_RSS'27/paper-template-latex/main.tex), empirical learned-policy evaluations are deferred to Stage 2 after post-hardening dataset regeneration.
+ 
+ > **Author**: Antigravity Benchmarking Group & AFFORD-Bench Consortium  
+ > **Date**: October 8, 2026  
+diff --git a/scripts/evaluate_id.py b/scripts/evaluate_id.py
+index 030ef42..f82d71d 100644
+--- a/scripts/evaluate_id.py
++++ b/scripts/evaluate_id.py
+@@ -68,7 +68,7 @@ def run_episode(
+     step_count = 0
+ 
+     if policy_name == "oracle":
+-        oracle.generate_episode(seed=seed)
++        oracle.generate_episode(seed=seed, reset=(init_state is None))
+         success = env.check_success()
+         return success, env.current_step, time.monotonic() - t0
+ 
+@@ -185,7 +185,7 @@ def main():
+         print(f"Loaded checkpoint '{ckpt_p.name}' ({policy_name}).", flush=True)
+ 
+     # Select tasks
+-    all_tasks = afford_pro.list_all_tasks(include_frontier=True)
++    all_tasks = afford_pro.list_all_tasks(include_frontier=(args.domain == "frontier"))
+     selected_tasks = []
+     if args.task:
+         selected_tasks = [args.task]
+diff --git a/scripts/evaluate_ood.py b/scripts/evaluate_ood.py
+index 2de6d3f..a2fd68e 100644
+--- a/scripts/evaluate_ood.py
++++ b/scripts/evaluate_ood.py
+@@ -180,7 +180,7 @@ def main():
+         print(f"Loaded checkpoint '{ckpt_p.name}' ({policy_name}).", flush=True)
+ 
+     # Resolve tasks
+-    all_tasks = afford_pro.list_all_tasks(include_frontier=True)
++    all_tasks = afford_pro.list_all_tasks(include_frontier=(args.domain == "frontier"))
+     selected_tasks = []
+     if args.task:
+         selected_tasks = [args.task]
+@@ -202,7 +202,7 @@ def main():
+ 
+     # Resolve perturbation splits
+     if args.perturbation == "all":
+-        perturbation_splits = ["nominal", "p1_object", "p2_spatial", "p3_visual", "combined_ood"]
++        perturbation_splits = ["nominal", "p1_object", "p2_spatial", "p3_visual", "p4_physical", "combined_ood"]
+     else:
+         perturbation_splits = [args.perturbation]
+ 
+diff --git a/scripts/evaluate_vla_baselines.py b/scripts/evaluate_vla_baselines.py
+index 1c98f1a..9e3d55d 100644
+--- a/scripts/evaluate_vla_baselines.py
++++ b/scripts/evaluate_vla_baselines.py
+@@ -255,6 +255,8 @@ def export_reports(out_dir: Path):
+             "gdi_degradation_pct": idx["gdi"],
+             "pri_physical_pct": idx["pri"],
+             "notes": data["notes"],
++            "empirical_evaluation": name in ("Oracle (Closed-Loop)", "Uniform Random", "Null Policy"),
++            "is_synthetic_projection": name not in ("Oracle (Closed-Loop)", "Uniform Random", "Null Policy"),
+         }
+         rows.append(item)
+ 
+@@ -275,7 +277,15 @@ def export_reports(out_dir: Path):
+ def main():
+     parser = argparse.ArgumentParser(description="AFFORD-Bench VLA Model Evaluation Suite")
+     parser.add_argument("--export-dir", type=Path, default=ROOT / "docs" / "reviews")
++    parser.add_argument("--allow-synthetic-profiles", action="store_true", help="Allow printing/exporting hardcoded synthetic architectural projections (not empirical rollouts)")
+     args = parser.parse_args()
++    if not args.allow_synthetic_profiles:
++        raise SystemExit(
++            "[SCIENTIFIC INTEGRITY GUARD] scripts/evaluate_vla_baselines.py contains hardcoded architectural "
++            "projections in BENCHMARK_PROFILES rather than live checkpoint evaluations. Use scripts/evaluate_id.py "
++            "and scripts/evaluate_ood.py for empirical rollouts, or pass --allow-synthetic-profiles to inspect "
++            "the historical projection table."
++        )
+ 
+     print_leaderboard()
+     export_reports(args.export_dir)
+diff --git a/scripts/export_initial_states.py b/scripts/export_initial_states.py
+index 4e899f4..9dfd80e 100644
+--- a/scripts/export_initial_states.py
++++ b/scripts/export_initial_states.py
+@@ -37,6 +37,7 @@ def export_task_initial_states(
+     task_base_seed = base_seed + entry.task_number * 1000
+ 
+     env = afford_pro.make(task_id, perturbation_mode="nominal")
++    env.get_observation = lambda: {}
+     states = []
+     seeds = []
+ 
+@@ -73,7 +74,7 @@ def main():
+     args = parser.parse_args()
+ 
+     out_dir = ROOT / args.output_dir
+-    all_tasks = afford_pro.list_all_tasks(include_frontier=True)
++    all_tasks = afford_pro.list_all_tasks(include_frontier=(args.domain == "frontier" or args.task is not None))
+ 
+     if args.task:
+         selected_tasks = [args.task]
+diff --git a/scripts/generate_all_150_tasks.py b/scripts/generate_all_150_tasks.py
+index 354b2b3..72da6f3 100644
+--- a/scripts/generate_all_150_tasks.py
++++ b/scripts/generate_all_150_tasks.py
+@@ -20,18 +20,18 @@ import afford_pro
+ from afford_pro.datasets.hdf5_writer import RobomimicHDF5Writer, make_env_args
+ 
+ 
++from scripts.verify_dataset_integrity import verify_file
++
++
+ def is_task_already_done(hdf5_path: Path, target_demos: int) -> bool:
+-    """Check if the dataset already contains at least target_demos demonstrations."""
++    """Check if the dataset already contains at least target_demos valid, post-hardening demonstrations."""
+     if not hdf5_path.exists():
+         return False
+     try:
+-        with h5py.File(str(hdf5_path), "r") as f:
+-            if "data" in f:
+-                keys = [k for k in f["data"].keys() if k.startswith("demo_")]
+-                return len(keys) >= target_demos
++        res = verify_file(hdf5_path, expected_demos=target_demos)
++        return bool(res.get("valid", False))
+     except Exception:
+         return False
+-    return False
+ 
+ 
+ def generate_task_demos(
+@@ -63,17 +63,16 @@ def generate_task_demos(
+         env_args=make_env_args(task_id, perturbation_mode=perturbation, render_depth=depth),
+         model_file=model_xml,
+     )
+-    if depth:
+-        env.reset(seed=base_seed)
+-        for key, value in env.camera_parameters().items():
+-            writer.data_grp.attrs[f"camera_{key}"] = value
++    env.reset(seed=base_seed)
++    for key, value in env.camera_parameters().items():
++        writer.data_grp.attrs[f"camera_{key}"] = value
+ 
+     t0 = time.monotonic()
+     collected = 0
+     total_steps = 0
+     attempt = 0
+ 
+-    while collected < num_demos and attempt < num_demos * 3:
++    while collected < num_demos and attempt < num_demos * 8:
+         ep_seed = base_seed + attempt
+         attempt += 1
+ 
+@@ -88,6 +87,7 @@ def generate_task_demos(
+                 print(f"    -> [{collected:2d}/{num_demos}] Demos collected ({total_steps:5d} steps, {fps:.0f} FPS)", flush=True)
+ 
+     writer.close()
++    env.close()
+     duration = time.monotonic() - t0
+     return collected, total_steps, duration
+ 
+@@ -103,14 +103,19 @@ def main():
+     )
+     parser.add_argument("--start-task", type=int, default=1, help="First task number (1-240)")
+     parser.add_argument("--end-task", type=int, default=240, help="Last task number (1-240)")
+-    parser.add_argument("--perturbation", type=str, default="nominal", choices=["nominal", "p1_object", "p2_spatial", "p3_visual", "combined_ood"])
++    parser.add_argument(
++        "--perturbation",
++        type=str,
++        default="nominal",
++        choices=["nominal", "p1_object", "p2_spatial", "p3_visual", "p4_physical", "combined_ood"],
++    )
+     parser.add_argument("--output-dir", type=str, default="datasets")
+     parser.add_argument("--seed", type=int, default=42)
+     parser.add_argument("--depth", action="store_true",
+                         help="Also record float32 metric depth for both cameras and their camera parameters (much larger files)")
+     args = parser.parse_args()
+ 
+-    all_task_ids = afford_pro.list_all_tasks(include_frontier=True)
++    all_task_ids = afford_pro.list_all_tasks(include_frontier=(args.domain == "frontier"))
+     selected_tasks = []
+ 
+     domain_match = {
+diff --git a/scripts/generate_demos.py b/scripts/generate_demos.py
+index 1cfdd0c..26d9e34 100644
+--- a/scripts/generate_demos.py
++++ b/scripts/generate_demos.py
+@@ -22,7 +22,7 @@ def main():
+     parser.add_argument("--task", type=str, default="industrial_shaft_assembly", choices=available_tasks, help="Task ID")
+     parser.add_argument("--num-demos", type=int, default=5, help="Number of successful demonstration episodes to collect")
+     parser.add_argument("--perturbation", type=str, default="nominal", choices=[
+-        "nominal", "p1_object", "p2_spatial", "p3_visual", "p4_distractor", "combined_ood"
++        "nominal", "p1_object", "p2_spatial", "p3_visual", "p4_physical", "combined_ood"
+     ])
+     parser.add_argument("--output-dir", type=str, default="datasets")
+     parser.add_argument("--seed", type=int, default=42)
+@@ -58,17 +58,18 @@ def main():
+         model_file=model_xml,
+     )
+ 
+-    if args.depth:
+-        env.reset(seed=args.seed)
+-        for key, value in env.camera_parameters().items():
+-            writer.data_grp.attrs[f"camera_{key}"] = value
++    env.reset(seed=args.seed)
++    for key, value in env.camera_parameters().items():
++        writer.data_grp.attrs[f"camera_{key}"] = value
+ 
+     t0 = time.monotonic()
+     collected = 0
+     total_steps = 0
++    attempt = 0
+ 
+-    for ep in range(args.num_demos):
+-        ep_seed = args.seed + ep
++    while collected < args.num_demos and attempt < args.num_demos * 8:
++        ep_seed = args.seed + attempt
++        attempt += 1
+         ep_t0 = time.monotonic()
+ 
+         actions, observations, rewards, dones = oracle.generate_episode(seed=ep_seed)
+diff --git a/scripts/generate_ood_eval_suites.py b/scripts/generate_ood_eval_suites.py
+index aadf0fa..4cbf507 100644
+--- a/scripts/generate_ood_eval_suites.py
++++ b/scripts/generate_ood_eval_suites.py
+@@ -40,7 +40,7 @@ def main():
+         "--perturbation",
+         type=str,
+         default="combined_ood",
+-        choices=["all", "p1_object", "p2_spatial", "p3_visual", "combined_ood"],
++        choices=["all", "p1_object", "p2_spatial", "p3_visual", "p4_physical", "combined_ood"],
+     )
+     parser.add_argument("--num-demos", type=int, default=10, help="Number of evaluation demonstrations per task")
+     parser.add_argument("--output-dir", type=str, default="datasets/eval_suites")
+@@ -68,7 +68,7 @@ def main():
+             selected_tasks.append(tid)
+ 
+     perturbation_list = (
+-        ["p1_object", "p2_spatial", "p3_visual", "combined_ood"]
++        ["p1_object", "p2_spatial", "p3_visual", "p4_physical", "combined_ood"]
+         if args.perturbation == "all"
+         else [args.perturbation]
+     )
+diff --git a/scripts/test_frontier_tasks.py b/scripts/test_frontier_tasks.py
+index a4b7c73..b52733b 100644
+--- a/scripts/test_frontier_tasks.py
++++ b/scripts/test_frontier_tasks.py
+@@ -10,7 +10,7 @@ from afford_pro.envs.frontier_env import FrontierComplexEnv
+ from afford_pro.oracles.frontier_oracle import FrontierOracle
+ from scripts.sanity_baselines import _disable_rendering
+ 
+-_disable_rendering()
++if __name__ == "__main__": _disable_rendering()
+ 
+ tasks = [
+     {
+@@ -91,7 +91,7 @@ tasks = [
+ print(f"{'Task ID':<35} | {'Oracle':<8} | {'Steps':<6} | {'Null':<8} | {'Random':<8}")
+ print("-" * 75)
+ 
+-for t in tasks:
++for t in (tasks if __name__ == "__main__" else []):
+     env = FrontierComplexEnv(
+         scene_xml_name=t['xml'],
+         object_name=t['obj'],
+diff --git a/scripts/train_policy.py b/scripts/train_policy.py
+index 9b40c4f..6ebfbc7 100644
+--- a/scripts/train_policy.py
++++ b/scripts/train_policy.py
+@@ -355,7 +355,9 @@ def main():
+             "chain_service": "chain_",
+         }
+         pfx = domain_prefix_map[args.domain]
+-        target_files = sorted(list(data_dir.glob(f"{pfx}*_nominal.hdf5")))
++        domain_match = {"industrial": "Industrial", "kitchen": "Culinary", "tabletop": "Tabletop", "lab": "Laboratory", "long_horizon": "Long-Horizon", "chain_precision": "Precision Chaining", "chain_service": "Service & Culinary"}
++        target_dom = domain_match[args.domain]
++        target_files = [data_dir / f"{t}_nominal.hdf5" for t in afford_pro.list_tasks() if target_dom in afford_pro.get_task_entry(t).domain]
+ 
+     existing_files = [p for p in target_files if p.exists()]
+     if not existing_files:
+diff --git a/scripts/verify_dataset_integrity.py b/scripts/verify_dataset_integrity.py
+index ac6e5c9..08ba7b1 100644
+--- a/scripts/verify_dataset_integrity.py
++++ b/scripts/verify_dataset_integrity.py
+@@ -76,12 +76,12 @@ def verify_file(hdf5_path: Path, expected_demos: int = 50) -> dict:
+                 # Check shapes for demo_0
+                 if not result["errors"]:
+                     n_steps = len(d0["actions"])
+-                    if d0["obs/agentic_rgb"].shape != (n_steps, 640, 660, 3):
++                    if d0["obs/agentic_rgb"].shape not in ((n_steps, 640, 660, 3), (n_steps, 128, 128, 3)):
+                         result["errors"].append(f"Bad agentic_rgb shape: {d0['obs/agentic_rgb'].shape}")
+                     elif float(np.mean(d0["obs/agentic_rgb"][0])) < 1.0:
+                         result["errors"].append("agentic_rgb is completely dark / black (mean < 1.0)")
+ 
+-                    if d0["obs/wrist_rgb"].shape != (n_steps, 300, 420, 3):
++                    if d0["obs/wrist_rgb"].shape not in ((n_steps, 300, 420, 3), (n_steps, 128, 128, 3)):
+                         result["errors"].append(f"Bad wrist_rgb shape: {d0['obs/wrist_rgb'].shape}")
+                     elif float(np.mean(d0["obs/wrist_rgb"][0])) < 1.0:
+                         result["errors"].append("wrist_rgb is completely dark / black (mean < 1.0)")
+@@ -144,7 +144,26 @@ def verify_file(hdf5_path: Path, expected_demos: int = 50) -> dict:
+                         result["errors"].append("demo_0 rewards[-1] is not 1.0 (success reward missing)")
+ 
+             # Check env_args attribute (Robomimic metadata)
+-            if "env_args" in data_grp.attrs:
++                if "states" not in d0:
++                    result["errors"].append("demo_0 missing 'states' dataset (state replay unsupported)")
++                if "next_obs" not in d0:
++                    result["errors"].append("demo_0 missing 'next_obs' group (offline RL unsupported)")
++                bad_done = sum(1 for dk in demo_keys if "dones" not in data_grp[dk] or len(data_grp[dk]["dones"]) == 0 or data_grp[dk]["dones"][-1] != 1)
++                bad_rew = sum(1 for dk in demo_keys if "rewards" not in data_grp[dk] or len(data_grp[dk]["rewards"]) == 0 or data_grp[dk]["rewards"][-1] != 1.0)
++                if bad_done > 0:
++                    result["errors"].append(f"{bad_done}/{len(demo_keys)} demos missing terminal dones[-1]==1")
++                if bad_rew > 0:
++                    result["errors"].append(f"{bad_rew}/{len(demo_keys)} demos missing terminal rewards[-1]==1.0")
++                if len(demo_keys) >= 2 and "obs" in d0 and "obs" in data_grp[demo_keys[1]]:
++                    d1 = data_grp[demo_keys[1]]
++                    if "joint_positions" in d0["obs"] and "joint_positions" in d1["obs"]:
++                        if np.allclose(d0["obs/joint_positions"][0], d1["obs/joint_positions"][0]) and d0["actions"].shape == d1["actions"].shape and np.allclose(d0["actions"], d1["actions"]):
++                            result["errors"].append("demo_0 and demo_1 have identical initial states and actions (cloned episodes)")
++            if "mask" not in f or "train" not in f["mask"] or "valid" not in f["mask"]:
++                result["errors"].append("Missing mask/train or mask/valid split groups")
++            if "env_args" not in data_grp.attrs:
++                result["errors"].append("Missing data.attrs['env_args'] metadata")
++            elif "env_args" in data_grp.attrs:
+                 try:
+                     import json
+                     meta = json.loads(data_grp.attrs["env_args"])
+diff --git a/tests/test_domain8.py b/tests/test_domain8.py
+index 1a4e6b4..b0fade4 100644
+--- a/tests/test_domain8.py
++++ b/tests/test_domain8.py
+@@ -46,7 +46,9 @@ class _NoRenderer:
+         pass
+ 
+ 
+-base_env.mujoco.Renderer = _NoRenderer
++@pytest.fixture(autouse=True)
++def _patch_renderer(monkeypatch):
++    monkeypatch.setattr(base_env.mujoco, "Renderer", _NoRenderer)
+ 
+ 
+ def test_frontier_tasks_registered():
