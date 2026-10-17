@@ -1,32 +1,27 @@
-"""Policy Training Script for AFFORD-Bench.
+"""Train BC or diffusion-policy baselines on AFFORD-Bench Robomimic HDF5 datasets.
 
-Ready-to-run PyTorch training harness for training robot manipulation policies
-(Diffusion Policy and Behavioral Cloning) on AFFORD-Bench HDF5 demonstration datasets.
-Supports both state-based proprioceptive policies and visuomotor policies.
+Modalities (afford_pro.learning.features): `lowdim` = proprioception + pose of the evaluated body (the low-dim
+baseline), `visual` = workcell image + proprioception, `state` = proprioception only (a blind ablation: it cannot
+see where the object starts).
 
-Usage Examples:
-  # Fast state-based Diffusion Policy training (CPU/GPU, finishes in minutes)
-  python scripts/train_policy.py --policy diffusion --modality state --domain industrial --epochs 20
+The checkpoint stores the input normalizer, the input dimension, the training and validation losses, the list of
+dataset files (name, size, mtime), and the code provenance. The saved checkpoint is the epoch with the lowest
+validation loss (mask/valid), not the lowest training loss.
 
-  # Fast state-based BC Policy on a single task
-  python scripts/train_policy.py --policy bc --modality state --task industrial_shaft_assembly --epochs 10
-
-  # Full Visuomotor Diffusion Policy training
-  python scripts/train_policy.py --policy diffusion --modality visual --domain kitchen --epochs 30 --batch-size 32
+  python scripts/train_policy.py --policy diffusion --modality lowdim --task tabletop_sort_red --epochs 50
+  python scripts/train_policy.py --policy bc --modality lowdim --domain tabletop --tier core --epochs 50 --seed 1
 """
 from __future__ import annotations
 
 import argparse
-import math
-import os
 import sys
 import time
 from pathlib import Path
+from typing import Any
 
 import h5py
 import numpy as np
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 
@@ -35,293 +30,142 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import afford_pro
+from afford_pro.learning.features import MODALITIES, Normalizer, input_dim, object_pose_from_states, preprocess_image, proprio
+from afford_pro.learning.policies import BCPolicy, DiffusionPolicy, SinusoidalPosEmb  # noqa: F401  (re-exported)
+
+DOMAIN_MATCH = {"industrial": "Industrial", "kitchen": "Culinary", "tabletop": "Tabletop", "lab": "Laboratory",
+                "long_horizon": "Long-Horizon", "chain_precision": "Precision Chaining", "chain_service": "Service & Culinary"}
 
 
-# ==============================================================================
-# 1. Dataset Loader for Robomimic / AFFORD-Bench HDF5 Files
-# ==============================================================================
+def _split_keys(f: h5py.File, split: str) -> list[str]:
+    if "mask" in f and split in f["mask"]:
+        return [k.decode() if isinstance(k, bytes) else str(k) for k in f["mask"][split][()]]
+    keys = sorted((k for k in f["data"] if k.startswith("demo_")), key=lambda k: int(k.split("_")[1]))
+    cut = int(0.9 * len(keys))
+    return keys[:cut] if split == "train" else keys[cut:]
+
+
+def _padded_chunks(actions: np.ndarray, chunk: int) -> np.ndarray:
+    """Action chunk starting at every step; the tail is padded with the last action so the final (release)
+    states are also training inputs."""
+    padded = np.concatenate([actions, np.repeat(actions[-1:], chunk - 1, axis=0)])
+    return np.stack([padded[t:t + chunk] for t in range(len(actions))])
+
+
 class AffordDemonstrationDataset(Dataset):
-    """Loads state-action or visuomotor pairs from AFFORD-Bench HDF5 datasets."""
+    """Windows (input at step t, actions t..t+chunk-1) from one split of one or more dataset files."""
 
-    def __init__(
-        self,
-        hdf5_paths: list[Path],
-        chunk_size: int = 16,
-        split: str = "train",
-        modality: str = "state",
-        subsample_rate: int = 2,
-    ):
-        self.chunk_size = chunk_size
-        self.modality = modality
-        self.samples: list[dict] = []
+    def __init__(self, hdf5_paths: list[Path], chunk_size: int = 16, split: str = "train", modality: str = "lowdim",
+                 subsample_rate: int = 2, normalizer: Normalizer | None = None):
+        from afford_pro.datasets.validation import build_task_context, parse_dataset_name
+
+        self.chunk_size, self.modality, self.split = chunk_size, modality, split
+        self.vectors: list[np.ndarray] = []
+        self.chunks: list[np.ndarray] = []
+        self.image_refs: list[tuple[str, str, int]] = []
         self._handles: dict[str, h5py.File] = {}
-
-        print(f"Loading {len(hdf5_paths)} dataset files for split '{split}' (modality='{modality}')...", flush=True)
-
         for p in hdf5_paths:
-            if not p.exists():
-                continue
-            try:
-                f = h5py.File(str(p), "r")
-                self._handles[str(p)] = f
-                if "data" not in f:
-                    continue
+            ctx = build_task_context(*parse_dataset_name(p)) if modality == "lowdim" else None
+            if ctx is not None and ctx.object_qpos_adr is None:
+                raise ValueError(f"{p.name}: lowdim needs a free evaluated body; reach tasks have none")
+            f = h5py.File(str(p), "r")
+            self._handles[str(p)] = f
+            for key in _split_keys(f, split):
+                self._add_demo(f, str(p), key, ctx, subsample_rate)
+        self.vectors_arr = np.concatenate(self.vectors) if self.vectors else np.zeros((0, input_dim(modality)), np.float32)
+        self.chunks_arr = np.concatenate(self.chunks) if self.chunks else np.zeros((0, chunk_size, 7), np.float32)
+        self.normalizer = normalizer or (Normalizer.fit(self.vectors_arr) if len(self.vectors_arr) else None)
+        print(f"-> {split}: {len(self.chunks_arr):,} windows from {len(hdf5_paths)} files ({modality})", flush=True)
 
-                if "mask" in f and split in f["mask"]:
-                    demo_keys = [k.decode("utf-8") if isinstance(k, bytes) else str(k) for k in f["mask"][split][:]]
-                else:
-                    all_keys = sorted([k for k in f["data"].keys() if k.startswith("demo_")])
-                    split_idx = int(0.9 * len(all_keys))
-                    demo_keys = all_keys[:split_idx] if split == "train" else all_keys[split_idx:]
-
-                for dkey in demo_keys:
-                    if dkey not in f["data"]:
-                        continue
-                    demo_grp = f["data"][dkey]
-                    ep_len = len(demo_grp["actions"])
-
-                    # If state modality, pre-cache in memory for extreme training speed
-                    if modality == "state":
-                        actions_all = np.array(demo_grp["actions"], dtype=np.float32)
-                        obs_grp = demo_grp["obs"]
-                        joint_pos = np.array(obs_grp["joint_positions"], dtype=np.float32)
-                        joint_vel = np.array(obs_grp["joint_velocities"], dtype=np.float32)
-                        tcp_pose = np.array(obs_grp["tcp_pose"], dtype=np.float32)
-                        grip_w = np.array(obs_grp["gripper_width"], dtype=np.float32)
-                        proprio_all = np.concatenate([tcp_pose, joint_pos, joint_vel, grip_w], axis=-1)
-
-                        for t in range(0, ep_len - chunk_size + 1, subsample_rate):
-                            self.samples.append({
-                                "proprio": proprio_all[t],
-                                "actions": actions_all[t : t + chunk_size],
-                            })
-                    else:
-                        for t in range(0, ep_len - chunk_size + 1, subsample_rate):
-                            self.samples.append({
-                                "file_path": str(p),
-                                "demo_key": dkey,
-                                "t": t,
-                            })
-
-            except Exception as e:
-                print(f"  Warning: could not index {p.name}: {e}", flush=True)
-
-        print(f"-> Indexed {len(self.samples):,} transition windows ({split}).", flush=True)
+    def _add_demo(self, f: h5py.File, path: str, key: str, ctx: Any, subsample: int) -> None:
+        g = f["data"][key]
+        actions = np.asarray(g["actions"][()], dtype=np.float32)
+        steps = np.arange(0, len(actions), subsample)
+        vec = proprio(g["obs"], slice(None))
+        if ctx is not None:
+            vec = np.concatenate([vec, object_pose_from_states(g["states"][()], ctx.qpos_offset, ctx.object_qpos_adr)], axis=-1)
+        self.vectors.append(vec[steps])
+        self.chunks.append(_padded_chunks(actions, self.chunk_size)[steps])
+        if self.modality == "visual":
+            self.image_refs.extend((path, key, int(t)) for t in steps)
 
     def __len__(self) -> int:
-        return len(self.samples)
+        return len(self.chunks_arr)
 
     def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
-        item = self.samples[idx]
-        if self.modality == "state":
-            return {
-                "proprio": torch.from_numpy(item["proprio"]),
-                "actions": torch.from_numpy(item["actions"]).float(),
-            }
-
-        # Visual modality: retrieve from open file handle
-        f = self._handles[item["file_path"]]
-        demo_grp = f["data"][item["demo_key"]]
-        t = item["t"]
-        actions = demo_grp["actions"][t : t + self.chunk_size]
-
-        obs_grp = demo_grp["obs"]
-        joint_pos = obs_grp["joint_positions"][t]
-        joint_vel = obs_grp["joint_velocities"][t]
-        tcp_pose = obs_grp["tcp_pose"][t]
-        grip_w = obs_grp["gripper_width"][t]
-        proprio = np.concatenate([tcp_pose, joint_pos, joint_vel, grip_w]).astype(np.float32)
-
-        raw_img = obs_grp["agentic_rgb"][t]
-        img = raw_img[::8, ::8, :3][:80, :80, :].transpose(2, 0, 1).astype(np.float32) / 255.0
-
-        return {
-            "proprio": torch.from_numpy(proprio),
-            "image": torch.from_numpy(img),
-            "actions": torch.from_numpy(actions).float(),
-        }
+        item = {"proprio": torch.from_numpy(self.normalizer(self.vectors_arr[idx])),
+                "actions": torch.from_numpy(self.chunks_arr[idx])}
+        if self.modality == "visual":
+            path, key, t = self.image_refs[idx]
+            item["image"] = torch.from_numpy(preprocess_image(self._handles[path]["data"][key]["obs"]["agentic_rgb"][t]))
+        return item
 
 
-# ==============================================================================
-# 2. Policy Architectures (BC and Diffusion Policy)
-# ==============================================================================
-class BCPolicy(nn.Module):
-    """Behavioral Cloning Policy supporting both State and Visuomotor inputs."""
-
-    def __init__(self, action_dim: int = 7, chunk_size: int = 16, proprio_dim: int = 22, modality: str = "state"):
-        super().__init__()
-        self.chunk_size = chunk_size
-        self.action_dim = action_dim
-        self.modality = modality
-
-        if modality == "visual":
-            self.conv = nn.Sequential(
-                nn.Conv2d(3, 32, kernel_size=5, stride=2, padding=2),
-                nn.BatchNorm2d(32),
-                nn.ReLU(),
-                nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),
-                nn.BatchNorm2d(64),
-                nn.ReLU(),
-                nn.AdaptiveAvgPool2d((4, 4)),
-                nn.Flatten(),
-            )
-            in_dim = 64 * 4 * 4 + proprio_dim
-        else:
-            in_dim = proprio_dim
-
-        self.head = nn.Sequential(
-            nn.Linear(in_dim, 256),
-            nn.LayerNorm(256),
-            nn.ReLU(),
-            nn.Linear(256, 256),
-            nn.LayerNorm(256),
-            nn.ReLU(),
-            nn.Linear(256, chunk_size * action_dim),
-        )
-
-    def forward(self, proprio: torch.Tensor, image: torch.Tensor | None = None) -> torch.Tensor:
-        if self.modality == "visual" and image is not None:
-            v_feat = self.conv(image)
-            feat = torch.cat([v_feat, proprio], dim=-1)
-        else:
-            feat = proprio
-        out = self.head(feat)
-        return out.view(-1, self.chunk_size, self.action_dim)
+def _loss(model: torch.nn.Module, policy: str, batch: dict, device: torch.device,
+          generator: torch.Generator | None = None) -> torch.Tensor:
+    proprio_t = batch["proprio"].to(device)
+    actions = batch["actions"].to(device)
+    img = batch["image"].to(device) if "image" in batch else None
+    if policy == "bc":
+        return F.l1_loss(model(proprio_t, img), actions)
+    b = actions.size(0)
+    t = torch.randint(0, model.diffusion_steps, (b,), device=device, generator=generator).long()
+    noise = torch.randn(actions.shape, device=device, generator=generator)
+    alpha_bar = model.alphas_cumprod[t].view(b, 1, 1)
+    noisy = torch.sqrt(alpha_bar) * actions + torch.sqrt(1 - alpha_bar) * noise
+    return F.mse_loss(model(noisy, t, proprio_t, img), noise)
 
 
-class SinusoidalPosEmb(nn.Module):
-    def __init__(self, dim: int):
-        super().__init__()
-        self.dim = dim
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        device = x.device
-        half_dim = self.dim // 2
-        emb = math.log(10000) / (half_dim - 1)
-        emb = torch.exp(torch.arange(half_dim, device=device) * -emb)
-        emb = x[:, None] * emb[None, :]
-        return torch.cat((emb.sin(), emb.cos()), dim=-1)
+@torch.no_grad()
+def _validation_loss(model, policy: str, loader: DataLoader, device: torch.device, seed: int) -> float:
+    """Mean validation loss; diffusion noise and timesteps come from a fixed generator so epochs are comparable."""
+    model.eval()
+    gen = torch.Generator(device=device).manual_seed(seed)
+    losses = [float(_loss(model, policy, batch, device, gen)) for batch in loader]
+    model.train()
+    return float(np.mean(losses)) if losses else float("nan")
 
 
-class DiffusionPolicy(nn.Module):
-    """1D Action Diffusion Policy with DDPM variance schedule."""
-
-    def __init__(
-        self,
-        action_dim: int = 7,
-        chunk_size: int = 16,
-        proprio_dim: int = 22,
-        modality: str = "state",
-        diffusion_steps: int = 50,
-    ):
-        super().__init__()
-        self.action_dim = action_dim
-        self.chunk_size = chunk_size
-        self.modality = modality
-        self.diffusion_steps = diffusion_steps
-
-        if modality == "visual":
-            self.conv = nn.Sequential(
-                nn.Conv2d(3, 32, kernel_size=5, stride=2, padding=2),
-                nn.ReLU(),
-                nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),
-                nn.ReLU(),
-                nn.AdaptiveAvgPool2d((4, 4)),
-                nn.Flatten(),
-            )
-            cond_in = 64 * 4 * 4 + proprio_dim
-        else:
-            cond_in = proprio_dim
-
-        self.cond_mlp = nn.Sequential(
-            nn.Linear(cond_in, 128),
-            nn.ReLU(),
-            nn.Linear(128, 128),
-        )
-
-        self.time_mlp = nn.Sequential(
-            SinusoidalPosEmb(128),
-            nn.Linear(128, 128),
-            nn.ReLU(),
-        )
-
-        flat_act_dim = chunk_size * action_dim
-        self.denoise_net = nn.Sequential(
-            nn.Linear(flat_act_dim + 128 + 128, 256),
-            nn.LayerNorm(256),
-            nn.Mish(),
-            nn.Linear(256, 256),
-            nn.LayerNorm(256),
-            nn.Mish(),
-            nn.Linear(256, flat_act_dim),
-        )
-
-        betas = torch.linspace(1e-4, 0.02, diffusion_steps)
-        alphas = 1.0 - betas
-        alphas_cumprod = torch.cumprod(alphas, dim=0)
-        self.register_buffer("betas", betas)
-        self.register_buffer("alphas", alphas)
-        self.register_buffer("alphas_cumprod", alphas_cumprod)
-
-    def forward(
-        self,
-        noisy_actions: torch.Tensor,
-        timesteps: torch.Tensor,
-        proprio: torch.Tensor,
-        image: torch.Tensor | None = None,
-    ) -> torch.Tensor:
-        if self.modality == "visual" and image is not None:
-            v_feat = self.conv(image)
-            cond_inp = torch.cat([v_feat, proprio], dim=-1)
-        else:
-            cond_inp = proprio
-
-        cond = self.cond_mlp(cond_inp)
-        t_emb = self.time_mlp(timesteps)
-
-        B = noisy_actions.size(0)
-        flat_act = noisy_actions.view(B, -1)
-        x = torch.cat([flat_act, cond, t_emb], dim=-1)
-        noise_pred = self.denoise_net(x)
-        return noise_pred.view(B, self.chunk_size, self.action_dim)
-
-    @torch.no_grad()
-    def sample_actions(self, proprio: torch.Tensor, image: torch.Tensor | None = None) -> torch.Tensor:
-        """Reverse diffusion sampling from pure Gaussian noise."""
-        B = proprio.size(0)
-        device = proprio.device
-        act = torch.randn(B, self.chunk_size, self.action_dim, device=device)
-
-        for step in reversed(range(self.diffusion_steps)):
-            t = torch.full((B,), step, device=device, dtype=torch.long)
-            pred_noise = self.forward(act, t, proprio, image)
-
-            alpha = self.alphas[step]
-            alpha_cumprod = self.alphas_cumprod[step]
-            beta = self.betas[step]
-
-            noise = torch.randn_like(act) if step > 0 else 0.0
-            act = (1 / torch.sqrt(alpha)) * (act - (beta / torch.sqrt(1 - alpha_cumprod)) * pred_noise)
-            if step > 0:
-                act = act + torch.sqrt(beta) * noise
-
-        return torch.clamp(act, -1.0, 1.0)
+def _select_files(args: argparse.Namespace, data_dir: Path) -> list[Path]:
+    if args.task:
+        tasks = [args.task]
+    else:
+        tasks = [t for t in afford_pro.list_tasks()
+                 if args.domain == "all" or DOMAIN_MATCH[args.domain] in afford_pro.get_task_entry(t).domain]
+        if args.tier:
+            from afford_pro.task_tiers import tasks_in_tier
+            tasks = [t for t in tasks if t in set(tasks_in_tier(args.tier))]
+    paths = [data_dir / f"{t}_nominal.hdf5" for t in tasks]
+    missing = [p.name for p in paths if not p.exists()]
+    if missing and not args.allow_missing:
+        raise SystemExit(f"{len(missing)} of {len(paths)} selected datasets are missing ({missing[:5]}...); a policy "
+                         "trained without them would be scored on tasks it never saw. Pass --allow-missing to proceed.")
+    return [p for p in paths if p.exists()]
 
 
-# ==============================================================================
-# 3. Main Training Execution
-# ==============================================================================
+def _build_model(policy: str, modality: str, chunk: int) -> torch.nn.Module:
+    cls = DiffusionPolicy if policy == "diffusion" else BCPolicy
+    return cls(action_dim=7, chunk_size=chunk, proprio_dim=input_dim(modality), modality=modality)
+
+
+def _checkpoint(model, args, epoch: int, train_loss: float, val_loss: float, normalizer: Normalizer,
+                files: list[Path]) -> dict[str, Any]:
+    from afford_pro.provenance import collect_provenance
+    return {"epoch": epoch, "policy": args.policy, "modality": args.modality, "chunk_size": args.chunk_size,
+            "input_dim": input_dim(args.modality), "model_state_dict": model.state_dict(),
+            "loss": train_loss, "val_loss": val_loss, "selection": "min validation loss",
+            "normalizer": normalizer.to_dict(), "args": {k: str(v) for k, v in vars(args).items()},
+            "datasets": [{"file": p.name, "size_bytes": p.stat().st_size, "mtime": p.stat().st_mtime} for p in files],
+            "provenance": collect_provenance()}
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Train robot learning policies on AFFORD-Bench datasets.")
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--policy", type=str, default="diffusion", choices=["diffusion", "bc"])
-    parser.add_argument("--modality", type=str, default="state", choices=["state", "visual"])
-    parser.add_argument(
-        "--domain",
-        type=str,
-        default="industrial",
-        choices=["all", "industrial", "kitchen", "tabletop", "lab", "long_horizon", "chain_precision", "chain_service"],
-    )
-    parser.add_argument("--task", type=str, default=None, help="Train specifically on a single task ID")
+    parser.add_argument("--modality", type=str, default="lowdim", choices=MODALITIES)
+    parser.add_argument("--domain", type=str, default="industrial", choices=["all", *DOMAIN_MATCH])
+    parser.add_argument("--tier", type=str, default=None, choices=[None, "core", "reach", "instruction_mismatch"])
+    parser.add_argument("--task", type=str, default=None, help="Train on a single task ID")
     parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--lr", type=float, default=2e-4)
@@ -329,139 +173,53 @@ def main():
     parser.add_argument("--subsample", type=int, default=2)
     parser.add_argument("--data-dir", type=str, default="datasets")
     parser.add_argument("--save-dir", type=str, default="checkpoints")
+    parser.add_argument("--tag", type=str, default="", help="Suffix for the checkpoint name (e.g. seed1)")
+    parser.add_argument("--allow-missing", action="store_true",
+                        help="Train even if some selected tasks have no dataset (they are listed in the checkpoint)")
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
-
-    data_dir = ROOT / args.data_dir
-    save_dir = ROOT / args.save_dir
-    save_dir.mkdir(parents=True, exist_ok=True)
-
-    if args.task:
-        target_files = [data_dir / f"{args.task}_nominal.hdf5"]
-    elif args.domain == "all":
-        target_files = sorted(list(data_dir.glob("*_nominal.hdf5")))
-    else:
-        domain_prefix_map = {
-            "industrial": "industrial_",
-            "kitchen": "kitchen_",
-            "tabletop": "tabletop_",
-            "lab": "lab_",
-            "long_horizon": "long_horizon_",
-            "chain_precision": "chain_",
-            "chain_service": "chain_",
-        }
-        pfx = domain_prefix_map[args.domain]
-        domain_match = {"industrial": "Industrial", "kitchen": "Culinary", "tabletop": "Tabletop", "lab": "Laboratory", "long_horizon": "Long-Horizon", "chain_precision": "Precision Chaining", "chain_service": "Service & Culinary"}
-        target_dom = domain_match[args.domain]
-        target_files = [data_dir / f"{t}_nominal.hdf5" for t in afford_pro.list_tasks() if target_dom in afford_pro.get_task_entry(t).domain]
-
-    existing_files = [p for p in target_files if p.exists()]
-    if not existing_files:
-        print(f"Error: No HDF5 files found matching domain '{args.domain}' or task '{args.task}' in {data_dir}.", flush=True)
-        return
-
-    print("\n" + "=" * 80, flush=True)
-    print(" AFFORD-Bench: POLICY TRAINING HARNESS", flush=True)
-    print(f" Policy Model  : {args.policy.upper()}", flush=True)
-    print(f" Modality      : {args.modality.upper()}", flush=True)
-    print(f" Domain Target : {args.domain.upper() if not args.task else args.task}", flush=True)
-    print(f" Datasets      : {len(existing_files)} HDF5 files", flush=True)
-    print(f" Action Chunk  : {args.chunk_size} timesteps", flush=True)
-    print(f" Batch Size    : {args.batch_size}", flush=True)
-    print(f" Epochs        : {args.epochs}", flush=True)
-    print(f" Device        : {args.device}", flush=True)
-    print("=" * 80 + "\n", flush=True)
-
-    train_ds = AffordDemonstrationDataset(
-        existing_files,
-        chunk_size=args.chunk_size,
-        split="train",
-        modality=args.modality,
-        subsample_rate=args.subsample,
-    )
+    files = _select_files(args, ROOT / args.data_dir)
+    if not files:
+        print(f"Error: no datasets for domain={args.domain} task={args.task} tier={args.tier}", flush=True)
+        return 1
+    train_ds = AffordDemonstrationDataset(files, args.chunk_size, "train", args.modality, args.subsample)
+    valid_ds = AffordDemonstrationDataset(files, args.chunk_size, "valid", args.modality, 1, normalizer=train_ds.normalizer)
     if len(train_ds) == 0:
-        print("Dataset is empty. Ensure demonstration datasets are generated first.", flush=True)
-        return
-
-    train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, drop_last=True)
-
+        print("Dataset is empty.", flush=True)
+        return 1
+    loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, drop_last=True,
+                        generator=torch.Generator().manual_seed(args.seed))
+    valid_loader = DataLoader(valid_ds, batch_size=256, shuffle=False)
     device = torch.device(args.device)
-    if args.policy == "diffusion":
-        model = DiffusionPolicy(action_dim=7, chunk_size=args.chunk_size, modality=args.modality).to(device)
-    else:
-        model = BCPolicy(action_dim=7, chunk_size=args.chunk_size, modality=args.modality).to(device)
-
+    model = _build_model(args.policy, args.modality, args.chunk_size).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
-
-    best_loss = float("inf")
-    save_tag = f"{args.policy}_{args.modality}_{args.domain if not args.task else args.task}"
-    ckpt_path = save_dir / f"{save_tag}_best.pt"
-
-    print(f"Commencing training across {args.epochs} epochs...\n", flush=True)
-
+    name = args.task or (args.domain + (f"_{args.tier}" if args.tier else ""))
+    ckpt_path = ROOT / args.save_dir / f"{args.policy}_{args.modality}_{name}{'_' + args.tag if args.tag else ''}_best.pt"
+    ckpt_path.parent.mkdir(parents=True, exist_ok=True)
+    best = float("inf")
     for epoch in range(1, args.epochs + 1):
-        model.train()
-        epoch_loss = 0.0
-        n_batches = 0
-        t0 = time.monotonic()
-
-        for batch in train_loader:
-            proprio = batch["proprio"].to(device)
-            actions = batch["actions"].to(device)
-            img = batch["image"].to(device) if args.modality == "visual" else None
-
+        t0, losses = time.monotonic(), []
+        for batch in loader:
             optimizer.zero_grad()
-
-            if args.policy == "diffusion":
-                B = actions.size(0)
-                timesteps = torch.randint(0, model.diffusion_steps, (B,), device=device).long()
-                noise = torch.randn_like(actions)
-                alpha_bar = model.alphas_cumprod[timesteps].view(B, 1, 1)
-                noisy_act = torch.sqrt(alpha_bar) * actions + torch.sqrt(1 - alpha_bar) * noise
-
-                pred_noise = model(noisy_act, timesteps, proprio, img)
-                loss = F.mse_loss(pred_noise, noise)
-            else:
-                pred_actions = model(proprio, img)
-                loss = F.l1_loss(pred_actions, actions)
-
+            loss = _loss(model, args.policy, batch, device)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
-
-            epoch_loss += loss.item()
-            n_batches += 1
-
-        avg_loss = epoch_loss / max(1, n_batches)
-        elapsed = time.monotonic() - t0
-
-        print(f"Epoch [{epoch:3d}/{args.epochs:3d}] | Loss: {avg_loss:.5f} | Batch Time: {elapsed:.2f}s ({n_batches} batches)", flush=True)
-
-        if avg_loss < best_loss:
-            best_loss = avg_loss
-            torch.save(
-                {
-                    "epoch": epoch,
-                    "policy": args.policy,
-                    "modality": args.modality,
-                    "chunk_size": args.chunk_size,
-                    "model_state_dict": model.state_dict(),
-                    "loss": best_loss,
-                    "args": vars(args),
-                },
-                str(ckpt_path),
-            )
-
-    print("\n" + "=" * 80, flush=True)
-    print(" TRAINING COMPLETE", flush=True)
-    print(f" Best Loss: {best_loss:.5f}", flush=True)
-    print(f" Checkpoint Saved To: {ckpt_path}", flush=True)
-    print("=" * 80 + "\n", flush=True)
+            losses.append(loss.item())
+        train_loss = float(np.mean(losses))
+        val_loss = _validation_loss(model, args.policy, valid_loader, device, args.seed)
+        score = val_loss if np.isfinite(val_loss) else train_loss
+        print(f"Epoch {epoch:3d}/{args.epochs} | train {train_loss:.5f} | valid {val_loss:.5f} | {time.monotonic() - t0:.1f}s", flush=True)
+        if score < best:
+            best = score
+            torch.save(_checkpoint(model, args, epoch, train_loss, val_loss, train_ds.normalizer, files), str(ckpt_path))
+    print(f"Best validation loss {best:.5f}; checkpoint {ckpt_path}", flush=True)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

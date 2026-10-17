@@ -49,6 +49,22 @@ class TaskSanity:
     null_sr: float
     reset_pose_varies: bool
     start_fallback_rate: float
+    # Oracle success within the evaluation budget H (the oracle itself may run up to BaseOracle.max_steps).
+    oracle_sr_h: float = float("nan")
+    oracle_sr_physical_h: float = float("nan")
+    oracle_mean_steps: float = float("nan")
+    oracle_max_steps: int = -1
+    random_episodes: int = -1
+
+
+@dataclass
+class OracleEpisode:
+    task_id: str
+    mode: str
+    seed: int
+    success: bool
+    steps: int
+    start_fallback: bool
 
 
 class _NoRenderer:
@@ -81,19 +97,25 @@ def _rollout_sr(env, policy: str, episodes: int, horizon: int, seed: int) -> flo
     return successes / episodes
 
 
-def _oracle_sr(task_id: str, mode: str, episodes: int, seed: int) -> float:
+def _oracle_episodes(task_id: str, mode: str, episodes: int, seed: int) -> list[OracleEpisode]:
     import afford_pro
 
     env = afford_pro.make(task_id, perturbation_mode=mode)
     oracle = afford_pro.get_oracle(task_id, env)
-    successes = 0
+    records = []
     for ep in range(episodes):
-        oracle.generate_episode(seed=seed + ep)
-        successes += bool(env.check_success())
-    return successes / episodes
+        actions, _, _, _ = oracle.generate_episode(seed=seed + ep)
+        records.append(OracleEpisode(task_id, mode, seed + ep, bool(env.check_success()), len(actions),
+                                     bool(getattr(env, "start_fallback", False))))
+    return records
 
 
-def evaluate_task(task_id: str, episodes: int, oracle_episodes: int, horizon: int, seed: int) -> TaskSanity:
+def _sr(records: list[OracleEpisode], horizon: int | None = None) -> float:
+    return float(np.mean([r.success and (horizon is None or r.steps <= horizon) for r in records]))
+
+
+def evaluate_task(task_id: str, episodes: int, oracle_episodes: int, horizon: int, seed: int,
+                  episode_log: list[OracleEpisode] | None = None) -> TaskSanity:
     import afford_pro
 
     entry = afford_pro.get_task_entry(task_id)
@@ -109,17 +131,26 @@ def evaluate_task(task_id: str, episodes: int, oracle_episodes: int, horizon: in
         reset_success.append(env.check_success())
         fallbacks.append(env.start_fallback)
 
+    nominal = _oracle_episodes(task_id, "nominal", oracle_episodes, seed)
+    physical = _oracle_episodes(task_id, "p4_physical", oracle_episodes, seed)
+    if episode_log is not None:
+        episode_log.extend(nominal + physical)
     return TaskSanity(
         task_number=entry.task_number,
         task_id=task_id,
         domain=entry.domain,
         success_at_reset=any(reset_success),
-        oracle_sr=_oracle_sr(task_id, "nominal", oracle_episodes, seed),
-        oracle_sr_physical=_oracle_sr(task_id, "p4_physical", oracle_episodes, seed),
+        oracle_sr=_sr(nominal),
+        oracle_sr_physical=_sr(physical),
         random_sr=_rollout_sr(env, "random", episodes, horizon, seed),
         null_sr=_rollout_sr(env, "null", 1, horizon, seed),
         reset_pose_varies=not all(np.allclose(poses[0], p) for p in poses[1:]),
         start_fallback_rate=float(np.mean(fallbacks)),
+        oracle_sr_h=_sr(nominal, horizon),
+        oracle_sr_physical_h=_sr(physical, horizon),
+        oracle_mean_steps=float(np.mean([r.steps for r in nominal])),
+        oracle_max_steps=int(max(r.steps for r in nominal)),
+        random_episodes=episodes,
     )
 
 
@@ -133,21 +164,26 @@ def main() -> None:
     parser.add_argument("--horizon", type=int, default=400)
     parser.add_argument("--seed", type=int, default=10_000)
     parser.add_argument("--tasks", type=str, default="all", help="Comma-separated task IDs, or 'all'")
+    parser.add_argument("--episodes-out", type=Path, default=None,
+                        help="Also write one CSV row per oracle episode (task, suite, seed, success, steps)")
     args = parser.parse_args()
 
     _disable_rendering()
     if args.asset_dir is not None:
         _redirect_assets(args.asset_dir.resolve())
     import afford_pro
+    from afford_pro.provenance import provenance_json
 
     task_ids = afford_pro.list_tasks() if args.tasks == "all" else args.tasks.split(",")
     shard, n_shards = (int(x) for x in args.shard.split("/"))
     task_ids = task_ids[shard::n_shards]
     rows = []
+    episode_log: list[OracleEpisode] = []
     for tid in task_ids:
-        row = evaluate_task(tid, args.episodes, args.oracle_episodes, args.horizon, args.seed)
+        row = evaluate_task(tid, args.episodes, args.oracle_episodes, args.horizon, args.seed, episode_log)
         rows.append(row)
-        print(f"[{row.task_number:03d}] {tid}: oracle={row.oracle_sr:.2f} oracle_L4={row.oracle_sr_physical:.2f} random={row.random_sr:.2f} "
+        print(f"[{row.task_number:03d}] {tid}: oracle={row.oracle_sr:.2f} (H={args.horizon}: {row.oracle_sr_h:.2f}) "
+              f"oracle_L4={row.oracle_sr_physical:.2f} random={row.random_sr:.2f} "
               f"null={row.null_sr:.2f} reset_success={row.success_at_reset} pose_varies={row.reset_pose_varies}", flush=True)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
@@ -155,6 +191,13 @@ def main() -> None:
         writer = csv.DictWriter(f, fieldnames=list(asdict(rows[0])))
         writer.writeheader()
         writer.writerows(asdict(r) for r in rows)
+    if args.episodes_out is not None:
+        args.episodes_out.parent.mkdir(parents=True, exist_ok=True)
+        with args.episodes_out.open("w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=list(asdict(episode_log[0])))
+            writer.writeheader()
+            writer.writerows(asdict(r) for r in episode_log)
+    args.out.with_suffix(".provenance.json").write_text(provenance_json(extra={"shard": args.shard}), encoding="utf-8")
 
     by_domain: dict[str, list[TaskSanity]] = {}
     for r in rows:
