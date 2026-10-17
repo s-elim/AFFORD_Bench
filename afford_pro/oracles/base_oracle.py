@@ -30,6 +30,9 @@ class BaseOracle:
         self._states: list[np.ndarray] = []
         self.last_states = np.zeros((0, 0))
         self.last_seed: int | None = None
+        # Observation and simulator state after the last action (the success state of a successful episode).
+        self.last_final_obs: dict[str, np.ndarray] | None = None
+        self.last_final_state: np.ndarray | None = None
 
     def generate_episode(self, seed: int | None = None, options: dict[str, Any] | None = None,
                          reset: bool = True) -> Episode:
@@ -55,6 +58,8 @@ class BaseOracle:
             pass
         T = len(self._actions)
         self.last_states = np.asarray(self._states[:T], dtype=np.float64)
+        self.last_final_obs = {k: v[T] for k, v in self._obs.items() if len(v) > T} or None
+        self.last_final_state = np.asarray(self._states[T], dtype=np.float64) if len(self._states) > T else None
         return self._actions, {k: v[:T] for k, v in self._obs.items()}, self._rewards, self._dones
 
     def run(self) -> None:
@@ -62,8 +67,12 @@ class BaseOracle:
 
     # ----------------------------------------------------------------- Primitives
     def act(self, action: np.ndarray) -> None:
+        # Execute exactly the action that is recorded (datasets store float32), so that replaying the recorded actions
+        # from the recorded initial state reproduces the episode; executing the float64 original made every recorded
+        # action a rounded copy of what was run.
+        action = np.asarray(action, dtype=np.float32)
         obs, reward, terminated, _, _ = self.env.step(action)
-        self._actions.append(np.asarray(action, dtype=np.float32))
+        self._actions.append(action)
         for k, v in obs.items():
             self._obs[k].append(v)
         self._rewards.append(reward)

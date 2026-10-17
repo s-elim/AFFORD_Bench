@@ -19,6 +19,10 @@ SPATIAL_MODES = ("p2_spatial", "combined_ood")
 VISUAL_MODES = ("p3_visual", "combined_ood")
 OBJECT_MODES = ("p1_object", "combined_ood")
 PHYSICAL_MODES = ("p4_physical", "combined_ood")
+# Model perturbations (light, color, friction, mass) draw from their own stream, so that for a given seed the layout
+# (start pose, distractors, TCP jitter) is the same in nominal, p1_object, p3_visual, and p4_physical, and the same in
+# p2_spatial and combined_ood: suites evaluated on the same seeds are paired.
+MODEL_STREAM = 1
 
 
 @dataclass
@@ -56,11 +60,14 @@ class PerturbationEngine:
         self.config = config or PerturbationConfig()
         self.mode = str(self.config.mode).lower()
         self.rng = np.random.default_rng(self.config.seed)
+        self.model_rng = np.random.default_rng(self.config.seed)
         self._nominal: dict[str, np.ndarray] | None = None
 
     def set_seed(self, seed: int):
+        """Seed the layout stream with `seed` and the model-perturbation stream with (seed, MODEL_STREAM)."""
         self.config.seed = seed
         self.rng = np.random.default_rng(seed)
+        self.model_rng = np.random.default_rng(np.random.SeedSequence([seed, MODEL_STREAM]))
 
     def begin_episode(self, model: mujoco.MjModel, seed: int) -> None:
         """Re-seed the sampler and restore nominal lights, colors, friction, and masses.
@@ -116,16 +123,16 @@ class PerturbationEngine:
         if self.mode not in VISUAL_MODES:
             return
         for light_id in range(model.nlight):
-            model.light_pos[light_id] += self.rng.uniform(-self.config.light_pos_jitter_m, self.config.light_pos_jitter_m, size=3)
-            factor = self.rng.uniform(*self.config.light_intensity_range)
-            tint = self.rng.uniform(0.9, 1.1, size=3)
+            model.light_pos[light_id] += self.model_rng.uniform(-self.config.light_pos_jitter_m, self.config.light_pos_jitter_m, size=3)
+            factor = self.model_rng.uniform(*self.config.light_intensity_range)
+            tint = self.model_rng.uniform(0.9, 1.1, size=3)
             model.light_diffuse[light_id] = np.clip(model.light_diffuse[light_id] * factor * tint, 0.1, 1.0)
 
     def apply_object_perturbation(self, model: mujoco.MjModel, geom_ids: list[int]):
         """Shift the color of the manipulated body's geoms."""
         if self.mode not in OBJECT_MODES:
             return
-        jitter = self.rng.uniform(1.0 - self.config.color_jitter_factor, 1.0 + self.config.color_jitter_factor, size=3)
+        jitter = self.model_rng.uniform(1.0 - self.config.color_jitter_factor, 1.0 + self.config.color_jitter_factor, size=3)
         for g in geom_ids:
             model.geom_rgba[g][:3] = np.clip(model.geom_rgba[g][:3] * jitter, 0.0, 1.0)
 
@@ -138,9 +145,9 @@ class PerturbationEngine:
         """
         if self.mode not in PHYSICAL_MODES:
             return
-        mu = self.rng.uniform(*self.config.friction_range)
+        mu = self.model_rng.uniform(*self.config.friction_range)
         for g in list(object_geom_ids) + list(pad_geom_ids):
             model.geom_friction[g][0] = mu
-        scale = self.rng.uniform(*self.config.mass_scale_range)
+        scale = self.model_rng.uniform(*self.config.mass_scale_range)
         model.body_mass[body_id] *= scale
         model.body_inertia[body_id] *= scale
