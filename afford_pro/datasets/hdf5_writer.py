@@ -27,14 +27,19 @@ Layout:
         seed: reset seed used for the demonstration
         model_file: MuJoCo model XML string (used by robomimic playback_dataset and LIBERO reset_from_xml_string)
         init_state: initial simulator state vector states[0] (used by LIBERO/robosuite state replay)
-        language_instruction: task language instruction
+        final_state: simulator state after the last action (the success state), when the recorder provides it
+        language_instruction: task language instruction (the canonical instruction unless variants are rotated)
   mask/
     train: demo keys for training split
     valid: demo keys for validation split
+
+The file is written to `<name>.partial` and renamed to its final name only by `close()`, so an interrupted run never
+leaves a truncated file under the final name.
 """
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 import h5py
@@ -82,6 +87,38 @@ def make_env_args(task_id: str, **env_kwargs: Any) -> str:
     })
 
 
+def _shifted_next_obs(obs_arrays: dict[str, np.ndarray], T: int,
+                      final_observation: dict[str, np.ndarray] | None) -> dict[str, np.ndarray]:
+    """next_obs[t] = obs[t+1] for t < T-1; next_obs[T-1] is the final observation when given, else obs[T-1]."""
+    out = {}
+    for k, arr in obs_arrays.items():
+        if len(arr) != T:
+            continue
+        shifted = np.empty_like(arr)
+        shifted[:-1] = arr[1:]
+        last = None if final_observation is None else final_observation.get(k)
+        shifted[-1] = arr[-1] if last is None else np.asarray(last, dtype=arr.dtype)
+        out[k] = shifted
+    return out
+
+
+def _language_variants(task_id: str, instruction: str, language_instructions: list[str] | None,
+                       prompt_variants: dict[str, Any] | None) -> tuple[list[str], dict[str, Any] | None]:
+    """Instruction variants for the file: the canonical instruction first, then the task's terse, metric, and
+    affordance tiers from configs/prompts_augmented.yaml, unless the caller supplies them."""
+    if prompt_variants is None or language_instructions is None:
+        prompts = (get_augmented_prompts(task_id) or {}).get("prompts", {})
+        if prompt_variants is None and prompts:
+            prompt_variants = prompts
+        if language_instructions is None and prompts:
+            language_instructions = [instruction]
+            for tier in ("colloquial_terse", "geometric_spatial", "affordance_physical"):
+                text = prompts.get(tier)
+                if text and isinstance(text, str) and text not in language_instructions:
+                    language_instructions.append(text)
+    return (language_instructions or [instruction]), prompt_variants
+
+
 class RobomimicHDF5Writer:
     """Creates robomimic- and LIBERO-compatible HDF5 demonstration datasets."""
 
@@ -95,61 +132,58 @@ class RobomimicHDF5Writer:
         model_file: str | None = None,
         language_instructions: list[str] | None = None,
         prompt_variants: dict[str, Any] | None = None,
+        provenance: dict[str, Any] | None = None,
+        atomic: bool = True,
+        rotate_instruction_variants: bool = False,
     ):
         self.file_path = Path(file_path)
         self.file_path.parent.mkdir(parents=True, exist_ok=True)
+        # Per-process temporary name: two concurrent writers of the same dataset never share a file.
+        self.write_path = (self.file_path.with_name(f"{self.file_path.name}.{os.getpid()}.partial") if atomic
+                           else self.file_path)
         self.env_name = env_name
         self.task_id = task_id
         self.instruction = instruction
         self.model_file = str(model_file) if model_file is not None else None
+        self.rotate_instruction_variants = rotate_instruction_variants
         self.demo_count = 0
         self.total_samples = 0
 
         # Open file and initialize groups
-        self.h5_file = h5py.File(str(self.file_path), "w")
+        self.h5_file = h5py.File(str(self.write_path), "w")
         self.data_grp = self.h5_file.create_group("data")
         self.mask_grp = self.h5_file.create_group("mask")
-
-        # Root attributes (Robomimic & LIBERO canonical attributes)
-        self.data_grp.attrs["env_name"] = env_name
-        self.data_grp.attrs["env"] = env_name
-        self.data_grp.attrs["task_id"] = task_id
-        self.data_grp.attrs["instruction"] = instruction
-        env_args_str = env_args if env_args is not None else make_env_args(task_id)
-        self.data_grp.attrs["env_args"] = env_args_str
-        self.data_grp.attrs["env_info"] = env_args_str
-        self.data_grp.attrs["tag"] = "libero-v1"
-        self.data_grp.attrs["repository_version"] = "0.1.0"
-        self.data_grp.attrs["macros_image_convention"] = "opencv"
-        self.data_grp.attrs["problem_info"] = json.dumps({
-            "domain_name": env_name,
-            "problem_name": task_id,
-            "language_instruction": instruction,
-        })
-        if self.model_file is not None:
-            self.data_grp.attrs["model_file"] = self.model_file
+        self._write_root_attrs(env_args)
 
         # Multi-tier language prompt variants (for LIBERO-PRO/X paraphrase evaluation)
-        if prompt_variants is None or language_instructions is None:
-            aug = get_augmented_prompts(task_id)
-            if aug:
-                if prompt_variants is None:
-                    prompt_variants = aug.get("prompts", {})
-                if language_instructions is None:
-                    variants = [instruction]
-                    prompts = aug.get("prompts", {})
-                    for tier in ("colloquial_terse", "geometric_spatial", "affordance_physical"):
-                        t_text = prompts.get(tier)
-                        if t_text and isinstance(t_text, str) and t_text not in variants:
-                            variants.append(t_text)
-                    language_instructions = variants
-
-        if language_instructions is None:
-            language_instructions = [instruction]
-        self.language_instructions = language_instructions
-        self.data_grp.attrs["language_instructions"] = json.dumps(language_instructions)
+        self.language_instructions, prompt_variants = _language_variants(
+            task_id, instruction, language_instructions, prompt_variants)
+        self.data_grp.attrs["language_instructions"] = json.dumps(self.language_instructions)
         if prompt_variants:
             self.data_grp.attrs["prompt_variants"] = json.dumps(prompt_variants)
+        if provenance is not None:
+            self.data_grp.attrs["provenance"] = json.dumps(provenance, sort_keys=True, default=str)
+
+    def _write_root_attrs(self, env_args: str | None) -> None:
+        """Robomimic and LIBERO canonical root attributes."""
+        attrs = self.data_grp.attrs
+        attrs["env_name"] = self.env_name
+        attrs["env"] = self.env_name
+        attrs["task_id"] = self.task_id
+        attrs["instruction"] = self.instruction
+        env_args_str = env_args if env_args is not None else make_env_args(self.task_id)
+        attrs["env_args"] = env_args_str
+        attrs["env_info"] = env_args_str
+        attrs["tag"] = "libero-v1"
+        attrs["repository_version"] = "0.1.0"
+        attrs["macros_image_convention"] = "opencv"
+        attrs["problem_info"] = json.dumps({
+            "domain_name": self.env_name,
+            "problem_name": self.task_id,
+            "language_instruction": self.instruction,
+        })
+        if self.model_file is not None:
+            attrs["model_file"] = self.model_file
 
     def _populate_obs_group(self, group: h5py.Group, obs_dict: dict[str, np.ndarray]) -> None:
         """Write observations and establish all canonical robosuite and LIBERO keys."""
@@ -220,8 +254,13 @@ class RobomimicHDF5Writer:
         seed: int | None = None,
         language_instruction: str | None = None,
         next_observations: dict[str, list[np.ndarray] | np.ndarray] | None = None,
+        final_observation: dict[str, np.ndarray] | None = None,
+        final_state: np.ndarray | None = None,
     ) -> str:
-        """Add a complete recorded episode to the dataset."""
+        """Add a complete recorded episode to the dataset.
+
+        `final_observation` / `final_state` describe the scene after the last action. When given, next_obs[T-1]
+        is that observation (otherwise it repeats obs[T-1], and the success state is not stored)."""
         demo_key = f"demo_{self.demo_count}"
         ep_grp = self.data_grp.create_group(demo_key)
 
@@ -239,14 +278,7 @@ class RobomimicHDF5Writer:
         if next_observations is not None:
             next_obs_arrays = {k: np.asarray(v) for k, v in next_observations.items()}
         else:
-            # Shifted observation sequence: next_obs[t] = obs[t+1] for t < T-1, and obs[T-1] for t = T-1
-            next_obs_arrays = {}
-            for k, arr in obs_arrays.items():
-                if len(arr) == T:
-                    shifted = np.empty_like(arr)
-                    shifted[:-1] = arr[1:]
-                    shifted[-1] = arr[-1]
-                    next_obs_arrays[k] = shifted
+            next_obs_arrays = _shifted_next_obs(obs_arrays, T, final_observation)
         if next_obs_arrays:
             self._populate_obs_group(next_obs_grp, next_obs_arrays)
 
@@ -260,41 +292,66 @@ class RobomimicHDF5Writer:
         # States & initial state
         if states is not None and len(states):
             states_arr = np.asarray(states, dtype=np.float64)
-            assert len(states_arr) == T, (states_arr.shape, T)
+            if len(states_arr) != T:
+                raise ValueError(f"{len(states_arr)} states for {T} actions in {demo_key}")
             ep_grp.create_dataset("states", data=states_arr, compression="gzip")
             # Per-demo init state attribute (LIBERO / robosuite standard)
             ep_grp.attrs["init_state"] = states_arr[0]
-
-        # Per-demo attributes
-        ep_grp.attrs["num_samples"] = T
-        if seed is not None:
-            ep_grp.attrs["seed"] = int(seed)
-        if self.model_file is not None:
-            ep_grp.attrs["model_file"] = self.model_file
-
-        if language_instruction is None:
-            language_instruction = self.language_instructions[self.demo_count % len(self.language_instructions)]
-        ep_grp.attrs["language_instruction"] = language_instruction
-        ep_grp.attrs["instruction"] = language_instruction
+        if final_state is not None:
+            ep_grp.attrs["final_state"] = np.asarray(final_state, dtype=np.float64)
+        self._write_episode_attrs(ep_grp, T, seed, language_instruction)
 
         self.demo_count += 1
         self.total_samples += T
         return demo_key
 
-    def close(self, train_ratio: float = 0.9):
-        """Finalize dataset, write train/validation splits, and close file."""
+    def _write_episode_attrs(self, ep_grp: h5py.Group, T: int, seed: int | None, language_instruction: str | None) -> None:
+        ep_grp.attrs["num_samples"] = T
+        if seed is not None:
+            ep_grp.attrs["seed"] = int(seed)
+        if self.model_file is not None:
+            ep_grp.attrs["model_file"] = self.model_file
+        if language_instruction is None:
+            # Variants with metric coordinates describe the nominal layout, not this episode's scattered start, so
+            # they label a demo only when rotation is requested explicitly.
+            language_instruction = (
+                self.language_instructions[self.demo_count % len(self.language_instructions)]
+                if self.rotate_instruction_variants else self.instruction
+            )
+        ep_grp.attrs["language_instruction"] = language_instruction
+        ep_grp.attrs["instruction"] = language_instruction
+
+    def close(self, train_ratio: float = 0.9, train_keys: list[str] | None = None,
+              valid_keys: list[str] | None = None, extra_attrs: dict[str, Any] | None = None,
+              rename: bool = True) -> Path:
+        """Write train/validation masks and totals and close the file. With `rename` (default) the file is moved to its
+        final name and that path is returned; without it the closed file stays at `write_path` (returned), so the
+        caller can validate it before moving it into place."""
         demo_keys = [f"demo_{i}" for i in range(self.demo_count)]
         n_train = int(len(demo_keys) * train_ratio)
-        train_keys = np.array(demo_keys[:n_train], dtype="S")
-        valid_keys = np.array(demo_keys[n_train:], dtype="S")
+        train = demo_keys[:n_train] if train_keys is None else list(train_keys)
+        valid = demo_keys[n_train:] if valid_keys is None else list(valid_keys)
 
-        self.mask_grp.create_dataset("train", data=train_keys)
-        self.mask_grp.create_dataset("valid", data=valid_keys)
+        self.mask_grp.create_dataset("train", data=np.array(train, dtype="S"))
+        self.mask_grp.create_dataset("valid", data=np.array(valid, dtype="S"))
 
         self.data_grp.attrs["total"] = self.total_samples
         self.data_grp.attrs["num_demos"] = self.demo_count
+        for key, value in (extra_attrs or {}).items():
+            self.data_grp.attrs[key] = value if isinstance(value, (str, int, float, np.ndarray)) else json.dumps(value, default=str)
         self.h5_file.close()
+        if not rename:
+            return self.write_path
+        if self.write_path != self.file_path:
+            os.replace(self.write_path, self.file_path)
         print(f"[RobomimicHDF5Writer] Closed {self.file_path}: {self.demo_count} demos ({self.total_samples} timesteps)")
+        return self.file_path
+
+    def abort(self) -> None:
+        """Close and delete an unfinished file; the final path is never touched."""
+        self.h5_file.close()
+        if self.write_path != self.file_path and self.write_path.exists():
+            self.write_path.unlink()
 
 
 # Alias for general usage

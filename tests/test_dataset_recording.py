@@ -29,7 +29,9 @@ class _NoRenderer:
         pass
 
     def render(self) -> np.ndarray:
-        return np.zeros((self.height, self.width, 3), dtype=np.uint8)
+        # Non-constant content: the generator validates files before naming them, and black frames are rejected.
+        row = np.linspace(20, 220, self.width, dtype=np.uint8)
+        return np.broadcast_to(row[None, :, None], (self.height, self.width, 3)).copy()
 
     def enable_depth_rendering(self) -> None:
         pass

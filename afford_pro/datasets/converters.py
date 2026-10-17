@@ -158,10 +158,7 @@ def write_robomimic(path: str | Path, meta: DatasetMeta, episodes: Iterator[Epis
     n = writer.demo_count
     train = meta.train_keys or [f"demo_{i}" for i in range(int(n * 0.9))]
     valid = meta.valid_keys or [f"demo_{i}" for i in range(int(n * 0.9), n)]
-    writer.mask_grp.create_dataset("train", data=np.array(train, dtype="S"))
-    writer.mask_grp.create_dataset("valid", data=np.array(valid, dtype="S"))
-    writer.data_grp.attrs["total"] = writer.total_samples
-    writer.h5_file.close()
+    writer.close(train_keys=train, valid_keys=valid)
     return n
 
 
