@@ -12,14 +12,14 @@ import afford_pro
 OUTPUT_DIR = ROOT / "AFFORD-Bench_RSS'27" / "paper-template-latex" / "figures"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-SELECTED_TASKS = [
-    ("D1: Industrial", "industrial_gear_mesh", "Gear Mesh"),
-    ("D2: Culinary", "kitchen_patty_stack", "Patty Stack"),
-    ("D3: Domestic", "tabletop_sort_red", "Color Sort"),
-    ("D4: Cleanroom Lab", "lab_pick_micropipette", "Pipette Dock"),
-    ("D5: Long-Horizon", "long_horizon_transmission_assembly", "Tool Assembly"),
-    ("D6: Chained Precision", "chain_shaft_bearing_clamp", "Shaft-Clamp"),
-    ("D7: Chained Service", "chain_burger_flip_cheese_top", "Burger Trio"),
+SELECTED_TASKS = [  # (column label, task id, short title); labels are kept short so 7 columns do not overlap
+    ("D1 Industrial", "industrial_gear_mesh", "gear mesh"),
+    ("D2 Culinary", "kitchen_patty_stack", "patty stack"),
+    ("D3 Tabletop", "tabletop_sort_red", "color sort"),
+    ("D4 Laboratory", "lab_pick_micropipette", "pipette pick"),
+    ("D5 Long-horizon", "long_horizon_transmission_assembly", "transmission"),
+    ("D6 Prec. chain", "chain_shaft_bearing_clamp", "shaft-clamp"),
+    ("D7 Service chain", "chain_burger_flip_cheese_top", "burger"),
 ]
 
 def render_observations():

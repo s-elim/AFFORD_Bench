@@ -12,10 +12,10 @@
   year={2025}
 }
 
-@article{wang2026liberox,
-  title={LIBERO-X: Robustness Litmus for Vision-Language-Action Models},
+@inproceedings{wang2026liberox,
+  title={{LIBERO-X}: Robustness Litmus for Vision-Language-Action Models},
   author={Wang, Guodong and Zhang, Chenkai and Liu, Qingjie and Zhang, Jinjin and Cai, Jiancheng and Liu, Junjie and Liu, Xinmin},
-  journal={arXiv preprint arXiv:2602.06556},
+  booktitle={Robotics: Science and Systems (RSS)},
   year={2026}
 }
 
@@ -29,7 +29,7 @@
 
 @inproceedings{chi2023diffusion,
   title={Diffusion Policy: Visuomotor Policy Learning via Action Diffusion},
-  author={Chi, Cheng and Feng, Siyuan and Pan, Yilun and Feng, Zhenjia and Xu, Danfei and Cousineau, Eric and Burchfiel, Benjamin and Song, Shuran},
+  author={Chi, Cheng and Feng, Siyuan and Du, Yilun and Xu, Zhenjia and Cousineau, Eric and Burchfiel, Benjamin and Song, Shuran},
   booktitle={Robotics: Science and Systems (RSS)},
   year={2023}
 }
@@ -41,16 +41,16 @@
   year={2023}
 }
 
-@article{kim2024openvla,
-  title={OpenVLA: An Open-Source Vision-Language-Action Model},
-  author={Kim, Moo Jin and Pertsch, Karl and Siddharth, Siddharth and Tan, Chelsea and Zeng, Andy and Finn, Chelsea and Levine, Sergey},
-  journal={arXiv preprint arXiv:2406.09246},
+@inproceedings{kim2024openvla,
+  title={{OpenVLA}: An Open-Source Vision-Language-Action Model},
+  author={Kim, Moo Jin and Pertsch, Karl and Karamcheti, Siddharth and Xiao, Ted and Balakrishna, Ashwin and Nair, Suraj and Rafailov, Rafael and Foster, Ethan and Lam, Grace and Sanketi, Pannag and Vuong, Quan and Kollar, Thomas and Burchfiel, Benjamin and Tedrake, Russ and Sadigh, Dorsa and Levine, Sergey and Liang, Percy and Finn, Chelsea},
+  booktitle={Conference on Robot Learning (CoRL)},
   year={2024}
 }
 
 @inproceedings{octo2023,
   title={Octo: An Open-Source Generalist Robot Policy},
-  author={{Octo Model Team} and Ghosh, Dibya and Walke, Homer and Pertsch, Karl and Black, Kevin and Zheng, Oier and Nair, Suraj and Hejna, Joey and Lu, Chelsea and Finn, Chelsea and Levine, Sergey},
+  author={{Octo Model Team} and Ghosh, Dibya and Walke, Homer and Pertsch, Karl and Black, Kevin and Mees, Oier and Dasari, Sudeep and Hejna, Joey and Kreiman, Tobias and Xu, Charles and Luo, Jianlan and Tan, You Liang and Chen, Lawrence Yunliang and Sanketi, Pannag and Vuong, Quan and Xiao, Ted and Sadigh, Dorsa and Finn, Chelsea and Levine, Sergey},
   booktitle={Robotics: Science and Systems (RSS)},
   year={2024}
 }
@@ -77,8 +77,8 @@
 }
 
 @inproceedings{ze2024dp3,
-  title={3D Diffusion Policy: Generalizable Visuomotor Policy Learning via 3D Representations},
-  author={Ze, Yanjie and Zhang, Gu and Zhang, Kangrui and Hu, Chenghao and Wang, Muhan and Xu, Huazhe},
+  title={{3D} Diffusion Policy: Generalizable Visuomotor Policy Learning via Simple {3D} Representations},
+  author={Ze, Yanjie and Zhang, Gu and Zhang, Kangning and Hu, Chenyuan and Wang, Muhan and Xu, Huazhe},
   booktitle={Robotics: Science and Systems (RSS)},
   year={2024}
 }
@@ -89,7 +89,7 @@
   journal={IEEE Robotics and Automation Letters},
   volume={5},
   number={2},
-  pages={2746--2753},
+  pages={3019--3026},
   year={2020}
 }
 
@@ -123,11 +123,11 @@
   year={2022}
 }
 
-@inproceedings{song2023grasping,
-  title={Grasp'D: Differentiable Contact-rich Grasp Synthesis},
-  author={Song, Dylan and Turpin, Dylan and Yuan, Anthony and Garg, Animesh and Xu, Danfei},
-  booktitle={Robotics: Science and Systems (RSS)},
-  year={2023}
+@inproceedings{turpin2022graspd,
+  title={Grasp'{D}: Differentiable Contact-rich Grasp Synthesis for Multi-fingered Hands},
+  author={Turpin, Dylan and Wang, Liquan and Heiden, Eric and Chen, Yun-Chun and Macklin, Miles and Tsogkas, Stavros and Dickinson, Sven and Garg, Animesh},
+  booktitle={European Conference on Computer Vision (ECCV)},
+  year={2022}
 }
 
 @article{fu2024mobilealoha,
@@ -146,7 +146,7 @@
 
 @article{atomvla2025,
   title={{AtomVLA}: Scalable Post-Training for Robotic Manipulation via Predictive Latent World Models},
-  author={Sun, Xiaoquan and Xu, Zetian and Chen, Jiayu and others},
+  author={Sun, Xiaoquan and Xu, Zetian and Cao, Chen and Liu, Zonghe and Sun, Yihan and Pang, Jingrui and Zhang, Ruijian and Yang, Zhen and Pang, Kang and He, Dingxin and Yuan, Mingqi and Chen, Jiayu},
   journal={arXiv preprint arXiv:2603.08519},
   year={2026}
 }
@@ -174,7 +174,7 @@
 
 @misc{cadene2024lerobot,
   title={{LeRobot}: State-of-the-art Machine Learning for Real-World Robotics in {PyTorch}},
-  author={Cadene, Remi and Alibert, Simon and Soare, Alexander and Gallouedec, Quentin and Zouitine, Adil and Wolf, Thomas},
+  author={Cadene, Remi and Alibert, Simon and Soare, Alexander and Gallouedec, Quentin and Zouitine, Adil and Wolf, Thomas and others},
   howpublished={\url{https://github.com/huggingface/lerobot}},
   year={2024}
 }
@@ -188,24 +188,45 @@
   year={2020}
 }
 
-@article{black2024pi0,
-  title={{$\pi_0$}: A Vision-Language-Action Flow Model for Generalist Robot Manipulation},
-  author={Black, Kevin and Walke, Homer and Han, Kevin and Smith, Laura and Fang, Kuan and Hirose, Noriaki and Pertsch, Karl and Lee, Sean and Levine, Sergey},
-  journal={arXiv preprint arXiv:2410.24164},
-  year={2024}
-}
-
-@article{qu2024spatialvla,
-  title={{SpatialVLA}: Spatial Representation Learning for Vision-Language-Action Models},
-  author={Qu, Delin and Song, Haoming and Shen, Yifei and Sheng, Lu and Ding, Shenghao and Jiang, Chengdong and Dong, Hao},
-  journal={arXiv preprint arXiv:2501.15835},
+@inproceedings{black2024pi0,
+  title={$\pi_0$: A Vision-Language-Action Flow Model for General Robot Control},
+  author={Black, Kevin and Brown, Noah and Driess, Danny and Esmail, Adnan and Equi, Michael and Finn, Chelsea and Fusai, Niccolo and Groom, Lachy and Hausman, Karol and Ichter, Brian and Jakubczak, Szymon and Jones, Tim and Ke, Liyiming and Levine, Sergey and Li-Bell, Adrian and Mothukuri, Mohith and Nair, Suraj and Pertsch, Karl and Shi, Lucy Xiaoyang and Tanner, James and Vuong, Quan and Walling, Anna and Wang, Haohuan and Zhilinsky, Ury},
+  booktitle={Robotics: Science and Systems (RSS)},
   year={2025}
 }
 
-@article{zheng2024cotvla,
-  title={{CoT-VLA}: Visual Chain-of-Thought Reasoning for Robotic Manipulation},
-  author={Zheng, Jin and Liu, Sicong and Zhou, Pan and Sun, Lichao},
-  journal={arXiv preprint arXiv:2410.05260},
+@inproceedings{qu2024spatialvla,
+  title={{SpatialVLA}: Exploring Spatial Representations for Visual-Language-Action Model},
+  author={Qu, Delin and Song, Haoming and Chen, Qizhi and Yao, Yuanqi and Ye, Xinyi and Ding, Yan and Wang, Zhigang and Gu, JiaYuan and Zhao, Bin and Wang, Dong and Li, Xuelong},
+  booktitle={Robotics: Science and Systems (RSS)},
+  year={2025}
+}
+
+@inproceedings{zhao2025cotvla,
+  title={{CoT-VLA}: Visual Chain-of-Thought Reasoning for Vision-Language-Action Models},
+  author={Zhao, Qingqing and Lu, Yao and Kim, Moo Jin and Fu, Zipeng and Zhang, Zhuoyang and Wu, Yecheng and Li, Zhaoshuo and Ma, Qianli and Han, Song and Finn, Chelsea and Handa, Ankur and Liu, Ming-Yu and Xiang, Donglai and Wetzstein, Gordon and Lin, Tsung-Yi},
+  booktitle={IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year={2025}
+}
+
+
+@article{fei2025liberoplus,
+  title={{LIBERO-Plus}: In-depth Robustness Analysis of Vision-Language-Action Models},
+  author={Fei, Senyu and Wang, Siyin and Shi, Junhao and Dai, Zihao and Cai, Jikun and Qian, Pengfang and Ji, Li and He, Xinzhe and Zhang, Shiduo and Fei, Zhaoye and Fu, Jinlan and Gong, Jingjing and Qiu, Xipeng},
+  journal={arXiv preprint arXiv:2510.13626},
+  year={2025}
+}
+
+@article{tao2024maniskill3,
+  title={{ManiSkill3}: {GPU} Parallelized Robotics Simulation and Rendering for Generalizable Embodied {AI}},
+  author={Tao, Stone and Xiang, Fanbo and Shukla, Arth and Qin, Yuzhe and Hinrichsen, Xander and Yuan, Xiaodi and Bao, Chen and Lin, Xinsong and Liu, Yulin and Chan, Tse-kai and Gao, Yuan and Li, Xuanlin and Mu, Tongzhou and Xiao, Nan and Gurha, Arnav and Rajesh, Viswesh Nagaswamy and Choi, Yong Woo and Chen, Yen-Ru and Huang, Zhiao and Calandra, Roberto and Chen, Rui and Luo, Shan and Su, Hao},
+  journal={arXiv preprint arXiv:2410.00425},
   year={2024}
 }
 
+@misc{menagerie2022github,
+  author={Zakka, Kevin and Tassa, Yuval and {MuJoCo Menagerie Contributors}},
+  title={{MuJoCo Menagerie}: A collection of high-quality simulation models for {MuJoCo}},
+  howpublished={\url{https://github.com/google-deepmind/mujoco_menagerie}},
+  year={2022}
+}
