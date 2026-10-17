@@ -3433,8 +3433,11 @@ from pathlib import Path
 
 @lru_cache(maxsize=1)
 def load_all_augmented_prompts() -> dict[str, dict[str, Any]]:
-    yaml_path = Path(__file__).resolve().parent.parent / "configs" / "prompts_augmented.yaml"
-    if not yaml_path.exists():
+    # Installed packages carry a copy made by setup.py; a source checkout reads the repository's configs/ folder.
+    candidates = [Path(__file__).resolve().parent / "configs" / "prompts_augmented.yaml",
+                  Path(__file__).resolve().parent.parent / "configs" / "prompts_augmented.yaml"]
+    yaml_path = next((p for p in candidates if p.exists()), None)
+    if yaml_path is None:
         return {}
     try:
         import yaml
