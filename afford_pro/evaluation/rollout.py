@@ -29,6 +29,7 @@ class EpisodeRecord:
     force_violation: bool
     wall_s: float
     start_fallback: bool = False   # the start layout fell back to the region centers
+    goal_fraction: float | None = None  # fraction of the task's goals reached within the horizon (None: one goal)
 
 
 class RandomPolicy:
@@ -101,6 +102,14 @@ class CheckpointPolicy:
         return self.buffer.pop(0)
 
 
+def goal_fraction(env: Any, horizon: int) -> float | None:
+    """Fraction of the task's goals reached within `horizon` (goal-based tasks); None for single-goal legacy tasks."""
+    spec, reached = getattr(env, "task_spec", None), getattr(env, "first_true", None)
+    if spec is None or reached is None:
+        return None
+    return sum(step <= horizon for step in reached.values()) / len(spec.goals)
+
+
 def run_policy_episode(env: Any, policy: Any, task_id: str, suite: str, seed: int, horizon: int,
                        init_state: np.ndarray | None = None) -> EpisodeRecord:
     t0 = time.monotonic()
@@ -120,7 +129,7 @@ def run_policy_episode(env: Any, policy: Any, task_id: str, suite: str, seed: in
             break
     steps = first if first is not None else t + 1
     return EpisodeRecord(task_id, suite, policy.name, seed, first is not None, steps, first, peak, peak > F_MAX,
-                         time.monotonic() - t0, bool(getattr(env, "start_fallback", False)))
+                         time.monotonic() - t0, bool(getattr(env, "start_fallback", False)), goal_fraction(env, horizon))
 
 
 def run_oracle_episode(env: Any, oracle: Any, task_id: str, suite: str, seed: int, horizon: int) -> EpisodeRecord:
@@ -130,4 +139,5 @@ def run_oracle_episode(env: Any, oracle: Any, task_id: str, suite: str, seed: in
     steps = len(actions)
     success = bool(env.check_success()) and steps <= horizon
     return EpisodeRecord(task_id, suite, "oracle", seed, success, steps, steps if success else None, float("nan"),
-                         False, time.monotonic() - t0, bool(getattr(env, "start_fallback", False)))
+                         False, time.monotonic() - t0, bool(getattr(env, "start_fallback", False)),
+                         goal_fraction(env, horizon))

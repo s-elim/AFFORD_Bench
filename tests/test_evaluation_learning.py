@@ -110,6 +110,46 @@ def test_padded_chunks_cover_every_step():
     np.testing.assert_array_equal(chunks[2], np.repeat(actions[-1:], 4, axis=0))
 
 
+def test_goal_fraction_counts_goals_reached_within_the_horizon():
+    from types import SimpleNamespace
+    from afford_pro.evaluation.rollout import goal_fraction
+
+    env = SimpleNamespace(task_spec=SimpleNamespace(goals=("a", "b", "c", "d")), first_true={0: 12, 1: 90, 2: 410})
+    assert goal_fraction(env, horizon=400) == 0.5
+    assert goal_fraction(env, horizon=410) == 0.75
+    assert goal_fraction(SimpleNamespace(), horizon=400) is None  # legacy single-goal environments
+
+
+def test_goal_completion_is_summarized_per_suite():
+    spec = importlib.util.spec_from_file_location("evaluate_policy_suite", ROOT / "scripts" / "evaluate_policy_suite.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    records = [{"task_id": "t", "suite": "nominal", "success": s, "force_violation": False, "goal_fraction": g}
+               for s, g in ((True, 1.0), (False, 0.5), (False, 0.0))]
+
+    summary = module.summarize_records(records)["nominal"]
+
+    assert summary["goal_completion"] == pytest.approx(0.5)
+    assert module.summarize_records([{**r, "goal_fraction": None} for r in records])["nominal"]["goal_completion"] is None
+
+
+def test_training_refuses_files_of_another_task_set(tmp_path):
+    # The task sets share task ids: a legacy file (no task-set record) under a benchmark task's name must not be used.
+    import argparse
+    import h5py
+    pytest.importorskip("torch")
+    spec = importlib.util.spec_from_file_location("train_policy", ROOT / "scripts" / "train_policy.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    with h5py.File(tmp_path / "tabletop_sort_red_nominal.hdf5", "w") as f:
+        f.create_group("data").attrs["env_args"] = '{"env_name": "tabletop_sort_red", "env_kwargs": {}}'
+    args = argparse.Namespace(task="tabletop_sort_red", task_set="bench", allow_missing=False)
+
+    with pytest.raises(SystemExit, match="another task set"):
+        module._select_files(args, tmp_path)
+    assert module._select_files(argparse.Namespace(**{**vars(args), "task_set": "legacy"}), tmp_path)
+
+
 def test_live_and_recorded_lowdim_features_agree():
     import afford_pro
     from afford_pro.envs.headless import headless

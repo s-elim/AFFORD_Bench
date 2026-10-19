@@ -144,6 +144,11 @@ def _select_files(args: argparse.Namespace, data_dir: Path) -> list[Path]:
     if missing and not args.allow_missing:
         raise SystemExit(f"{len(missing)} of {len(paths)} selected datasets are missing ({missing[:5]}...); a policy "
                          "trained without them would be scored on tasks it never saw. Pass --allow-missing to proceed.")
+    from afford_pro.datasets.validation import file_task_set
+    other = [p.name for p in paths if p.exists() and file_task_set(p) != args.task_set]
+    if other:  # the task sets share task ids, so a file name alone does not say which set it belongs to
+        raise SystemExit(f"{len(other)} selected files belong to another task set than {args.task_set!r} "
+                         f"({other[:5]}...); move them out of {data_dir} or pass --task-set accordingly.")
     return [p for p in paths if p.exists()]
 
 

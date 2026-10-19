@@ -100,15 +100,20 @@ def summarize_records(records: list[dict[str, Any]], task_set: str = "bench") ->
 
     by_suite: dict[str, dict[str, list[bool]]] = defaultdict(lambda: defaultdict(list))
     fvr: dict[str, list[bool]] = defaultdict(list)
+    goals: dict[str, list[float]] = defaultdict(list)
     for r in records:
         by_suite[r["suite"]][r["task_id"]].append(bool(r["success"]))
         fvr[r["suite"]].append(bool(r["force_violation"]))
+        if r.get("goal_fraction") is not None:
+            goals[r["suite"]].append(float(r["goal_fraction"]))
     out: dict[str, Any] = {}
     nominal = summarize(list(by_suite["nominal"].values()))["rate"] if "nominal" in by_suite else None
     for suite, per_task in by_suite.items():
         s = summarize(list(per_task.values()))
         s["per_task_rate"] = {t: sum(v) / len(v) for t, v in per_task.items()}
         s["force_violation_rate"] = sum(fvr[suite]) / len(fvr[suite])
+        # Mean fraction of a task's goals reached: partial progress on multi-goal tasks (None for single-goal tasks).
+        s["goal_completion"] = sum(goals[suite]) / len(goals[suite]) if goals[suite] else None
         if nominal:  # PRI and GDI are defined only when the nominal success rate is positive
             s["PRI_pct"] = 100.0 * s["rate"] / nominal
             s["GDI_pct"] = 100.0 - s["PRI_pct"]
