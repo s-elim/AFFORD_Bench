@@ -53,7 +53,7 @@ def object_poses_from_states(states: np.ndarray, qpos_offset: int, qpos_adrs: li
 
 def moved_body_qpos_adrs(env: Any) -> list[int]:
     """qpos addresses of the bodies a task moves: every goal body of a task, the evaluated body of a legacy task."""
-    if hasattr(env, "spec") and hasattr(env, "body_qposadr"):
+    if hasattr(env, "task_spec") and hasattr(env, "body_qposadr"):
         return [env.body_qposadr[b] for b in env.task_spec.bodies_moved()]
     return [] if getattr(env, "target_qposadr", None) is None else [env.target_qposadr]
 

@@ -2,7 +2,7 @@
 covers the whole instruction (docs/roadmap/T9_TASK_REDESIGN.md).
 
     import afford_pro
-    env = afford_pro.make("kitchen_cheese_on_patty", version="bench")      # or afford_pro.bench.make_env(32)
+    env = afford_pro.make("kitchen_cheese_on_patty")      # or afford_pro.bench.make_env(32)
     oracle = afford_pro.get_oracle("kitchen_cheese_on_patty", env)
 """
 from __future__ import annotations

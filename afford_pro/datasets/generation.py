@@ -89,7 +89,7 @@ def _make_writer(cfg: GenerationConfig, path: Path, env: Any, entry: Any, base_s
     writer = RobomimicHDF5Writer(
         file_path=path, env_name=cfg.task_id, task_id=cfg.task_id, instruction=entry.instruction,
         env_args=make_env_args(cfg.task_id, perturbation_mode=cfg.perturbation, render_depth=cfg.depth,
-                               **({"task_set": cfg.task_set} if cfg.task_set != "legacy" else {})),
+                               task_set=cfg.task_set),  # so make(**env_kwargs) rebuilds the same task set
         model_file=env.get_model_xml(), provenance=provenance, **language,
     )
     env.reset(seed=base_seed)
