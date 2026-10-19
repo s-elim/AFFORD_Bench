@@ -1,9 +1,8 @@
 """Build docs/site/data.js for the project page from the code and the evidence files (no hand-entered numbers).
 
-Sources: task definitions and tiers (afford_pro), the runtime task audit, the sanity run (oracle, random, null on all
-210 tasks), the leaderboard runs (scripts/evaluate_policy_suite.py on the core tier), the L4 friction x mass sweep, and
-the dataset validation report. Every number on the page comes from one of these files; the file names are written into
-the output so the page can cite them.
+Sources: the task specifications (afford_pro.bench), the task validation runs (scripts/validate_bench_tasks.py) and the
+leaderboard runs (scripts/evaluate_policy_suite.py, one folder per run with episodes.csv and summary.json). Every number
+on the page comes from one of these files; their names are written into the output so the page can cite them.
 
   python scripts/build_site_data.py
 """
@@ -21,36 +20,28 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 EVIDENCE = ROOT / "docs" / "roadmap" / "evidence"
-SOURCES = {
-    "task_audit": "task_audit_2026-10-17.json",
-    "sanity": "sanity_2026-10-18",
-    "leaderboard": "leaderboard_*",
-    "l4_sweep": "l4_sweep_2026-10-18.csv",
-    "validation": "dataset_validation_2026-10-17",
-}
+SOURCES = {"tasks": "afford_pro/bench/tasks", "validation": "task_validation_*_<suite>.json (newest per suite)",
+           "leaderboard": "leaderboard_*/*/summary.json (task_set bench)"}
+VALIDATION = "task_validation_*_{}.json"   # newest file per suite
 DOMAIN_SHORT = {
     "Industrial & Manufacturing": "D1 Industrial", "Culinary & Kitchen Operations": "D2 Culinary",
     "Tabletop & Domestic": "D3 Tabletop", "Laboratory & Life Sciences": "D4 Laboratory",
     "Long-Horizon Multi-Stage": "D5 Long-horizon", "Multi-Stage Precision Chaining": "D6 Precision chains",
     "Sequential Service & Culinary Assembly": "D7 Service chains",
 }
+WORKCELL = {"industrial_assembly": "Assembly jig", "industrial_electronics": "Electronics bench",
+            "kitchen_burger": "Burger station", "kitchen_coffee": "Espresso station",
+            "tabletop_sorting": "Sorting table", "lab_science": "Laboratory bench"}
 SUITES = [
-    ("nominal", "L1 Nominal", "Start of the evaluated body U(±7 cm), yaw U(±45°); TCP jitter ±1.5 cm"),
-    ("p2_spatial", "L2 Spatial", "Start offset 7–12 cm in a random direction, |yaw| 45–90°"),
+    ("nominal", "L1 Nominal", "Each moved object starts uniformly in its own region (yaw up to ±45°), in one of two receptacles, or pre-assembled; TCP jitter ±1.5 cm"),
+    ("p2_spatial", "L2 Spatial", "Region starts offset 7–12 cm in a random direction, |yaw| 45–90°"),
     ("p3_visual", "L3 Visual", "Light position ±0.5 m, diffuse ×0.5–1.5 (clipped at 1)"),
-    ("p4_physical", "L4 Physical", "Friction μ 0.12–0.25 on body and finger pads; mass and inertia ×1.8–2.5"),
+    ("p4_physical", "L4 Physical", "Friction μ 0.12–0.25 on the moved objects and finger pads; their mass and inertia ×1.8–2.5"),
     ("combined_ood", "L5 Compound", "L2 + L3 + L4 + color"),
-    ("p1_object", "Color", "Color of the evaluated body ×0.75–1.25"),
+    ("p1_object", "Color", "Color of the moved objects ×0.75–1.25"),
 ]
+VALIDATED_SUITES = ("nominal", "p4_physical", "p2_spatial", "combined_ood")
 TRUE = {"True", "true", "1"}
-
-
-def _csv_rows(paths: list[Path]) -> list[dict[str, str]]:
-    rows: list[dict[str, str]] = []
-    for p in paths:
-        with p.open(newline="") as f:
-            rows.extend(csv.DictReader(f))
-    return rows
 
 
 def _rate_block(per_task: dict[str, list[bool]]) -> dict[str, Any]:
@@ -61,28 +52,48 @@ def _rate_block(per_task: dict[str, list[bool]]) -> dict[str, Any]:
             "episodes": s["episodes"], "tasks": s["tasks"]}
 
 
-def tasks_block() -> list[dict[str, Any]]:
-    from afford_pro.task_definitions import ALL_210_TASKS
-    from afford_pro.task_tiers import NEAR_FIXED_START_CORE, UNMARKED_GOAL_CORE, mismatch_reason, task_tier
+def _validation() -> dict[str, dict[str, Any]]:
+    out = {}
+    for suite in VALIDATED_SUITES:
+        paths = sorted(EVIDENCE.glob(VALIDATION.format(suite)))
+        if not paths:
+            print(f"warning: no validation run for suite {suite} ({VALIDATION.format(suite)})", file=sys.stderr)
+            continue
+        out[suite] = json.loads(paths[-1].read_text(encoding="utf-8"))
+        out[suite]["source"] = paths[-1].name
+    return out
 
-    audit = {r["task_id"]: r for r in json.loads((EVIDENCE / SOURCES["task_audit"]).read_text())["tasks"]}
-    sanity = defaultdict(lambda: defaultdict(list))
-    for e in _csv_rows(sorted((EVIDENCE / SOURCES["sanity"]).glob("episodes_*.csv"))):
-        sanity[e["task_id"]][e["mode"]].append(e["success"] in TRUE and int(e["steps"]) <= 400)
+
+def tasks_block(validation: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    from afford_pro.bench.language import step_text
+    from afford_pro.bench.scenes import SCENES
+    from afford_pro.bench.spec import step_budget
+    from afford_pro.bench.tasks import TASKS
+
+    oracle = {suite: {r["number"]: [r["oracle_successes"], len(r["episodes"])] for r in run["tasks"] if "error" not in r}
+              for suite, run in validation.items()}
     out = []
-    for t in ALL_210_TASKS:
-        a = audit.get(t.task_id, {})
-        nominal, physical = sanity[t.task_id]["nominal"], sanity[t.task_id]["p4_physical"]
+    for t in TASKS:
+        tol_mm, tilt = SCENES[t.scene].precision
         out.append({
-            "n": t.task_number, "id": t.task_id, "domain": DOMAIN_SHORT[t.domain], "tier": task_tier(t.task_id),
-            "type": t.task_type, "object": t.object_name, "tol_mm": round(1000 * t.tolerance_xy, 1),
-            "tilt_deg": t.tilt_tol_deg, "instruction": t.instruction, "reason": mismatch_reason(t.task_id),
-            "goal_on": a.get("body_below_goal"), "hold_goal": bool(a.get("hold_goal", False)),
-            "start_std_mm": round(1000 * max(a["start_xy_std_m"]), 1) if a.get("start_xy_std_m") else None,
-            "unmarked_goal": t.task_id in UNMARKED_GOAL_CORE, "fixed_start": t.task_id in NEAR_FIXED_START_CORE,
-            "oracle_nominal": [sum(nominal), len(nominal)], "oracle_l4": [sum(physical), len(physical)],
+            "n": t.number, "id": t.task_id, "domain": DOMAIN_SHORT[t.domain], "workcell": WORKCELL[t.scene],
+            "instruction": t.instruction, "goals": [step_text(g) for g in t.goals],
+            "kinds": sorted({type(g).__name__ for g in t.goals}), "ordered": bool(t.order),
+            "budget": step_budget(t), "tol_mm": round(1000 * tol_mm, 1), "tilt_deg": tilt,
+            "oracle": {suite: rates.get(t.number) for suite, rates in oracle.items()},
         })
     return out
+
+
+def _leaderboard_rows() -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    for summary in sorted(EVIDENCE.glob("leaderboard_*/*/summary.json")):
+        settings = json.loads(summary.read_text(encoding="utf-8")).get("settings", {})
+        if settings.get("task_set") != "bench":
+            continue
+        with (summary.parent / "episodes.csv").open(newline="") as f:
+            rows.extend(csv.DictReader(f))
+    return rows
 
 
 def _method_rows(rows: list[dict[str, str]]) -> dict[str, Any]:
@@ -108,61 +119,58 @@ def _method_rows(rows: list[dict[str, str]]) -> dict[str, Any]:
     return out
 
 
-def leaderboard_block() -> dict[str, Any]:
-    paths = sorted(p for d in sorted(EVIDENCE.glob(SOURCES["leaderboard"])) for p in d.glob("*/episodes.csv"))
-    core = _method_rows(_csv_rows(paths))
-    sanity_tasks = _csv_rows(sorted((EVIDENCE / SOURCES["sanity"]).glob("part_*.csv")))
-    sanity_eps = _csv_rows(sorted((EVIDENCE / SOURCES["sanity"]).glob("episodes_*.csv")))
-    oracle = defaultdict(lambda: defaultdict(list))
-    for e in sanity_eps:
-        oracle[e["mode"]][e["task_id"]].append(e["success"] in TRUE and int(e["steps"]) <= 400)
-    random_all = {t["task_id"]: [False] * 5 if float(t["random_sr"]) == 0 else
-                  [True] * round(5 * float(t["random_sr"])) + [False] * (5 - round(5 * float(t["random_sr"])))
-                  for t in sanity_tasks}
-    null_all = {t["task_id"]: [float(t["null_sr"]) > 0] for t in sanity_tasks}
-    all_tasks = {"oracle": {"nominal": _rate_block(oracle["nominal"]), "p4_physical": _rate_block(oracle["p4_physical"])},
-                 "random": {"nominal": _rate_block(random_all)}, "null": {"nominal": _rate_block(null_all)}}
-    return {"core": core, "all": all_tasks}
+def leaderboard_block(tasks: list[dict[str, Any]]) -> dict[str, Any]:
+    """Methods x suites over all tasks ("all") and per domain."""
+    rows = _leaderboard_rows()
+    domain_of = {t["id"]: t["domain"] for t in tasks}
+    blocks = {"all": _method_rows(rows)}
+    for domain in sorted(set(domain_of.values())):
+        blocks[domain] = _method_rows([r for r in rows if domain_of.get(r["task_id"]) == domain])
+    return blocks
 
 
-def sweep_block() -> list[dict[str, Any]]:
-    cells = defaultdict(lambda: defaultdict(list))
-    for r in _csv_rows([EVIDENCE / SOURCES["l4_sweep"]]):
-        cells[(r["mu"], r["mass_scale"])][r["task_id"]].append(r["success"] in TRUE)
-    return [{"mu": mu, "mass": float(mass), **_rate_block(tasks)} for (mu, mass), tasks in sorted(cells.items())]
-
-
-def dataset_block() -> dict[str, Any]:
-    report = json.loads((EVIDENCE / SOURCES["validation"] / "report.json").read_text())
-    files = report["files"]
-    counts: dict[str, int] = defaultdict(int)
-    for f in files:
-        for k, v in f.get("issue_counts", {}).items():
-            counts[k] += v
-    replays = [r for f in files for r in f.get("replay", [])]
-    return {"files": len(files), "demos": sum(f["n_demos"] for f in files), "steps": sum(f["total_steps"] for f in files),
-            "bytes": sum(f["size_bytes"] for f in files),
-            "status": {s: sum(f["status"] == s for f in files) for s in ("VALID", "VALID_WITH_WARNINGS", "INVALID")},
-            "issues": dict(sorted(counts.items())), "replays": len(replays),
-            "replays_exact_step": sum(r["consistent"] for r in replays)}
+def validation_block(validation: dict[str, dict[str, Any]], tasks: list[dict[str, Any]]) -> dict[str, Any]:
+    """Oracle success per suite and domain in the validation runs, plus the floors and start audit of the nominal run."""
+    domain_of = {t["n"]: t["domain"] for t in tasks}
+    ceiling: dict[str, dict[str, list[int]]] = {}
+    per_task = {suite: run["episodes"] for suite, run in validation.items()}
+    for suite, run in validation.items():
+        cells: dict[str, list[int]] = defaultdict(lambda: [0, 0])
+        for r in run["tasks"]:
+            for key in ("All", domain_of[r["number"]]):
+                cells[key][0] += r.get("oracle_successes", 0)
+                cells[key][1] += len(r.get("episodes", []))
+        ceiling[suite] = dict(cells)
+    nominal = validation.get("nominal", {"tasks": []})
+    built = [r for r in nominal["tasks"] if "error" not in r]  # a task that failed to build ran no floors or resets
+    floors = defaultdict(int)
+    for r in built:
+        for k, v in r.get("floor_successes", {}).items():
+            floors[k] += v
+    return {"ceiling": ceiling, "episodes_per_task": per_task, "floors": dict(floors),
+            "floor_episodes": nominal.get("floor_episodes", 0) * len(built), "resets": nominal.get("resets", 0) * len(built),
+            "goal_true_at_reset": sum(r.get("goal_true_at_reset", 0) for r in built),
+            "start_fallbacks": sum(r.get("start_fallbacks", 0) for r in built), "tasks_built": len(built),
+            "tasks": len(nominal["tasks"]), "sources": {s: run.get("source") for s, run in validation.items()}}
 
 
 def main() -> None:
     from afford_pro.provenance import collect_provenance
 
     prov = collect_provenance()
+    validation = _validation()
+    tasks = tasks_block(validation)
     data = {
         "generated": prov["timestamp_utc"], "commit": prov["git"]["commit"], "dirty": prov["git"]["dirty"],
         "mujoco": prov["packages"]["mujoco"], "sources": SOURCES,
         "suites": [{"key": k, "name": n, "desc": d} for k, n, d in SUITES],
-        "tasks": tasks_block(), "leaderboard": leaderboard_block(), "l4_sweep": sweep_block(),
-        "dataset": dataset_block(),
+        "tasks": tasks, "leaderboard": leaderboard_block(tasks), "validation": validation_block(validation, tasks),
     }
     out = ROOT / "docs" / "site" / "data.js"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("window.AFFORD = " + json.dumps(data, separators=(",", ":")) + ";\n", encoding="utf-8")
-    print(f"Wrote {out} ({out.stat().st_size / 1024:.0f} KB): {len(data['tasks'])} tasks, "
-          f"{len(data['leaderboard']['core'])} leaderboard policies, {len(data['l4_sweep'])} sweep cells")
+    print(f"Wrote {out} ({out.stat().st_size / 1024:.0f} KB): {len(tasks)} tasks, "
+          f"{len(data['leaderboard']['all'])} leaderboard policies, {len(validation)} validation suites")
 
 
 if __name__ == "__main__":

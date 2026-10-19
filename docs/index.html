@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AFFORD-Bench</title>
-  <meta name="description" content="AFFORD-Bench: a MuJoCo benchmark and dataset for millimeter-precision robot manipulation under spatial, visual, and physical shift.">
+  <meta name="description" content="AFFORD-Bench: 210 instruction-accurate manipulation tasks on a simulated Franka Panda, with physical millimeter-precision success checks and paired spatial, visual, and physical shift suites.">
   <link rel="stylesheet" href="site/style.css">
 </head>
 <body>
@@ -25,11 +25,12 @@
     <div class="wrap">
       <div class="eyebrow">Benchmark &amp; dataset &middot; RSS 2027 submission (anonymous)</div>
       <h1>AFFORD-Bench</h1>
-      <p class="lede">Millimeter-precision manipulation on a simulated Franka Panda, evaluated under spatial, visual, and physical shift.</p>
-      <p class="sub">Success is physical: the released object must be supported, upright, and at rest within 2&ndash;8&nbsp;mm of its goal. Grasping is frictional; nothing is welded or snapped into place.</p>
+      <p class="lede">210 manipulation tasks on a simulated Franka Panda, from shaft seating to burger assembly and centrifuge loading, evaluated under spatial, visual, and physical shift.</p>
+      <p class="sub">Every instruction names only simulated objects and is checked as a conjunction of physical goals, in order. A placed object must be released, supported, upright, and at rest within 2&ndash;8&nbsp;mm of its goal. Grasping is frictional; nothing is welded or snapped into place.</p>
       <div class="links">
-        <a class="btn" href="#leaderboard">Leaderboard</a>
-        <a class="btn" href="#dataset">Dataset card</a>
+        <a class="btn primary" href="#leaderboard">Leaderboard</a>
+        <a class="btn" href="#tasks">Browse tasks</a>
+        <a class="btn" href="#dataset">Dataset</a>
         <a class="btn" href="#use">Evaluate a policy</a>
       </div>
       <div class="stats" id="stats" aria-live="polite"></div>
@@ -44,15 +45,14 @@
             <h2>Leaderboard</h2>
             <p id="lb-caption"></p>
           </div>
-          <div class="seg" role="group" aria-label="Task scope">
-            <button type="button" data-scope="core" aria-pressed="true">Core tasks (66)</button>
-            <button type="button" data-scope="all" aria-pressed="false">All tasks (210)</button>
+          <div class="controls" style="margin:0">
+            <select id="lbScope" aria-label="Task scope"></select>
           </div>
         </div>
         <div class="table-wrap"><table id="lb"></table></div>
-        <p class="note">Learned baselines are not listed yet. A result enters this table only with its per-episode log from
-          <code>scripts/evaluate_policy_suite.py</code> (seeds, checkpoint hash, code version). The oracle reads the true object pose,
-          so its row bounds what is solvable rather than predicting learned performance.</p>
+        <p class="note">A result enters this table only with its per-episode log from
+          <code>scripts/evaluate_policy_suite.py</code> (seeds, checkpoint hash, code version). The oracle reads the true object
+          poses, so its row bounds what is solvable rather than predicting learned performance.</p>
       </div>
     </section>
 
@@ -61,14 +61,14 @@
         <div class="section-head">
           <div>
             <h2>Tasks</h2>
-            <p>210 tasks in 7 domains. Each was rebuilt and reset at runtime to check that its instruction matches what the simulator scores. Click a row for details.</p>
+            <p>210 tasks in 7 domains over six workcells. Each task is a conjunction of goal predicates; long-horizon tasks chain up to six goals. Click a row for its goals.</p>
           </div>
         </div>
         <div class="legend" id="legend"></div>
         <div class="controls">
           <input id="q" type="search" placeholder="Search tasks, objects, instructions" aria-label="Search tasks">
           <select id="domain" aria-label="Domain"></select>
-          <div class="seg" role="group" aria-label="Tier" id="tierSeg"></div>
+          <div class="seg" role="group" aria-label="Number of goals" id="goalSeg"></div>
           <span class="count" id="taskCount"></span>
         </div>
         <div class="table-wrap tall"><table id="taskTable"></table></div>
@@ -83,41 +83,44 @@
           <div class="table-wrap"><table id="suiteTable"></table></div>
         </div>
         <div>
-          <h2>Physical calibration</h2>
-          <p class="note" style="margin:0 0 14px">Oracle success (%) on the core tasks when friction and object mass are fixed at each setting (3 episodes per task and cell). The current L4 range barely affects the expert; lower friction and heavier objects do. The range will be recalibrated on this curve.</p>
-          <div class="heat" id="heat" role="table" aria-label="Oracle success by friction and mass"></div>
+          <h2>Oracle ceiling</h2>
+          <p class="note" style="margin:0 0 14px">Oracle success (%) per domain and suite in the task validation run<span id="ceilNote"></span>: what each suite can ask of a learned policy.</p>
+          <div class="heat" id="heat" role="table" aria-label="Oracle success by domain and suite"></div>
         </div>
       </div>
     </section>
 
     <section id="dataset">
       <div class="wrap">
-        <div class="section-head"><div><h2>Dataset</h2><p>Scripted-oracle demonstrations in Robomimic HDF5, one file per task. Not yet hosted for download.</p></div></div>
-        <div class="kv" id="dataKv"></div>
+        <div class="section-head"><div><h2>Dataset</h2><p>Scripted-oracle demonstrations in Robomimic HDF5, one file per task, 50 demonstrations each. Not yet hosted for download.</p></div></div>
         <div class="grid2">
           <div>
             <h3>Per demonstration</h3>
 <pre>data/demo_i/
   actions   (T, 7) float32
-  rewards   (T,)   1 at first success
-  dones     (T,)   1 at first success
-  states    (T, 85) full MuJoCo state
-  obs/agentic_rgb  (T, 640, 660, 3)
-  obs/wrist_rgb    (T, 300, 420, 3)
-  obs/joint_positions, joint_velocities,
-      tcp_pose, gripper_width
-  attrs: seed, init_state, instruction
+  rewards   (T,)   1 at success
+  dones     (T,)   1 at success
+  states    (T, n) full MuJoCo state
+  obs/, next_obs/
+    agentic_rgb   (T, 640, 660, 3)
+    wrist_rgb     (T, 300, 420, 3)
+    joint_positions, joint_velocities,
+    tcp_pose, gripper_width
+  attrs: seed, init_state, final_state
+data attrs: instruction, prompt_variants
+  (canonical, step-by-step), env_args, provenance
 mask/train, mask/valid   45 / 5</pre>
           </div>
           <div>
-            <h3>Known limitations of the current files</h3>
-            <ul class="plain" id="limits">
-              <li>No provenance attributes; produced by at least three generator runs.</li>
-              <li>Stored actions are float32 roundings of the executed ones: replays are close, not exact.</li>
-              <li>The state after the final action is not stored (offline-RL terminal transition).</li>
-              <li>114 demonstrations exceed the 500-step environment limit.</li>
-              <li>The generator now fixes all four; regenerated files replay bit-identically.</li>
+            <h3>Guarantees</h3>
+            <ul class="plain">
+              <li>Every episode completes all goals of its task within the task's step budget, from a sampled start.</li>
+              <li>Each file records the code, simulator, and asset versions and the command that produced it.</li>
+              <li>An episode-level validator checks every demonstration; replays of the recorded actions reproduce the recorded states exactly.</li>
+              <li>Converters export LeRobot and RLDS.</li>
             </ul>
+<pre>python scripts/generate_all_150_tasks.py --num-demos 50
+python scripts/validate_datasets.py --replay-per-file 3</pre>
           </div>
         </div>
       </div>
@@ -127,16 +130,16 @@ mask/train, mask/valid   45 / 5</pre>
       <div class="wrap grid2">
         <div>
           <h2>Evaluate a policy</h2>
-          <p class="note" style="margin:0 0 14px">50 episodes per task and suite on the evaluation seed block, success within 400 steps, intervals from a bootstrap over tasks.</p>
+          <p class="note" style="margin:0 0 14px">50 episodes per task and suite on the evaluation seed block, success within each task's step budget, intervals from a bootstrap over tasks.</p>
 <pre>pip install -e .                    # pins mujoco==3.5.0
 python scripts/evaluate_policy_suite.py \
-  --checkpoint model.pt --tier core \
-  --suites nominal,p2_spatial,p3_visual,p4_physical,combined_ood \
+  --checkpoint model.pt --domain all \
+  --suites nominal,p2_spatial,p3_visual,p4_physical,combined_ood,p1_object \
   --episodes 50 --out-dir results/my_policy</pre>
           <details>
             <summary>Train the included baselines</summary>
-<pre>python scripts/train_policy.py --policy bc --modality lowdim \
-  --domain tabletop --tier core --epochs 200 --seed 1 --tag seed1</pre>
+<pre>python scripts/train_policy.py --policy bc --modality objects \
+  --domain tabletop --epochs 200 --seed 1 --tag seed1</pre>
           </details>
         </div>
         <div>

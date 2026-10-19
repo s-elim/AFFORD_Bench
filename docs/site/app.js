@@ -8,35 +8,36 @@
   const el = (tag, attrs = {}, html = "") => Object.assign(document.createElement(tag), attrs, html ? { innerHTML: html } : {});
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const pct = (x, d = 1) => (x == null || Number.isNaN(x) ? "–" : (100 * x).toFixed(d));
-  const TIER_LABEL = { core: "Core", reach: "Reach", instruction_mismatch: "Instruction mismatch" };
+  const frac = (kn) => (kn && kn[1] ? `${kn[0]}/${kn[1]}` : "–");
   const POLICY = {
-    oracle: ["Oracle", "Privileged scripted expert (reads the true object pose)"],
+    oracle: ["Oracle", "Privileged scripted expert (reads the true object poses)"],
     random: ["Random", "Uniform random actions"],
     null: ["Null", "Never moves, gripper open"],
   };
   const SUITE_ORDER = ["nominal", "p2_spatial", "p3_visual", "p4_physical", "combined_ood", "p1_object"];
   const suiteName = Object.fromEntries(D.suites.map((s) => [s.key, s.name]));
+  const domains = [...new Set(D.tasks.map((t) => t.domain))];
+  const V = D.validation;
 
   // ---------------------------------------------------------------- stats
-  const tiers = D.tasks.reduce((m, t) => ((m[t.tier] = (m[t.tier] || 0) + 1), m), {});
-  const oracleAll = D.leaderboard.all.oracle?.nominal;
+  const goals = D.tasks.reduce((n, t) => n + t.goals.length, 0);
+  const multi = D.tasks.filter((t) => t.goals.length > 1).length;
+  const nominal = V.ceiling.nominal?.All;
   $("#stats").append(
     ...[
-      [`${D.tasks.length}`, `tasks in 7 domains &middot; ${tiers.core || 0} core-validated`],
-      [`${(D.dataset.demos / 1000).toFixed(1)}k`, `demonstrations &middot; ${(D.dataset.steps / 1e6).toFixed(2)}M steps`],
+      [`${D.tasks.length}`, `tasks in ${domains.length} domains`],
+      [`${goals}`, `goal predicates &middot; ${multi} multi-goal tasks`],
       [`${D.suites.length}`, "paired evaluation suites"],
-      [`${pct(oracleAll?.rate)}%`, "oracle success, nominal, H = 400"],
+      [nominal ? `${pct(nominal[0] / nominal[1])}%` : "–", "oracle success, nominal validation"],
     ].map(([b, s]) => el("div", { className: "stat" }, `<b>${b}</b><span>${s}</span>`))
   );
 
   // ---------------------------------------------------------------- leaderboard
-  let scope = "core";
+  let scope = "all";
   let sortKey = "nominal";
   let sortDir = -1;
-  function lbRows() {
-    const src = D.leaderboard[scope] || {};
-    return Object.entries(src).map(([key, suites]) => ({ key, suites }));
-  }
+  $("#lbScope").innerHTML = `<option value="all">All ${D.tasks.length} tasks</option>` + domains.map((d) => `<option value="${esc(d)}">${esc(d)}</option>`).join("");
+  $("#lbScope").addEventListener("change", (e) => { scope = e.target.value; renderLeaderboard(); });
   function cell(block) {
     if (!block) return `<td class="num na">–</td>`;
     const [lo, hi] = block.ci || [];
@@ -45,18 +46,21 @@
     return `<td class="num" title="${esc(title)}">${pct(block.rate)}<span class="cell-bar"><i style="width:${Math.max(0, Math.min(100, 100 * block.rate))}%"></i></span></td>`;
   }
   function renderLeaderboard() {
-    const suites = SUITE_ORDER.filter((s) => lbRows().some((r) => r.suites[s]));
-    const rows = lbRows().sort((a, b) => sortDir * (((a.suites[sortKey] || {}).rate ?? -1) - ((b.suites[sortKey] || {}).rate ?? -1)));
+    const src = D.leaderboard[scope] || {};
+    const rows = Object.entries(src).map(([key, suites]) => ({ key, suites }));
+    const suites = SUITE_ORDER.filter((s) => rows.some((r) => r.suites[s]));
+    rows.sort((a, b) => sortDir * (((a.suites[sortKey] || {}).rate ?? -1) - ((b.suites[sortKey] || {}).rate ?? -1)));
     const head = `<thead><tr><th>Policy</th>${suites.map((s) => `<th class="num" aria-sort="${s === sortKey ? (sortDir < 0 ? "descending" : "ascending") : "none"}"><button data-sort="${s}">${esc(suiteName[s] || s)}</button></th>`).join("")}</tr></thead>`;
     const body = rows.map((r) => {
       const [name, desc] = POLICY[r.key] || [r.key, "Learned policy"];
       return `<tr><td><span class="policy-name">${esc(name)}</span><span class="policy-desc">${esc(desc)}</span></td>${suites.map((s) => cell(r.suites[s])).join("")}</tr>`;
     }).join("");
-    $("#lb").innerHTML = head + `<tbody>${body}</tbody>`;
-    const n = scope === "core" ? tiers.core : D.tasks.length;
-    $("#lb-caption").textContent = scope === "core"
-      ? `Success rate (%) on the ${n} core tasks, evaluation seeds, success within 400 steps; hover a cell for the 95% interval (bootstrap over tasks). Reference policies: 5 (oracle), 3 (random), 1 (null) episodes per task and suite.`
-      : `Success rate (%) on all ${n} tasks from the calibration run (5 oracle and random episodes, 1 null episode per task). Other suites are reported on the core tasks.`;
+    $("#lb").innerHTML = rows.length ? head + `<tbody>${body}</tbody>` : `<tbody><tr><td>No results yet.</td></tr></tbody>`;
+    const first = (r) => r.suites[suites[0]];
+    const nTasks = rows.length ? first(rows[0]).tasks : D.tasks.filter((t) => scope === "all" || t.domain === scope).length;
+    const perTask = rows.filter((r) => POLICY[r.key] && first(r)).map((r) => `${Math.round(first(r).episodes / first(r).tasks)} (${POLICY[r.key][0].toLowerCase()})`);
+    $("#lb-caption").textContent = `Success rate (%) on ${scope === "all" ? "all" : "the"} ${nTasks} ${scope === "all" ? "" : scope + " "}tasks, evaluation seeds, success within each task's step budget; hover a cell for the 95% interval (bootstrap over tasks).`
+      + (perTask.length ? ` Reference policies: ${perTask.join(", ")} episodes per task and suite.` : "");
   }
   $("#lb").addEventListener("click", (e) => {
     const b = e.target.closest("button[data-sort]");
@@ -65,49 +69,44 @@
     sortKey = b.dataset.sort;
     renderLeaderboard();
   });
-  document.querySelectorAll("[data-scope]").forEach((b) => b.addEventListener("click", () => {
-    scope = b.dataset.scope;
-    document.querySelectorAll("[data-scope]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
-    renderLeaderboard();
-  }));
   renderLeaderboard();
 
   // ---------------------------------------------------------------- tasks
-  $("#legend").innerHTML = Object.keys(TIER_LABEL).map((t) => `<span><span class="tag ${t}">${TIER_LABEL[t]}</span> ${tiers[t] || 0}</span>`).join("")
-    + `<span>Core: the instruction names the simulated objects and the success check covers all of it.</span>`;
-  const domains = [...new Set(D.tasks.map((t) => t.domain))];
+  const kinds = [...new Set(D.tasks.flatMap((t) => t.kinds))].sort();
+  $("#legend").innerHTML = `<span>Goal predicates: ${kinds.map((k) => `<span class="tag">${esc(k)}</span>`).join(" ")}</span>`
+    + `<span>Success: every goal reached, in order, and holding at the end (waypoints need only be reached).</span>`;
   $("#domain").innerHTML = `<option value="">All domains</option>` + domains.map((d) => `<option>${esc(d)}</option>`).join("");
-  let tierFilter = "";
-  $("#tierSeg").innerHTML = [["", "All"], ...Object.entries(TIER_LABEL)].map(([k, v]) => `<button type="button" data-tier="${k}" aria-pressed="${k === ""}">${v}</button>`).join("");
-  $("#tierSeg").addEventListener("click", (e) => {
-    const b = e.target.closest("button[data-tier]");
+  const GOAL_FILTERS = [["", "All"], ["1", "1 goal"], ["2", "2 goals"], ["3", "3+ goals"]];
+  let goalFilter = "";
+  $("#goalSeg").innerHTML = GOAL_FILTERS.map(([k, v]) => `<button type="button" data-goals="${k}" aria-pressed="${k === ""}">${v}</button>`).join("");
+  $("#goalSeg").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-goals]");
     if (!b) return;
-    tierFilter = b.dataset.tier;
-    $("#tierSeg").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    goalFilter = b.dataset.goals;
+    $("#goalSeg").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
     renderTasks();
   });
-  const frac = ([k, n]) => (n ? `${k}/${n}` : "–");
+  const goalMatch = (t) => !goalFilter || (goalFilter === "3" ? t.goals.length >= 3 : t.goals.length === Number(goalFilter));
   function detail(t) {
+    const suites = Object.entries(t.oracle).filter(([, v]) => v).map(([s, v]) => `${esc(suiteName[s] || s)} ${frac(v)}`).join(" &middot; ");
     const rows = [
       ["Instruction", esc(t.instruction)],
-      ["Scored", `${esc(t.object)} ${t.type === "press_button" ? "(fingertip held within tolerance of a fixed point for 5 steps)" : `released and at rest on <b>${esc(t.goal_on || "?")}</b>${t.hold_goal ? " (held, not released)" : ""}`}`],
-      ["Tolerance", `${t.tol_mm} mm, ${t.tilt_deg}°`],
-      ["Start spread", t.start_std_mm == null ? "fixed scene" : `${t.start_std_mm} mm (s.d.)`],
-      ["Oracle", `${frac(t.oracle_nominal)} nominal, ${frac(t.oracle_l4)} L4`],
+      ["Goals", `<ol class="goals">${t.goals.map((g) => `<li>${esc(g)}</li>`).join("")}</ol>${t.ordered ? "Ordered: a goal counts only after the goals before it." : ""}`],
+      ["Workcell", esc(t.workcell)],
+      ["Tolerance", `${t.tol_mm} mm, ${t.tilt_deg}° for placements`],
+      ["Step budget", `${t.budget} steps (20 Hz)`],
+      ["Oracle (validation)", suites || "–"],
     ];
-    if (t.reason) rows.push(["Why not core", esc(t.reason)]);
-    if (t.unmarked_goal) rows.push(["Note", "Goal is an unmarked point on a surface; reported separately"]);
-    if (t.fixed_start) rows.push(["Note", "Start varies by less than 1 cm; reported separately"]);
     return `<dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`;
   }
   function renderTasks() {
     const q = $("#q").value.trim().toLowerCase();
     const dom = $("#domain").value;
-    const list = D.tasks.filter((t) => (!dom || t.domain === dom) && (!tierFilter || t.tier === tierFilter)
-      && (!q || `${t.id} ${t.object} ${t.instruction} ${t.domain}`.toLowerCase().includes(q)));
+    const list = D.tasks.filter((t) => (!dom || t.domain === dom) && goalMatch(t)
+      && (!q || `${t.id} ${t.instruction} ${t.workcell} ${t.domain} ${t.goals.join(" ")}`.toLowerCase().includes(q)));
     $("#taskCount").textContent = `Showing ${list.length} of ${D.tasks.length}`;
-    const head = `<thead><tr><th>#</th><th>Task</th><th>Domain</th><th>Tier</th><th class="num">Tol. (mm)</th><th class="num">Oracle L1</th></tr></thead>`;
-    const body = list.map((t) => `<tr class="task-row" tabindex="0" data-n="${t.n}" aria-expanded="false"><td>${String(t.n).padStart(3, "0")}</td><td>${esc(t.id)}</td><td>${esc(t.domain)}</td><td><span class="tag ${t.tier}">${TIER_LABEL[t.tier]}</span></td><td class="num">${t.tol_mm}</td><td class="num">${frac(t.oracle_nominal)}</td></tr>`).join("");
+    const head = `<thead><tr><th>#</th><th>Task</th><th>Domain</th><th>Workcell</th><th class="num">Goals</th><th class="num">Oracle L1</th></tr></thead>`;
+    const body = list.map((t) => `<tr class="task-row" tabindex="0" data-n="${t.n}" aria-expanded="false"><td>${String(t.n).padStart(3, "0")}</td><td>${esc(t.id)}</td><td>${esc(t.domain)}</td><td>${esc(t.workcell)}</td><td class="num">${t.goals.length}</td><td class="num">${frac(t.oracle.nominal)}</td></tr>`).join("");
     $("#taskTable").innerHTML = head + `<tbody>${body}</tbody>`;
   }
   function toggle(row) {
@@ -123,34 +122,26 @@
   $("#domain").addEventListener("change", renderTasks);
   renderTasks();
 
-  // ---------------------------------------------------------------- suites and calibration
+  // ---------------------------------------------------------------- suites and oracle ceiling
   $("#suiteTable").innerHTML = `<thead><tr><th>Suite</th><th>What changes</th></tr></thead><tbody>`
     + D.suites.map((s) => `<tr><td><b>${esc(s.name)}</b></td><td>${esc(s.desc)}</td></tr>`).join("") + `</tbody>`;
-  const masses = [...new Set(D.l4_sweep.filter((c) => c.mu !== "nominal").map((c) => c.mass))].sort((a, b) => a - b);
-  const mus = [...new Set(D.l4_sweep.filter((c) => c.mu !== "nominal").map((c) => c.mu))].sort((a, b) => Number(b) - Number(a));
+  const ceilSuites = SUITE_ORDER.filter((s) => V.ceiling[s]);
   const color = (r) => `hsl(${Math.round(8 + 150 * r)} 55% ${34 + 8 * r}%)`;
-  const cellOf = (mu, m) => D.l4_sweep.find((c) => c.mu === mu && c.mass === m);
   const heat = $("#heat");
-  heat.append(el("div", { className: "h" }, "&mu; \\ mass"), ...masses.map((m) => el("div", { className: "h" }, `&times;${m}`)));
-  mus.forEach((mu) => {
-    heat.append(el("div", { className: "r" }, `&mu; = ${mu}`));
-    masses.forEach((m) => {
-      const c = cellOf(mu, m);
-      const title = c ? `${pct(c.rate)}% (95% CI ${pct(c.ci[0])}–${pct(c.ci[1])}), ${c.episodes} episodes` : "";
-      heat.append(el("div", { className: "c", title, style: c ? `background:${color(c.rate)}` : "" }, c ? `${pct(c.rate, 0)}<small>${c.episodes} ep.</small>` : "–"));
+  const perSuite = ceilSuites.map((s) => `${V.episodes_per_task[s]} ${esc(suiteName[s] || s)}`).join(", ");
+  $("#ceilNote").innerHTML = ceilSuites.length ? ` (${perSuite} episodes per task; seeds disjoint from evaluation)` : " (no validation run yet)";
+  if (!ceilSuites.length) heat.hidden = true;
+  heat.style.gridTemplateColumns = `auto repeat(${Math.max(1, ceilSuites.length)}, 1fr)`;
+  heat.append(el("div", { className: "h" }, ""), ...ceilSuites.map((s) => el("div", { className: "h" }, esc(suiteName[s] || s))));
+  ["All", ...domains].forEach((d) => {
+    heat.append(el("div", { className: "r" }, esc(d)));
+    ceilSuites.forEach((s) => {
+      const c = V.ceiling[s][d];
+      const r = c && c[1] ? c[0] / c[1] : null;
+      heat.append(el("div", { className: "c", title: c ? `${c[0]}/${c[1]} episodes` : "", style: r == null ? "" : `background:${color(r)}` }, r == null ? "–" : `${pct(r, 1)}<small>${c[1]} ep.</small>`));
     });
   });
-  const nom = D.l4_sweep.find((c) => c.mu === "nominal");
-  if (nom) heat.insertAdjacentHTML("afterend", `<p class="note">Nominal parameters: ${pct(nom.rate)}% (${nom.episodes} episodes).</p>`);
-
-  // ---------------------------------------------------------------- dataset
-  const ds = D.dataset;
-  $("#dataKv").innerHTML = [
-    [ds.files, "files (one per task)"], [ds.demos.toLocaleString(), "demonstrations, 50 per task"],
-    [`${(ds.steps / 1e6).toFixed(2)}M`, "control steps at 20 Hz"], [`${Math.round(ds.bytes / 2 ** 30)} GiB`, "Robomimic HDF5"],
-    [`${ds.status.INVALID} errors`, `episode-level validation of all ${ds.demos.toLocaleString()} demos`],
-    [`${ds.replays_exact_step}/${ds.replays}`, "replays reach success at the recorded step"],
-  ].map(([b, s]) => `<div><b>${b}</b><span>${s}</span></div>`).join("");
+  if (V.ceiling.nominal) heat.insertAdjacentHTML("afterend", `<p class="note">Random and null policies: ${V.floors.random ?? 0}/${V.floor_episodes} and ${V.floors.null ?? 0}/${V.floor_episodes} nominal episodes. Start audit: ${V.resets.toLocaleString()} resets, ${V.goal_true_at_reset} with a goal already holding, ${V.start_fallbacks} falling back to a default layout.</p>`);
 
   // ---------------------------------------------------------------- footer
   $("#footer").innerHTML = `Numbers generated ${esc(D.generated.slice(0, 10))} from commit <code>${esc((D.commit || "").slice(0, 7))}</code>${D.dirty ? " (uncommitted changes)" : ""}, MuJoCo ${esc(D.mujoco)}. `
