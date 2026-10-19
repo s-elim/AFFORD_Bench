@@ -100,7 +100,7 @@ DATASET = ROOT / "datasets" / "industrial_bearing_press_nominal.hdf5"
 @pytest.mark.skipif(not DATASET.exists(), reason="released dataset not present (local check only)")
 def test_nominal_reset_still_reproduces_released_initial_states():
     with h5py.File(DATASET, "r") as f, headless():
-        env = afford_pro.make("industrial_bearing_press", perturbation_mode="nominal")
+        env = afford_pro.make("industrial_bearing_press", task_set="legacy", perturbation_mode="nominal")
         for key in ("demo_0", "demo_49"):
             demo = f["data"][key]
             env.reset(seed=int(demo.attrs["seed"]))

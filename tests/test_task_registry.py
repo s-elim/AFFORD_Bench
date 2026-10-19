@@ -25,7 +25,7 @@ def test_ids_and_numbers_are_unique_and_contiguous():
     numbers = [t.task_number for t in ALL_210_TASKS]
     assert len(ids) == len(set(ids)) == 210
     assert sorted(numbers) == list(range(1, 211))
-    assert afford_pro.list_tasks() == ids
+    assert afford_pro.list_tasks("legacy") == ids
 
 
 def test_seven_domains_of_thirty():
@@ -34,7 +34,7 @@ def test_seven_domains_of_thirty():
 
 
 def test_frontier_tasks_are_not_core():
-    assert not set(afford_pro.list_frontier_tasks()) & set(afford_pro.list_tasks())
+    assert not set(afford_pro.list_frontier_tasks()) & set(afford_pro.list_tasks("legacy"))
 
 
 @pytest.mark.parametrize("task", ALL_210_TASKS, ids=lambda t: t.task_id)
@@ -72,7 +72,7 @@ def test_every_task_has_grounding_flags():
 def test_tiers_partition_the_registry():
     members = {tier: set(tasks_in_tier(tier)) for tier in TIERS}
     assert sum(len(m) for m in members.values()) == 210
-    assert set().union(*members.values()) == set(afford_pro.list_tasks())
+    assert set().union(*members.values()) == set(afford_pro.list_tasks("legacy"))
     assert members["reach"] == {t.task_id for t in ALL_210_TASKS if t.task_type == "press_button"}
 
 

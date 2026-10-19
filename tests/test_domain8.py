@@ -67,7 +67,7 @@ def test_frontier_tasks_registered():
 @pytest.mark.parametrize("task_id", [t.task_id for t in DOMAIN_8_FRONTIER_TASKS])
 def test_not_solved_at_reset(task_id: str):
     """Verify no Domain 8 task is already solved at reset."""
-    env = afford_pro.make(task_id)
+    env = afford_pro.make(task_id, task_set="legacy")
     assert isinstance(env, FrontierComplexEnv)
     env.reset(seed=42)
     assert not env.check_success(), f"Task {task_id} must not be solved at reset"
@@ -80,7 +80,7 @@ def test_not_solved_at_reset(task_id: str):
 ])
 def test_null_policy_fails(task_id: str):
     """Null policy (holding open at rest) must score 0%."""
-    env = afford_pro.make(task_id)
+    env = afford_pro.make(task_id, task_set="legacy")
     env.reset(seed=100)
     for _ in range(50):
         _, _, term, _, _ = env.step(np.array([0, 0, 0, 0, 0, 0, 1.0]))
@@ -96,7 +96,7 @@ def test_null_policy_fails(task_id: str):
 ])
 def test_random_policy_fails(task_id: str):
     """Uniform random actions must score 0%."""
-    env = afford_pro.make(task_id)
+    env = afford_pro.make(task_id, task_set="legacy")
     env.reset(seed=101)
     rng = np.random.default_rng(101)
     for _ in range(50):
@@ -109,7 +109,7 @@ def test_random_policy_fails(task_id: str):
 
 def test_oracle_solves_reactive_perturbation():
     """Privileged closed-loop oracle reacts to 4 cm perturbation and solves the task."""
-    env = afford_pro.make("frontier_reactive_sort_red")
+    env = afford_pro.make("frontier_reactive_sort_red", task_set="legacy")
     oracle = afford_pro.get_oracle("frontier_reactive_sort_red", env)
     actions, _, _, dones = oracle.generate_episode(seed=0)
 
@@ -121,14 +121,14 @@ def test_oracle_solves_reactive_perturbation():
 def test_open_loop_replay_fails_under_perturbation():
     """Nominal open-loop plan misses the object and fails under mid-approach displacement."""
     # 1. Generate actions from unperturbed nominal environment
-    nom_env = afford_pro.make("frontier_reactive_sort_red")
+    nom_env = afford_pro.make("frontier_reactive_sort_red", task_set="legacy")
     nom_env.perturbation_step = None
     nom_oracle = afford_pro.get_oracle("frontier_reactive_sort_red", nom_env)
     nom_actions, _, _, _ = nom_oracle.generate_episode(seed=0)
     assert nom_env.check_success(), "Nominal trajectory must solve unperturbed task"
 
     # 2. Replay actions open-loop on perturbed environment
-    pert_env = afford_pro.make("frontier_reactive_sort_red")
+    pert_env = afford_pro.make("frontier_reactive_sort_red", task_set="legacy")
     pert_env.reset(seed=0)
     for a in nom_actions:
         pert_env.step(a)
@@ -164,7 +164,7 @@ def test_family_structure_matches_specification():
 
 def test_push_and_grasp_enforces_distance():
     """Non-prehensile pushing distance must be strictly satisfied for task success."""
-    env = afford_pro.make("frontier_nonprehensile_push_and_grasp")
+    env = afford_pro.make("frontier_nonprehensile_push_and_grasp", task_set="legacy")
     oracle = afford_pro.get_oracle("frontier_nonprehensile_push_and_grasp", env)
     actions, _, _, _ = oracle.generate_episode(seed=42)
 
@@ -174,7 +174,7 @@ def test_push_and_grasp_enforces_distance():
 
 def test_push_overhang_success():
     """Verify non-prehensile overhang push (Task 219) moves plate to target overhang without dropping it."""
-    env = afford_pro.make("frontier_push_thin_plate_overhang")
+    env = afford_pro.make("frontier_push_thin_plate_overhang", task_set="legacy")
     oracle = afford_pro.get_oracle("frontier_push_thin_plate_overhang", env)
     actions, _, _, _ = oracle.generate_episode(seed=42)
 
@@ -184,7 +184,7 @@ def test_push_overhang_success():
 
 def test_double_displacement_recovery():
     """Verify closed-loop oracle recovers from two sequential mid-trajectory perturbations (Task 240)."""
-    env = afford_pro.make("frontier_reactive_double_displacement")
+    env = afford_pro.make("frontier_reactive_double_displacement", task_set="legacy")
     oracle = afford_pro.get_oracle("frontier_reactive_double_displacement", env)
     actions, _, _, _ = oracle.generate_episode(seed=0)
 
@@ -195,7 +195,7 @@ def test_double_displacement_recovery():
 
 def test_goal_fixture_shift_recovery():
     """Verify closed-loop oracle adapts when the goal fixture shifts mid-transport (Task 238)."""
-    env = afford_pro.make("frontier_reactive_fixture_shift")
+    env = afford_pro.make("frontier_reactive_fixture_shift", task_set="legacy")
     oracle = afford_pro.get_oracle("frontier_reactive_fixture_shift", env)
     actions, _, _, _ = oracle.generate_episode(seed=0)
 
@@ -216,7 +216,7 @@ def test_family_c_registered():
     numbers = sorted(t.task_number for t in DOMAIN_8_FRONTIER_TASKS if t.task_type == "twist_lock")
     assert numbers == list(range(227, 234))
     for task_id in TWIST_TASKS:
-        env = afford_pro.make(task_id)
+        env = afford_pro.make(task_id, task_set="legacy")
         assert isinstance(env, TwistLockEnv)
         assert isinstance(afford_pro.get_oracle(task_id, env), TwistLockOracle)
         assert env.mechanism in TWIST_LOCK_MECHANISMS
@@ -227,7 +227,7 @@ def test_twist_lock_scene_is_contact_only():
     mechanism degree of freedom is a native slide or hinge joint (springs as joint stiffness)."""
     import mujoco
 
-    env = afford_pro.make("frontier_cap_push_turn_open")
+    env = afford_pro.make("frontier_cap_push_turn_open", task_set="legacy")
     m = env.model
     assert m.neq == 1 and m.eq_type[0] == mujoco.mjtEq.mjEQ_JOINT
     assert m.nmocap == 0
@@ -242,7 +242,7 @@ def test_twist_lock_scene_is_contact_only():
 
 def test_axial_force_is_spring_force():
     """F_z is read from the slide-joint spring force, k_c * dz."""
-    env = afford_pro.make("frontier_cap_push_turn_open")
+    env = afford_pro.make("frontier_cap_push_turn_open", task_set="legacy")
     env.reset(seed=0)
     env.data.qpos[env.press_qadr] = -0.011
     import mujoco
@@ -254,7 +254,7 @@ def test_axial_force_is_spring_force():
 @pytest.mark.parametrize("task_id", TWIST_TASKS)
 def test_twist_lock_null_and_random_fail(task_id: str):
     """Null and uniform-random policies never satisfy Phi_C."""
-    env = afford_pro.make(task_id)
+    env = afford_pro.make(task_id, task_set="legacy")
     for policy in ("null", "random"):
         env.reset(seed=7)
         rng = np.random.default_rng(7)
@@ -269,7 +269,7 @@ def test_twist_lock_oracle_success_rate():
     """The privileged oracle solves >= 95% of Family C episodes (TWIST_SEEDS reset seeds per task)."""
     outcomes = []
     for task_id in TWIST_TASKS:
-        env = afford_pro.make(task_id)
+        env = afford_pro.make(task_id, task_set="legacy")
         oracle = afford_pro.get_oracle(task_id, env)
         for seed in range(TWIST_SEEDS):
             oracle.generate_episode(seed=seed)
@@ -285,7 +285,7 @@ def test_twist_lock_oracle_success_rate():
 def test_under_threshold_press_cannot_turn(task_id: str):
     """Turning with an axial press below the threshold (5 mm commanded: nominally 10 N on the cap, 7.5 N on the bayonet) leaves
     the mechanism locked: the cap freewheels over the ratchet and the bayonet pin stops against the lock ceiling."""
-    env = afford_pro.make(task_id)
+    env = afford_pro.make(task_id, task_set="legacy")
     oracle = TwistLockOracle(env, press_depth=0.005)
     oracle.generate_episode(seed=0)
     assert not env.check_success()

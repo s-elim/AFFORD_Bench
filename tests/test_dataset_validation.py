@@ -16,7 +16,7 @@ T = 12
 
 @pytest.fixture(scope="module")
 def ctx():
-    return build_task_context(TASK, "nominal")
+    return build_task_context(TASK, "nominal", "legacy")
 
 
 def _episode(ctx, rng: np.random.Generator, T: int = T) -> dict:

@@ -115,9 +115,9 @@ def test_live_and_recorded_lowdim_features_agree():
     from afford_pro.envs.headless import headless
 
     task = "tabletop_sort_red"
-    ctx = build_task_context(task, "nominal")
+    ctx = build_task_context(task, "nominal", "legacy")
     with headless():
-        env = afford_pro.make(task)
+        env = afford_pro.make(task, task_set="legacy")
         obs, _ = env.reset(seed=5)
         live, image = env_inputs(obs, env, "lowdim")
         state = env.get_sim_state()
