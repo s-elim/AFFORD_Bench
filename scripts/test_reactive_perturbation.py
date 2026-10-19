@@ -16,6 +16,7 @@ grasp-and-lift success, and the number of steps after the displacement until the
 Usage:
   python scripts/test_reactive_perturbation.py --asset-dir <assets> --tasks tabletop_sort_red,industrial_pin_to_tray
 """
+# Deprecated legacy tool: runs the single-body legacy task set (task_set="legacy") to reproduce its evidence.
 from __future__ import annotations
 
 import argparse
@@ -181,8 +182,8 @@ def main() -> None:
                 f"open-loop replay (H={args.approach_steps})": args.approach_steps}
     results: list[Result] = []
     for task_id in args.tasks.split(","):
-        env = afford_pro.make(task_id, perturbation_mode="nominal")
-        scratch = afford_pro.make(task_id, perturbation_mode="nominal")
+        env = afford_pro.make(task_id, perturbation_mode="nominal", task_set="legacy")
+        scratch = afford_pro.make(task_id, perturbation_mode="nominal", task_set="legacy")
         oracle = afford_pro.get_oracle(task_id, env)
         for seed in range(args.seeds):
             for offset in offsets:

@@ -1,4 +1,5 @@
 """Generate publication-grade qualitative visualization figures for RSS 2027 paper across all 7 domains."""
+# Deprecated legacy tool: runs the single-body legacy task set (task_set="legacy") to reproduce its evidence.
 import sys
 from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
@@ -26,7 +27,7 @@ def render_observations():
     obs_dict = {}
     for domain_label, task_id, short_title in SELECTED_TASKS:
         print(f"Rendering {domain_label}: '{task_id}'...")
-        env = afford_pro.make(task_id, render_depth=True)
+        env = afford_pro.make(task_id, render_depth=True, task_set="legacy")
         obs, _ = env.reset(seed=42)
         
         # Get Workcell RGB, Wrist RGB, Depth

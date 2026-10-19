@@ -13,6 +13,7 @@ Performs comprehensive schema and physical signal validation across all generate
 3. Verifies numerical sanity (no NaNs, Infs, or flat zero arrays).
 4. Summarizes overall benchmark corpus statistics: total tasks, total demos, total steps, and storage footprint.
 """
+# Deprecated legacy tool: runs the single-body legacy task set (task_set="legacy") to reproduce its evidence.
 from __future__ import annotations
 
 import argparse
@@ -207,7 +208,7 @@ def main():
         return
 
     hdf5_files = sorted(list(data_dir.glob("*_nominal.hdf5")))
-    all_tasks = afford_pro.list_tasks()
+    all_tasks = afford_pro.list_tasks("legacy")
 
     print("\n" + "=" * 80, flush=True)
     print(" AFFORD-Bench DATASET INTEGRITY & PROTOCOL VERIFICATION", flush=True)
@@ -233,7 +234,7 @@ def main():
         task_id = fpath.stem.replace("_nominal", "")
         domain_name = "Unknown"
         try:
-            domain_name = afford_pro.get_task_entry(task_id).domain
+            domain_name = afford_pro.get_task_entry(task_id, "legacy").domain
         except Exception:
             pass
 

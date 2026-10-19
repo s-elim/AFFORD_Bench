@@ -143,7 +143,7 @@ def test_export_and_restore_fixed_initial_states(tmp_path: Path):
     assert loaded is not None and len(loaded) == 3
     assert loaded.dtype == np.float64
 
-    env = afford_pro.make(TASK)
+    env = afford_pro.make(TASK, task_set="legacy")  # the exporter is a legacy tool
     env.reset(seed=999)  # reset to a completely different seed
     # Now set to fixed initial state 1
     env.set_sim_state(loaded[1])

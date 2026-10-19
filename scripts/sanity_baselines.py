@@ -18,6 +18,7 @@ Usage:
   # Run one of n shards (merge the CSVs afterwards):
   python scripts/sanity_baselines.py --shard 0/4 --out part0.csv
 """
+# Deprecated legacy tool: runs the single-body legacy task set (task_set="legacy") to reproduce its evidence.
 from __future__ import annotations
 
 import argparse
@@ -100,7 +101,7 @@ def _rollout_sr(env, policy: str, episodes: int, horizon: int, seed: int) -> flo
 def _oracle_episodes(task_id: str, mode: str, episodes: int, seed: int) -> list[OracleEpisode]:
     import afford_pro
 
-    env = afford_pro.make(task_id, perturbation_mode=mode)
+    env = afford_pro.make(task_id, perturbation_mode=mode, task_set="legacy")
     oracle = afford_pro.get_oracle(task_id, env)
     records = []
     for ep in range(episodes):
@@ -118,8 +119,8 @@ def evaluate_task(task_id: str, episodes: int, oracle_episodes: int, horizon: in
                   episode_log: list[OracleEpisode] | None = None) -> TaskSanity:
     import afford_pro
 
-    entry = afford_pro.get_task_entry(task_id)
-    env = afford_pro.make(task_id, perturbation_mode="nominal")
+    entry = afford_pro.get_task_entry(task_id, "legacy")
+    env = afford_pro.make(task_id, perturbation_mode="nominal", task_set="legacy")
     body = env.target_id
 
     poses = []
@@ -174,7 +175,7 @@ def main() -> None:
     import afford_pro
     from afford_pro.provenance import provenance_json
 
-    task_ids = afford_pro.list_tasks() if args.tasks == "all" else args.tasks.split(",")
+    task_ids = afford_pro.list_tasks("legacy") if args.tasks == "all" else args.tasks.split(",")
     shard, n_shards = (int(x) for x in args.shard.split("/"))
     task_ids = task_ids[shard::n_shards]
     rows = []

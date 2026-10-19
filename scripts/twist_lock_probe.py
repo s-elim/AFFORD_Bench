@@ -8,6 +8,7 @@ cap threshold) to show that an under-loaded turn leaves the mechanism locked.
 Usage:
   python scripts/twist_lock_probe.py --seeds 21 --out docs/reviews/twist_lock_probe_2026-10-08.csv [--asset-dir <assets>]
 """
+# Deprecated legacy tool: runs the single-body legacy task set (task_set="legacy") to reproduce its evidence.
 from __future__ import annotations
 
 import argparse
@@ -64,7 +65,7 @@ def main() -> None:
     depth = PRESS_DEPTH if args.press_depth is None else args.press_depth
     rows: list[Row] = []
     for task_id in tasks:
-        env = afford_pro.make(task_id)
+        env = afford_pro.make(task_id, task_set="legacy")
         oracle = TwistLockOracle(env, press_depth=depth)
         for seed in range(args.seeds):
             actions, *_ = oracle.generate_episode(seed=seed)

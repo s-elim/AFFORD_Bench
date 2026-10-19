@@ -1,4 +1,5 @@
 """Policy Evaluation Harness for AFFORD-PRO-150 across In-Distribution and OOD Perturbations."""
+# Deprecated legacy tool: runs the single-body legacy task set (task_set="legacy") to reproduce its evidence.
 from __future__ import annotations
 
 import argparse
@@ -21,7 +22,7 @@ def run_evaluation(
     policy_type: str = "oracle",
     seed: int = 1000,
 ) -> dict:
-    env = afford_pro.make(task, perturbation_mode=perturbation)
+    env = afford_pro.make(task, perturbation_mode=perturbation, task_set="legacy")
     oracle = afford_pro.get_oracle(task, env)
 
     successes = []
@@ -54,7 +55,7 @@ def run_evaluation(
 
 
 def main():
-    available_tasks = afford_pro.list_tasks()
+    available_tasks = afford_pro.list_tasks("legacy")
     parser = argparse.ArgumentParser(description="Evaluate VLA models & policies on AFFORD-PRO-150.")
     parser.add_argument("--task", type=str, default="industrial_shaft_assembly", choices=available_tasks)
     parser.add_argument("--policy", type=str, default="oracle", choices=["oracle", "random"])
@@ -62,7 +63,7 @@ def main():
     parser.add_argument("--seed", type=int, default=2026)
     args = parser.parse_args()
 
-    entry = afford_pro.get_task_entry(args.task)
+    entry = afford_pro.get_task_entry(args.task, "legacy")
     splits = ["nominal", "p1_object", "p2_spatial", "p3_visual", "combined_ood"]
 
     print("\n================================================================================")

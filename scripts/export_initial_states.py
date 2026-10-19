@@ -8,6 +8,7 @@ Output format per task: data/init_states/{task_id}_init_states.npz containing:
   - 'seeds': (N,) int64 array of reset seeds used to generate the initial states
   - 'task_id': str
 """
+# Deprecated legacy tool: runs the single-body legacy task set (task_set="legacy") to reproduce its evidence.
 from __future__ import annotations
 
 import argparse
@@ -33,10 +34,10 @@ def export_task_initial_states(
     output_dir.mkdir(parents=True, exist_ok=True)
     out_file = output_dir / f"{task_id}_init_states.npz"
 
-    entry = afford_pro.get_task_entry(task_id)
+    entry = afford_pro.get_task_entry(task_id, "legacy")
     task_base_seed = base_seed + entry.task_number * 1000
 
-    env = afford_pro.make(task_id, perturbation_mode="nominal")
+    env = afford_pro.make(task_id, perturbation_mode="nominal", task_set="legacy")
     env.get_observation = lambda: {}
     states = []
     seeds = []
@@ -92,7 +93,7 @@ def main():
             "frontier": "Frontier Complex",
         }
         target_dom = domain_match[args.domain]
-        selected_tasks = [t for t in all_tasks if target_dom in afford_pro.get_task_entry(t).domain]
+        selected_tasks = [t for t in all_tasks if target_dom in afford_pro.get_task_entry(t, "legacy").domain]
 
     print("\n" + "=" * 80)
     print(f" AFFORD-Bench: INITIAL SIMULATOR STATE EXPORTER")

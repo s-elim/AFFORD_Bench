@@ -8,6 +8,7 @@ it moved (translation, mm) and turned (rotation, deg) relative to the hand.
 Usage:
   python scripts/l4_slip_probe.py --tasks tabletop_sort_red,kitchen_mug_return_bin --out slip.csv
 """
+# Deprecated legacy tool: runs the single-body legacy task set (task_set="legacy") to reproduce its evidence.
 from __future__ import annotations
 
 import argparse
@@ -79,7 +80,7 @@ def main() -> None:
     rows = []
     for task_id in args.tasks.split(","):
         for mode in ("nominal", "p4_physical"):
-            env = afford_pro.make(task_id, perturbation_mode=mode)
+            env = afford_pro.make(task_id, perturbation_mode=mode, task_set="legacy")
             for offset_mm in (float(x) for x in args.offsets_mm.split(",")):
                 for seed in range(args.seeds):
                     r = dict(task_id=task_id, mode=mode, offset_mm=offset_mm, seed=seed, grasped=False, held=False,

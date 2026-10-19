@@ -11,6 +11,7 @@ For each task (headless, no rendering) the audit records:
 Usage:
   python scripts/audit_tasks.py --out docs/roadmap/evidence/task_audit_2026-10-17.json --workers 4
 """
+# Deprecated legacy tool: runs the single-body legacy task set (task_set="legacy") to reproduce its evidence.
 from __future__ import annotations
 
 import argparse
@@ -86,9 +87,9 @@ def audit_task(task_id: str, resets: int) -> dict[str, Any]:
     from afford_pro.envs.headless import headless
     from afford_pro.task_tiers import task_tier
 
-    entry = afford_pro.get_task_entry(task_id)
+    entry = afford_pro.get_task_entry(task_id, "legacy")
     with headless():
-        env = afford_pro.make(task_id, perturbation_mode="nominal")
+        env = afford_pro.make(task_id, perturbation_mode="nominal", task_set="legacy")
         try:
             row: dict[str, Any] = {"task_number": entry.task_number, "task_id": task_id, "domain": entry.domain,
                                    "tier": task_tier(task_id), "task_type": env.task_type,
@@ -123,7 +124,7 @@ def main() -> None:
     import afford_pro
     from afford_pro.provenance import collect_provenance
 
-    tasks = afford_pro.list_tasks() if args.tasks == "all" else args.tasks.split(",")
+    tasks = afford_pro.list_tasks("legacy") if args.tasks == "all" else args.tasks.split(",")
     with ProcessPoolExecutor(max_workers=args.workers) as pool:
         rows = list(pool.map(audit_task, tasks, [args.resets] * len(tasks)))
     for r in rows:

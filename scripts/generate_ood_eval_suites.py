@@ -13,6 +13,7 @@ Usage Examples:
   # Generate Combined Multi-Axis OOD evaluation suite across all domains
   python scripts/generate_ood_eval_suites.py --domain all --perturbation combined_ood --num-demos 5
 """
+# Deprecated legacy tool: runs the single-body legacy task set (task_set="legacy") to reproduce its evidence.
 from __future__ import annotations
 
 import argparse
@@ -47,7 +48,7 @@ def main():
     parser.add_argument("--seed", type=int, default=9999)
     args = parser.parse_args()
 
-    all_task_ids = afford_pro.list_tasks()
+    all_task_ids = afford_pro.list_tasks("legacy")
     selected_tasks = []
 
     domain_match = {
@@ -61,7 +62,7 @@ def main():
     }
 
     for tid in all_task_ids:
-        entry = afford_pro.get_task_entry(tid)
+        entry = afford_pro.get_task_entry(tid, "legacy")
         if args.domain == "all":
             selected_tasks.append(tid)
         elif domain_match[args.domain] in entry.domain:
@@ -94,7 +95,7 @@ def main():
         print(f"\n--- Generating OOD Suite: '{p_split.upper()}' ---", flush=True)
 
         for idx, tid in enumerate(selected_tasks, 1):
-            entry = afford_pro.get_task_entry(tid)
+            entry = afford_pro.get_task_entry(tid, "legacy")
             print(f"[{idx:2d}/{len(selected_tasks):2d}] Task #{entry.task_number:03d}: '{tid}' [{entry.domain}]...", flush=True)
             c, s, d = generate_task_demos(
                 task_id=tid,

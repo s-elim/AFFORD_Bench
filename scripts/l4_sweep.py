@@ -8,6 +8,7 @@ show that the physical axis matters; this sweep finds where it starts to.
   python scripts/l4_sweep.py --tier core --mu 0.02,0.05,0.12,0.25 --mass 1.0,2.5,5.0 --seeds 3 --workers 8 \
       --out docs/roadmap/evidence/l4_sweep_2026-10-17.csv
 """
+# Deprecated legacy tool: runs the single-body legacy task set (task_set="legacy") to reproduce its evidence.
 from __future__ import annotations
 
 import argparse
@@ -31,7 +32,7 @@ def run_cell(task_id: str, mu: float | None, mass: float, seeds: int) -> list[di
     rows = []
     with headless():
         mode = "nominal" if mu is None and mass == 1.0 else "p4_physical"
-        env = afford_pro.make(task_id, perturbation_mode=mode)
+        env = afford_pro.make(task_id, perturbation_mode=mode, task_set="legacy")
         cfg = env.perturbation_engine.config
         if mode == "p4_physical":
             cfg.friction_range = (mu, mu) if mu is not None else (float("nan"), float("nan"))

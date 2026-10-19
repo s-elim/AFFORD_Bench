@@ -3,6 +3,7 @@
 Evaluates policies across all registered tasks and OOD perturbation splits,
 and generates a publication-ready Markdown results table.
 """
+# Deprecated legacy tool: runs the single-body legacy task set (task_set="legacy") to reproduce its evidence.
 from __future__ import annotations
 
 import argparse
@@ -26,10 +27,10 @@ def main():
     parser.add_argument("--seed", type=int, default=2026)
     args = parser.parse_args()
 
-    all_task_ids = afford_pro.list_tasks()
+    all_task_ids = afford_pro.list_tasks("legacy")
     selected_tasks = []
     for tid in all_task_ids:
-        entry = afford_pro.get_task_entry(tid)
+        entry = afford_pro.get_task_entry(tid, "legacy")
         if args.domain == "all":
             selected_tasks.append(tid)
         elif args.domain == "industrial" and "Industrial" in entry.domain:
@@ -53,12 +54,12 @@ def main():
     start_suite = time.monotonic()
 
     for idx, tid in enumerate(selected_tasks, start=1):
-        entry = afford_pro.get_task_entry(tid)
+        entry = afford_pro.get_task_entry(tid, "legacy")
         print(f"[{idx}/{len(selected_tasks)}] Evaluating Task #{entry.task_number:03d}: {tid} ({entry.domain})...")
 
         task_scores = {"task_id": tid, "domain": entry.domain, "number": entry.task_number}
         for split in splits:
-            env = afford_pro.make(tid, perturbation_mode=split)
+            env = afford_pro.make(tid, perturbation_mode=split, task_set="legacy")
             oracle = afford_pro.get_oracle(tid, env)
 
             successes = []

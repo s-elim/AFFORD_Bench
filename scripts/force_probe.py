@@ -5,6 +5,7 @@ the scene, excluding the manipulated body, exerts on the robot) over each episod
 
   python scripts/force_probe.py --episodes 1 --workers 8 --out docs/roadmap/evidence/force_probe_2026-10-17.csv
 """
+# Deprecated legacy tool: runs the single-body legacy task set (task_set="legacy") to reproduce its evidence.
 from __future__ import annotations
 
 import argparse
@@ -28,7 +29,7 @@ def probe_task(task_id: str, episodes: int) -> list[dict]:
 
     rows = []
     with headless():
-        env = afford_pro.make(task_id, perturbation_mode="nominal")
+        env = afford_pro.make(task_id, perturbation_mode="nominal", task_set="legacy")
         oracle = afford_pro.get_oracle(task_id, env)
         step = env.step
         peak = [0.0]
@@ -58,7 +59,7 @@ def main() -> None:
     import afford_pro
     from afford_pro.provenance import provenance_json
 
-    tasks = afford_pro.list_tasks()
+    tasks = afford_pro.list_tasks("legacy")
     with ProcessPoolExecutor(max_workers=args.workers) as pool:
         rows = [r for rs in pool.map(probe_task, tasks, [args.episodes] * len(tasks)) for r in rs]
     args.out.parent.mkdir(parents=True, exist_ok=True)
