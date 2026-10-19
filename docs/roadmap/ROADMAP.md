@@ -135,8 +135,8 @@ predicates over them, success = all predicates hold).
   support bodies.
 - T9.6 Validate every task against the gate (audit + oracle/null/random), iterate until all 210 pass.
 - T9.7 Regenerate `configs/prompts_augmented.yaml` from the new definitions.
-- T9.8 Generate all 10,500 demonstrations (`datasets/`, after the legacy files are moved out); old data kept until the authors
-  delete it. Validate every episode; replay must be exact.
+- T9.8 Generate all 10,500 demonstrations into `datasets/` (the legacy files were deleted on 2026-10-20 at the
+  authors' request). Validate every episode; replay must be exact.
 - T9.9 Update paper, page, dataset card, and the leaderboard references; GPU baselines run on the authors' server.
 
 **As built (2026-10-18):** `T9_TASK_REDESIGN.md` (design, decisions), `T9_TASK_TABLE.md` (all 210 definitions with

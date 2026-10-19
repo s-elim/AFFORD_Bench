@@ -58,17 +58,19 @@ Last updated: 2026-10-17, end of session 1 (stopped at the usage limit). Verdict
   through their support on release in 0.5-1.6% of perturbed episodes (A-42; two fixes rejected, E-018).
 - Decisions taken (authors' standing instructions): licence MIT; baselines trained by the authors on their GPU server;
   dataset generation deferred by the authors.
+- 2026-10-20 (authors' request): the legacy datasets were deleted permanently (210 files, 460.6 GB, and the 7-file
+  `datasets/archive_oct03_audit_evidence/`, 18 GB; D: now has 1.6 TB free). Their validation reports (E-002, E-007)
+  stay in `evidence/`, but those files can no longer be re-checked.
 
 ## Decisions required from the authors
 - D9 Generate `datasets/` for the benchmark (210 tasks x 50 demos with images), deferred. Estimate from the
   validation episode lengths and two pilot files: about 2.0 M steps and 750 GB at the current image sizes (legacy:
-  1.23 M steps, 461 GB; D: has 1.2 TB free), about 3-4 h on 16 CPU workers. Smaller images (e.g. 256 px, LIBERO uses
-  128 px) would cut the size about tenfold but change the observation spec. The legacy files in `datasets/` must be
-  moved out (or deleted) first; moving or deleting them needs the authors' approval.
+  1.23 M steps, 461 GB; D: has 1.6 TB free), about 3-4 h on 16 CPU workers. Smaller images (e.g. 256 px, LIBERO uses
+  128 px) would cut the size about tenfold but change the observation spec.
 - D11 The paper source is untracked from now on but remains in the public git history of earlier pushes; removing it
   needs a history rewrite and force push (approval required).
-- Archive (18 GB) and old checkpoints may be deleted only with approval. The Pages URL contains the GitHub user name
-  (double-blind risk for the RSS submission): use an anonymous mirror for any link in the paper.
+- Old checkpoints may be deleted only with approval. The Pages URL contains the GitHub user name (double-blind risk
+  for the RSS submission): use an anonymous mirror for any link in the paper.
 
 ## Open technical items
 - LeRobot policy adapter for evaluation (needed for reference Diffusion Policy/ACT).

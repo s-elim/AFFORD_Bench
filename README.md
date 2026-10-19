@@ -121,8 +121,8 @@ tests/                 unit tests
 docs/                  project page, dataset card, baseline runbook, roadmap and evidence
 ```
 
-The earlier single-body task set and its 2026-10 files are deprecated; they remain loadable with
-`afford_pro.make(task_id, task_set="legacy")` only to read and replay those files.
+The earlier single-body task set is deprecated; its code remains reachable with
+`afford_pro.make(task_id, task_set="legacy")` only to read and replay files written for it.
 
 ## Citation
 

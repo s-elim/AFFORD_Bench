@@ -18,8 +18,8 @@ python scripts/generate_all_150_tasks.py --num-demos 50
 python scripts/validate_datasets.py --data-dir datasets --replay-per-file 3 --workers 16 --out-dir results/validation
 ```
 Every file records its task set, provenance and the step-by-step instruction derived from its goals; replays must
-reproduce every recorded state exactly (the validator reports any deviation as an error). Files of the deprecated
-legacy task set must be moved out of `datasets/` first: the generator refuses to overwrite them.
+reproduce every recorded state exactly (the validator reports any deviation as an error). The generator refuses to
+overwrite a file of another task set, so keep any file of the deprecated legacy set outside `datasets/`.
 
 ## 3. Train (3 seeds per method)
 ```bash

@@ -40,6 +40,6 @@ Imitation learning and offline RL, with evaluation through `scripts/evaluate_pol
 paper's Stage 2 charter.
 
 ## Deprecated files
-The earlier single-body task set's 2026-10 files (`datasets/*.hdf5` without a task-set record) belong to the
-deprecated legacy tasks; move them out of `datasets/` before generating, since the generator refuses to overwrite a
-file of another task set.
+The earlier single-body task set's 2026-10 files (210 files, 460.6 GB, plus a 7-file archive, 18 GB) were deleted on
+2026-10-20 at the authors' request; they were never hosted. The generator refuses to overwrite a file of another task
+set, so any copy of them must be kept outside `datasets/`.
