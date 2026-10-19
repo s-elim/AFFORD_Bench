@@ -1,0 +1,81 @@
+"""Domain 4, Laboratory & Life Sciences (tasks 91-120): tube transfers, the centrifuge (rotor, lid, start button),
+pipette handling and positioning, touching caps, and wiping the bench."""
+from __future__ import annotations
+
+from afford_pro.bench.spec import GripperAbove, HeldOver, Lifted, On, Placed, Pressed, Slid, Slots, Touching
+from afford_pro.bench.tasks._build import FIXED_POINT, task
+
+LAB = "lab_science"
+LID_ON = {"centrifuge_lid": Placed("centrifuge_top")}
+IN_CENTRIFUGE = {"micro_tube": Placed("centrifuge_slot")}
+HOVER_VS_REST = "the legacy task asked to hold the pipette over the target but scored it standing released; now it must be held"
+WASTE_TILT = 180.0  # anything in the waste bin counts, in any orientation
+UNMARKED = "the legacy task's goal was an unmarked bench point; it is now the blue pipette pad"
+
+TASKS = [
+    task(91, "lab_conical_to_orange_rack", LAB, "Move the conical tube from the blue rack to the orange rack.",
+         On("conical_tube", "rack_b_conical")),
+    task(92, "lab_micro_to_centrifuge", LAB, "Load the micro tube into the centrifuge rotor.",
+         On("micro_tube", "centrifuge_slot")),
+    task(93, "lab_pipette_lift", LAB, "Lift the micropipette 10 cm straight up and hold it upright.",
+         Lifted("micropipette", 0.10), change="the legacy task scored the pipette at a fixed point; the lift itself is now the goal"),
+    task(94, "lab_pipette_over_plate", LAB, "Hold the micropipette with its tip 2 cm above the microplate.",
+         HeldOver("micropipette", "microplate", 0.02), change=HOVER_VS_REST),
+    task(95, "lab_micro_to_orange_rack", LAB, "Put the micro tube in the orange rack.",
+         On("micro_tube", "rack_b_micro"), starts={"micro_tube": Slots(("rack_a_1", "centrifuge_slot"))}),
+    task(96, "lab_conical_to_blue_rack", LAB, "Put the conical tube back in the middle hole of the blue rack.",
+         On("conical_tube", "rack_a_2"), starts={"conical_tube": Placed("rack_b_conical")}),
+    task(97, "lab_micro_centrifuge_to_blue_rack", LAB,
+         "Take the micro tube out of the centrifuge and put it in the blue rack.",
+         On("micro_tube", "rack_a_1"), starts=IN_CENTRIFUGE),
+    task(98, "lab_pipette_to_pad", LAB, "Put the micropipette on the blue pipette pad.",
+         On("micropipette", "pipette_pad"), change=UNMARKED),
+    task(99, "lab_centrifuge_start", LAB, "Press the start button of the centrifuge.",
+         Pressed("centrifuge_start"), change="the legacy task scored hovering at a point; a latching start button was added"),
+    task(100, "lab_centrifuge_lid_on", LAB, "Put the lid on the centrifuge.",
+         On("centrifuge_lid", "centrifuge_top", tol_xy=0.006), change=f"{FIXED_POINT}; a centrifuge lid was added"),
+    task(101, "lab_micro_to_waste", LAB, "Throw the micro tube into the waste bin.",
+         On("micro_tube", "waste_bin", tilt_deg=WASTE_TILT), change=f"{FIXED_POINT}; a waste bin was added"),
+    task(102, "lab_conical_to_waste", LAB, "Throw the conical tube into the waste bin.",
+         On("conical_tube", "waste_bin", tilt_deg=WASTE_TILT), change=f"{FIXED_POINT}; a waste bin was added"),
+    task(103, "lab_conical_to_pad", LAB, "Stand the conical tube on the blue pipette pad.",
+         On("conical_tube", "pipette_pad"), change=UNMARKED),
+    task(104, "lab_micro_centrifuge_to_orange_rack", LAB, "Move the micro tube from the centrifuge to the orange rack.",
+         On("micro_tube", "rack_b_micro"), starts=IN_CENTRIFUGE, change=UNMARKED),
+    task(105, "lab_conical_to_empty_hole", LAB, "Move the conical tube to the empty hole of the blue rack.",
+         On("conical_tube", "rack_a_3"),
+         starts={"conical_tube": Placed("rack_a_2"), "micro_tube": Placed("rack_a_1")},
+         change="the legacy task named slot numbers the rack does not show; the target is the rack's only empty hole"),
+    task(106, "lab_pipette_over_conical", LAB, "Hold the micropipette with its tip 1 cm above the conical tube.",
+         HeldOver("micropipette", "conical_tube", 0.01), change=HOVER_VS_REST),
+    task(107, "lab_press_pipette_plunger", LAB, "Press lightly on the plunger at the top of the micropipette.",
+         Touching("micropipette"),
+         change="the legacy task scored a fixed point above the pipette's nominal start; the fingertips must now touch its top"),
+    task(108, "lab_hover_micro_tube", LAB, "Hold the gripper 10 cm above the micro tube.",
+         GripperAbove("micro_tube", 0.10), change=FIXED_POINT),
+    task(109, "lab_wipe_bench", LAB, "Wipe the bench with the sponge: slide it onto the green mark without lifting it.",
+         Slid("sponge", "green_mark"), change="the legacy task scored hovering over a point; a sponge and a marked lane were added"),
+    task(110, "lab_sponge_to_waste", LAB, "Throw the sponge into the waste bin.",
+         On("sponge", "waste_bin", tilt_deg=WASTE_TILT), change=f"{FIXED_POINT}; a sponge and a waste bin were added"),
+    task(111, "lab_conical_orange_rack_to_pad", LAB, "Move the conical tube from the orange rack to the blue pipette pad.",
+         On("conical_tube", "pipette_pad"), starts={"conical_tube": Placed("rack_b_conical")}, change=UNMARKED),
+    task(112, "lab_micro_to_pad", LAB, "Stand the micro tube on the blue pipette pad.",
+         On("micro_tube", "pipette_pad"), change=UNMARKED),
+    task(113, "lab_pipette_over_micro", LAB, "Hold the micropipette with its tip 1 cm above the micro tube.",
+         HeldOver("micropipette", "micro_tube", 0.01), change=HOVER_VS_REST),
+    task(114, "lab_pipette_over_centrifuge_tube", LAB,
+         "Hold the micropipette with its tip 1 cm above the micro tube in the centrifuge.",
+         HeldOver("micropipette", "micro_tube", 0.01), starts=IN_CENTRIFUGE, change=HOVER_VS_REST),
+    task(115, "lab_touch_lid_knob", LAB, "Touch the knob of the centrifuge lid with the closed gripper.",
+         Touching("centrifuge_lid"), starts=LID_ON, change=f"{FIXED_POINT}; a centrifuge lid was added"),
+    task(116, "lab_start_closed_centrifuge", LAB, "Start the closed centrifuge: press its start button.",
+         Pressed("centrifuge_start"), starts=LID_ON, change=FIXED_POINT),
+    task(117, "lab_touch_conical_cap", LAB, "Touch the cap of the conical tube with the closed gripper.",
+         Touching("conical_tube"), change="the legacy task scored a fixed point above the tube; the fingertips must now touch its cap"),
+    task(118, "lab_press_micro_cap", LAB, "Press lightly on the cap of the micro tube.",
+         Touching("micro_tube"), change="the legacy task scored a fixed point above the tube; the fingertips must now touch its cap"),
+    task(119, "lab_hover_conical_tube", LAB, "Hold the gripper 10 cm above the conical tube.",
+         GripperAbove("conical_tube", 0.10), change=FIXED_POINT),
+    task(120, "lab_lift_conical", LAB, "Lift the conical tube 10 cm out of the blue rack and hold it.",
+         Lifted("conical_tube", 0.10), change=FIXED_POINT),
+]

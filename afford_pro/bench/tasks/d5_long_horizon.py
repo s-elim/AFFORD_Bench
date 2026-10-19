@@ -1,0 +1,138 @@
+"""Domain 5, long-horizon tasks (121-150): chains of 2-5 steps; the episode succeeds only when every step's goal holds
+(waypoints marked `once` must have held, in order)."""
+from __future__ import annotations
+
+from afford_pro.bench.spec import Closed, HeldOver, On, Placed, Pressed, Slid
+from afford_pro.bench.tasks._build import CHAIN_ENDED_EARLY, NOT_SIMULABLE, task
+
+IND, BURGER, COFFEE, LAB, TT = "industrial_assembly", "kitchen_burger", "kitchen_coffee", "lab_science", "tabletop_sorting"
+SHAFT_IN_JIG = {"machined_shaft": Placed("jig_bore")}
+BUN_ON_BOARD = {"bottom_bun": Placed("assembly_board")}
+PIN_FIRST = ("the pin goes in before the gear: with the gear on the shaft the gripper palm cannot reach the pin hole")
+
+TASKS = [
+    task(121, "long_horizon_transmission_assembly", IND,
+         "Assemble the transmission: seat the shaft in the jig bore, insert the dowel pin into the pin hole, then slide "
+         "the spur gear onto the shaft.",
+         On("machined_shaft", "jig_bore"), On("dowel_pin", "jig_pin_hole"), On("spur_gear", "machined_shaft"),
+         change=f"{CHAIN_ENDED_EARLY}; {PIN_FIRST}"),
+    task(122, "long_horizon_pin_gear_subassembly", IND,
+         "Insert the dowel pin into the pin hole of the jig, then slide the spur gear onto the shaft.",
+         On("dowel_pin", "jig_pin_hole"), On("spur_gear", "machined_shaft"), starts=SHAFT_IN_JIG,
+         change=f"{CHAIN_ENDED_EARLY}; {PIN_FIRST}"),
+    task(123, "long_horizon_shaft_to_qa", IND,
+         "Move the shaft from the jig to the green compartment of the pallet, then press the green start button.",
+         On("machined_shaft", "pallet_green"), Pressed("cycle_start"), starts=SHAFT_IN_JIG, order=((0, 1),),
+         change=f"{CHAIN_ENDED_EARLY}; the optical scan trigger is the start button"),
+    task(124, "long_horizon_cheeseburger_base", BURGER,
+         "Put the patty on the bottom bun on the cutting board, then put the cheese slice on the patty.",
+         On("burger_patty", "bottom_bun"), On("cheese_slice", "burger_patty"), starts=BUN_ON_BOARD,
+         change=CHAIN_ENDED_EARLY),
+    task(125, "long_horizon_classic_burger", BURGER,
+         "Build the burger on the bottom bun on the cutting board: patty, then cheese, then tomato, then the top bun.",
+         On("burger_patty", "bottom_bun"), On("cheese_slice", "burger_patty"), On("tomato_slice", "cheese_slice"),
+         On("top_bun", "tomato_slice"), starts=BUN_ON_BOARD, change=CHAIN_ENDED_EARLY),
+    task(126, "long_horizon_burger_on_plate", BURGER,
+         "Build a burger on the dining plate: put the bottom bun on the plate, the patty on the bun, then the top bun on "
+         "the patty.",
+         On("bottom_bun", "dining_plate"), On("burger_patty", "bottom_bun"), On("top_bun", "burger_patty"),
+         change="the legacy task carried a finished burger by its bottom bun, which the gripper palm cannot reach; the burger is "
+                "built on the plate instead"),
+    task(127, "long_horizon_espresso_service", COFFEE,
+         "Put the mug on the drip tray, press the brew button, then move the mug to the serving tray.",
+         On("coffee_mug", "drip_tray", once=True), Pressed("brew"), On("coffee_mug", "serving_tray"),
+         order=((0, 1), (1, 2)), change=CHAIN_ENDED_EARLY),
+    task(128, "long_horizon_capsule_brew", COFFEE,
+         "Put the gold coffee capsule into the capsule slot, then press the brew button.",
+         On("coffee_pod", "capsule_slot"), Pressed("brew"), order=((0, 1),), change=CHAIN_ENDED_EARLY),
+    task(129, "long_horizon_sort_all_blocks", TT, "Put each block in the bin of its color.",
+         On("red_block", "red_bin"), On("green_block", "green_bin"), On("blue_block", "blue_bin"),
+         change=CHAIN_ENDED_EARLY),
+    task(130, "long_horizon_dual_bin_sort", TT, "Put the red block in the red bin and the blue block in the blue bin.",
+         On("red_block", "red_bin"), On("blue_block", "blue_bin"), change=CHAIN_ENDED_EARLY),
+    task(131, "long_horizon_pipette_tube_to_plate", LAB,
+         "Hold the micropipette tip 1 cm above the conical tube, then hold it 2 cm above the microplate.",
+         HeldOver("micropipette", "conical_tube", 0.01, once=True), HeldOver("micropipette", "microplate", 0.02),
+         order=((0, 1),), change=f"{NOT_SIMULABLE}: aspirating and dispensing become positioning the tip over the "
+                                 "source and the destination"),
+    task(132, "long_horizon_centrifuge_run", LAB,
+         "Load the micro tube into the centrifuge, put the lid on, then press the start button.",
+         On("micro_tube", "centrifuge_slot"), On("centrifuge_lid", "centrifuge_top", tol_xy=0.006),
+         Pressed("centrifuge_start"), order=((1, 2),), change=CHAIN_ENDED_EARLY),
+    task(133, "long_horizon_tube_serial_transfer", LAB,
+         "Move the conical tube to the orange rack, then load the micro tube into the centrifuge.",
+         On("conical_tube", "rack_b_conical"), On("micro_tube", "centrifuge_slot"), change=CHAIN_ENDED_EARLY),
+    task(134, "long_horizon_kit_transmission", IND,
+         "Kit the shaft into the red compartment, the spur gear into the yellow compartment and the dowel pin into the "
+         "green compartment of the pallet.",
+         On("machined_shaft", "pallet_red"), On("spur_gear", "pallet_yellow"), On("dowel_pin", "pallet_green"),
+         change=CHAIN_ENDED_EARLY),
+    task(135, "long_horizon_breakfast_tray", COFFEE, "Put the mug and the gold coffee capsule on the serving tray.",
+         On("coffee_mug", "tray_left"), On("coffee_pod", "tray_right"), change=CHAIN_ENDED_EARLY),
+    task(136, "long_horizon_plate_and_wipe", BURGER,
+         "Put the patty on the dining plate, then wipe the counter by sliding the sponge onto the green mark.",
+         On("burger_patty", "dining_plate"), Slid("sponge", "green_mark"),
+         change=f"{CHAIN_ENDED_EARLY}; wiping is sliding the sponge along a marked lane"),
+    task(137, "long_horizon_seat_and_clamp", IND, "Seat the shaft in the jig bore, then close the vise jaw.",
+         On("machined_shaft", "jig_bore"), Closed("vise"), order=((0, 1),), change=CHAIN_ENDED_EARLY),
+    task(138, "long_horizon_disassembly", IND,
+         "Disassemble the jig: put the spur gear on the feeder spindle, the dowel pin in the feeder cup, then the shaft "
+         "in the inbound tray.",
+         On("spur_gear", "feeder_spindle"), On("dowel_pin", "feeder_cup"), On("machined_shaft", "inbound_tray"),
+         starts={**SHAFT_IN_JIG, "dowel_pin": Placed("jig_pin_hole"), "spur_gear": Placed("machined_shaft")},
+         change=f"{CHAIN_ENDED_EARLY}; the gear comes off first because it blocks the pin"),
+    task(139, "long_horizon_block_tower", TT,
+         "Build a tower: put the green cylinder on the blue block, then the red block on the green cylinder.",
+         On("green_block", "blue_block"), On("red_block", "green_block"), change=CHAIN_ENDED_EARLY),
+    task(140, "long_horizon_cheeseburger", BURGER,
+         "Put the patty on the bottom bun on the cutting board, the cheese slice on the patty, then the top bun on the "
+         "cheese.",
+         On("burger_patty", "bottom_bun"), On("cheese_slice", "burger_patty"), On("top_bun", "cheese_slice"),
+         starts=BUN_ON_BOARD, change=f"{CHAIN_ENDED_EARLY}; the legacy task's coffee step is in another scene"),
+    task(141, "long_horizon_waste_and_wipe", LAB,
+         "Throw the conical tube into the waste bin, then wipe the bench by sliding the sponge onto the green mark.",
+         On("conical_tube", "waste_bin", tilt_deg=180.0), Slid("sponge", "green_mark"), change=CHAIN_ENDED_EARLY),
+    task(142, "long_horizon_qa_rework", IND,
+         "Take the shaft out of the red compartment of the pallet, seat it in the jig bore, then press the green start "
+         "button.",
+         On("machined_shaft", "jig_bore"), Pressed("cycle_start"), starts={"machined_shaft": Placed("pallet_red")},
+         order=((0, 1),), change=CHAIN_ENDED_EARLY),
+    task(143, "long_horizon_bin_swap", TT,
+         "Swap the blocks between the bins: put the red block in the blue bin and the blue block in the red bin.",
+         On("red_block", "blue_bin_a"), On("blue_block", "red_bin_a"),
+         starts={"red_block": Placed("red_bin_b"), "blue_block": Placed("blue_bin_b")}, change=CHAIN_ENDED_EARLY),
+    task(144, "long_horizon_clear_board", BURGER,
+         "Clear the cutting board: put the top bun back in its caddy slot and the cheese slice back in its tray "
+         "compartment, then wipe the counter with the sponge onto the green mark.",
+         On("top_bun", "caddy_rear"), On("cheese_slice", "topping_rear"), Slid("sponge", "green_mark"),
+         starts={"top_bun": Placed("board_left"), "cheese_slice": Placed("board_right")}, change=CHAIN_ENDED_EARLY),
+    task(145, "long_horizon_spin_and_return", LAB,
+         "Load the micro tube into the centrifuge and press the start button, then put the micro tube back in the blue "
+         "rack.",
+         On("micro_tube", "centrifuge_slot", once=True), Pressed("centrifuge_start"), On("micro_tube", "rack_a_1"),
+         starts={"micro_tube": Placed("rack_a_1")}, order=((0, 1), (1, 2)),
+         change=f"{CHAIN_ENDED_EARLY}; a conical tube does not fit the rotor, so the micro tube is spun"),
+    task(146, "long_horizon_cell_startup", IND,
+         "Press the green start button, then move the shaft from the red compartment of the pallet into the jig bore.",
+         Pressed("cycle_start"), On("machined_shaft", "jig_bore"), starts={"machined_shaft": Placed("pallet_red")},
+         order=((0, 1),), change=CHAIN_ENDED_EARLY),
+    task(147, "long_horizon_plated_cheeseburger", BURGER,
+         "Build a cheeseburger on the dining plate: bottom bun, patty, cheese slice, then the top bun.",
+         On("bottom_bun", "dining_plate"), On("burger_patty", "bottom_bun"), On("cheese_slice", "burger_patty"),
+         On("top_bun", "cheese_slice"), change=CHAIN_ENDED_EARLY),
+    task(148, "long_horizon_tidy_table", TT, "Tidy the table: put each block in the bin of its color, then close the drawer.",
+         On("red_block", "red_bin"), On("green_block", "green_bin"), On("blue_block", "blue_bin"), Closed("drawer"),
+         order=((0, 3), (1, 3), (2, 3)), change=f"{CHAIN_ENDED_EARLY}; parking the arm is replaced by closing the drawer"),
+    task(149, "long_horizon_pipette_round_trip", LAB,
+         "Hold the micropipette tip 1 cm above the conical tube, then 2 cm above the microplate, then put the pipette on "
+         "the blue pad.",
+         HeldOver("micropipette", "conical_tube", 0.01, once=True),
+         HeldOver("micropipette", "microplate", 0.02, once=True), On("micropipette", "pipette_pad"),
+         order=((0, 1), (1, 2)), change=f"{NOT_SIMULABLE}; dilution steps become tip positioning"),
+    task(150, "long_horizon_grand_assembly", IND,
+         "Assemble and release: seat the shaft in the jig bore, insert the dowel pin, slide the spur gear onto the "
+         "shaft, put the hex nut on the threaded stud, then press the green start button.",
+         On("machined_shaft", "jig_bore"), On("dowel_pin", "jig_pin_hole"), On("spur_gear", "machined_shaft"),
+         On("hex_nut", "threaded_stud"), Pressed("cycle_start"), order=((0, 4), (1, 4), (2, 4), (3, 4)),
+         change=f"{CHAIN_ENDED_EARLY}; the legacy task named no concrete steps"),
+]
