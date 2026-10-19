@@ -56,3 +56,6 @@ libero_pro_full_text.txt
 *.tmp
 scratch/
 
+
+# Paper source and drafts (kept local, not published)
+AFFORD-Bench_RSS'27/
