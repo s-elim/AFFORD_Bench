@@ -48,18 +48,24 @@ def sha256_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def _git(*args: str) -> str | None:
+def _git_raw(*args: str) -> str | None:
     try:
         out = subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True, text=True, timeout=30, check=True)
     except (OSError, subprocess.SubprocessError):
         return None
-    return out.stdout.strip()
+    return out.stdout
+
+
+def _git(*args: str) -> str | None:
+    out = _git_raw(*args)
+    return None if out is None else out.strip()
 
 
 def git_state() -> dict[str, Any]:
     """Commit, branch, and whether tracked files differ from the commit (a dirty tree cannot be re-checked out)."""
-    status = _git("status", "--porcelain", "--untracked-files=no")
-    modified = sorted(line[3:] for line in status.splitlines()) if status else []
+    # Unstripped: porcelain lines start with a two-letter status that may begin with a space.
+    status = _git_raw("status", "--porcelain", "--untracked-files=no")
+    modified = sorted(line[3:] for line in status.splitlines() if line.strip()) if status else []
     return {
         "commit": _git("rev-parse", "HEAD"),
         "branch": _git("rev-parse", "--abbrev-ref", "HEAD"),
