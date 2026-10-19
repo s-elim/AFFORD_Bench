@@ -1,0 +1,326 @@
+{
+ "settings": {
+  "checkpoint": "None",
+  "policy": "oracle",
+  "task": "industrial_fuse_clips,industrial_kit_shaft_red,kitchen_cheese_on_patty,kitchen_mug_return_bin,kitchen_tomato_to_topping_tray,tabletop_blue_to_red_bin,tabletop_red_in_drawer,lab_micro_to_centrifuge,lab_micro_centrifuge_to_orange_rack,lab_start_closed_centrifuge,long_horizon_capsule_brew,long_horizon_cheeseburger,chain_bearing_then_gear,chain_gear_spindle_bearing_shaft,chain_gear_spindle_bearing_pallet,service_lettuce_tomato_board,service_open_sandwich_plate",
+  "domain": "all",
+  "tier": "None",
+  "suites": "nominal,p1_object,p2_spatial,p3_visual,p4_physical,combined_ood",
+  "episodes": "5",
+  "task_set": "bench",
+  "horizon": "None",
+  "seed_base": "200000",
+  "replan": "None",
+  "use_init_states": "False",
+  "device": "cpu",
+  "out_dir": "D:\\Selim Sarowar\\Cursor_Projects\\AFFORD-Bench\\docs\\roadmap\\evidence\\leaderboard_2026-10-19\\oracle_s08"
+ },
+ "checkpoint_sha256": null,
+ "provenance": {
+  "timestamp_utc": "2026-10-19T08:41:57+00:00",
+  "command": [
+   "scripts/evaluate_policy_suite.py",
+   "--policy",
+   "oracle",
+   "--task",
+   "industrial_fuse_clips,industrial_kit_shaft_red,kitchen_cheese_on_patty,kitchen_mug_return_bin,kitchen_tomato_to_topping_tray,tabletop_blue_to_red_bin,tabletop_red_in_drawer,lab_micro_to_centrifuge,lab_micro_centrifuge_to_orange_rack,lab_start_closed_centrifuge,long_horizon_capsule_brew,long_horizon_cheeseburger,chain_bearing_then_gear,chain_gear_spindle_bearing_shaft,chain_gear_spindle_bearing_pallet,service_lettuce_tomato_board,service_open_sandwich_plate",
+   "--suites",
+   "nominal,p1_object,p2_spatial,p3_visual,p4_physical,combined_ood",
+   "--episodes",
+   "5",
+   "--out-dir",
+   "D:\\Selim Sarowar\\Cursor_Projects\\AFFORD-Bench\\docs\\roadmap\\evidence\\leaderboard_2026-10-19\\oracle_s08"
+  ],
+  "python": "3.13.5",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+   "mujoco": "3.5.0",
+   "numpy": "2.2.6",
+   "h5py": "3.12.1",
+   "gymnasium": "1.3.0",
+   "torch": "2.10.0+cpu",
+   "scipy": "1.18.1"
+  },
+  "git": {
+   "commit": "584cd3367c2c835fdbaa82ba5937aa1d963b033d",
+   "branch": "main",
+   "dirty": true,
+   "modified_tracked_files": [
+    "README.md",
+    "docs/BASELINE_RUNBOOK.md",
+    "docs/DATASET_CARD.md",
+    "docs/index.html",
+    "docs/roadmap/AUDIT_REPORT.md",
+    "docs/roadmap/EXPERIMENT_LOG.md",
+    "docs/roadmap/PROGRESS.md",
+    "docs/roadmap/ROADMAP.md",
+    "docs/roadmap/T9_TASK_REDESIGN.md",
+    "docs/site/app.js",
+    "docs/site/data.js",
+    "docs/site/style.css",
+    "scripts/audit_tasks.py",
+    "scripts/build_site_data.py",
+    "scripts/evaluate_policy.py",
+    "scripts/export_initial_states.py",
+    "scripts/force_probe.py",
+    "scripts/generate_ood_eval_suites.py",
+    "scripts/generate_paper_figures.py",
+    "scripts/l4_slip_probe.py",
+    "scripts/l4_sweep.py",
+    "scripts/run_benchmark_suite.py",
+    "scripts/sanity_baselines.py",
+    "scripts/test_reactive_perturbation.py",
+    "scripts/train_policy.py",
+    "scripts/twist_lock_probe.py",
+    "scripts/verify_dataset_integrity.py",
+    "tests/test_evaluation_learning.py"
+   ]
+  },
+  "asset_sha256": {
+   "industrial_assembly.xml": "29293bb841cedd003875ec6417f54f9c92b6e9a314cac16d4279f454a2837cdd",
+   "industrial_assembly_bench.xml": "2a30713124a6b65c86260ce202886d6a08ec33199c14928a222301d08bbc0e79",
+   "industrial_electronics_bench.xml": "12892d3b73fa80492761291cde482423612c0b68ca0ed376409d8097299d0628",
+   "kitchen_burger.xml": "1679ae97e1f61d1e741bc6db692d895757acdcf2476fe4d17f0e4f2e340d9b31",
+   "kitchen_burger_bench.xml": "0465ad359fff848e56f07b2cc8df805839b5580b23f4f570709aa60f8472216e",
+   "kitchen_coffee.xml": "d1f77eb317e3aee1bab9301996aaafadcbe8288822754492c73fdfbda3d2f567",
+   "kitchen_coffee_bench.xml": "d452e8ac62089ede7e245f03f0d84e0cd8b5990434efd228d24a2244bf1da482",
+   "lab_science.xml": "6fe40860c97f9a28759937b356e602707e289a87f00bc765b67f4188382e7c3f",
+   "lab_science_bench.xml": "5f0e9834d57305049b8fd92de1f43008dc71edb24e1d21bdb616f607ff57bb6c",
+   "tabletop_sorting.xml": "023c3f03a0c772cb23a9bef09d511773825c9e5d2a5234f0cdfdcba2ca643834",
+   "tabletop_sorting_bench.xml": "45397994f00d0fce2ac540182e1391ca6ed3a985fd7c784ddb97d8b7efcda3f9",
+   "twist_lock_fixtures.xml": "6c682efbc8539b7327c4f848fedd7e4e72df4d6831690a6ac4cf230878126ea8",
+   "__non_xml_assets__": "c1e58a29601b203fb295487faf70a01201628c3e61924a1d54dc4c25707c4137"
+  },
+  "source_sha256": {
+   "task_definitions.py": "6a9cc3c7ff435b810f41ea6c685ff8548af1b8908b32de0f38445d5d852abbd3",
+   "registry.py": "9b21ceb1e11da256ced0cbf37afa8b1b731e448fcc71ffaed548ef88c5e8df5a",
+   "envs/base_franka_env.py": "717f1714ada00fa81cd13fc4cdadb6154fa14765ab3f39fecc25e11261257571",
+   "envs/parametric_env.py": "12c6eab39c5ff24566dc2f65f573e1b52b3034f7d7d2ebcdd670d23db687975b",
+   "envs/frontier_env.py": "1a17dd12349dc33e4b62e884d8c650817bb05439641b523665ad70fab509b0c7",
+   "oracles/base_oracle.py": "8f2f2ae4051a56197b00b1e1a5b8d70c346efe0dc480786857908b8f073bed74",
+   "oracles/parametric_oracle.py": "fe91cca6b23891ee45345f4e500e5ba674a99f3c4b2a94133f4c1a7173f4798f",
+   "oracles/frontier_oracle.py": "8ce646b3d9718df10a20cffc19a8f1c32a4f7b225c92e1aa23e88bec870e8d65",
+   "oracles/twist_lock_oracle.py": "c16249bdcc86118af8fb95241d2da42ce9a49186d8877f8f15b63fa00db030d7",
+   "perturbations/engine.py": "04939dad5eb99c2f7ff5d64f8d9916d1048731604fd7735e6b95fb1cc0d35d39",
+   "datasets/hdf5_writer.py": "496be14e53556bbb8af228ecddf158912cc1276804d4c1388a03f9f6fe815ce0"
+  }
+ },
+ "summary": {
+  "nominal": {
+   "successes": 84,
+   "episodes": 85,
+   "tasks": 17,
+   "rate": 0.9882352941176471,
+   "wilson95": [
+    0.9363282911750611,
+    0.997920212865336
+   ],
+   "task_cluster_bootstrap95": [
+    0.9647058823529412,
+    1.0
+   ],
+   "per_task_rate": {
+    "industrial_fuse_clips": 0.8,
+    "industrial_kit_shaft_red": 1.0,
+    "kitchen_cheese_on_patty": 1.0,
+    "kitchen_mug_return_bin": 1.0,
+    "kitchen_tomato_to_topping_tray": 1.0,
+    "tabletop_blue_to_red_bin": 1.0,
+    "tabletop_red_in_drawer": 1.0,
+    "lab_micro_to_centrifuge": 1.0,
+    "lab_micro_centrifuge_to_orange_rack": 1.0,
+    "lab_start_closed_centrifuge": 1.0,
+    "long_horizon_capsule_brew": 1.0,
+    "long_horizon_cheeseburger": 1.0,
+    "chain_bearing_then_gear": 1.0,
+    "chain_gear_spindle_bearing_shaft": 1.0,
+    "chain_gear_spindle_bearing_pallet": 1.0,
+    "service_lettuce_tomato_board": 1.0,
+    "service_open_sandwich_plate": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 100.0,
+   "GDI_pct": 0.0
+  },
+  "p1_object": {
+   "successes": 84,
+   "episodes": 85,
+   "tasks": 17,
+   "rate": 0.9882352941176471,
+   "wilson95": [
+    0.9363282911750611,
+    0.997920212865336
+   ],
+   "task_cluster_bootstrap95": [
+    0.9647058823529412,
+    1.0
+   ],
+   "per_task_rate": {
+    "industrial_fuse_clips": 0.8,
+    "industrial_kit_shaft_red": 1.0,
+    "kitchen_cheese_on_patty": 1.0,
+    "kitchen_mug_return_bin": 1.0,
+    "kitchen_tomato_to_topping_tray": 1.0,
+    "tabletop_blue_to_red_bin": 1.0,
+    "tabletop_red_in_drawer": 1.0,
+    "lab_micro_to_centrifuge": 1.0,
+    "lab_micro_centrifuge_to_orange_rack": 1.0,
+    "lab_start_closed_centrifuge": 1.0,
+    "long_horizon_capsule_brew": 1.0,
+    "long_horizon_cheeseburger": 1.0,
+    "chain_bearing_then_gear": 1.0,
+    "chain_gear_spindle_bearing_shaft": 1.0,
+    "chain_gear_spindle_bearing_pallet": 1.0,
+    "service_lettuce_tomato_board": 1.0,
+    "service_open_sandwich_plate": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 100.0,
+   "GDI_pct": 0.0
+  },
+  "p2_spatial": {
+   "successes": 85,
+   "episodes": 85,
+   "tasks": 17,
+   "rate": 1.0,
+   "wilson95": [
+    0.9567605161859486,
+    1.0
+   ],
+   "task_cluster_bootstrap95": [
+    1.0,
+    1.0
+   ],
+   "per_task_rate": {
+    "industrial_fuse_clips": 1.0,
+    "industrial_kit_shaft_red": 1.0,
+    "kitchen_cheese_on_patty": 1.0,
+    "kitchen_mug_return_bin": 1.0,
+    "kitchen_tomato_to_topping_tray": 1.0,
+    "tabletop_blue_to_red_bin": 1.0,
+    "tabletop_red_in_drawer": 1.0,
+    "lab_micro_to_centrifuge": 1.0,
+    "lab_micro_centrifuge_to_orange_rack": 1.0,
+    "lab_start_closed_centrifuge": 1.0,
+    "long_horizon_capsule_brew": 1.0,
+    "long_horizon_cheeseburger": 1.0,
+    "chain_bearing_then_gear": 1.0,
+    "chain_gear_spindle_bearing_shaft": 1.0,
+    "chain_gear_spindle_bearing_pallet": 1.0,
+    "service_lettuce_tomato_board": 1.0,
+    "service_open_sandwich_plate": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 101.19047619047619,
+   "GDI_pct": -1.1904761904761898
+  },
+  "p3_visual": {
+   "successes": 84,
+   "episodes": 85,
+   "tasks": 17,
+   "rate": 0.9882352941176471,
+   "wilson95": [
+    0.9363282911750611,
+    0.997920212865336
+   ],
+   "task_cluster_bootstrap95": [
+    0.9647058823529412,
+    1.0
+   ],
+   "per_task_rate": {
+    "industrial_fuse_clips": 0.8,
+    "industrial_kit_shaft_red": 1.0,
+    "kitchen_cheese_on_patty": 1.0,
+    "kitchen_mug_return_bin": 1.0,
+    "kitchen_tomato_to_topping_tray": 1.0,
+    "tabletop_blue_to_red_bin": 1.0,
+    "tabletop_red_in_drawer": 1.0,
+    "lab_micro_to_centrifuge": 1.0,
+    "lab_micro_centrifuge_to_orange_rack": 1.0,
+    "lab_start_closed_centrifuge": 1.0,
+    "long_horizon_capsule_brew": 1.0,
+    "long_horizon_cheeseburger": 1.0,
+    "chain_bearing_then_gear": 1.0,
+    "chain_gear_spindle_bearing_shaft": 1.0,
+    "chain_gear_spindle_bearing_pallet": 1.0,
+    "service_lettuce_tomato_board": 1.0,
+    "service_open_sandwich_plate": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 100.0,
+   "GDI_pct": 0.0
+  },
+  "p4_physical": {
+   "successes": 85,
+   "episodes": 85,
+   "tasks": 17,
+   "rate": 1.0,
+   "wilson95": [
+    0.9567605161859486,
+    1.0
+   ],
+   "task_cluster_bootstrap95": [
+    1.0,
+    1.0
+   ],
+   "per_task_rate": {
+    "industrial_fuse_clips": 1.0,
+    "industrial_kit_shaft_red": 1.0,
+    "kitchen_cheese_on_patty": 1.0,
+    "kitchen_mug_return_bin": 1.0,
+    "kitchen_tomato_to_topping_tray": 1.0,
+    "tabletop_blue_to_red_bin": 1.0,
+    "tabletop_red_in_drawer": 1.0,
+    "lab_micro_to_centrifuge": 1.0,
+    "lab_micro_centrifuge_to_orange_rack": 1.0,
+    "lab_start_closed_centrifuge": 1.0,
+    "long_horizon_capsule_brew": 1.0,
+    "long_horizon_cheeseburger": 1.0,
+    "chain_bearing_then_gear": 1.0,
+    "chain_gear_spindle_bearing_shaft": 1.0,
+    "chain_gear_spindle_bearing_pallet": 1.0,
+    "service_lettuce_tomato_board": 1.0,
+    "service_open_sandwich_plate": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 101.19047619047619,
+   "GDI_pct": -1.1904761904761898
+  },
+  "combined_ood": {
+   "successes": 81,
+   "episodes": 85,
+   "tasks": 17,
+   "rate": 0.9529411764705882,
+   "wilson95": [
+    0.8851627284368122,
+    0.9815497391669292
+   ],
+   "task_cluster_bootstrap95": [
+    0.8941176470588236,
+    1.0
+   ],
+   "per_task_rate": {
+    "industrial_fuse_clips": 1.0,
+    "industrial_kit_shaft_red": 0.8,
+    "kitchen_cheese_on_patty": 0.6,
+    "kitchen_mug_return_bin": 1.0,
+    "kitchen_tomato_to_topping_tray": 1.0,
+    "tabletop_blue_to_red_bin": 1.0,
+    "tabletop_red_in_drawer": 1.0,
+    "lab_micro_to_centrifuge": 1.0,
+    "lab_micro_centrifuge_to_orange_rack": 1.0,
+    "lab_start_closed_centrifuge": 1.0,
+    "long_horizon_capsule_brew": 1.0,
+    "long_horizon_cheeseburger": 0.8,
+    "chain_bearing_then_gear": 1.0,
+    "chain_gear_spindle_bearing_shaft": 1.0,
+    "chain_gear_spindle_bearing_pallet": 1.0,
+    "service_lettuce_tomato_board": 1.0,
+    "service_open_sandwich_plate": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 96.42857142857142,
+   "GDI_pct": 3.5714285714285836
+  }
+ }
+}

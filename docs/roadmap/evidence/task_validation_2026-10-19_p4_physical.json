@@ -1,0 +1,10031 @@
+{
+ "suite": "p4_physical",
+ "episodes": 5,
+ "resets": 3,
+ "floor_episodes": 0,
+ "seed_block": 600000,
+ "provenance": {
+  "timestamp_utc": "2026-10-19T08:38:44+00:00",
+  "command": [
+   "scripts/validate_bench_tasks.py",
+   "--suite",
+   "p4_physical",
+   "--episodes",
+   "5",
+   "--resets",
+   "3",
+   "--workers",
+   "12",
+   "--out",
+   "docs/roadmap/evidence/task_validation_2026-10-19_p4_physical.json"
+  ],
+  "python": "3.13.5",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+   "mujoco": "3.5.0",
+   "numpy": "2.2.6",
+   "h5py": "3.12.1",
+   "gymnasium": "1.3.0",
+   "torch": "2.10.0+cpu",
+   "scipy": "1.18.1"
+  },
+  "git": {
+   "commit": "584cd3367c2c835fdbaa82ba5937aa1d963b033d",
+   "branch": "main",
+   "dirty": true,
+   "modified_tracked_files": [
+    "README.md",
+    "docs/BASELINE_RUNBOOK.md",
+    "docs/DATASET_CARD.md",
+    "docs/index.html",
+    "docs/roadmap/AUDIT_REPORT.md",
+    "docs/roadmap/EXPERIMENT_LOG.md",
+    "docs/roadmap/PROGRESS.md",
+    "docs/roadmap/ROADMAP.md",
+    "docs/roadmap/T9_TASK_REDESIGN.md",
+    "docs/site/app.js",
+    "docs/site/data.js",
+    "docs/site/style.css",
+    "scripts/audit_tasks.py",
+    "scripts/build_site_data.py",
+    "scripts/evaluate_policy.py",
+    "scripts/export_initial_states.py",
+    "scripts/force_probe.py",
+    "scripts/generate_ood_eval_suites.py",
+    "scripts/generate_paper_figures.py",
+    "scripts/l4_slip_probe.py",
+    "scripts/l4_sweep.py",
+    "scripts/run_benchmark_suite.py",
+    "scripts/sanity_baselines.py",
+    "scripts/test_reactive_perturbation.py",
+    "scripts/train_policy.py",
+    "scripts/twist_lock_probe.py",
+    "scripts/verify_dataset_integrity.py",
+    "tests/test_evaluation_learning.py"
+   ]
+  },
+  "asset_sha256": {
+   "industrial_assembly.xml": "29293bb841cedd003875ec6417f54f9c92b6e9a314cac16d4279f454a2837cdd",
+   "industrial_assembly_bench.xml": "2a30713124a6b65c86260ce202886d6a08ec33199c14928a222301d08bbc0e79",
+   "industrial_electronics_bench.xml": "12892d3b73fa80492761291cde482423612c0b68ca0ed376409d8097299d0628",
+   "kitchen_burger.xml": "1679ae97e1f61d1e741bc6db692d895757acdcf2476fe4d17f0e4f2e340d9b31",
+   "kitchen_burger_bench.xml": "0465ad359fff848e56f07b2cc8df805839b5580b23f4f570709aa60f8472216e",
+   "kitchen_coffee.xml": "d1f77eb317e3aee1bab9301996aaafadcbe8288822754492c73fdfbda3d2f567",
+   "kitchen_coffee_bench.xml": "d452e8ac62089ede7e245f03f0d84e0cd8b5990434efd228d24a2244bf1da482",
+   "lab_science.xml": "6fe40860c97f9a28759937b356e602707e289a87f00bc765b67f4188382e7c3f",
+   "lab_science_bench.xml": "5f0e9834d57305049b8fd92de1f43008dc71edb24e1d21bdb616f607ff57bb6c",
+   "tabletop_sorting.xml": "023c3f03a0c772cb23a9bef09d511773825c9e5d2a5234f0cdfdcba2ca643834",
+   "tabletop_sorting_bench.xml": "45397994f00d0fce2ac540182e1391ca6ed3a985fd7c784ddb97d8b7efcda3f9",
+   "twist_lock_fixtures.xml": "6c682efbc8539b7327c4f848fedd7e4e72df4d6831690a6ac4cf230878126ea8",
+   "__non_xml_assets__": "c1e58a29601b203fb295487faf70a01201628c3e61924a1d54dc4c25707c4137"
+  },
+  "source_sha256": {
+   "task_definitions.py": "6a9cc3c7ff435b810f41ea6c685ff8548af1b8908b32de0f38445d5d852abbd3",
+   "registry.py": "9b21ceb1e11da256ced0cbf37afa8b1b731e448fcc71ffaed548ef88c5e8df5a",
+   "envs/base_franka_env.py": "717f1714ada00fa81cd13fc4cdadb6154fa14765ab3f39fecc25e11261257571",
+   "envs/parametric_env.py": "12c6eab39c5ff24566dc2f65f573e1b52b3034f7d7d2ebcdd670d23db687975b",
+   "envs/frontier_env.py": "1a17dd12349dc33e4b62e884d8c650817bb05439641b523665ad70fab509b0c7",
+   "oracles/base_oracle.py": "8f2f2ae4051a56197b00b1e1a5b8d70c346efe0dc480786857908b8f073bed74",
+   "oracles/parametric_oracle.py": "fe91cca6b23891ee45345f4e500e5ba674a99f3c4b2a94133f4c1a7173f4798f",
+   "oracles/frontier_oracle.py": "8ce646b3d9718df10a20cffc19a8f1c32a4f7b225c92e1aa23e88bec870e8d65",
+   "oracles/twist_lock_oracle.py": "c16249bdcc86118af8fb95241d2da42ce9a49186d8877f8f15b63fa00db030d7",
+   "perturbations/engine.py": "04939dad5eb99c2f7ff5d64f8d9916d1048731604fd7735e6b95fb1cc0d35d39",
+   "datasets/hdf5_writer.py": "496be14e53556bbb8af228ecddf158912cc1276804d4c1388a03f9f6fe815ce0"
+  }
+ },
+ "tasks": [
+  {
+   "number": 1,
+   "task_id": "industrial_shaft_assembly",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "machined_shaft": 0.030052625354026412
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 120,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 117,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 119,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 12.3
+  },
+  {
+   "number": 2,
+   "task_id": "industrial_gear_mesh",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "spur_gear": 0.016308419483210806
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 119,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 137,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 128,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 118,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 14.9
+  },
+  {
+   "number": 3,
+   "task_id": "industrial_pin_insertion",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "dowel_pin": 0.00593971943393488
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 138,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 128,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 141,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 127,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 127,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 12.4
+  },
+  {
+   "number": 4,
+   "task_id": "industrial_bearing_press",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "bearing_ring": 0.010579185059840297
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 131,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 121,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 123,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 121,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 122,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 12.6
+  },
+  {
+   "number": 5,
+   "task_id": "industrial_bolt_insertion",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "flange_bolt": 0.003596258326863456
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 125,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 126,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 126,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 126,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 125,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 14.3
+  },
+  {
+   "number": 6,
+   "task_id": "industrial_nut_on_stud",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "hex_nut": 0.019256456506390008
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 122,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 132,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 126,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 11.8
+  },
+  {
+   "number": 7,
+   "task_id": "industrial_chip_socket",
+   "scene": "industrial_electronics",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "microchip": 0.01094524820558486
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 116,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 105,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 114,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 114,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 108,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.1
+  },
+  {
+   "number": 8,
+   "task_id": "industrial_fuse_clips",
+   "scene": "industrial_electronics",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "cartridge_fuse": 0.010502405353376503
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 116,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 112,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 110,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 117,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 121,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.4
+  },
+  {
+   "number": 9,
+   "task_id": "industrial_harness_plug",
+   "scene": "industrial_electronics",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "harness_plug": 0.004437878443495303
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 118,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 106,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 128,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 111,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 106,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.1
+  },
+  {
+   "number": 10,
+   "task_id": "industrial_relay_base",
+   "scene": "industrial_electronics",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "relay": 0.006989167271463213
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 108,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 129,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 130,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 128,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 126,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 8.6
+  },
+  {
+   "number": 11,
+   "task_id": "industrial_shaft_to_pallet",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "machined_shaft": 3.142220653514446e-06
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 119,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 127,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 119,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 120,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 132,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 12.5
+  },
+  {
+   "number": 12,
+   "task_id": "industrial_gear_to_pallet",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "spur_gear": 3.7003918764828727e-06
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 156,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 158,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 154,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 135,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 127,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 17.6
+  },
+  {
+   "number": 13,
+   "task_id": "industrial_pin_to_pallet",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "dowel_pin": 4.3800792734521917e-07
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 133,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 138,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 140,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 137,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 133,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 12.6
+  },
+  {
+   "number": 14,
+   "task_id": "industrial_shaft_to_bin",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "machined_shaft": 0.023064328445435756
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 137,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 137,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 151,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 138,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 143,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 13.6
+  },
+  {
+   "number": 15,
+   "task_id": "industrial_gear_to_tray",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "spur_gear": 0.004993073286776734
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 119,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 120,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 151,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 144,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 122,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 13.3
+  },
+  {
+   "number": 16,
+   "task_id": "industrial_pin_to_tray",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "dowel_pin": 0.011988327471259597
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 115,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 209,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 206,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 209,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 207,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 19.3
+  },
+  {
+   "number": 17,
+   "task_id": "industrial_shaft_lift",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "machined_shaft": 0.020292694149358297
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 51,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 54,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 54,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 52,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 51,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 5.1
+  },
+  {
+   "number": 18,
+   "task_id": "industrial_gear_to_spindle",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "spur_gear": 0.002540294078032466
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 119,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 122,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 118,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 119,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 119,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 11.6
+  },
+  {
+   "number": 19,
+   "task_id": "industrial_pin_to_cup",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "dowel_pin": 0.013377524033741319
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 109,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 107,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 105,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 106,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 105,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 9.2
+  },
+  {
+   "number": 20,
+   "task_id": "industrial_kit_shaft_red",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "machined_shaft": 0.0179519673326091
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": false,
+     "steps": 400,
+     "goals_reached": 0,
+     "fallback": false,
+     "unmet": [
+      {
+       "goal": "On",
+       "holds": false,
+       "body": "machined_shaft",
+       "target": "pallet_red",
+       "tol_mm": 25.5,
+       "xy_err_mm": 516.0,
+       "z_err_mm": -57.1,
+       "tilt_deg": 85.5,
+       "held": false,
+       "lifted_mm": 130.4
+      }
+     ]
+    },
+    {
+     "success": true,
+     "steps": 149,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 164,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 144,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 132,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 4,
+   "seconds": 19.7
+  },
+  {
+   "number": 21,
+   "task_id": "industrial_kit_gear_yellow",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "spur_gear": 0.011313935128350735
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 111,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 105,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 216,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 123,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 117,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 13.6
+  },
+  {
+   "number": 22,
+   "task_id": "industrial_kit_pin_green",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "dowel_pin": 0.010736520738776555
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 125,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 122,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 121,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 140,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 11.2
+  },
+  {
+   "number": 23,
+   "task_id": "industrial_estop_press",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 49,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 50,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 58,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 51,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 51,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 3.8
+  },
+  {
+   "number": 24,
+   "task_id": "industrial_hover_gear",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 39,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 39,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 39,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 38,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 39,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 2.9
+  },
+  {
+   "number": 25,
+   "task_id": "industrial_kit_bearing_blue",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "bearing_ring": 0.008345094172467484
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 109,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 110,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 108,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 107,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 112,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 9.5
+  },
+  {
+   "number": 26,
+   "task_id": "industrial_cycle_start_press",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 56,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 52,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 54,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 52,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 52,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 3.8
+  },
+  {
+   "number": 27,
+   "task_id": "industrial_vise_close",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 50,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 50,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 47,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 47,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 50,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 3.4
+  },
+  {
+   "number": 28,
+   "task_id": "industrial_clear_spindle",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "spur_gear": 5.657827321595267e-15
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 125,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 120,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 122,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 122,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 122,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 12.3
+  },
+  {
+   "number": 29,
+   "task_id": "industrial_shaft_to_staging",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "machined_shaft": 0.028143788621929986
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 137,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 132,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 151,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 140,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 130,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 13.5
+  },
+  {
+   "number": 30,
+   "task_id": "industrial_bolt_to_bin",
+   "scene": "industrial_assembly",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "flange_bolt": 0.008900612873410893
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 123,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 126,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 13.0
+  },
+  {
+   "number": 31,
+   "task_id": "kitchen_patty_on_bun",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "burger_patty": 0.013397044660313875
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 110,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 110,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 109,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 119,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 110,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.7
+  },
+  {
+   "number": 32,
+   "task_id": "kitchen_cheese_on_patty",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "cheese_slice": 0.014697540157465199
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 120,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 120,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 109,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 116,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 107,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.6
+  },
+  {
+   "number": 33,
+   "task_id": "kitchen_tomato_on_cheese",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "tomato_slice": 0.013696357111256136
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 117,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 114,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 114,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 117,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 115,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.4
+  },
+  {
+   "number": 34,
+   "task_id": "kitchen_top_bun_crown",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "top_bun": 0.01747144054091093
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 135,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 142,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 136,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 131,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 9.9
+  },
+  {
+   "number": 35,
+   "task_id": "kitchen_bottom_bun_to_board",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "bottom_bun": 0.017383754259844012
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 117,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 129,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 118,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 139,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 8.6
+  },
+  {
+   "number": 36,
+   "task_id": "kitchen_mug_to_drip_tray",
+   "scene": "kitchen_coffee",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "coffee_mug": 0.012392155926452292
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 149,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 141,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 145,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 153,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 154,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 10.3
+  },
+  {
+   "number": 37,
+   "task_id": "kitchen_brew_press",
+   "scene": "kitchen_coffee",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 44,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 57,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 52,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 57,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 45,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 1.9
+  },
+  {
+   "number": 38,
+   "task_id": "kitchen_capsule_to_slot",
+   "scene": "kitchen_coffee",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "coffee_pod": 0.009709866831552625
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 137,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 141,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 134,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 139,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 136,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.9
+  },
+  {
+   "number": 39,
+   "task_id": "kitchen_mug_to_serving_tray",
+   "scene": "kitchen_coffee",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "coffee_mug": 5.678373172911438e-07
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 126,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 126,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 125,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 126,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 125,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.5
+  },
+  {
+   "number": 40,
+   "task_id": "kitchen_patty_to_plate",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "burger_patty": 0.012006799616501208
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 145,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 131,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 129,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 140,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 152,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 9.4
+  },
+  {
+   "number": 41,
+   "task_id": "kitchen_tomato_to_plate",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "tomato_slice": 0.007986457703417564
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 113,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 113,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 113,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 113,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 111,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.2
+  },
+  {
+   "number": 42,
+   "task_id": "kitchen_cheese_to_plate",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "cheese_slice": 0.016486047598513152
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 154,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 147,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 140,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 120,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": false,
+     "steps": 400,
+     "goals_reached": 0,
+     "fallback": false,
+     "unmet": [
+      {
+       "goal": "On",
+       "holds": false,
+       "body": "cheese_slice",
+       "target": "dining_plate",
+       "tol_mm": 37.4,
+       "xy_err_mm": 0.5,
+       "z_err_mm": -22.2,
+       "tilt_deg": 0.0,
+       "held": false,
+       "lifted_mm": 138.1
+      }
+     ]
+    }
+   ],
+   "oracle_successes": 4,
+   "seconds": 10.1
+  },
+  {
+   "number": 43,
+   "task_id": "kitchen_capsule_to_tray",
+   "scene": "kitchen_coffee",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "coffee_pod": 0.0058334999935404745
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 172,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 158,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 169,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 173,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 168,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 9.3
+  },
+  {
+   "number": 44,
+   "task_id": "kitchen_mug_return_bin",
+   "scene": "kitchen_coffee",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "coffee_mug": 1.0184643563906604e-06
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 163,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 161,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 169,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 168,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 158,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 10.2
+  },
+  {
+   "number": 45,
+   "task_id": "kitchen_capsule_return_caddy",
+   "scene": "kitchen_coffee",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "coffee_pod": 4.02754700913764e-07
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 167,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 167,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 193,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 168,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 168,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 8.1
+  },
+  {
+   "number": 46,
+   "task_id": "kitchen_grill_power",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 54,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 52,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 55,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 52,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 50,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 2.2
+  },
+  {
+   "number": 47,
+   "task_id": "kitchen_top_bun_to_board",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "top_bun": 0.015028394728113627
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 133,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 130,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 131,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 128,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 131,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 8.3
+  },
+  {
+   "number": 48,
+   "task_id": "kitchen_tomato_to_board",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "tomato_slice": 0.010828344989510342
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 122,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 118,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 112,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 120,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 117,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.5
+  },
+  {
+   "number": 49,
+   "task_id": "kitchen_cheese_to_board",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "cheese_slice": 0.004390697406159261
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 111,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 106,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 106,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 125,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 119,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.9
+  },
+  {
+   "number": 50,
+   "task_id": "kitchen_touch_top_bun",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 43,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 39,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 42,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 38,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 38,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 2.1
+  },
+  {
+   "number": 51,
+   "task_id": "kitchen_mug_to_saucer",
+   "scene": "kitchen_coffee",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "coffee_mug": 0.012009670471625863
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 121,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 122,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 132,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 119,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.6
+  },
+  {
+   "number": 52,
+   "task_id": "kitchen_lettuce_to_board",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "lettuce_leaf": 0.008588650811508792
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 114,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 108,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 115,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 110,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 105,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.0
+  },
+  {
+   "number": 53,
+   "task_id": "kitchen_bottom_bun_to_caddy",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "bottom_bun": 1.6909094700907078e-07
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 136,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 136,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 129,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 129,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 128,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 8.7
+  },
+  {
+   "number": 54,
+   "task_id": "kitchen_top_bun_to_caddy",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "top_bun": 2.6802063727025483e-07
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 109,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 113,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 110,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 121,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 109,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.5
+  },
+  {
+   "number": 55,
+   "task_id": "kitchen_cheese_to_topping_tray",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "cheese_slice": 1.3716634147337535e-19
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 106,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 106,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 113,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 106,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 103,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 5.2
+  },
+  {
+   "number": 56,
+   "task_id": "kitchen_tomato_to_topping_tray",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "tomato_slice": 6.659996004688791e-08
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 114,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 114,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 114,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 115,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 131,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.2
+  },
+  {
+   "number": 57,
+   "task_id": "kitchen_patty_to_grill",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "burger_patty": 1.819926409764041e-07
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 111,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 111,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 107,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 109,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 120,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.1
+  },
+  {
+   "number": 58,
+   "task_id": "kitchen_wipe_counter",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "sponge": 0.011990609256408005
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 57,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 63,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 61,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 59,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 62,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 5.7
+  },
+  {
+   "number": 59,
+   "task_id": "kitchen_wipe_coffee_counter",
+   "scene": "kitchen_coffee",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "sponge": 0.009169031972132877
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 60,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 58,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 73,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 79,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 57,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.7
+  },
+  {
+   "number": 60,
+   "task_id": "kitchen_bottom_bun_to_plate",
+   "scene": "kitchen_burger",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "bottom_bun": 0.014209569940390044
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 139,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 139,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 139,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 142,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 142,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 9.3
+  },
+  {
+   "number": 61,
+   "task_id": "tabletop_sort_red",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "red_block": 0.018943603492589275
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 122,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 111,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 116,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 110,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 114,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.6
+  },
+  {
+   "number": 62,
+   "task_id": "tabletop_sort_green",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "green_block": 0.0249510515535993
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 108,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 113,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 134,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 114,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 118,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.8
+  },
+  {
+   "number": 63,
+   "task_id": "tabletop_sort_blue",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "blue_block": 0.025786602243511418
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 138,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 155,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 168,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 115,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 135,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 9.0
+  },
+  {
+   "number": 64,
+   "task_id": "tabletop_red_to_green_bin",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "red_block": 0.021448660519098453
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 118,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 106,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 128,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 129,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 115,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.5
+  },
+  {
+   "number": 65,
+   "task_id": "tabletop_red_to_blue_bin",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "red_block": 0.025416578892741588
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 137,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 122,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 134,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 128,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 138,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.6
+  },
+  {
+   "number": 66,
+   "task_id": "tabletop_green_to_red_bin",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "green_block": 0.021479676964719748
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 134,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 135,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 127,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 131,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 139,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 8.2
+  },
+  {
+   "number": 67,
+   "task_id": "tabletop_green_to_blue_bin",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "green_block": 0.01823062545631237
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 128,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 111,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 119,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 109,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 110,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.9
+  },
+  {
+   "number": 68,
+   "task_id": "tabletop_blue_to_red_bin",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "blue_block": 0.020816486116419182
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 122,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 148,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 127,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 134,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 127,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.9
+  },
+  {
+   "number": 69,
+   "task_id": "tabletop_blue_to_green_bin",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "blue_block": 0.025992371677475843
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 111,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 134,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 117,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 115,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 112,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.6
+  },
+  {
+   "number": 70,
+   "task_id": "tabletop_red_to_black_square",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "red_block": 0.0139116960274032
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 117,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 111,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 119,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 133,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 112,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.5
+  },
+  {
+   "number": 71,
+   "task_id": "tabletop_green_to_black_square",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "green_block": 0.013602584376129392
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 137,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 121,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 123,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 136,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.6
+  },
+  {
+   "number": 72,
+   "task_id": "tabletop_blue_to_black_square",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "blue_block": 0.025371155220672036
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 116,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 141,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 118,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 120,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 131,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.8
+  },
+  {
+   "number": 73,
+   "task_id": "tabletop_stack_green_on_red",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "green_block": 0.022964129687557133
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 117,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 117,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 117,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 118,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.0
+  },
+  {
+   "number": 74,
+   "task_id": "tabletop_stack_red_on_green",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "red_block": 0.03680425415859327
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 117,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 117,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 126,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 125,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.3
+  },
+  {
+   "number": 75,
+   "task_id": "tabletop_stack_blue_on_green",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "blue_block": 0.022488063770726072
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 109,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 106,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 213,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 115,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 127,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 8.8
+  },
+  {
+   "number": 76,
+   "task_id": "tabletop_stack_red_on_blue",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "red_block": 0.017500237186567263
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 107,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 106,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 101,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 119,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 109,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.4
+  },
+  {
+   "number": 77,
+   "task_id": "tabletop_stack_green_on_blue",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "green_block": 0.005178309298714134
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 106,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 109,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 104,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 119,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 104,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 6.9
+  },
+  {
+   "number": 78,
+   "task_id": "tabletop_stack_blue_on_red",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "blue_block": 0.010568793884799463
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 130,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 125,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 117,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 108,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 104,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.3
+  },
+  {
+   "number": 79,
+   "task_id": "tabletop_close_drawer",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 134,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 160,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 159,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 178,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 174,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.0
+  },
+  {
+   "number": 80,
+   "task_id": "tabletop_red_in_drawer",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "red_block": 0.021114844895483462
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 256,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 270,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 256,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 131,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 149,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 11.9
+  },
+  {
+   "number": 81,
+   "task_id": "tabletop_blue_in_drawer",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "blue_block": 0.018253219852409474
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 143,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 139,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 137,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 257,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 259,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 11.4
+  },
+  {
+   "number": 82,
+   "task_id": "tabletop_red_touch",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 44,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 58,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 41,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 45,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 40,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 1.9
+  },
+  {
+   "number": 83,
+   "task_id": "tabletop_green_touch",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 51,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 45,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 48,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 44,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 44,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 1.9
+  },
+  {
+   "number": 84,
+   "task_id": "tabletop_blue_touch",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 43,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 39,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 39,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 39,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 39,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 1.6
+  },
+  {
+   "number": 85,
+   "task_id": "tabletop_red_to_yellow_square",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "red_block": 0.01802369568542662
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 113,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 113,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 127,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 119,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 219,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 10.1
+  },
+  {
+   "number": 86,
+   "task_id": "tabletop_blue_to_purple_square",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "blue_block": 0.01613141197638147
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 147,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 120,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 157,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 107,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 142,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 12.7
+  },
+  {
+   "number": 87,
+   "task_id": "tabletop_slide_red",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "red_block": 0.013286264394574808
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 82,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 56,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 71,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 68,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 65,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 4.1
+  },
+  {
+   "number": 88,
+   "task_id": "tabletop_slide_blue",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "blue_block": 0.0086163260917623
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 66,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 55,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 82,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 75,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 57,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 4.3
+  },
+  {
+   "number": 89,
+   "task_id": "tabletop_wipe_table",
+   "scene": "tabletop_sorting",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "sponge": 0.009892793871771383
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 76,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 83,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 86,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 93,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 92,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 8.0
+  },
+  {
+   "number": 90,
+   "task_id": "tabletop_green_in_drawer_close",
+   "scene": "tabletop_sorting",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "green_block": 0.028290411612036156
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 266,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 270,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 265,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 265,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 266,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 14.3
+  },
+  {
+   "number": 91,
+   "task_id": "lab_conical_to_orange_rack",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "conical_tube": 6.508345552971014e-07
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 144,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 135,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 125,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 126,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 10.9
+  },
+  {
+   "number": 92,
+   "task_id": "lab_micro_to_centrifuge",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "micro_tube": 0.17950542320667257
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 129,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 131,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 129,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 148,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 12.2
+  },
+  {
+   "number": 93,
+   "task_id": "lab_pipette_lift",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "micropipette": 0.014498750877633347
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 121,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 120,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 50,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 120,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 121,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 8.3
+  },
+  {
+   "number": 94,
+   "task_id": "lab_pipette_over_plate",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "micropipette": 0.015086525797643595
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 64,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 63,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 74,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 142,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 73,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 8.0
+  },
+  {
+   "number": 95,
+   "task_id": "lab_micro_to_orange_rack",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "micro_tube": 5.962651339687637e-07
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 152,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 138,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 133,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 136,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 138,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 12.9
+  },
+  {
+   "number": 96,
+   "task_id": "lab_conical_to_blue_rack",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "conical_tube": 2.1582181044636006e-06
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 123,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 125,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 125,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 124,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 123,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 10.7
+  },
+  {
+   "number": 97,
+   "task_id": "lab_micro_centrifuge_to_blue_rack",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "micro_tube": 9.830980076026665e-07
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 139,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 136,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 131,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 122,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 123,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 14.3
+  },
+  {
+   "number": 98,
+   "task_id": "lab_pipette_to_pad",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "micropipette": 0.018047802435324493
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 176,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 180,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 99,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 175,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 178,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 13.1
+  },
+  {
+   "number": 99,
+   "task_id": "lab_centrifuge_start",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 52,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 60,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 64,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 58,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 60,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 3.8
+  },
+  {
+   "number": 100,
+   "task_id": "lab_centrifuge_lid_on",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "centrifuge_lid": 0.013069761705651746
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 128,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 127,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 125,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 127,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 127,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 9.7
+  },
+  {
+   "number": 101,
+   "task_id": "lab_micro_to_waste",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "micro_tube": 0.17950561530394119
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 104,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 142,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 146,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 142,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 101,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 10.9
+  },
+  {
+   "number": 102,
+   "task_id": "lab_conical_to_waste",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "conical_tube": 0.018857155435680294
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 134,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 132,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 132,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 131,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 135,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 10.8
+  },
+  {
+   "number": 103,
+   "task_id": "lab_conical_to_pad",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "conical_tube": 0.01885715715333612
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 110,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 108,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 100,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 109,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 111,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 9.0
+  },
+  {
+   "number": 104,
+   "task_id": "lab_micro_centrifuge_to_orange_rack",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "micro_tube": 7.340474941763799e-07
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 131,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 132,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 128,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 133,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 132,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 11.7
+  },
+  {
+   "number": 105,
+   "task_id": "lab_conical_to_empty_hole",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "conical_tube": 1.724370303381779e-06
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 96,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 95,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 93,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 92,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 98,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.7
+  },
+  {
+   "number": 106,
+   "task_id": "lab_pipette_over_conical",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "micropipette": 0.02970973534021183
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 147,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 84,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 73,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 143,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 70,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 9.5
+  },
+  {
+   "number": 107,
+   "task_id": "lab_press_pipette_plunger",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 38,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 38,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 40,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 46,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 37,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 3.2
+  },
+  {
+   "number": 108,
+   "task_id": "lab_hover_micro_tube",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 41,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 36,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 41,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 42,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 36,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 2.6
+  },
+  {
+   "number": 109,
+   "task_id": "lab_wipe_bench",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "sponge": 0.010966935285668456
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 56,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 55,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 56,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 60,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 59,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.8
+  },
+  {
+   "number": 110,
+   "task_id": "lab_sponge_to_waste",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "sponge": 0.012856557704867612
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 123,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 151,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 126,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 125,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 127,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 13.5
+  },
+  {
+   "number": 111,
+   "task_id": "lab_conical_orange_rack_to_pad",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "conical_tube": 3.6013039678774912e-06
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 111,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 111,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 110,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 114,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 110,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 9.2
+  },
+  {
+   "number": 112,
+   "task_id": "lab_micro_to_pad",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "micro_tube": 0.1795053746214388
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 129,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 113,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 115,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 115,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 123,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 11.1
+  },
+  {
+   "number": 113,
+   "task_id": "lab_pipette_over_micro",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "micropipette": 0.029823936053674203
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 139,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 89,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 59,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 63,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 63,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.7
+  },
+  {
+   "number": 114,
+   "task_id": "lab_pipette_over_centrifuge_tube",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "micropipette": 0.0225594146742285
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 80,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 79,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 78,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 77,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 78,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 8.2
+  },
+  {
+   "number": 115,
+   "task_id": "lab_touch_lid_knob",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 41,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 41,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 46,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 47,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 49,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 2.4
+  },
+  {
+   "number": 116,
+   "task_id": "lab_start_closed_centrifuge",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 64,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 47,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 64,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 51,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 57,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 3.0
+  },
+  {
+   "number": 117,
+   "task_id": "lab_touch_conical_cap",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 43,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 43,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 40,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 40,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 46,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 2.9
+  },
+  {
+   "number": 118,
+   "task_id": "lab_press_micro_cap",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 49,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 49,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 49,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 41,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 42,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 3.4
+  },
+  {
+   "number": 119,
+   "task_id": "lab_hover_conical_tube",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {},
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 36,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 42,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 59,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 36,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 39,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 2.7
+  },
+  {
+   "number": 120,
+   "task_id": "lab_lift_conical",
+   "scene": "lab_science",
+   "goals": 1,
+   "budget": 400,
+   "start_spread_m": {
+    "conical_tube": 0.018856386285875864
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 55,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 56,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 46,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 72,
+     "goals_reached": 1,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 50,
+     "goals_reached": 1,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 4.5
+  },
+  {
+   "number": 121,
+   "task_id": "long_horizon_transmission_assembly",
+   "scene": "industrial_assembly",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "machined_shaft": 0.0062037795947160355,
+    "dowel_pin": 0.009947288615584126,
+    "spur_gear": 0.006517704093635509
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 411,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 406,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 412,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 401,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 399,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 45.2
+  },
+  {
+   "number": 122,
+   "task_id": "long_horizon_pin_gear_subassembly",
+   "scene": "industrial_assembly",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "dowel_pin": 0.01206470807145319,
+    "spur_gear": 0.0079168741017327
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 281,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 278,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 277,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 295,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 296,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 30.2
+  },
+  {
+   "number": 123,
+   "task_id": "long_horizon_shaft_to_qa",
+   "scene": "industrial_assembly",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "machined_shaft": 2.783527091828019e-06
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 188,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 189,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 197,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 193,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 187,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 17.2
+  },
+  {
+   "number": 124,
+   "task_id": "long_horizon_cheeseburger_base",
+   "scene": "kitchen_burger",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "burger_patty": 0.016505621470307996,
+    "cheese_slice": 0.00936066556842812
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 234,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 239,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 232,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": false,
+     "steps": 650,
+     "goals_reached": 1,
+     "fallback": false,
+     "unmet": [
+      {
+       "goal": "On",
+       "holds": false,
+       "body": "cheese_slice",
+       "target": "burger_patty",
+       "tol_mm": 8.0,
+       "xy_err_mm": 0.8,
+       "z_err_mm": -44.8,
+       "tilt_deg": 0.0,
+       "held": false,
+       "lifted_mm": 169.7
+      }
+     ]
+    },
+    {
+     "success": true,
+     "steps": 243,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 4,
+   "seconds": 18.3
+  },
+  {
+   "number": 125,
+   "task_id": "long_horizon_classic_burger",
+   "scene": "kitchen_burger",
+   "goals": 4,
+   "budget": 1150,
+   "start_spread_m": {
+    "burger_patty": 0.008759205808035544,
+    "cheese_slice": 0.007187742137321044,
+    "tomato_slice": 0.008637357550281367,
+    "top_bun": 0.006939162675356587
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 531,
+     "goals_reached": 4,
+     "fallback": false
+    },
+    {
+     "success": false,
+     "steps": 1150,
+     "goals_reached": 3,
+     "fallback": false,
+     "unmet": [
+      {
+       "goal": "On",
+       "holds": false,
+       "body": "cheese_slice",
+       "target": "burger_patty",
+       "tol_mm": 8.0,
+       "xy_err_mm": 4.3,
+       "z_err_mm": -44.3,
+       "tilt_deg": 0.2,
+       "held": false,
+       "lifted_mm": 168.6
+      },
+      {
+       "goal": "On",
+       "holds": false,
+       "body": "tomato_slice",
+       "target": "cheese_slice",
+       "tol_mm": 8.0,
+       "xy_err_mm": 14.4,
+       "z_err_mm": 34.4,
+       "tilt_deg": 0.3,
+       "held": false,
+       "lifted_mm": 178.3
+      }
+     ]
+    },
+    {
+     "success": true,
+     "steps": 509,
+     "goals_reached": 4,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 519,
+     "goals_reached": 4,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 465,
+     "goals_reached": 4,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 4,
+   "seconds": 52.6
+  },
+  {
+   "number": 126,
+   "task_id": "long_horizon_burger_on_plate",
+   "scene": "kitchen_burger",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "bottom_bun": 0.008567722432575642,
+    "burger_patty": 0.008938458773463645,
+    "top_bun": 0.01629737873083599
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 440,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 449,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 449,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 421,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 427,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 33.7
+  },
+  {
+   "number": 127,
+   "task_id": "long_horizon_espresso_service",
+   "scene": "kitchen_coffee",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "coffee_mug": 0.01250856152062069
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 365,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 344,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 334,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 363,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 345,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 20.1
+  },
+  {
+   "number": 128,
+   "task_id": "long_horizon_capsule_brew",
+   "scene": "kitchen_coffee",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "coffee_pod": 0.010907025770665458
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 183,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 186,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 176,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 199,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 178,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 9.1
+  },
+  {
+   "number": 129,
+   "task_id": "long_horizon_sort_all_blocks",
+   "scene": "tabletop_sorting",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "red_block": 0.011808472151541677,
+    "green_block": 0.03167658829180564,
+    "blue_block": 0.026026822431233557
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 359,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 382,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 399,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 403,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 372,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 23.5
+  },
+  {
+   "number": 130,
+   "task_id": "long_horizon_dual_bin_sort",
+   "scene": "tabletop_sorting",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "red_block": 0.033327890694298035,
+    "blue_block": 0.016524865835282187
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 324,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 278,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 268,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 272,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 253,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 17.3
+  },
+  {
+   "number": 131,
+   "task_id": "long_horizon_pipette_tube_to_plate",
+   "scene": "lab_science",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "micropipette": 0.0230911453426209
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 118,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 204,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 200,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 213,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 199,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 17.0
+  },
+  {
+   "number": 132,
+   "task_id": "long_horizon_centrifuge_run",
+   "scene": "lab_science",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "micro_tube": 1.2434319928504478e-06,
+    "centrifuge_lid": 0.009175697946968599
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 333,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 319,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 320,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 324,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 322,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 24.6
+  },
+  {
+   "number": 133,
+   "task_id": "long_horizon_tube_serial_transfer",
+   "scene": "lab_science",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "conical_tube": 0.018856705495650466,
+    "micro_tube": 0.17950523821978934
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 255,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 255,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 260,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 256,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 273,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 22.0
+  },
+  {
+   "number": 134,
+   "task_id": "long_horizon_kit_transmission",
+   "scene": "industrial_assembly",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "machined_shaft": 0.020584090692158358,
+    "spur_gear": 0.007680994961298033,
+    "dowel_pin": 0.01164294017579032
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 392,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 403,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 393,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 446,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 404,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 45.0
+  },
+  {
+   "number": 135,
+   "task_id": "long_horizon_breakfast_tray",
+   "scene": "kitchen_coffee",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "coffee_mug": 0.0116253770846278,
+    "coffee_pod": 0.014182010424031994
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 370,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 368,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 387,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 411,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 390,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 23.4
+  },
+  {
+   "number": 136,
+   "task_id": "long_horizon_plate_and_wipe",
+   "scene": "kitchen_burger",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "burger_patty": 0.011277576661383716,
+    "sponge": 0.008347510740402771
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 205,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 209,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 207,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 191,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 204,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 16.0
+  },
+  {
+   "number": 137,
+   "task_id": "long_horizon_seat_and_clamp",
+   "scene": "industrial_assembly",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "machined_shaft": 0.023315608551494095
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 162,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 165,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 163,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 167,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 164,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 15.2
+  },
+  {
+   "number": 138,
+   "task_id": "long_horizon_disassembly",
+   "scene": "industrial_assembly",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "spur_gear": 3.8507055966067464e-06,
+    "dowel_pin": 3.2161488241457033e-07,
+    "machined_shaft": 2.062009780034173e-06
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 440,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 498,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 436,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 501,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 556,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 57.3
+  },
+  {
+   "number": 139,
+   "task_id": "long_horizon_block_tower",
+   "scene": "tabletop_sorting",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "green_block": 0.022782024331904172,
+    "red_block": 0.022337442411144798
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 230,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 234,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 233,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 231,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 231,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 14.9
+  },
+  {
+   "number": 140,
+   "task_id": "long_horizon_cheeseburger",
+   "scene": "kitchen_burger",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "burger_patty": 0.01403932853757059,
+    "cheese_slice": 0.014170672854929246,
+    "top_bun": 0.012201959539782752
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 397,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 390,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 394,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 392,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 348,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 27.3
+  },
+  {
+   "number": 141,
+   "task_id": "long_horizon_waste_and_wipe",
+   "scene": "lab_science",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "conical_tube": 0.018856037391026682,
+    "sponge": 0.009345964167490544
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 202,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 216,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 232,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 211,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 232,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 20.7
+  },
+  {
+   "number": 142,
+   "task_id": "long_horizon_qa_rework",
+   "scene": "industrial_assembly",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "machined_shaft": 6.891596440010126e-07
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 213,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 218,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 198,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 239,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 217,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 20.4
+  },
+  {
+   "number": 143,
+   "task_id": "long_horizon_bin_swap",
+   "scene": "tabletop_sorting",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "red_block": 5.551115123125783e-17,
+    "blue_block": 2.997944808332385e-16
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 613,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 613,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 612,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 613,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 623,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 83.8
+  },
+  {
+   "number": 144,
+   "task_id": "long_horizon_clear_board",
+   "scene": "kitchen_burger",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "top_bun": 3.8683194824590424e-08,
+    "cheese_slice": 0.0,
+    "sponge": 0.00948806701775368
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 343,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 348,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 324,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 348,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 347,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 24.5
+  },
+  {
+   "number": 145,
+   "task_id": "long_horizon_spin_and_return",
+   "scene": "lab_science",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "micro_tube": 1.0008575372307938e-07
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 310,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 321,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 325,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 323,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 304,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 27.7
+  },
+  {
+   "number": 146,
+   "task_id": "long_horizon_cell_startup",
+   "scene": "industrial_assembly",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "machined_shaft": 4.42419755960392e-07
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 187,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 190,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 190,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 190,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 190,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 16.2
+  },
+  {
+   "number": 147,
+   "task_id": "long_horizon_plated_cheeseburger",
+   "scene": "kitchen_burger",
+   "goals": 4,
+   "budget": 1150,
+   "start_spread_m": {
+    "bottom_bun": 0.004027793491510361,
+    "burger_patty": 0.00931068009621545,
+    "cheese_slice": 0.005006117659354922,
+    "top_bun": 0.012371330022803892
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 620,
+     "goals_reached": 4,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 589,
+     "goals_reached": 4,
+     "fallback": false
+    },
+    {
+     "success": false,
+     "steps": 1150,
+     "goals_reached": 2,
+     "fallback": false,
+     "unmet": [
+      {
+       "goal": "On",
+       "holds": false,
+       "body": "cheese_slice",
+       "target": "burger_patty",
+       "tol_mm": 8.0,
+       "xy_err_mm": 7.8,
+       "z_err_mm": -57.2,
+       "tilt_deg": 0.0,
+       "held": false,
+       "lifted_mm": 173.4
+      },
+      {
+       "goal": "On",
+       "holds": false,
+       "body": "top_bun",
+       "target": "cheese_slice",
+       "tol_mm": 8.0,
+       "xy_err_mm": 11.3,
+       "z_err_mm": 47.7,
+       "tilt_deg": 0.0,
+       "held": false,
+       "lifted_mm": 165.7
+      }
+     ]
+    },
+    {
+     "success": true,
+     "steps": 554,
+     "goals_reached": 4,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 606,
+     "goals_reached": 4,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 4,
+   "seconds": 56.1
+  },
+  {
+   "number": 148,
+   "task_id": "long_horizon_tidy_table",
+   "scene": "tabletop_sorting",
+   "goals": 4,
+   "budget": 1150,
+   "start_spread_m": {
+    "red_block": 0.010165208827344386,
+    "green_block": 0.02913484961804134,
+    "blue_block": 0.03484599232395115
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 489,
+     "goals_reached": 4,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 548,
+     "goals_reached": 4,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 520,
+     "goals_reached": 4,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 552,
+     "goals_reached": 4,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 574,
+     "goals_reached": 4,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 33.0
+  },
+  {
+   "number": 149,
+   "task_id": "long_horizon_pipette_round_trip",
+   "scene": "lab_science",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "micropipette": 0.024380377356298732
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 206,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 217,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 281,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 286,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 202,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 24.0
+  },
+  {
+   "number": 150,
+   "task_id": "long_horizon_grand_assembly",
+   "scene": "industrial_assembly",
+   "goals": 5,
+   "budget": 1400,
+   "start_spread_m": {
+    "machined_shaft": 0.01577928442030856,
+    "dowel_pin": 0.012461820093123795,
+    "spur_gear": 0.015126148219682493,
+    "hex_nut": 0.014270685928602119
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 638,
+     "goals_reached": 5,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 598,
+     "goals_reached": 5,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 610,
+     "goals_reached": 5,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 645,
+     "goals_reached": 5,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 593,
+     "goals_reached": 5,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 82.4
+  },
+  {
+   "number": 151,
+   "task_id": "chain_shaft_bearing_clamp",
+   "scene": "industrial_assembly",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "machined_shaft": 0.012879042457067285,
+    "bearing_ring": 0.009795503013982666
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 320,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 335,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 312,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 319,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 315,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 35.7
+  },
+  {
+   "number": 152,
+   "task_id": "chain_bearing_then_gear",
+   "scene": "industrial_assembly",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "bearing_ring": 0.009875689637431333,
+    "spur_gear": 0.010435547066923965
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 257,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 252,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 254,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 268,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 273,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 34.4
+  },
+  {
+   "number": 153,
+   "task_id": "chain_pin_insert_press",
+   "scene": "industrial_assembly",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "dowel_pin": 0.009338650305303843
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 191,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 216,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 191,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 190,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 197,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 18.1
+  },
+  {
+   "number": 154,
+   "task_id": "chain_bolt_and_nut",
+   "scene": "industrial_assembly",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "flange_bolt": 0.015762671934484156,
+    "hex_nut": 0.01305269968973269
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 273,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 287,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 276,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 272,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 273,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 29.9
+  },
+  {
+   "number": 155,
+   "task_id": "chain_plug_and_test",
+   "scene": "industrial_electronics",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "harness_plug": 0.013881170824064246
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 164,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 162,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 155,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 171,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 174,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 8.4
+  },
+  {
+   "number": 156,
+   "task_id": "chain_bushing_then_shaft",
+   "scene": "industrial_assembly",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "bearing_ring": 0.010158235737093162,
+    "machined_shaft": 0.02441963794507192
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 262,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 255,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 268,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 277,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 251,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 31.6
+  },
+  {
+   "number": 157,
+   "task_id": "chain_pipette_micro_to_plate",
+   "scene": "lab_science",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "micropipette": 0.009936556812028903
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 93,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 210,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 164,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 133,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 91,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 13.4
+  },
+  {
+   "number": 158,
+   "task_id": "chain_load_and_cover",
+   "scene": "lab_science",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "micro_tube": 0.17950497775624963,
+    "centrifuge_lid": 0.013155380773464247
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 285,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 269,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 269,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 266,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 272,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 23.3
+  },
+  {
+   "number": 159,
+   "task_id": "chain_micro_rack_press_cap",
+   "scene": "lab_science",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "micro_tube": 0.10170090899834647
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 199,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 192,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 206,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 199,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 195,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 18.4
+  },
+  {
+   "number": 160,
+   "task_id": "chain_waste_then_dock",
+   "scene": "lab_science",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "micro_tube": 7.608797516004529e-07,
+    "micropipette": 0.027022903548043757
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 291,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 289,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 241,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 289,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 353,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 26.4
+  },
+  {
+   "number": 161,
+   "task_id": "chain_rack_swap",
+   "scene": "lab_science",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "conical_tube": 0.018856613458000993,
+    "micro_tube": 3.2866597096310694e-07
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 259,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 283,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 264,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 283,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 261,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 26.5
+  },
+  {
+   "number": 162,
+   "task_id": "chain_cover_and_inspect",
+   "scene": "lab_science",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "centrifuge_lid": 0.010393934133853412
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 146,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 143,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 143,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 144,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 157,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 10.7
+  },
+  {
+   "number": 163,
+   "task_id": "chain_seat_clamp_start",
+   "scene": "industrial_assembly",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "machined_shaft": 0.011078825615756686
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 227,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 225,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 223,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 225,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 222,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 20.8
+  },
+  {
+   "number": 164,
+   "task_id": "chain_gear_spindle_bearing_shaft",
+   "scene": "industrial_assembly",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "spur_gear": 0.009442273771107082,
+    "bearing_ring": 0.012476304429225506
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 504,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 480,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 277,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 269,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 269,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 41.0
+  },
+  {
+   "number": 165,
+   "task_id": "chain_bearing_then_pin",
+   "scene": "industrial_assembly",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "bearing_ring": 0.012488610137874657,
+    "dowel_pin": 0.005057385848056836
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 258,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 254,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 257,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 262,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 270,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 32.3
+  },
+  {
+   "number": 166,
+   "task_id": "chain_bearing_then_bolt",
+   "scene": "industrial_assembly",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "bearing_ring": 0.007510770695579165,
+    "flange_bolt": 0.01126177810228037
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 267,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 259,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 266,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 258,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 257,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 33.0
+  },
+  {
+   "number": 167,
+   "task_id": "chain_pin_and_bolt",
+   "scene": "industrial_assembly",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "dowel_pin": 0.005186738272378554,
+    "flange_bolt": 0.014535603284341126
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 284,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 301,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 279,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 309,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 296,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 30.2
+  },
+  {
+   "number": 168,
+   "task_id": "chain_fuse_and_test",
+   "scene": "industrial_electronics",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "cartridge_fuse": 0.010826449384297913
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 155,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 154,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 156,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 165,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 161,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 7.9
+  },
+  {
+   "number": 169,
+   "task_id": "chain_chip_and_relay",
+   "scene": "industrial_electronics",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "microchip": 0.014712365204719966,
+    "relay": 0.016193149781883992
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 252,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 235,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 222,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 264,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 271,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 14.1
+  },
+  {
+   "number": 170,
+   "task_id": "chain_plug_and_fuse",
+   "scene": "industrial_electronics",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "harness_plug": 0.01443455604772257,
+    "cartridge_fuse": 0.014202760830497369
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 244,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 245,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 231,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 252,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": false,
+     "steps": 650,
+     "goals_reached": 1,
+     "fallback": false,
+     "unmet": [
+      {
+       "goal": "On",
+       "holds": false,
+       "body": "harness_plug",
+       "target": "receptacle",
+       "tol_mm": 2.0,
+       "xy_err_mm": 0.3,
+       "z_err_mm": 1.1,
+       "tilt_deg": 90.0,
+       "held": false,
+       "lifted_mm": 382.0
+      }
+     ]
+    }
+   ],
+   "oracle_successes": 4,
+   "seconds": 18.4
+  },
+  {
+   "number": 171,
+   "task_id": "chain_conical_then_pipette",
+   "scene": "lab_science",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "conical_tube": 1.0289506611228222e-06,
+    "micropipette": 0.016429062836644904
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 268,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 208,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 220,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 281,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 277,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 22.2
+  },
+  {
+   "number": 172,
+   "task_id": "chain_cover_and_start",
+   "scene": "lab_science",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "centrifuge_lid": 0.009544086057087446
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 178,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 183,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 185,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 176,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 189,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 12.0
+  },
+  {
+   "number": 173,
+   "task_id": "chain_load_cover_inspect",
+   "scene": "lab_science",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "micro_tube": 0.17950520167652725,
+    "centrifuge_lid": 0.015146224552511144
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 306,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 287,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 309,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 291,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 312,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 24.7
+  },
+  {
+   "number": 174,
+   "task_id": "chain_waste_and_rack",
+   "scene": "lab_science",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "micro_tube": 1.186753484467018e-06,
+    "conical_tube": 0.018857417904652306
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 253,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 307,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 252,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 290,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 288,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 23.1
+  },
+  {
+   "number": 175,
+   "task_id": "chain_nut_and_start",
+   "scene": "industrial_assembly",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "hex_nut": 0.01402002751367063
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 190,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 189,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 189,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 190,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 190,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 15.5
+  },
+  {
+   "number": 176,
+   "task_id": "chain_gear_spindle_bearing_pallet",
+   "scene": "industrial_assembly",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "spur_gear": 0.015077867322423104,
+    "bearing_ring": 0.012038620832565145
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 249,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 262,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 271,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 271,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 251,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 25.8
+  },
+  {
+   "number": 177,
+   "task_id": "chain_shaft_then_bolt",
+   "scene": "industrial_assembly",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "machined_shaft": 0.012838704101746406,
+    "flange_bolt": 0.006828956808859997
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 246,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 246,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 250,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 251,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 251,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 26.8
+  },
+  {
+   "number": 178,
+   "task_id": "chain_relay_and_test",
+   "scene": "industrial_electronics",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "relay": 0.003111788949703014
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 157,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 157,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": false,
+     "steps": 650,
+     "goals_reached": 1,
+     "fallback": false,
+     "unmet": [
+      {
+       "goal": "Pressed",
+       "holds": false
+      }
+     ]
+    },
+    {
+     "success": true,
+     "steps": 155,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 151,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 4,
+   "seconds": 16.5
+  },
+  {
+   "number": 179,
+   "task_id": "chain_load_and_inspect",
+   "scene": "lab_science",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "micro_tube": 0.17950537970658126
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 152,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 149,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 170,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 152,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 152,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 13.3
+  },
+  {
+   "number": 180,
+   "task_id": "chain_full_centrifuge_cycle",
+   "scene": "lab_science",
+   "goals": 4,
+   "budget": 1150,
+   "start_spread_m": {
+    "micro_tube": 0.179505481857026,
+    "centrifuge_lid": 0.007216778036836276,
+    "micropipette": 0.02168649160177842
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 499,
+     "goals_reached": 4,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 497,
+     "goals_reached": 4,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 450,
+     "goals_reached": 4,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 437,
+     "goals_reached": 4,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 522,
+     "goals_reached": 4,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 38.2
+  },
+  {
+   "number": 181,
+   "task_id": "service_cheese_and_crown",
+   "scene": "kitchen_burger",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "cheese_slice": 0.014625544414711597,
+    "top_bun": 0.007129394295374979
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 248,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 269,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 279,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 282,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 274,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 18.5
+  },
+  {
+   "number": 182,
+   "task_id": "service_espresso_on_saucer",
+   "scene": "kitchen_coffee",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "coffee_mug": 0.009463518535226078
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 348,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 343,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 338,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 351,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 351,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 19.1
+  },
+  {
+   "number": 183,
+   "task_id": "service_toast_bun",
+   "scene": "kitchen_burger",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "bottom_bun": 0.011950502890136454
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 297,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 298,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 288,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 292,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 292,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 17.2
+  },
+  {
+   "number": 184,
+   "task_id": "service_salad_plate",
+   "scene": "kitchen_burger",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "lettuce_leaf": 0.01360232132972431,
+    "tomato_slice": 0.010090693738658526
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 244,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 266,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 250,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 241,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 258,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 14.8
+  },
+  {
+   "number": 185,
+   "task_id": "service_open_bun_toppings",
+   "scene": "kitchen_burger",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "tomato_slice": 0.010528216707573432,
+    "cheese_slice": 0.009639583623811591
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 281,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 285,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 279,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 272,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 278,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 15.1
+  },
+  {
+   "number": 186,
+   "task_id": "service_lettuce_burger",
+   "scene": "kitchen_burger",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "lettuce_leaf": 0.01044290644843762,
+    "burger_patty": 0.010995106175405151,
+    "top_bun": 0.007017768096540675
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 347,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 344,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 351,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 344,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 356,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 24.6
+  },
+  {
+   "number": 187,
+   "task_id": "service_mug_saucer_red_capsule_slot",
+   "scene": "kitchen_coffee",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "coffee_mug": 0.012378195219987098,
+    "red_capsule": 0.011457426287080894
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 255,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 264,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 253,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 268,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 251,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 15.6
+  },
+  {
+   "number": 188,
+   "task_id": "service_lettuce_tomato_board",
+   "scene": "kitchen_burger",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "lettuce_leaf": 0.015418366753684097,
+    "tomato_slice": 0.018459857397251773
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 227,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 225,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 226,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 229,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": false,
+     "steps": 650,
+     "goals_reached": 0,
+     "fallback": false,
+     "unmet": [
+      {
+       "goal": "On",
+       "holds": false,
+       "body": "lettuce_leaf",
+       "target": "assembly_board",
+       "tol_mm": 48.0,
+       "xy_err_mm": 0.3,
+       "z_err_mm": -23.0,
+       "tilt_deg": 0.0,
+       "held": false,
+       "lifted_mm": 155.1
+      },
+      {
+       "goal": "On",
+       "holds": false,
+       "body": "tomato_slice",
+       "target": "lettuce_leaf",
+       "tol_mm": 8.0,
+       "xy_err_mm": 1.5,
+       "z_err_mm": 13.5,
+       "tilt_deg": 0.0,
+       "held": false,
+       "lifted_mm": 136.7
+      }
+     ]
+    }
+   ],
+   "oracle_successes": 4,
+   "seconds": 18.4
+  },
+  {
+   "number": 189,
+   "task_id": "service_grill_tomato",
+   "scene": "kitchen_burger",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "tomato_slice": 0.010128677023249556
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 306,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 335,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 316,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 327,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 334,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 16.6
+  },
+  {
+   "number": 190,
+   "task_id": "service_patty_cheese_plate",
+   "scene": "kitchen_burger",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "burger_patty": 0.009353315392596857,
+    "cheese_slice": 0.003098215873202073
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 292,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": false,
+     "steps": 650,
+     "goals_reached": 1,
+     "fallback": false,
+     "unmet": [
+      {
+       "goal": "On",
+       "holds": false,
+       "body": "cheese_slice",
+       "target": "burger_patty",
+       "tol_mm": 8.0,
+       "xy_err_mm": 2.4,
+       "z_err_mm": -40.5,
+       "tilt_deg": 0.0,
+       "held": false,
+       "lifted_mm": 155.4
+      }
+     ]
+    },
+    {
+     "success": true,
+     "steps": 249,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 252,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 279,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 4,
+   "seconds": 21.0
+  },
+  {
+   "number": 191,
+   "task_id": "service_drawer_and_square",
+   "scene": "tabletop_sorting",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "red_block": 0.02083440157147209,
+    "blue_block": 0.021774094464616915
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 420,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 262,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 244,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 252,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 273,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 15.9
+  },
+  {
+   "number": 192,
+   "task_id": "service_capsule_saucer_mug_tray",
+   "scene": "kitchen_coffee",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "coffee_pod": 0.005320652454279048,
+    "coffee_mug": 0.015931289470199485
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 275,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 292,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 296,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 277,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 290,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 17.2
+  },
+  {
+   "number": 193,
+   "task_id": "service_two_blocks_green_bin",
+   "scene": "tabletop_sorting",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "red_block": 0.0197602277059685,
+    "blue_block": 0.02882986704213454
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 267,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 269,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 241,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 268,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 252,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 15.7
+  },
+  {
+   "number": 194,
+   "task_id": "service_blue_in_drawer_close",
+   "scene": "tabletop_sorting",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "blue_block": 0.017265003003580057
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 294,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 280,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 410,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 288,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 294,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 16.6
+  },
+  {
+   "number": 195,
+   "task_id": "service_drawer_then_bin",
+   "scene": "tabletop_sorting",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "red_block": 0.030703069530075098,
+    "blue_block": 0.02524166478491008
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 538,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 548,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 417,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 556,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 409,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 26.5
+  },
+  {
+   "number": 196,
+   "task_id": "service_coffee_set",
+   "scene": "kitchen_coffee",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "coffee_mug": 0.010591337922978512,
+    "coffee_pod": 0.008916416992613505,
+    "red_capsule": 0.010809069729119155
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 495,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 591,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 531,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 541,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 513,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 32.9
+  },
+  {
+   "number": 197,
+   "task_id": "service_cross_sort",
+   "scene": "tabletop_sorting",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "green_block": 0.031080855770384847,
+    "red_block": 0.02079651886872238
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 276,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 251,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 262,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 269,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 276,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 15.5
+  },
+  {
+   "number": 198,
+   "task_id": "service_stack_in_bin",
+   "scene": "tabletop_sorting",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "red_block": 0.03701857962903919,
+    "blue_block": 0.023646604358259098
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 232,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 229,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 229,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 241,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 268,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 13.3
+  },
+  {
+   "number": 199,
+   "task_id": "service_full_brew",
+   "scene": "kitchen_coffee",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "coffee_mug": 0.011288880932260464,
+    "coffee_pod": 0.007070780239931456
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 330,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 350,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 354,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 343,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 327,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 19.9
+  },
+  {
+   "number": 200,
+   "task_id": "service_open_sandwich_plate",
+   "scene": "kitchen_burger",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "bottom_bun": 0.013611616940694628,
+    "cheese_slice": 0.0035740971006733143,
+    "tomato_slice": 0.016371011651174557
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 378,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": false,
+     "steps": 900,
+     "goals_reached": 2,
+     "fallback": false,
+     "unmet": [
+      {
+       "goal": "On",
+       "holds": false,
+       "body": "bottom_bun",
+       "target": "dining_plate",
+       "tol_mm": 42.0,
+       "xy_err_mm": 5.4,
+       "z_err_mm": -25.2,
+       "tilt_deg": 0.0,
+       "held": false,
+       "lifted_mm": 138.9
+      },
+      {
+       "goal": "On",
+       "holds": false,
+       "body": "cheese_slice",
+       "target": "bottom_bun",
+       "tol_mm": 8.0,
+       "xy_err_mm": 4.3,
+       "z_err_mm": -19.1,
+       "tilt_deg": 0.0,
+       "held": false,
+       "lifted_mm": 155.0
+      },
+      {
+       "goal": "On",
+       "holds": false,
+       "body": "tomato_slice",
+       "target": "cheese_slice",
+       "tol_mm": 8.0,
+       "xy_err_mm": 6.6,
+       "z_err_mm": 16.8,
+       "tilt_deg": 0.0,
+       "held": false,
+       "lifted_mm": 165.1
+      }
+     ]
+    },
+    {
+     "success": true,
+     "steps": 426,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 413,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 408,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 4,
+   "seconds": 34.0
+  },
+  {
+   "number": 201,
+   "task_id": "service_patty_lettuce_tomato",
+   "scene": "kitchen_burger",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "burger_patty": 0.005678952906660378,
+    "lettuce_leaf": 0.014251828174916324,
+    "tomato_slice": 0.006526078161448554
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 352,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 342,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 360,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 349,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 341,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 22.4
+  },
+  {
+   "number": 202,
+   "task_id": "service_red_capsule_brew",
+   "scene": "kitchen_coffee",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "red_capsule": 0.014855090253983596
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 172,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 173,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 173,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 172,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 173,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 8.8
+  },
+  {
+   "number": 203,
+   "task_id": "service_board_toppings_grill",
+   "scene": "kitchen_burger",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "tomato_slice": 0.016444906134734923,
+    "lettuce_leaf": 0.005819717313985126
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 295,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 298,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 293,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 293,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 295,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 17.0
+  },
+  {
+   "number": 204,
+   "task_id": "service_grill_to_board_cheese",
+   "scene": "kitchen_burger",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "burger_patty": 0.007508780597234884,
+    "cheese_slice": 0.013729857771957395
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 217,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 250,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": false,
+     "steps": 650,
+     "goals_reached": 1,
+     "fallback": false,
+     "unmet": [
+      {
+       "goal": "On",
+       "holds": false,
+       "body": "burger_patty",
+       "target": "assembly_board",
+       "tol_mm": 48.0,
+       "xy_err_mm": 0.8,
+       "z_err_mm": 9.1,
+       "tilt_deg": 0.0,
+       "held": false,
+       "lifted_mm": 135.2
+      },
+      {
+       "goal": "On",
+       "holds": false,
+       "body": "cheese_slice",
+       "target": "burger_patty",
+       "tol_mm": 8.0,
+       "xy_err_mm": 0.3,
+       "z_err_mm": -27.4,
+       "tilt_deg": 0.0,
+       "held": false,
+       "lifted_mm": 150.8
+      }
+     ]
+    },
+    {
+     "success": true,
+     "steps": 237,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 241,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 4,
+   "seconds": 17.5
+  },
+  {
+   "number": 205,
+   "task_id": "service_mug_drip_capsule_tray",
+   "scene": "kitchen_coffee",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "coffee_mug": 0.012455014328375771,
+    "red_capsule": 0.010600964081727022
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 450,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 307,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 307,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 321,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 341,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 20.0
+  },
+  {
+   "number": 206,
+   "task_id": "service_unload_drawer",
+   "scene": "tabletop_sorting",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "red_block": 0.0
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 307,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 316,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 318,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 308,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 308,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 15.5
+  },
+  {
+   "number": 207,
+   "task_id": "service_capsule_out_and_wipe",
+   "scene": "kitchen_coffee",
+   "goals": 2,
+   "budget": 650,
+   "start_spread_m": {
+    "coffee_pod": 1.9919556539148385e-07,
+    "sponge": 0.0057803665133043785
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 218,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 212,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 224,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 200,
+     "goals_reached": 2,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 212,
+     "goals_reached": 2,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 15.1
+  },
+  {
+   "number": 208,
+   "task_id": "service_drawer_square_close",
+   "scene": "tabletop_sorting",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "green_block": 0.00814309632886794,
+    "blue_block": 0.023485385111715832
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 413,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 438,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 435,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 428,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 446,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 25.9
+  },
+  {
+   "number": 209,
+   "task_id": "service_clear_and_wipe",
+   "scene": "tabletop_sorting",
+   "goals": 3,
+   "budget": 900,
+   "start_spread_m": {
+    "red_block": 0.02057815160622175,
+    "blue_block": 0.018557971408403758,
+    "sponge": 0.0075677451309352165
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": false,
+     "steps": 900,
+     "goals_reached": 2,
+     "fallback": false,
+     "unmet": [
+      {
+       "goal": "Slid",
+       "holds": false
+      }
+     ]
+    },
+    {
+     "success": true,
+     "steps": 375,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 336,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 341,
+     "goals_reached": 3,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 344,
+     "goals_reached": 3,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 4,
+   "seconds": 24.7
+  },
+  {
+   "number": 210,
+   "task_id": "service_grand_burger",
+   "scene": "kitchen_burger",
+   "goals": 6,
+   "budget": 1650,
+   "start_spread_m": {
+    "burger_patty": 0.008062441898690527,
+    "lettuce_leaf": 0.008376049420800441,
+    "cheese_slice": 0.002534011350448676,
+    "tomato_slice": 0.011820760462921947,
+    "top_bun": 0.01456111114644889
+   },
+   "start_fallbacks": 0,
+   "goal_true_at_reset": 0,
+   "episodes": [
+    {
+     "success": true,
+     "steps": 628,
+     "goals_reached": 6,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 658,
+     "goals_reached": 6,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 667,
+     "goals_reached": 6,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 658,
+     "goals_reached": 6,
+     "fallback": false
+    },
+    {
+     "success": true,
+     "steps": 662,
+     "goals_reached": 6,
+     "fallback": false
+    }
+   ],
+   "oracle_successes": 5,
+   "seconds": 41.1
+  }
+ ]
+}

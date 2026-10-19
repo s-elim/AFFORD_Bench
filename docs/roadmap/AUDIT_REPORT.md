@@ -218,6 +218,94 @@ were read as history, not as evidence; each claim taken from them is re-checked 
 - E-009: the oracle exceeds F_max = 150 N in 9/210 episodes (max 163 N); the paper's rationale ("flags contact
   harder than the scripted expert's in any task") no longer holds. Paper now reports the oracle's FVR (4.3%).
 
+Findings A-30 to A-35 came from rebuilding the tasks (T9); each is fixed in the benchmark tasks and stays true of the legacy set.
+
+### A-30 HIGH: three "core" kitting tasks name pallet compartments that do not exist
+- Tasks 20-22 kit parts "into compartment 1/2/3 on the outbound pallet"; the legacy pallet is one open tray with rails,
+  so the goals are unmarked points on it. The prompt-file grounding flags and the runtime audit (E-005) both missed
+  this. Benchmark: a 2x2 pallet with red, yellow, green and blue compartments; the goal is a compartment.
+
+### A-31 HIGH: task 14 scores the shaft balanced on the feeder cup's rim
+- "Place the shaft into the feeder cup": the shaft's 12 mm pilot equals the cup's 12 mm bore, so the calibrated goal
+  is the shaft standing on the rim (its bottom 16 mm above the rim top; checked 2026-10-18). Benchmark: the parts bin.
+
+### A-32 MEDIUM: legacy start sampling turned many intended scatters into near-fixed starts
+- The start check accepted a body only if a grasp existed with the fingers 1 cm below its top; parts in trays,
+  caddy slots and cups failed it at most positions, so resets fell back to small scatter scales (A-19). The legacy micro
+  tube, meant to start in a rack, starts standing on the rack's base plate or the bench (its holes leave 9 mm proud).
+  Benchmark: the start check uses the oracle's own grasp candidates, rims are low enough to grasp above, regions are sized
+  so that every region start has a standard deviation of at least 1 cm (measured over 20 resets per task).
+
+### A-33 MEDIUM: the IK drifts near the shoulder singularity
+- Lifting a part close to the robot can fold the arm to joint 2 near 0, where joints 1 and 3 align; the joint servos
+  then do not realize the commanded motion and the hand drifts up to 22 cm from its target (traced on task 70,
+  seed 600003). The legacy IK has no null-space control. The benchmark adds a null-space pull toward the ready posture
+  (`GoalFrankaEnv.solve_ik`, gain 0.1): the traced failure succeeds in 113 steps, and oracle success rose from
+  97.6% to 99.1% (1050 episodes). The action interface is unchanged.
+
+### A-34 MEDIUM: soft dry friction lets latching mechanisms creep
+- MuJoCo's dry-friction constraint is soft, so a button cap on a slide joint with frictionloss sank 4 to 10 mm in 2 s
+  under its own weight. Button caps are gravity-compensated; a pushed button keeps its depth (checked to 0.1 mm).
+
+### A-35 LOW: the scene build silently dropped contact exclusions
+- `lab_science.xml` has no `<contact>` section, so the first scene build could not insert the button-panel exclusion
+  and the button was pushed back out. `scripts/build_bench_scenes.py` now creates the section or fails.
+
+### A-36 LOW: provenance records cut the first character of the first modified file
+- `afford_pro.provenance.git_state` stripped `git status --porcelain` before slicing off the status column, so the
+  first path lost its first character (`fford_pro/...` in the E-016 evidence). Commit, branch and the dirty flag were
+  correct. Fixed (`tests/test_provenance.py`); records written before the fix keep the truncated name.
+
+### A-37 MEDIUM: task 159 always started from the same slot
+- The micro tube's home slots are rack A and the orange rack. Task 159's goal is the orange rack, so every start there
+  was rejected at reset and the tube started in rack A every time (start s.d. 0.0 in the post-review validation; E-016
+  had counted it among the 22 varied slot starts). It now starts in rack A or the centrifuge slot, like task 95 (s.d.
+  10.7 cm, oracle 10/10). The static checks now report any slot start whose other slots are the body's own goal; no
+  other task has one.
+
+### A-38 MEDIUM: the oracle swept a seated lid off with a diagonal approach
+- Under L4/L5 the oracle reached every goal of tasks 132, 172 and 180 but failed at the end: after seating the
+  centrifuge lid it descended diagonally towards the start button while its fingers were still closing, and the
+  outer finger pushed the lid off at friction 0.2 (at nominal friction the lid stayed within tolerance). Empty-hand
+  approaches (press, touch, push, hover) now cross, settle and descend vertically (`GoalOracle._travel`).
+  Before/after on the failing L4 seeds: 3/9 -> 9/9. The crossing is capped at 12 cm above the approach point: crossing
+  at the ready pose's height stretched the arm over a far button, and the vertical descent from there flipped the IK
+  solution (task 146 nominal, 1/10).
+
+### A-39 MEDIUM: thin decorative collision layers let food slices sink into the stack below
+- The bottom bun's crumb, the patty's char marks and the tomato's core were 2 mm collision layers inside their
+  bodies. A slice released with a slight tilt sank past such a layer's midplane, the contact normal flipped, and
+  the slice was driven 7 to 10 mm into the body below and buzzed there, so "at rest" failed (tasks 185 and 210
+  under L2/L4). They are visual only (their tops 0.1 mm proud, masses unchanged). The dining plate had the same
+  defect where things are set down (a 3 mm rim disc over its base; a bun sank 20 mm into it under L5) and so did the
+  grill ribs: the plate's base now reaches up to its rim and the ribs reach down into the grill base. A test rejects
+  a thin collision layer inside another in any body of the benchmark scenes, except structural lips that are listed with
+  their reason (capsule and tube lips, the saucer rim). The legacy scenes are unchanged.
+
+### A-40 MEDIUM: torsional friction between flat bodies destabilised the contact solver
+- With condim 4 on both bodies and multiccd's several coplanar contact points, a cheese slice let go on a patty
+  oscillated by +-1 m/s per 2 ms substep while its support force never exceeded its weight, and sank 40 mm into the
+  patty (task 190 under L5). The same replay with condim 3 on the food rests at the calibrated 13.8 mm. Every object
+  geom in the benchmark scenes now uses condim 3; the finger pads keep condim 4 and a contact takes the larger value, so
+  grasps still resist twisting. Rejected alternatives: impratio 1, pyramidal cones, noslip and 500 solver iterations
+  did not help; a 5 ms default contact time constant fixed the replay but made the fingers lose thin slices
+  (nominal 141/160 on the affected tasks), and easing the hand up before release halved L5 success (E-018).
+
+### A-41 HIGH: "throw it into the waste bin" failed when the body lay inside the bin
+- The six goals that allow any tilt (micro tube, conical tube or sponge into the waste bin) compared the body's origin
+  with an upright rest pose to 2 mm in height, and for the sponge (8 cm in a 9 cm bin) to 2 mm in x/y. A sponge on its
+  side or a tube lying in the bin therefore failed (task 110: 1/5 under L2 and L5; nominal passed only because the
+  oracle always places upright). These goals now hold when the body's lowest point rests on the bin floor and its
+  origin is inside the bin, in any pose (`GoalFrankaEnv.on_error`).
+
+### A-42 MEDIUM (open): thin light parts can sink through their support when released under L4/L5
+- Releasing a 1 cm food slice (cheese, tomato) under low friction and 1.8-2.5x mass occasionally drives it past its
+  own half-thickness into what it is set on within one control step, after which the contact pushes it through. The
+  same slice dropped without the gripper rests correctly, so the release interacts badly with MuJoCo's soft contacts
+  on light parts. Rate (E-017): 0.8% of L4, 0.5% of L2 and 1.6% of L5 oracle episodes; none in nominal. Two fixes
+  were tried and rejected (E-018). Until a contact model is found that fixes the release without breaking the grasp,
+  the suite results report the oracle's ceiling per task, and these episodes count as failures for every policy.
+
 ## Confirmed as correct (checked, no action)
 - 210 core task definitions, all registered; 210 nominal datasets on disk, 50 demos each, 10,500 total (E-002).
 - Image shapes 640x660x3 and 300x420x3 uint8; masks 45 train / 5 valid per file; `states` (T, 85) float64;

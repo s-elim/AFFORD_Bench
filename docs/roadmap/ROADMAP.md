@@ -28,14 +28,15 @@ T0 source of truth ──> T1 re-measure sanity floors ──┐
 | Workstream | State |
 | --- | --- |
 | T0 source of truth | done |
-| T1 sanity floors on current physics | done (E-004), re-measured after the pairing and float32 fixes (E-013, running) |
+| T1 sanity floors on current physics | done (E-004), re-measured after the pairing and float32 fixes (E-013) |
 | T2 task semantics and tiers | done: 66 core / 35 reach / 109 mismatch; audited subsets; decision D1 open |
 | T3 episode-level validation | done for all 210 files (E-007); replay cause found and fixed (E-012) |
 | T4 generator provenance and safe writes | done and checked end to end (E-014); regeneration needs approval (D2) |
 | T5 baselines | pipeline fixed and checked on one task (E-011); campaign needs approval (D3, D4) |
-| T6 paper | synchronized with evidence through E-012; Table II and L4/force numbers to refresh from E-013 |
+| T6 paper | rewritten for the benchmark tasks (2026-10-19; kept local, gitignored): numbers from E-016, E-017 and the reference leaderboard E-019; claims in `CLAIM_EVIDENCE_LEDGER.md` |
 | T7 literature | done (`LITERATURE_COMPARISON.md`), bib corrected |
-| T8 release | packaging, CI pin, NOTICE, dataset card done; licence (D5), public page (D8), commit (D6) open |
+| T8 release | packaging, CI pin, NOTICE, dataset card, MIT licence, public page with measured leaderboard; committed and pushed 2026-10-18 |
+| T9 all 210 tasks valid | T9.1-T9.7 done: `afford_pro/bench`, 210 specs, six task scenes, E-016 (oracle 99.8% nominal, every task >= 9/10, floors 0%), E-017 (oracle 98.9/97.5/95.5% under L4/L2/L5; contact artifact A-42 open); T9.8 datasets deferred by the authors (D9); T9.9 done: benchmark is the default task set, paper and page describe it, legacy set deprecated |
 
 ## Workstreams
 
@@ -134,9 +135,16 @@ predicates over them, success = all predicates hold).
   support bodies.
 - T9.6 Validate every task against the gate (audit + oracle/null/random), iterate until all 210 pass.
 - T9.7 Regenerate `configs/prompts_augmented.yaml` from the new definitions.
-- T9.8 Regenerate all 10,500 demonstrations into a new folder (`datasets_v2/`); old data kept until the authors
+- T9.8 Generate all 10,500 demonstrations (`datasets/`, after the legacy files are moved out); old data kept until the authors
   delete it. Validate every episode; replay must be exact.
 - T9.9 Update paper, page, dataset card, and the leaderboard references; GPU baselines run on the authors' server.
+
+**As built (2026-10-18):** `T9_TASK_REDESIGN.md` (design, decisions), `T9_TASK_TABLE.md` (all 210 definitions with
+the legacy task each replaces and why). Gate items 1-5 are met for all 210 tasks (E-016): named objects are simulated
+bodies or mechanisms; goals are conjunctions with ordered steps; goals on open surfaces are marked squares or regions;
+region starts vary >= 1 cm (fixed starts only for pre-assembled parts, stated in the instruction); oracle 99.9%,
+random and null 0%, nothing holds at reset. Item 6: canonical instructions rewritten, and a step-by-step variant is
+derived from the goals (`afford_pro/bench/language.py`); the four-tier prompt file stays with the legacy set.
 
 ## Optional / Stage 2 (not on the Stage 1 critical path)
 - Multi-body sequential predicates for D5 to D7 (H3), tolerance-indexed variants (H2), Domain 8 validation,

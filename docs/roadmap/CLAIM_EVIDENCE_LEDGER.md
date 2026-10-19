@@ -1,55 +1,49 @@
 # Claim-evidence ledger
 
-Every quantitative or scientific claim in `AFFORD-Bench_RSS'27/paper-template-latex/main.tex` as revised on
-2026-10-17, with its artifact. Status: SUPPORTED, PARTIALLY SUPPORTED, UNVERIFIED, CONTRADICTED, NOT APPLICABLE
-(design specification or plan, not a result). Evidence paths are relative to `docs/roadmap/evidence/`; E-xxx refer
-to `EXPERIMENT_LOG.md`. All runs: MuJoCo 3.5.0 on the dirty tree described in each provenance sidecar.
+Every quantitative or scientific claim in the paper (`AFFORD-Bench_RSS'27/paper-template-latex/main.tex`, kept local
+and untracked since 2026-10-19), as rewritten on 2026-10-19 for the benchmark tasks, with its artifact. Status:
+SUPPORTED, PARTIALLY SUPPORTED, UNVERIFIED, CONTRADICTED, NOT APPLICABLE (design specification or plan, not a result).
+Evidence paths are relative to `docs/roadmap/evidence/`; E-xxx refer to `EXPERIMENT_LOG.md`. All runs: MuJoCo 3.5.0,
+code at the commit in each file's provenance.
 
-The previous ledger (claims of the pre-revision paper, several CONTRADICTED) is summarized at the end.
-
-## Task inventory and data
+## Task set
 
 | ID | Claim (section) | Artifact | Reproduce | Status |
 | --- | --- | --- | --- | --- |
-| C-01 | 210 registered tasks in 7 domains, 30 each (abstract, Sec. III-C) | `afford_pro.list_tasks()` | `pytest tests/test_task_registry.py` | SUPPORTED |
-| C-02 | 66 core, 35 reach, 109 instruction mismatches (66 absent referent, 31 partial chain predicates, 12 audited); per-domain 17/6/7, 20/7/3, 17/8/5, 12/14/4, 0/0/30 (abstract, Table I, Sec. III-C) | `afford_pro/task_tiers.py`, `task_audit_2026-10-17.json` | `python -c "from afford_pro.task_tiers import tier_counts_by_domain; print(tier_counts_by_domain())"` | SUPPORTED (tiers are defined by the audit; the 12 audited reasons are in `AUDITED_MISMATCHES`) |
-| C-03 | 17 core goals on unmarked surfaces; 13 core tasks with near-fixed starts (Sec. III-C) | `task_audit_2026-10-17.json` | E-005 | SUPPORTED |
-| C-04 | 57 of 90 D5-D7 tasks end before the last instructed step (Sec. III-C) | `configs/prompts_augmented.yaml` | count `episode_terminates_after_subtask < len(atomic_subtasks)` | SUPPORTED |
-| C-05 | 10,500 demonstrations, 1,230,842 steps, mean 117 (abstract, Sec. V-B) | `dataset_validation_2026-10-17/summary.md` | E-007 | SUPPORTED |
-| C-06 | Dual RGB 640x660 and 300x420; proprioception; full simulator state; intrinsics and poses stored; depth not in released data (Sec. III-B, V-B) | E-007 report | E-007 | SUPPORTED |
-| C-07 | 90/10 train/validation masks; every demo from its own seed with a distinct initial state (Sec. V-B) | E-007 (no duplicate_initial_state errors; split stats) | E-007 | SUPPORTED |
-| C-08 | About 5% of sampled starts were discarded (Sec. V-B) | E-002 seed gaps (597/11,097 = 5.4%) | `seedscan.py` (scratch) | SUPPORTED (inferred from seed gaps; generator did not log failures) |
-| C-09 | Validator finds no errors in any episode (Sec. V-B) | `dataset_validation_2026-10-17/summary.md` | E-007 | SUPPORTED |
-| C-10 | Replay: 595/630 exact success step, median deviation 0.02 mm, 35 differ (Sec. V-B) | `dataset_validation_2026-10-17/report.json` | E-007 | SUPPORTED |
-| C-11 | 114 demos exceed the 500-step env limit; final state not stored; three generator invocations (Sec. V-B) | E-002, E-007 | E-007 | SUPPORTED ("at least three" seed schemes) |
-| C-12 | Four instruction variants per task, annotated with whether the simulator evaluates them (Sec. I) | `configs/prompts_augmented.yaml` | `pytest tests/test_prompts_augmented.py` | PARTIALLY SUPPORTED: annotations are too generous for reach tasks (the tiers correct this) |
-| C-13 | Converters export LeRobot v2.0 and RLDS (round-trip tests on synthetic episodes; RLDS NumPy layout) (Sec. VIII-A) | `tests/test_converters.py` | pytest | SUPPORTED as stated |
+| C-01 | 210 tasks in 7 domains of 30 over six workcells (abstract, Sec. III-D) | `afford_pro.list_tasks()`, `afford_pro/bench/tasks/` | `pytest tests/test_bench_tasks.py::test_registry_has_210_consistent_tasks` | SUPPORTED |
+| C-02 | 343 goals, 1-6 per task; 27 objects, 6 latching buttons, a drawer, a vise jaw; 8 predicate types (abstract, Sec. I, Table I) | `bench_tasks.json`, `afford_pro/bench/scenes.py` | `python scripts/export_task_table.py` | SUPPORTED |
+| C-03 | Every instruction names only simulated objects and mechanisms (abstract, Sec. I) | `T9_TASK_TABLE.md` (instruction, goals, starts per task); static checks of every name in goals and starts | `pytest tests/test_bench_tasks.py` (static problems, goal wording) | SUPPORTED (names in goals and starts are checked automatically; the instruction text was audited task by task in T9) |
+| C-04 | Success is the conjunction of the goals, reached in order; waypoints need only be reached (Sec. III-B) | `GoalFrankaEnv.check_success`, `_after_step` | `pytest tests/test_bench_tasks.py -k "order or latched"` | SUPPORTED |
+| C-05 | Placement tolerances 2 mm/5 deg (precision) and 8 mm/15 deg; 6 mm for two loose fits; any pose for bin goals (abstract, Sec. III-B, Table I) | `afford_pro/bench/scenes.py` (precision), task specs (bearing ring, lid), `GoalFrankaEnv.on_error` | `pytest tests/test_bench_tasks.py -k "region or bin"` | SUPPORTED |
+| C-06 | Every goal pose is found by letting the body come to rest, so every goal is attainable (Sec. I, III-B) | `GoalFrankaEnv._calibrate`; 0 build errors in E-016 | E-016 | SUPPORTED |
+| C-07 | D1-D4 have one goal per task (one has two); D5-D7 chain 2-6 goals and need up to 1650 steps (Sec. III-D) | task specs, `step_budget` | `python scripts/export_task_table.py` | SUPPORTED |
+| C-08 | Static checks: names, orderings, waypoints (Sec. III-D) | `afford_pro/bench/tasks/__init__.py:static_problems` | `pytest tests/test_bench_tasks.py -k spec_problems` | SUPPORTED |
 
 ## Simulation, perturbations, and control
 
-| ID | Claim (section) | Artifact | Reproduce | Status |
-| --- | --- | --- | --- | --- |
-| C-14 | Frictional grasping; no attachment, snapping, or teleport; success predicate as in Eq. (1) (abstract, Sec. III-A) | `afford_pro/envs/parametric_env.py` | code inspection | SUPPORTED for the 210 core-registry tasks (frontier envs not audited) |
-| C-15 | Tolerance tiers 2-2.5 mm / 5 deg and 8 mm / 15 deg (abstract, Table I) | `task_definitions.PRECISION_TIERS` | `pytest tests/test_task_registry.py` | SUPPORTED |
-| C-16 | Action and controller parameters (0.025 m, 0.5 m/s, 20 Hz, yaw 0.05 rad, about 35 N per finger) (Sec. III-A) | `base_franka_env.py`, scene XML actuator8 (70 N tendon, 0.5/0.5 split) | code inspection | SUPPORTED |
-| C-17 | L1 scatter and shrink schedule 1/2, 1/4, 1/10, 1/20; 29/210 tasks with start std < 1 cm; task 12 always nominal; distractors closer than 9 cm in 7/76 tasks, min 3.9 cm (Sec. IV) | `perturbations/engine.py`, `parametric_env.RESET_SCATTER_SCHEDULE`, E-005 | E-005 | SUPPORTED |
-| C-18 | L2: radius U(7, 12) cm, yaw U(45, 90) deg (Sec. IV) | `PerturbationConfig` | code | SUPPORTED |
-| C-19 | L3: diffuse x U(0.5, 1.5) clipped at 1; key light 0.9 so at most x1.11 (Sec. IV) | `apply_visual_perturbation`, scene XML lights | code | SUPPORTED |
-| C-20 | L4: mu U(0.12, 0.25) on body and pads, mass/inertia x U(1.8, 2.5) (Sec. IV) | `apply_physical_perturbation` | code | SUPPORTED |
-| C-21 | Perturbations restored and seeded per episode (Sec. IV) | `PerturbationEngine.begin_episode` | code | SUPPORTED; isolation test (each mode changes only its factor) still to write (T5) |
-| C-22 | L4 sweep: >= 94% for mu >= 0.12 up to x2.5; 70% at (0.12, x5), 38% at (0.05, x5), 16% at (0.02, x5) (Sec. IV, abstract) | `l4_sweep_2026-10-18.csv` | E-013 | SUPPORTED (66 core tasks, 3 seeds per cell) |
-| C-23 | Force: median 0 N, p95 143 N, max 169 N; 10/210 > 150 N; oracle FVR 4.8% (Sec. III-A) | `force_probe_2026-10-18.csv` | E-013 | SUPPORTED |
+| ID | Claim (section) | Artifact | Status |
+| --- | --- | --- | --- |
+| C-10 | Action space, 20 Hz, 25 x 2 ms substeps, DLS IK, gripper limits (Sec. III-A) | `afford_pro/envs/base_franka_env.py` | SUPPORTED |
+| C-11 | Step budget 400 + 250 (k - 1) (Sec. III-A) | `afford_pro/bench/spec.py:step_budget` | SUPPORTED |
+| C-12 | L1: per-object regions (half-widths 2-40 mm, yaw up to +-10 to +-45 deg), receptacles or assemblies; TCP jitter 1.5 cm; rejection sampling (Sec. IV) | scenes, task specs, `GoalFrankaEnv._layout_problem`, `PerturbationConfig` | SUPPORTED |
+| C-13 | L2 7-12 cm, yaw 45-90 deg; L3 lights; color +-25% on moved objects; L4 friction 0.12-0.25 on moved objects and pads, mass x1.8-2.5; L5 joint (Sec. IV) | `afford_pro/perturbations/engine.py`, `GoalFrankaEnv._perturb_bodies` | SUPPORTED |
+| C-14 | Suites are paired on seeds; parameters restored each reset (Sec. IV) | `tests/test_perturbation_isolation.py` | SUPPORTED |
+| C-15 | Physics: gravity-compensated servos, tendon gripper, pads 4 ms with torsional friction, elliptic cones impratio 10, objects without torsional friction, native convex multi-point contact (Sec. IV) | scene XMLs, `scripts/build_bench_scenes.py`, `tests/test_bench_tasks.py::test_objects_touch_each_other_without_torsional_friction` | SUPPORTED |
+| C-16 | Oracle: grasp planning, carry, re-centering, vertical empty-hand approaches (Sec. V-A) | `afford_pro/bench/oracle.py`, `afford_pro/oracles/parametric_oracle.py`, travel test | SUPPORTED |
+| C-17 | Demonstrations: 50 per task, schema, provenance, validator, exact replay (Sec. V-B) | `afford_pro/datasets/`, `tests/test_bench_tasks.py::test_dataset_is_written_validated_and_replayed_exactly`, pilot files | PARTIALLY SUPPORTED: the pipeline is implemented and tested; the 10,500 demonstrations are not generated yet (D9) |
+| C-18 | Converters to RLDS and LeRobot (Sec. V-B) | `tests/test_converters.py` | SUPPORTED |
+| C-19 | Metrics: SR with task bootstrap, goal completion, PRI, GDI, force violation rate (Sec. VI-C) | `scripts/evaluate_policy_suite.py`, `afford_pro/evaluation/` | SUPPORTED |
 
 ## Results
 
-| ID | Claim (section) | Artifact | Reproduce | Status |
-| --- | --- | --- | --- | --- |
-| C-24 | Oracle 95.7% nominal (1005/1050), 94.5% within H = 400, L4 95.0%; random 0/1050; null 0/210; no success at reset; per-domain and core rows of Table II with task-bootstrap CIs (abstract, Table II, Sec. VII-B) | `sanity_2026-10-18/summary.{md,json}` | E-013 | SUPPORTED |
-| C-25 | 28 tasks fail at least once; task 95 fails 5 of 5, a chain task 4 of 5 (Sec. VII-B) | `sanity_2026-10-18/episodes_*.csv` | E-013 | SUPPORTED |
-| C-26 | Low-dim BC on task 61 solved 16/20 (pipeline check, not a baseline) (Sec. VII-B) | `pipeline_check_2026-10-17/bc/`, checkpoint sha256 7e9d4dd9... | E-011 | SUPPORTED (single task, single seed; not a baseline result) |
-| C-27 | Reactive probe: closed loop and 16-step chunks 14/18 each, open loop 0/18 (Sec. VIII-B) | `reactive_perturbation_2026-10-17.csv` | E-010 | SUPPORTED |
-| C-28 | 16,500 rollouts per policy, about 140 robot-hours at 2 trials/min (Sec. VIII-A) | arithmetic 50 x 66 x 5; 8,250 min | - | SUPPORTED |
-| C-29 | H1-H3 (Sec. VII-A); Stage 2 charter (Sec. VIII-B) | - | - | NOT APPLICABLE (hypotheses and plans) |
+| ID | Claim (section) | Evidence | Status |
+| --- | --- | --- | --- |
+| C-20 | Oracle 2096/2100 nominal (99.8%), every task >= 9/10; random and null 0/420 each (abstract, Sec. VII-B) | `task_validation_2026-10-19_nominal.json` (E-016) | SUPPORTED |
+| C-21 | 4,200 resets: no goal at start, no fallback; region starts s.d. >= 0.99 cm (Sec. IV, VII-B) | same file | SUPPORTED |
+| C-22 | Oracle 98.9/97.5/95.5% under L4/L2/L5 (Sec. VII-B) | `task_validation_2026-10-19_{p4_physical,p2_spatial,combined_ood}.json` (E-017) | SUPPORTED |
+| C-23 | Table II: reference policies per domain and suite | `leaderboard_2026-10-19/` (E-019) | SUPPORTED |
+| C-24 | 63,000 rollouts per policy for 50 episodes x 210 tasks x 6 suites (Sec. VIII-A) | arithmetic | SUPPORTED |
+| C-25 | H1-H3, hardware pilot, Stage 2 charter | plans | NOT APPLICABLE |
 
 ## Related work (sources in `LITERATURE_COMPARISON.md`)
 
@@ -63,10 +57,9 @@ The previous ledger (claims of the pre-revision paper, several CONTRADICTED) is 
 | C-35 | ManiSkill3 stacking requires release and rest | SUPPORTED (code checked by the literature audit) |
 | C-36 | Factory simulates for RL; IndustReal transfers to a real Franka | SUPPORTED |
 | C-37 | Bibliography entries | SUPPORTED after the 2026-10-17 corrections (arXiv API metadata for 10 entries); Open X-Embodiment author list and CQL pages UNVERIFIED |
+| C-38 | LIBERO writes each task's goal as a conjunction of BDDL predicates | SUPPORTED (`../LIBERO-PRO/libero/libero/bddl_files/*/*.bddl`, e.g. `(:goal (And (Turnon flat_stove_1) (On moka_pot_1 ...)))`) |
 
-## Pre-revision claims that were removed or corrected
-99.8% oracle and 47.3% L4 (CONTRADICTED, A-01/A-18); "MuJoCo 3.2.7" (CONTRADICTED); 108 steps and 1.1e6 timesteps
-(CONTRADICTED); F_max rationale (CONTRADICTED, A-28); reactive 18/19 and 9/9 (stale, re-measured); slip-probe
-paragraph (stale, removed); LIBERO-X ">90% to near 0%" and Factory real transfer (CONTRADICTED, A-24); "35 suites, all
-implemented" as a headline (kept only as a design statement); README perturbation ranges and dataset note
-(CONTRADICTED, A-10, README rewrite pending); synthetic VLA/IL scores (A-02, quarantined).
+## Claims removed in the 2026-10-19 rewrite
+The task tiers (66 core, 35 reach, 109 mismatches), the single-body success predicate, the released single-body
+dataset and its limitations, the L4 friction x mass sweep, the oracle force-violation rate and the one-task pipeline
+check describe the deprecated legacy task set; their evidence (E-002 to E-015) stays in this folder.

@@ -1,0 +1,332 @@
+{
+ "settings": {
+  "checkpoint": "None",
+  "policy": "oracle",
+  "task": "industrial_gear_mesh,industrial_shaft_to_bin,industrial_cycle_start_press,kitchen_capsule_to_slot,kitchen_touch_top_bun,tabletop_sort_green,tabletop_stack_red_on_green,tabletop_blue_to_purple_square,lab_pipette_to_pad,lab_sponge_to_waste,long_horizon_pin_gear_subassembly,long_horizon_kit_transmission,long_horizon_cell_startup,chain_load_and_cover,chain_plug_and_fuse,service_espresso_on_saucer,service_blue_in_drawer_close,service_unload_drawer",
+  "domain": "all",
+  "tier": "None",
+  "suites": "nominal,p1_object,p2_spatial,p3_visual,p4_physical,combined_ood",
+  "episodes": "5",
+  "task_set": "bench",
+  "horizon": "None",
+  "seed_base": "200000",
+  "replan": "None",
+  "use_init_states": "False",
+  "device": "cpu",
+  "out_dir": "D:\\Selim Sarowar\\Cursor_Projects\\AFFORD-Bench\\docs\\roadmap\\evidence\\leaderboard_2026-10-19\\oracle_s02"
+ },
+ "checkpoint_sha256": null,
+ "provenance": {
+  "timestamp_utc": "2026-10-19T08:45:38+00:00",
+  "command": [
+   "scripts/evaluate_policy_suite.py",
+   "--policy",
+   "oracle",
+   "--task",
+   "industrial_gear_mesh,industrial_shaft_to_bin,industrial_cycle_start_press,kitchen_capsule_to_slot,kitchen_touch_top_bun,tabletop_sort_green,tabletop_stack_red_on_green,tabletop_blue_to_purple_square,lab_pipette_to_pad,lab_sponge_to_waste,long_horizon_pin_gear_subassembly,long_horizon_kit_transmission,long_horizon_cell_startup,chain_load_and_cover,chain_plug_and_fuse,service_espresso_on_saucer,service_blue_in_drawer_close,service_unload_drawer",
+   "--suites",
+   "nominal,p1_object,p2_spatial,p3_visual,p4_physical,combined_ood",
+   "--episodes",
+   "5",
+   "--out-dir",
+   "D:\\Selim Sarowar\\Cursor_Projects\\AFFORD-Bench\\docs\\roadmap\\evidence\\leaderboard_2026-10-19\\oracle_s02"
+  ],
+  "python": "3.13.5",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+   "mujoco": "3.5.0",
+   "numpy": "2.2.6",
+   "h5py": "3.12.1",
+   "gymnasium": "1.3.0",
+   "torch": "2.10.0+cpu",
+   "scipy": "1.18.1"
+  },
+  "git": {
+   "commit": "584cd3367c2c835fdbaa82ba5937aa1d963b033d",
+   "branch": "main",
+   "dirty": true,
+   "modified_tracked_files": [
+    "README.md",
+    "docs/BASELINE_RUNBOOK.md",
+    "docs/DATASET_CARD.md",
+    "docs/index.html",
+    "docs/roadmap/AUDIT_REPORT.md",
+    "docs/roadmap/EXPERIMENT_LOG.md",
+    "docs/roadmap/PROGRESS.md",
+    "docs/roadmap/ROADMAP.md",
+    "docs/roadmap/T9_TASK_REDESIGN.md",
+    "docs/site/app.js",
+    "docs/site/data.js",
+    "docs/site/style.css",
+    "scripts/audit_tasks.py",
+    "scripts/build_site_data.py",
+    "scripts/evaluate_policy.py",
+    "scripts/export_initial_states.py",
+    "scripts/force_probe.py",
+    "scripts/generate_ood_eval_suites.py",
+    "scripts/generate_paper_figures.py",
+    "scripts/l4_slip_probe.py",
+    "scripts/l4_sweep.py",
+    "scripts/run_benchmark_suite.py",
+    "scripts/sanity_baselines.py",
+    "scripts/test_reactive_perturbation.py",
+    "scripts/train_policy.py",
+    "scripts/twist_lock_probe.py",
+    "scripts/verify_dataset_integrity.py",
+    "tests/test_evaluation_learning.py"
+   ]
+  },
+  "asset_sha256": {
+   "industrial_assembly.xml": "29293bb841cedd003875ec6417f54f9c92b6e9a314cac16d4279f454a2837cdd",
+   "industrial_assembly_bench.xml": "2a30713124a6b65c86260ce202886d6a08ec33199c14928a222301d08bbc0e79",
+   "industrial_electronics_bench.xml": "12892d3b73fa80492761291cde482423612c0b68ca0ed376409d8097299d0628",
+   "kitchen_burger.xml": "1679ae97e1f61d1e741bc6db692d895757acdcf2476fe4d17f0e4f2e340d9b31",
+   "kitchen_burger_bench.xml": "0465ad359fff848e56f07b2cc8df805839b5580b23f4f570709aa60f8472216e",
+   "kitchen_coffee.xml": "d1f77eb317e3aee1bab9301996aaafadcbe8288822754492c73fdfbda3d2f567",
+   "kitchen_coffee_bench.xml": "d452e8ac62089ede7e245f03f0d84e0cd8b5990434efd228d24a2244bf1da482",
+   "lab_science.xml": "6fe40860c97f9a28759937b356e602707e289a87f00bc765b67f4188382e7c3f",
+   "lab_science_bench.xml": "5f0e9834d57305049b8fd92de1f43008dc71edb24e1d21bdb616f607ff57bb6c",
+   "tabletop_sorting.xml": "023c3f03a0c772cb23a9bef09d511773825c9e5d2a5234f0cdfdcba2ca643834",
+   "tabletop_sorting_bench.xml": "45397994f00d0fce2ac540182e1391ca6ed3a985fd7c784ddb97d8b7efcda3f9",
+   "twist_lock_fixtures.xml": "6c682efbc8539b7327c4f848fedd7e4e72df4d6831690a6ac4cf230878126ea8",
+   "__non_xml_assets__": "c1e58a29601b203fb295487faf70a01201628c3e61924a1d54dc4c25707c4137"
+  },
+  "source_sha256": {
+   "task_definitions.py": "6a9cc3c7ff435b810f41ea6c685ff8548af1b8908b32de0f38445d5d852abbd3",
+   "registry.py": "9b21ceb1e11da256ced0cbf37afa8b1b731e448fcc71ffaed548ef88c5e8df5a",
+   "envs/base_franka_env.py": "717f1714ada00fa81cd13fc4cdadb6154fa14765ab3f39fecc25e11261257571",
+   "envs/parametric_env.py": "12c6eab39c5ff24566dc2f65f573e1b52b3034f7d7d2ebcdd670d23db687975b",
+   "envs/frontier_env.py": "1a17dd12349dc33e4b62e884d8c650817bb05439641b523665ad70fab509b0c7",
+   "oracles/base_oracle.py": "8f2f2ae4051a56197b00b1e1a5b8d70c346efe0dc480786857908b8f073bed74",
+   "oracles/parametric_oracle.py": "fe91cca6b23891ee45345f4e500e5ba674a99f3c4b2a94133f4c1a7173f4798f",
+   "oracles/frontier_oracle.py": "8ce646b3d9718df10a20cffc19a8f1c32a4f7b225c92e1aa23e88bec870e8d65",
+   "oracles/twist_lock_oracle.py": "c16249bdcc86118af8fb95241d2da42ce9a49186d8877f8f15b63fa00db030d7",
+   "perturbations/engine.py": "04939dad5eb99c2f7ff5d64f8d9916d1048731604fd7735e6b95fb1cc0d35d39",
+   "datasets/hdf5_writer.py": "496be14e53556bbb8af228ecddf158912cc1276804d4c1388a03f9f6fe815ce0"
+  }
+ },
+ "summary": {
+  "nominal": {
+   "successes": 90,
+   "episodes": 90,
+   "tasks": 18,
+   "rate": 1.0,
+   "wilson95": [
+    0.9590643744356734,
+    1.0
+   ],
+   "task_cluster_bootstrap95": [
+    1.0,
+    1.0
+   ],
+   "per_task_rate": {
+    "industrial_gear_mesh": 1.0,
+    "industrial_shaft_to_bin": 1.0,
+    "industrial_cycle_start_press": 1.0,
+    "kitchen_capsule_to_slot": 1.0,
+    "kitchen_touch_top_bun": 1.0,
+    "tabletop_sort_green": 1.0,
+    "tabletop_stack_red_on_green": 1.0,
+    "tabletop_blue_to_purple_square": 1.0,
+    "lab_pipette_to_pad": 1.0,
+    "lab_sponge_to_waste": 1.0,
+    "long_horizon_pin_gear_subassembly": 1.0,
+    "long_horizon_kit_transmission": 1.0,
+    "long_horizon_cell_startup": 1.0,
+    "chain_load_and_cover": 1.0,
+    "chain_plug_and_fuse": 1.0,
+    "service_espresso_on_saucer": 1.0,
+    "service_blue_in_drawer_close": 1.0,
+    "service_unload_drawer": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 100.0,
+   "GDI_pct": 0.0
+  },
+  "p1_object": {
+   "successes": 90,
+   "episodes": 90,
+   "tasks": 18,
+   "rate": 1.0,
+   "wilson95": [
+    0.9590643744356734,
+    1.0
+   ],
+   "task_cluster_bootstrap95": [
+    1.0,
+    1.0
+   ],
+   "per_task_rate": {
+    "industrial_gear_mesh": 1.0,
+    "industrial_shaft_to_bin": 1.0,
+    "industrial_cycle_start_press": 1.0,
+    "kitchen_capsule_to_slot": 1.0,
+    "kitchen_touch_top_bun": 1.0,
+    "tabletop_sort_green": 1.0,
+    "tabletop_stack_red_on_green": 1.0,
+    "tabletop_blue_to_purple_square": 1.0,
+    "lab_pipette_to_pad": 1.0,
+    "lab_sponge_to_waste": 1.0,
+    "long_horizon_pin_gear_subassembly": 1.0,
+    "long_horizon_kit_transmission": 1.0,
+    "long_horizon_cell_startup": 1.0,
+    "chain_load_and_cover": 1.0,
+    "chain_plug_and_fuse": 1.0,
+    "service_espresso_on_saucer": 1.0,
+    "service_blue_in_drawer_close": 1.0,
+    "service_unload_drawer": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 100.0,
+   "GDI_pct": 0.0
+  },
+  "p2_spatial": {
+   "successes": 89,
+   "episodes": 90,
+   "tasks": 18,
+   "rate": 0.9888888888888889,
+   "wilson95": [
+    0.9397159168824657,
+    0.9980359158990818
+   ],
+   "task_cluster_bootstrap95": [
+    0.9666666666666667,
+    1.0
+   ],
+   "per_task_rate": {
+    "industrial_gear_mesh": 1.0,
+    "industrial_shaft_to_bin": 1.0,
+    "industrial_cycle_start_press": 1.0,
+    "kitchen_capsule_to_slot": 1.0,
+    "kitchen_touch_top_bun": 1.0,
+    "tabletop_sort_green": 1.0,
+    "tabletop_stack_red_on_green": 1.0,
+    "tabletop_blue_to_purple_square": 1.0,
+    "lab_pipette_to_pad": 1.0,
+    "lab_sponge_to_waste": 1.0,
+    "long_horizon_pin_gear_subassembly": 1.0,
+    "long_horizon_kit_transmission": 0.8,
+    "long_horizon_cell_startup": 1.0,
+    "chain_load_and_cover": 1.0,
+    "chain_plug_and_fuse": 1.0,
+    "service_espresso_on_saucer": 1.0,
+    "service_blue_in_drawer_close": 1.0,
+    "service_unload_drawer": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 98.88888888888889,
+   "GDI_pct": 1.1111111111111143
+  },
+  "p3_visual": {
+   "successes": 90,
+   "episodes": 90,
+   "tasks": 18,
+   "rate": 1.0,
+   "wilson95": [
+    0.9590643744356734,
+    1.0
+   ],
+   "task_cluster_bootstrap95": [
+    1.0,
+    1.0
+   ],
+   "per_task_rate": {
+    "industrial_gear_mesh": 1.0,
+    "industrial_shaft_to_bin": 1.0,
+    "industrial_cycle_start_press": 1.0,
+    "kitchen_capsule_to_slot": 1.0,
+    "kitchen_touch_top_bun": 1.0,
+    "tabletop_sort_green": 1.0,
+    "tabletop_stack_red_on_green": 1.0,
+    "tabletop_blue_to_purple_square": 1.0,
+    "lab_pipette_to_pad": 1.0,
+    "lab_sponge_to_waste": 1.0,
+    "long_horizon_pin_gear_subassembly": 1.0,
+    "long_horizon_kit_transmission": 1.0,
+    "long_horizon_cell_startup": 1.0,
+    "chain_load_and_cover": 1.0,
+    "chain_plug_and_fuse": 1.0,
+    "service_espresso_on_saucer": 1.0,
+    "service_blue_in_drawer_close": 1.0,
+    "service_unload_drawer": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 100.0,
+   "GDI_pct": 0.0
+  },
+  "p4_physical": {
+   "successes": 89,
+   "episodes": 90,
+   "tasks": 18,
+   "rate": 0.9888888888888889,
+   "wilson95": [
+    0.9397159168824657,
+    0.9980359158990818
+   ],
+   "task_cluster_bootstrap95": [
+    0.9666666666666667,
+    1.0
+   ],
+   "per_task_rate": {
+    "industrial_gear_mesh": 1.0,
+    "industrial_shaft_to_bin": 1.0,
+    "industrial_cycle_start_press": 1.0,
+    "kitchen_capsule_to_slot": 1.0,
+    "kitchen_touch_top_bun": 1.0,
+    "tabletop_sort_green": 1.0,
+    "tabletop_stack_red_on_green": 1.0,
+    "tabletop_blue_to_purple_square": 1.0,
+    "lab_pipette_to_pad": 1.0,
+    "lab_sponge_to_waste": 1.0,
+    "long_horizon_pin_gear_subassembly": 1.0,
+    "long_horizon_kit_transmission": 0.8,
+    "long_horizon_cell_startup": 1.0,
+    "chain_load_and_cover": 1.0,
+    "chain_plug_and_fuse": 1.0,
+    "service_espresso_on_saucer": 1.0,
+    "service_blue_in_drawer_close": 1.0,
+    "service_unload_drawer": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 98.88888888888889,
+   "GDI_pct": 1.1111111111111143
+  },
+  "combined_ood": {
+   "successes": 87,
+   "episodes": 90,
+   "tasks": 18,
+   "rate": 0.9666666666666667,
+   "wilson95": [
+    0.9065271396961013,
+    0.9885996097771937
+   ],
+   "task_cluster_bootstrap95": [
+    0.9111111111111111,
+    1.0
+   ],
+   "per_task_rate": {
+    "industrial_gear_mesh": 1.0,
+    "industrial_shaft_to_bin": 1.0,
+    "industrial_cycle_start_press": 1.0,
+    "kitchen_capsule_to_slot": 1.0,
+    "kitchen_touch_top_bun": 1.0,
+    "tabletop_sort_green": 1.0,
+    "tabletop_stack_red_on_green": 1.0,
+    "tabletop_blue_to_purple_square": 1.0,
+    "lab_pipette_to_pad": 1.0,
+    "lab_sponge_to_waste": 0.8,
+    "long_horizon_pin_gear_subassembly": 1.0,
+    "long_horizon_kit_transmission": 0.6,
+    "long_horizon_cell_startup": 1.0,
+    "chain_load_and_cover": 1.0,
+    "chain_plug_and_fuse": 1.0,
+    "service_espresso_on_saucer": 1.0,
+    "service_blue_in_drawer_close": 1.0,
+    "service_unload_drawer": 1.0
+   },
+   "force_violation_rate": 0.0,
+   "PRI_pct": 96.66666666666667,
+   "GDI_pct": 3.3333333333333286
+  }
+ }
+}

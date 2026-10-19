@@ -127,6 +127,58 @@ output was inspected against its success criterion. Environment unless stated: W
   than 400 steps or fail, e.g. `lab_micro_tube_to_rack_b`). Random 0/990 and null 0/396 episodes in every suite.
   Nominal, p1 and p3 oracle rates are identical because the oracle reads the true pose and the layouts are paired.
 
+## E-016 Task validation, nominal suite, all 210 tasks (2026-10-19, done)
+- Command: `python -I scripts/validate_bench_tasks.py --episodes 10 --resets 20 --floor-episodes 2 --workers 12 --out
+  docs/roadmap/evidence/task_validation_2026-10-19_nominal.json`, code at 584cd33 (uncommitted: legacy tools and a
+  test, none used by the run). About 50 min, sharing the CPU with E-019.
+- Seeds: oracle 600000 + 1000n + j, start audit 700000 + 1000n + j, random/null 800000 + 1000n + j.
+- What it checks: every task builds (each goal body dropped into its goal and pre-placed assembly must come to rest),
+  20 resets per task (start spread of each moved body, fallbacks to the region center, goals already true at reset),
+  10 oracle episodes within the task's step budget, 2 random and 2 null episodes.
+- Outcome: oracle 2096/2100 (99.81%); every task >= 9/10 (one failure each in 147, 166, 178, 209); per domain D1-D4
+  300/300, D5 299/300, D6 298/300, D7 299/300. Random 0/420, null 0/420. No start fallback and no goal true at reset
+  in 4200 resets. Starts: 225 region starts, s.d. over 20 resets >= 0.999 cm (minimum: the gear in task 21);
+  31 bodies start pre-placed (assemblies) and 22 in one of two slots, by design.
+- Earlier runs of this command (same seeds): 2097/2100 before the second code review, then 2095/2100; the suite
+  runs of E-017 exposed defects (A-37 to A-41) that were fixed before the final code. The final code gave the same
+  result before and after the package was renamed (2096/2100 both times).
+- Development history (scratch runs, not evidence): oracle 88.6% (first pass) -> 94.3 -> 94.9 -> 97.6 -> 99.1 ->
+  99.86% after fixes listed in AUDIT_REPORT A-32 to A-35 and T9_TASK_REDESIGN.md.
+
+## E-017 Oracle under the perturbation suites, all 210 tasks (2026-10-19, done)
+- Command: `python -I scripts/validate_bench_tasks.py --suite {p4_physical,p2_spatial,combined_ood} --episodes 5
+  --resets 3 --workers 12 --out docs/roadmap/evidence/task_validation_2026-10-19_<suite>.json`, code at 584cd33.
+  p1 (colour) and p3 (lighting) do not change what the privileged oracle sees, so they equal nominal.
+- Outcome (oracle success, the feasibility ceiling of each suite): L4 1038/1050 (98.9%, every task >= 4/5), L2
+  1024/1050 (97.5%, >= 2/5), L5 1003/1050 (95.5%, >= 1/5; task 22 is 1/5: the slippery, heavier dowel pin topples).
+  No start fallback and no goal true at reset in any suite.
+- Failures by cause: the oracle did not achieve a goal (L4 4, L2 20, L5 29); a released body sank into or through
+  its support, a contact artifact of thin light parts let go under low friction and higher mass (L4 8, L2 5, L5 17,
+  i.e. 0.8%, 0.5%, 1.6% of episodes; A-42); a goal reached then undone (L2 1, L5 1).
+- Earlier runs of this command found defects that are now fixed: the oracle swept a seated lid off (A-38), slices
+  sank through thin collision layers (A-39), condim 4 between flat bodies destabilised the solver (A-40), and bin
+  goals rejected bodies lying in the bin (A-41).
+
+## E-018 Rejected contact-model changes (2026-10-18)
+- Replays of failing L5 releases (tasks 124, 190) and A/B runs on nine burger tasks x 10 episodes x {nominal, L5}
+  (an A/B script in scratch). Baseline (final physics): nominal 89/90, L5 63/90.
+- Default contact time constant 5 ms instead of MuJoCo's 20 ms: fixes the replayed release, but the fingers then
+  lose thin slices during the pick (nominal 141/160 on 16 affected tasks). Rejected.
+- Easing the hand 1.5 mm up before opening: nominal 79/90, L5 16/90. Rejected.
+- impratio 1, pyramidal cones, noslip 10, 500 solver iterations: no effect on the replayed release.
+
+## E-019 Reference-policy leaderboard on all 210 tasks (2026-10-19, done)
+- Command: for policy p in oracle (5 episodes), random (3), null (1) and 12 task shards s (task number mod 12):
+  `python -I scripts/evaluate_policy_suite.py --policy p --task <shard s> --suites
+  nominal,p1_object,p2_spatial,p3_visual,p4_physical,combined_ood --episodes n --out-dir
+  docs/roadmap/evidence/leaderboard_2026-10-19/p_s<s>`; all 36 runs at code 584cd33 (no uncommitted code under
+  `afford_pro/`). About 70 min, sharing the CPU with E-016/E-017.
+- Seeds: evaluation block 200000 + 1000n + j. Success counts within each task's step budget.
+- Outcome (task-bootstrap 95% CI in the paper's Table II and `docs/site/data.js`): oracle 99.9 L1, 97.7 L2, 99.9 L3,
+  98.9 L4, 95.6 L5, 99.9 color (6,300 episodes); per domain the lowest cell is D7 under L5 (89.3). Random 0/3,780 and
+  null 0/1,260 episodes in every suite. L1, L3 and color are equal for the oracle because it reads the true poses and
+  the layouts are paired.
+
 ## E-006 Generator and validator unit tests (2026-10-17)
 - `python -m pytest -q tests/test_dataset_validation.py tests/test_generation.py tests/test_task_registry.py tests/test_dataset_recording.py tests/test_converters.py`
 - Outcome: all pass (validator 15, generation 4, registry 638, recording + converters 13).

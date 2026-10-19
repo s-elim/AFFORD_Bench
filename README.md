@@ -1,27 +1,21 @@
 # AFFORD-Bench: An Affordance-Grounded Benchmark and Generalization Evaluation for Robot Learning
 
-AFFORD-Bench is a MuJoCo benchmark for robot manipulation policies on a simulated Franka Emika Panda. Success is a
-physical predicate on the settled state: the released body must be supported, at rest, upright, and within 2-2.5 mm
-(precision domains) or 8 mm of its goal, after having been lifted. Grasping is frictional; there is no attachment,
-snapping, or teleport. Demonstrations come from a privileged closed-loop scripted oracle and are stored as
-Robomimic HDF5 with converters to LeRobot and RLDS.
+AFFORD-Bench is a MuJoCo benchmark for robot manipulation policies on a simulated Franka Emika Panda: 210 tasks in 7
+domains over six workcells, from shaft and pin seating to burger assembly, espresso service, and centrifuge loading.
+Every instruction names only simulated objects and mechanisms and is checked as a conjunction of physical goals, in
+order. A placed object must be released, supported, upright, and at rest within 2 mm and 5 deg of its goal in the
+precision domains (8 mm and 15 deg elsewhere). Grasping is frictional; there is no attachment, snapping, or teleport.
+Demonstrations come from a privileged closed-loop oracle and are stored as Robomimic HDF5 with converters to LeRobot
+and RLDS.
 
-Target venue: RSS 2027 (Stage 1 extended abstract, `AFFORD-Bench_RSS'27/paper-template-latex/`).
+Project page: `docs/index.html` (GitHub Pages).
 
-## Status (2026-10-17)
-
-| Item | State | Evidence |
-| --- | --- | --- |
-| Task inventory | 210 registered tasks in 7 domains; **66 validated core tasks** (D1-D4), 35 fixed-point reach tasks, 109 instruction mismatches (all D5-D7 chains included) | `afford_pro/task_tiers.py`, `docs/roadmap/evidence/task_audit_2026-10-17.json` |
-| Dataset | 210 files x 50 demos = 10,500 demos, 1,230,842 steps; every episode validated (0 errors, documented warnings) | `docs/roadmap/evidence/dataset_validation_2026-10-17/` |
-| Sanity floors | Oracle 95.7% nominal, 95.0% L4; random 0/1050; null 0/210 | `docs/roadmap/evidence/sanity_2026-10-18/summary.md` |
-| L4 physical suite | At the specified range (mu 0.12-0.25, mass x1.8-2.5) it does not lower oracle success; lower friction and heavier bodies do (16% at mu 0.02, x5). Recalibration pending | `docs/roadmap/evidence/l4_sweep_2026-10-18.csv` |
-| Learned baselines | Not reported yet. Pipeline check: low-dim BC 16/20 on one task; the in-repo diffusion model does not learn (use a reference implementation) | `docs/roadmap/evidence/pipeline_check_2026-10-17/` |
-| Licence | MIT (`LICENSE`), code and data. Robot meshes: Apache-2.0 (MuJoCo Menagerie), see `afford_pro/assets/robots/NOTICE.md` | - |
-
-The working plan, findings, and claim-by-claim evidence are in `docs/roadmap/` (`ROADMAP.md`, `PROGRESS.md`,
-`AUDIT_REPORT.md`, `CLAIM_EVIDENCE_LEDGER.md`, `EXPERIMENT_LOG.md`, `LITERATURE_COMPARISON.md`). Files under
-`docs/quarantine/` are not experimental results.
+```python
+import afford_pro
+env = afford_pro.make("long_horizon_espresso_service")   # "Put the mug on the drip tray, press the brew button,
+oracle = afford_pro.get_oracle("long_horizon_espresso_service", env)  #  then move the mug to the serving tray."
+obs, info = env.reset(seed=0)
+```
 
 ## Installation
 
@@ -35,114 +29,100 @@ python -m pytest -q tests   # about 2,400 tests, a few minutes on CPU
 All reported numbers use MuJoCo 3.5.0 and the Panda meshes in `afford_pro/assets/robots/assets/`. Results with other
 MuJoCo builds can differ, because contact resolution changes between releases.
 
-## Tasks and tiers
+## Tasks
 
-| Domain | Tasks | Core / reach / mismatch | Tolerance (xy, tilt) |
-| --- | --- | --- | --- |
-| D1 Industrial precision | 001-030 | 17 / 6 / 7 | 2 mm, 5 deg |
-| D2 Culinary operations | 031-060 | 20 / 7 / 3 | 8 mm, 15 deg |
-| D3 Domestic tabletop | 061-090 | 17 / 8 / 5 | 8 mm, 15 deg |
-| D4 Laboratory | 091-120 | 12 / 14 / 4 | 2 mm, 5 deg |
-| D5 Long-horizon | 121-150 | 0 / 0 / 30 | scene tier |
-| D6 Precision chains | 151-180 | 0 / 0 / 30 | 2.5 mm, 5 deg |
-| D7 Service chains | 181-210 | 0 / 0 / 30 | 8 mm, 15 deg |
+| Domain | Tasks | Workcells | Goals per task | Tolerance (xy, tilt) |
+| --- | --- | --- | --- | --- |
+| D1 Industrial precision | 001-030 | assembly jig, electronics bench | 1 | 2 mm, 5 deg |
+| D2 Culinary operations | 031-060 | burger station, espresso station | 1 | 8 mm, 15 deg |
+| D3 Domestic tabletop | 061-090 | sorting table | 1-2 | 8 mm, 15 deg |
+| D4 Laboratory | 091-120 | laboratory bench | 1 | 2 mm, 5 deg |
+| D5 Long-horizon | 121-150 | all six | 2-5 | workcell's |
+| D6 Precision chains | 151-180 | assembly jig, electronics, laboratory | 2-4 | 2 mm, 5 deg |
+| D7 Service chains | 181-210 | burger, espresso, sorting | 2-6 | 8 mm, 15 deg |
 
-- **core**: the instruction names the simulated body and the success predicate covers the whole instruction.
-- **reach**: the fingertip center must stay within tolerance of a fixed world point for 5 steps; instructions that
-  mention wiping, pressing, or inspecting describe actions that are not simulated. Report separately.
-- **instruction_mismatch**: the named object is not the simulated body, the chain ends after its first evaluated
-  body, or the predicate contradicts the instruction (`afford_pro.task_tiers.mismatch_reason(task_id)`).
+Goal predicates (`afford_pro/bench/spec.py`, checked in `afford_pro/bench/predicates.py`):
 
-```python
-import afford_pro
-from afford_pro.task_tiers import tasks_in_tier, mismatch_reason
-core = tasks_in_tier("core")                    # 66 task ids
-env = afford_pro.make(core[0], perturbation_mode="nominal")
-```
+- `On(body, target)`: released, supported, at rest, upright, lifted at least 2 cm, and at its goal pose on a point
+  (a bore, slot, rack hole), inside a region (a bin, compartment, marked square), or on another body (stacking).
+- `Pressed(button)` (latching buttons), `Opened`/`Closed(slider)` (drawer, vise jaw), `Slid(body, target)` (wiping),
+  `HeldOver(body, target, clearance)`, `GripperAbove(target, height)`, `Touching(body)`, `Lifted(body, height)`.
+- Goals may be ordered: a goal counts only when it becomes true after the goals before it; a waypoint goal (`once`)
+  must be reached but need not hold at the end. The step budget is 400 steps plus 250 per further goal.
 
-Domain 8 (tasks 211-240, `afford_pro.list_frontier_tasks()`) is a Stage 2 extension and has not been validated.
+Every goal pose is found by letting the body come to rest in its target when the task is built, so every goal is
+attainable. The full table of tasks, goals, starts and budgets is `docs/roadmap/T9_TASK_TABLE.md`.
+
+## Validation
+
+`scripts/validate_bench_tasks.py` runs every task against the acceptance gate (seeds disjoint from evaluation and data
+generation; evidence in `docs/roadmap/evidence/task_validation_*.json`):
+
+| Check | Result |
+| --- | --- |
+| Every goal physically attainable | checked when each task is built |
+| Scripted oracle, nominal | 2096/2100 episodes (99.8%), every task >= 9/10 |
+| Random / null policies | 0/420 / 0/420 |
+| Starts (4200 resets) | no goal holds at reset; 225 region starts with s.d. >= 0.99 cm; 31 pre-placed assemblies; 22 two-slot starts |
+| Oracle under L4 / L2 / L5 | 98.9% / 97.5% / 95.5% (the ceiling of each suite) |
 
 ## Perturbation suites (`afford_pro/perturbations/engine.py`)
 
 | Suite | What changes |
 | --- | --- |
-| `nominal` (L1) | Start of the evaluated body U(+-7 cm) per axis, yaw U(+-45 deg), roll/pitch U(+-10 deg) resolved by settling; TCP jitter +-1.5 cm. Rejection-sampled, shrinking to 1/2, 1/4, 1/10, 1/20 of the range; in 29 tasks the start varies by < 1 cm |
-| `p1_object` | Color of the evaluated body x U(0.75, 1.25) |
-| `p2_spatial` (L2) | Start offset radius U(7, 12) cm in a random direction, yaw magnitude U(45, 90) deg |
-| `p3_visual` (L3) | Light position +-0.5 m, diffuse x U(0.5, 1.5) clipped at 1 (the key light brightens by at most x1.11) |
-| `p4_physical` (L4) | Sliding friction U(0.12, 0.25) on the body and finger pads; mass and inertia x U(1.8, 2.5) |
+| `nominal` (L1) | Each moved object starts uniformly in its own region (half-widths 2-40 mm, yaw up to +-45 deg), in one of two receptacles, or pre-assembled; TCP jitter +-1.5 cm. Rejection-sampled (separation, no fixture overhead, a collision-free grasp, no goal already holding) |
+| `p1_object` | Color of the moved objects x U(0.75, 1.25) |
+| `p2_spatial` (L2) | Region starts offset by U(7, 12) cm in a random direction, yaw magnitude U(45, 90) deg |
+| `p3_visual` (L3) | Light position +-0.5 m, diffuse x U(0.5, 1.5) clipped at 1 |
+| `p4_physical` (L4) | Sliding friction U(0.12, 0.25) on the moved objects and finger pads; their mass and inertia x U(1.8, 2.5) |
 | `combined_ood` (L5) | L2 + L3 + L4 + color |
 
-Nominal model parameters are restored and the sampler is re-seeded at every `reset(seed)`.
+Suites are paired: an evaluation seed gives the same layout in L1, L3, L4 and color, and the same layout in L2 and L5.
 
 ## Data generation and validation
 
 ```bash
-# Generate (skips valid files, refuses to overwrite invalid ones, records provenance, writes atomically)
-python scripts/generate_all_150_tasks.py --domain industrial --num-demos 50
+# Generate (skips valid files, refuses to overwrite invalid ones or files of another task set, records provenance,
+# writes atomically)
+python scripts/generate_all_150_tasks.py --num-demos 50
 python scripts/generate_demos.py --task tabletop_sort_red --num-demos 5 --output-dir datasets/scratch
 
-# Validate every episode (+ replay 3 demos per file under the current code)
-python scripts/validate_datasets.py --replay-per-file 3 --workers 8 --out-dir docs/roadmap/evidence/dataset_validation
-
-# Runtime task audit and sanity floors
-python scripts/audit_tasks.py --out docs/roadmap/evidence/task_audit.json
-python scripts/sanity_baselines.py --shard 0/8 --out part_0.csv --episodes-out episodes_0.csv
-python scripts/aggregate_sanity.py --dir <folder with part_*.csv and episodes_*.csv>
+# Validate every episode (+ replay 3 demos per file; replays must reproduce every recorded state exactly)
+python scripts/validate_datasets.py --replay-per-file 3 --workers 8 --out-dir results/validation
 ```
 
 Episode seeds are `42 + 1000 * task_number + k` for generation and `200000 + 1000 * task_number + j` for evaluation.
-
-### Dataset schema (Robomimic HDF5)
-
-`data/demo_i/{actions (T,7) float32, rewards (T,), dones (T,), states (T,85) float64, obs/*, next_obs/*}` with
-`obs/agentic_rgb (T,640,660,3)`, `obs/wrist_rgb (T,300,420,3)`, `obs/{joint_positions, joint_velocities, tcp_pose,
-gripper_width}` and robomimic/LIBERO aliases (hard links); per-demo `seed`, `init_state`, `language_instruction`;
-root `env_args`, `problem_info`, `model_file`, camera intrinsics and poses; `mask/{train, valid}` (45/5).
-
-Known limitations of the released files (details in `docs/roadmap/AUDIT_REPORT.md`):
-- no provenance attributes (code version, simulator version, command); produced by at least three generator runs;
-- the state after the last action is not stored and `next_obs[T-1]` repeats `obs[T-1]`;
-- 114 demos exceed the 500-step environment limit (130 exceed the evaluation budget H = 400);
-- per-demo `language_instruction` rotates over four variants; the metric variant states nominal, not actual, start
-  coordinates;
-- recorded actions are float32 roundings of the executed float64 actions, so replaying them reproduces the success
-  step for 595 of 630 sampled demos (median deviation 0.02 mm) rather than all;
-- 6 files store observation aliases as copies (larger files, same content).
-
-Files generated with the current generator carry provenance, the final observation and state, and canonical
-instructions, contain only demos within the environment limit, and replay bit-identically. See also
-`docs/DATASET_CARD.md`.
+Schema and guarantees: `docs/DATASET_CARD.md`.
 
 ## Training and evaluation
 
 ```bash
-# Low-dim (proprioception + object pose), image + proprioception, or proprioception-only (blind ablation)
-python scripts/train_policy.py --policy bc --modality lowdim --domain tabletop --tier core --epochs 200 --seed 1
-python scripts/evaluate_policy_suite.py --checkpoint checkpoints/bc_lowdim_tabletop_core_seed1_best.pt \
-    --domain tabletop --tier core --suites nominal,p2_spatial,p3_visual,p4_physical,combined_ood --episodes 50 \
-    --out-dir results/bc_lowdim_tabletop_seed1
+# Image + proprioception, privileged object poses + proprioception, or proprioception only (blind ablation)
+python scripts/train_policy.py --policy bc --modality objects --domain tabletop --epochs 200 --seed 1 --tag seed1
+python scripts/evaluate_policy_suite.py --checkpoint checkpoints/bc_objects_tabletop_seed1_best.pt --domain tabletop \
+    --suites nominal,p1_object,p2_spatial,p3_visual,p4_physical,combined_ood --episodes 50 \
+    --out-dir results/bc_objects_tabletop_seed1
 python scripts/evaluate_policy_suite.py --policy oracle --task tabletop_sort_red --episodes 10
 ```
 
 `evaluate_policy_suite.py` writes one row per episode (seed, success, steps, peak contact force) and a summary with
 Wilson and task-clustered bootstrap intervals, PRI and GDI against nominal on paired seeds, and the force violation
-rate (F_max = 150 N; the oracle itself exceeds it in 4.8% of episodes). `evaluate_id.py` and `evaluate_ood.py` are thin
-wrappers around it. Checkpoints store their input normalizer, the dataset files, and the code provenance, and are
-selected by validation loss.
+rate (F_max = 150 N). Success counts within each task's step budget. Checkpoints store their input normalizer, the
+dataset files, and the code provenance. GPU baselines: `docs/BASELINE_RUNBOOK.md`.
 
 ## Repository layout
 
 ```text
-afford_pro/            package: task definitions and tiers, environments, oracles, perturbations,
-                       datasets (writer, generation, validation, replay, converters), evaluation, learning, provenance
-scripts/               generation, validation, audits, sanity baselines, sweeps, training, evaluation, converters
-tests/                 unit tests (registry, validation, generation, recording, converters, prompts, frontier)
-configs/               multi-tier instruction variants with grounding flags
-docs/roadmap/          plan, progress, audit, claim ledger, experiment log, literature comparison, evidence/
-docs/quarantine/       withdrawn synthetic projections (not results)
-AFFORD-Bench_RSS'27/   paper source (main.tex, references.bib, figures/)
+afford_pro/bench/      task specifications, goal predicates, multi-goal environment, oracle, language
+afford_pro/            registry, base environments, perturbations, datasets (writer, generation, validation,
+                       replay, converters), evaluation, learning, provenance
+scripts/               scene build, task validation, generation, dataset validation, training, evaluation, page data
+tests/                 unit tests
+docs/                  project page, dataset card, baseline runbook, roadmap and evidence
 ```
+
+The earlier single-body task set and its 2026-10 files are deprecated; they remain loadable with
+`afford_pro.make(task_id, task_set="legacy")` only to read and replay those files.
 
 ## Citation
 
