@@ -30,7 +30,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import afford_pro
-from afford_pro.learning.features import MODALITIES, Normalizer, input_dim, object_pose_from_states, preprocess_image, proprio
+from afford_pro.learning.features import (MODALITIES, Normalizer, input_dim, object_pose_from_states,
+                                          object_poses_from_states, preprocess_image, proprio)
 from afford_pro.learning.policies import BCPolicy, DiffusionPolicy, SinusoidalPosEmb  # noqa: F401  (re-exported)
 
 DOMAIN_MATCH = {"industrial": "Industrial", "kitchen": "Culinary", "tabletop": "Tabletop", "lab": "Laboratory",
@@ -57,7 +58,7 @@ class AffordDemonstrationDataset(Dataset):
 
     def __init__(self, hdf5_paths: list[Path], chunk_size: int = 16, split: str = "train", modality: str = "lowdim",
                  subsample_rate: int = 2, normalizer: Normalizer | None = None):
-        from afford_pro.datasets.validation import build_task_context, parse_dataset_name
+        from afford_pro.datasets.validation import build_task_context, file_task_set, parse_dataset_name
 
         self.chunk_size, self.modality, self.split = chunk_size, modality, split
         self.vectors: list[np.ndarray] = []
@@ -65,9 +66,9 @@ class AffordDemonstrationDataset(Dataset):
         self.image_refs: list[tuple[str, str, int]] = []
         self._handles: dict[str, h5py.File] = {}
         for p in hdf5_paths:
-            ctx = build_task_context(*parse_dataset_name(p)) if modality == "lowdim" else None
-            if ctx is not None and ctx.object_qpos_adr is None:
-                raise ValueError(f"{p.name}: lowdim needs a free evaluated body; reach tasks have none")
+            ctx = build_task_context(*parse_dataset_name(p), file_task_set(p)) if modality in ("lowdim", "objects") else None
+            if modality == "lowdim" and ctx.object_qpos_adr is None:
+                raise ValueError(f"{p.name}: lowdim needs one free evaluated body (legacy); use --modality objects")
             f = h5py.File(str(p), "r")
             self._handles[str(p)] = f
             for key in _split_keys(f, split):
@@ -82,8 +83,11 @@ class AffordDemonstrationDataset(Dataset):
         actions = np.asarray(g["actions"][()], dtype=np.float32)
         steps = np.arange(0, len(actions), subsample)
         vec = proprio(g["obs"], slice(None))
-        if ctx is not None:
+        if self.modality == "lowdim":
             vec = np.concatenate([vec, object_pose_from_states(g["states"][()], ctx.qpos_offset, ctx.object_qpos_adr)], axis=-1)
+        elif self.modality == "objects":
+            vec = np.concatenate([vec, object_poses_from_states(g["states"][()], ctx.qpos_offset, ctx.moved_qpos_adrs)],
+                                 axis=-1)
         self.vectors.append(vec[steps])
         self.chunks.append(_padded_chunks(actions, self.chunk_size)[steps])
         if self.modality == "visual":
@@ -130,8 +134,8 @@ def _select_files(args: argparse.Namespace, data_dir: Path) -> list[Path]:
     if args.task:
         tasks = [args.task]
     else:
-        tasks = [t for t in afford_pro.list_tasks()
-                 if args.domain == "all" or DOMAIN_MATCH[args.domain] in afford_pro.get_task_entry(t).domain]
+        tasks = [t for t in afford_pro.list_tasks(args.task_set)
+                 if args.domain == "all" or DOMAIN_MATCH[args.domain] in afford_pro.get_task_entry(t, args.task_set).domain]
         if args.tier:
             from afford_pro.task_tiers import tasks_in_tier
             tasks = [t for t in tasks if t in set(tasks_in_tier(args.tier))]
@@ -166,6 +170,8 @@ def main():
     parser.add_argument("--domain", type=str, default="industrial", choices=["all", *DOMAIN_MATCH])
     parser.add_argument("--tier", type=str, default=None, choices=[None, "core", "reach", "instruction_mismatch"])
     parser.add_argument("--task", type=str, default=None, help="Train on a single task ID")
+    parser.add_argument("--task-set", choices=("bench", "legacy"), default="bench",
+                        help="task set: bench (default) or the deprecated legacy set")
     parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--lr", type=float, default=2e-4)
@@ -179,6 +185,8 @@ def main():
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
+    if args.task_set == "bench" and args.tier:
+        parser.error("--tier applies to the legacy tasks only")
 
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)

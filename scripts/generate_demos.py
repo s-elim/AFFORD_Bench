@@ -19,24 +19,30 @@ if str(ROOT) not in sys.path:
 
 import afford_pro
 from afford_pro.datasets.generation import GenerationConfig, generate_task_dataset
-from afford_pro.datasets.validation import ENV_HORIZON
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--task", type=str, default="industrial_shaft_assembly", choices=afford_pro.list_all_tasks(True))
+    parser.add_argument("--task", type=str, default="industrial_shaft_assembly",
+                        help="task id (afford_pro.list_tasks(); legacy: afford_pro.list_all_tasks(True))")
+    parser.add_argument("--task-set", choices=afford_pro.registry.TASK_SETS, default="bench",
+                        help="task set (legacy: the deprecated single-body tasks)")
     parser.add_argument("--num-demos", type=int, default=5, help="Number of successful demonstrations to collect")
     parser.add_argument("--perturbation", type=str, default="nominal",
                         choices=["nominal", "p1_object", "p2_spatial", "p3_visual", "p4_physical", "combined_ood"])
-    parser.add_argument("--output-dir", type=str, default="datasets")
+    parser.add_argument("--output-dir", type=str, default=None, help="default: datasets (legacy: datasets_legacy)")
     parser.add_argument("--seed", type=int, default=42, help="Episode seeds start at seed + 1000 * task_number")
     parser.add_argument("--depth", action="store_true", help="Also record metric depth")
-    parser.add_argument("--max-demo-steps", type=int, default=ENV_HORIZON)
+    parser.add_argument("--max-demo-steps", type=int, default=None,
+                        help="reject longer demos (default: the environment's episode limit)")
     parser.add_argument("--overwrite-invalid", action="store_true", help="Replace an existing file that fails validation")
     parser.add_argument("--overwrite", action="store_true", help="Replace an existing file even if it is valid")
     args = parser.parse_args()
+    afford_pro.get_task_entry(args.task, args.task_set)  # unknown ids fail here, with the registry's message
 
-    cfg = GenerationConfig(task_id=args.task, output_dir=ROOT / args.output_dir, num_demos=args.num_demos,
+    output_dir = args.output_dir or ("datasets" if args.task_set == "bench" else "datasets_legacy")
+    cfg = GenerationConfig(task_id=args.task, output_dir=ROOT / output_dir, num_demos=args.num_demos,
+                           task_set=args.task_set,
                            perturbation=args.perturbation, seed=args.seed, depth=args.depth,
                            max_demo_steps=args.max_demo_steps, overwrite_valid=args.overwrite,
                            overwrite_invalid=args.overwrite or args.overwrite_invalid)

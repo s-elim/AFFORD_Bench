@@ -2,7 +2,7 @@
 
 Same seeds, horizon, success definition, and statistics as the suite evaluator (see its docstring).
 
-  python scripts/evaluate_id.py --checkpoint checkpoints/bc_lowdim_tabletop_core_best.pt --domain tabletop --num-episodes 50
+  python scripts/evaluate_id.py --checkpoint checkpoints/bc_objects_tabletop_best.pt --domain tabletop --num-episodes 50
   python scripts/evaluate_id.py --policy oracle --task industrial_shaft_assembly --num-episodes 10
 """
 from __future__ import annotations
@@ -23,21 +23,19 @@ def main() -> int:
     parser.add_argument("--checkpoint", type=str, default=None)
     parser.add_argument("--policy", type=str, default="checkpoint", choices=["checkpoint", "oracle", "random", "null"])
     parser.add_argument("--domain", type=str, default="industrial", choices=["all", *DOMAIN_MATCH])
-    parser.add_argument("--tier", type=str, default=None, choices=[None, "core", "reach", "instruction_mismatch"])
     parser.add_argument("--task", type=str, default=None)
     parser.add_argument("--num-episodes", type=int, default=50)
-    parser.add_argument("--horizon", type=int, default=400)
+    parser.add_argument("--horizon", type=int, default=None, help="default: the task's step budget")
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--seed", type=int, default=200_000, help="evaluation seed block base")
-    parser.add_argument("--use-init-states", action="store_true")
     args = parser.parse_args()
     if args.policy == "checkpoint" and not args.checkpoint:
         parser.error("--checkpoint is required unless --policy is oracle, random, or null")
 
     suite_args = argparse.Namespace(
         checkpoint=args.checkpoint, policy="oracle" if args.policy == "checkpoint" else args.policy,
-        task=args.task, domain=args.domain, tier=args.tier, suites="nominal", episodes=args.num_episodes,
-        horizon=args.horizon, seed_base=args.seed, replan=None, use_init_states=args.use_init_states,
+        task=args.task, domain=args.domain, tier=None, suites="nominal", episodes=args.num_episodes,
+        horizon=args.horizon, seed_base=args.seed, replan=None, use_init_states=False, task_set="bench",
         device=args.device)
     s = summarize_records(evaluate(suite_args))["nominal"]
     lo, hi = s["task_cluster_bootstrap95"]

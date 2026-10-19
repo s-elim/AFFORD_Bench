@@ -20,7 +20,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
-from afford_pro.datasets.validation import ENV_HORIZON, build_task_context, validate_file
+from afford_pro.datasets.validation import build_task_context, file_task_set, validate_file
 
 SEED_STRIDE = 1000
 
@@ -38,10 +38,11 @@ class GenerationConfig:
     seed: int = 42
     depth: bool = False
     max_attempts_factor: int = 8
-    max_demo_steps: int = ENV_HORIZON
+    max_demo_steps: int | None = None   # None: the environment's episode limit (the task's step budget; legacy tasks 500)
     overwrite_valid: bool = False
     overwrite_invalid: bool = False
     base_seed: int | None = None    # explicit first episode seed; None derives it from `seed` and the task number
+    task_set: str = "bench"         # "bench", or the deprecated "legacy" set (afford_pro.registry.TASK_SETS)
 
 
 @dataclass
@@ -60,6 +61,8 @@ class GenerationResult:
 def _existing_file_decision(path: Path, cfg: GenerationConfig) -> GenerationResult | None:
     if not path.exists():
         return None
+    if file_task_set(path) != cfg.task_set:  # the task sets share task ids: never skip or replace the other set's file
+        return GenerationResult(str(path), "refused_existing", validation_status=f"task_set {file_task_set(path)}")
     status = validate_file(path, cfg.num_demos, image_frames=(0,)).status
     if status != "INVALID" and not cfg.overwrite_valid:
         return GenerationResult(str(path), "skipped_valid", validation_status=status)
@@ -77,10 +80,17 @@ def _make_writer(cfg: GenerationConfig, path: Path, env: Any, entry: Any, base_s
     provenance = collect_provenance(extra={"generation_config": settings, "base_seed": base_seed,
                                            "oracle_max_steps": BaseOracle.max_steps,
                                            "env_max_episode_steps": getattr(env, "max_episode_steps", None)})
+    language = {}
+    if cfg.task_set == "bench":  # language comes from the task spec; the legacy prompt file is keyed by legacy task ids
+        from afford_pro.bench import get_spec
+        from afford_pro.bench.language import prompt_variants
+
+        language = {"language_instructions": [entry.instruction], "prompt_variants": prompt_variants(get_spec(cfg.task_id))}
     writer = RobomimicHDF5Writer(
         file_path=path, env_name=cfg.task_id, task_id=cfg.task_id, instruction=entry.instruction,
-        env_args=make_env_args(cfg.task_id, perturbation_mode=cfg.perturbation, render_depth=cfg.depth),
-        model_file=env.get_model_xml(), provenance=provenance,
+        env_args=make_env_args(cfg.task_id, perturbation_mode=cfg.perturbation, render_depth=cfg.depth,
+                               **({"task_set": cfg.task_set} if cfg.task_set != "legacy" else {})),
+        model_file=env.get_model_xml(), provenance=provenance, **language,
     )
     env.reset(seed=base_seed)
     for key, value in env.camera_parameters().items():
@@ -97,7 +107,10 @@ def _collect(cfg: GenerationConfig, env: Any, oracle: Any, writer: Any, base_see
         if not env.check_success():
             result.failed_seeds.append(seed)
             continue
-        if len(actions) > cfg.max_demo_steps:
+        if cfg.task_set == "bench" and getattr(env, "start_fallback", False):
+            result.failed_seeds.append(seed)  # a start that fell back to the region centers is not a sampled start
+            continue
+        if len(actions) > (cfg.max_demo_steps or env.max_episode_steps):
             result.over_length_seeds.append(seed)
             continue
         writer.add_demonstration(actions, observations, rewards, dones, states=oracle.last_states, seed=seed,
@@ -112,7 +125,7 @@ def _commit(closed: Path, path: Path, cfg: GenerationConfig, result: GenerationR
     """Move the closed temporary file to its name: the dataset name only if it is complete, passes validation, and no
     file appeared at that name during the run (unless replacing it was requested at the start)."""
     stem = f"{cfg.task_id}_{cfg.perturbation}"
-    ctx = build_task_context(cfg.task_id, cfg.perturbation)
+    ctx = build_task_context(cfg.task_id, cfg.perturbation, cfg.task_set)
     status = validate_file(closed, cfg.num_demos, image_frames=(0, -1), ctx=ctx).status
     if result.collected < cfg.num_demos:
         target, result.status = path.with_name(f"{stem}.incomplete.hdf5"), "incomplete"
@@ -131,7 +144,7 @@ def generate_task_dataset(cfg: GenerationConfig, log: Any = print) -> Generation
     written_invalid (the new file failed validation and was kept as <task>_<mode>.invalid.hdf5)."""
     import afford_pro
 
-    entry = afford_pro.get_task_entry(cfg.task_id)
+    entry = afford_pro.get_task_entry(cfg.task_id, cfg.task_set)
     path = Path(cfg.output_dir) / f"{cfg.task_id}_{cfg.perturbation}.hdf5"
     path.parent.mkdir(parents=True, exist_ok=True)
     decision = _existing_file_decision(path, cfg)
@@ -139,7 +152,8 @@ def generate_task_dataset(cfg: GenerationConfig, log: Any = print) -> Generation
         return decision
     existed_at_start = path.exists()
     base_seed = cfg.base_seed if cfg.base_seed is not None else episode_seed_base(entry.task_number, cfg.seed)
-    env = afford_pro.make(cfg.task_id, perturbation_mode=cfg.perturbation, render_depth=cfg.depth)
+    env = afford_pro.make(cfg.task_id, task_set=cfg.task_set, perturbation_mode=cfg.perturbation,
+                          render_depth=cfg.depth)
     result = GenerationResult(str(path), "written")
     writer = None
     t0 = time.monotonic()

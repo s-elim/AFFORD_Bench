@@ -28,6 +28,7 @@ class EpisodeRecord:
     peak_force_n: float
     force_violation: bool
     wall_s: float
+    start_fallback: bool = False   # the start layout fell back to the region centers
 
 
 class RandomPolicy:
@@ -119,7 +120,7 @@ def run_policy_episode(env: Any, policy: Any, task_id: str, suite: str, seed: in
             break
     steps = first if first is not None else t + 1
     return EpisodeRecord(task_id, suite, policy.name, seed, first is not None, steps, first, peak, peak > F_MAX,
-                         time.monotonic() - t0)
+                         time.monotonic() - t0, bool(getattr(env, "start_fallback", False)))
 
 
 def run_oracle_episode(env: Any, oracle: Any, task_id: str, suite: str, seed: int, horizon: int) -> EpisodeRecord:
@@ -129,4 +130,4 @@ def run_oracle_episode(env: Any, oracle: Any, task_id: str, suite: str, seed: in
     steps = len(actions)
     success = bool(env.check_success()) and steps <= horizon
     return EpisodeRecord(task_id, suite, "oracle", seed, success, steps, steps if success else None, float("nan"),
-                         False, time.monotonic() - t0)
+                         False, time.monotonic() - t0, bool(getattr(env, "start_fallback", False)))

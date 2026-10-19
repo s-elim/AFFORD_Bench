@@ -86,6 +86,10 @@ class TaskContext:
     qpos_offset: int
     arm_qpos_adr: list[int]
     object_qpos_adr: int | None
+    # qpos addresses of every body the task moves, in goal order (legacy: the evaluated body, if it is free).
+    moved_qpos_adrs: tuple[int, ...] = ()
+    env_horizon: int = ENV_HORIZON   # the environment's episode limit (the task's step budget)
+    eval_horizon: int = EVAL_HORIZON  # the evaluation budget (the task's step budget)
 
 
 def parse_dataset_name(path: Path) -> tuple[str, str]:
@@ -97,11 +101,66 @@ def parse_dataset_name(path: Path) -> tuple[str, str]:
     return stem, "unknown"
 
 
-def build_task_context(task_id: str, mode: str) -> TaskContext:
+def file_task_set(path: Path) -> str:
+    """Task set recorded in a dataset's env_args: "legacy" when the file records none (written before task sets
+    existed); a ValueError when env_args is present but unreadable, so a benchmark file is never read as legacy."""
+    try:
+        with h5py.File(path, "r") as f:
+            raw = f["data"].attrs.get("env_args") if "data" in f else None
+    except OSError:
+        return "legacy"  # unreadable file: validate_file reports it
+    if raw is None:
+        return "legacy"
+    try:
+        env_args = json.loads(str(raw))
+    except ValueError as exc:
+        raise ValueError(f"{path}: env_args is not valid JSON, so its task set is unknown") from exc
+    return str(env_args.get("env_kwargs", {}).get("task_set", "legacy"))
+
+
+def _bench_task_context(task_id: str, mode: str) -> TaskContext:
+    from afford_pro.envs.base_franka_env import _load_model_with_portable_assets
+    from afford_pro.envs.parametric_env import ASSET_DIR
+    from afford_pro.bench import get_spec
+    from afford_pro.bench.scenes import SCENES
+    from afford_pro.bench.spec import step_budget
+
+    try:
+        spec = get_spec(task_id)
+    except KeyError:
+        return TaskContext(task_id, mode, None, None, None, None, 1, [], None)
+    xml_path = ASSET_DIR / SCENES[spec.scene].xml
+    model = _load_model_with_portable_assets(xml_path)
+    joint = lambda name: mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, name)  # noqa: E731
+    # Several bodies move in a task, so the single-body start checks (object_qpos_adr, nominal_pos) do not apply.
+    return TaskContext(
+        task_id=task_id, mode=mode, instruction=spec.instruction, nominal_pos=None,
+        scene_xml_text=xml_path.read_text(encoding="utf-8"),
+        state_size=int(mujoco.mj_stateSize(model, mujoco.mjtState.mjSTATE_FULLPHYSICS)) + 1,
+        qpos_offset=int(mujoco.mj_stateSize(model, mujoco.mjtState.mjSTATE_TIME)),
+        arm_qpos_adr=[int(model.jnt_qposadr[joint(f"joint{i}")]) for i in range(1, 8)], object_qpos_adr=None,
+        moved_qpos_adrs=tuple(_freejoint_adr(model, b) for b in spec.bodies_moved()),
+        env_horizon=step_budget(spec), eval_horizon=step_budget(spec),
+    )
+
+
+def _freejoint_adr(model: "mujoco.MjModel", body: str) -> int:
+    """qpos address of a body's free joint, whatever the joint is called."""
+    bid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, body)
+    for j in range(model.njnt):
+        if model.jnt_bodyid[j] == bid and model.jnt_type[j] == mujoco.mjtJoint.mjJNT_FREE:
+            return int(model.jnt_qposadr[j])
+    raise KeyError(f"{body} has no free joint")
+
+
+def build_task_context(task_id: str, mode: str, task_set: str = "bench") -> TaskContext:
     """Registry entry and compiled scene model of the task (no environment, no rendering)."""
     from afford_pro.envs.base_franka_env import _load_model_with_portable_assets
     from afford_pro.envs.parametric_env import ASSET_DIR
     from afford_pro.task_definitions import TASK_MAP_210, TASK_MAP_FRONTIER
+
+    if task_set == "bench":
+        return _bench_task_context(task_id, mode)
 
     task = TASK_MAP_210.get(task_id) or TASK_MAP_FRONTIER.get(task_id)
     if task is None:
@@ -119,6 +178,7 @@ def build_task_context(task_id: str, mode: str) -> TaskContext:
         qpos_offset=int(mujoco.mj_stateSize(model, mujoco.mjtState.mjSTATE_TIME)),
         arm_qpos_adr=[int(model.jnt_qposadr[joint(f"joint{i}")]) for i in range(1, 8)],
         object_qpos_adr=int(model.jnt_qposadr[obj_joint]) if is_free and task.task_type != "press_button" else None,
+        moved_qpos_adrs=(int(model.jnt_qposadr[obj_joint]),) if is_free and task.task_type != "press_button" else (),
     )
 
 
@@ -314,8 +374,8 @@ def _file_stats(rows: list[dict[str, Any]], ctx: TaskContext, report: FileReport
     seeds = [r["seed"] for r in rows if r["seed"] is not None]
     report.stats["episode_length"] = {"min": int(lengths.min()), "median": float(np.median(lengths)),
                                       "mean": float(lengths.mean()), "max": int(lengths.max())}
-    report.stats["over_env_horizon"] = int((lengths > ENV_HORIZON).sum())
-    report.stats["over_eval_horizon"] = int((lengths > EVAL_HORIZON).sum())
+    report.stats["over_env_horizon"] = int((lengths > ctx.env_horizon).sum())
+    report.stats["over_eval_horizon"] = int((lengths > ctx.eval_horizon).sum())
     if seeds:
         report.stats["seeds"] = {"min": min(seeds), "max": max(seeds), "unique": len(set(seeds)),
                                  "inferred_attempts": max(seeds) - min(seeds) + 1}
@@ -395,7 +455,7 @@ def validate_file(path: Path, expected_demos: int = 50, image_frames: tuple[int,
     # The task identity comes from `ctx` when given (temporary files such as *.partial have no parseable name).
     task_id, mode = (ctx.task_id, ctx.mode) if ctx is not None else parse_dataset_name(path)
     report = FileReport(path=str(path), task_id=task_id, mode=mode)
-    ctx = ctx or build_task_context(task_id, mode)
+    ctx = ctx or build_task_context(task_id, mode, file_task_set(path))
     try:
         with h5py.File(path, "r") as f:
             if "data" not in f:
@@ -423,10 +483,10 @@ def validate_file(path: Path, expected_demos: int = 50, image_frames: tuple[int,
                 report.stats["action_hashes"] = [r["action_hash"] for r in rows]
                 if report.stats["over_env_horizon"]:
                     report.add("warning", "exceeds_env_horizon",
-                               f"{report.stats['over_env_horizon']} demos longer than the env limit {ENV_HORIZON}")
+                               f"{report.stats['over_env_horizon']} demos longer than the env limit {ctx.env_horizon}")
                 if report.stats["over_eval_horizon"]:
                     report.add("warning", "exceeds_eval_horizon",
-                               f"{report.stats['over_eval_horizon']} demos longer than the evaluation budget {EVAL_HORIZON}")
+                               f"{report.stats['over_eval_horizon']} demos longer than the evaluation budget {ctx.eval_horizon}")
     except OSError as exc:
         report.add("error", "unreadable", f"cannot read file: {exc}")
     except (KeyError, ValueError, TypeError, IndexError) as exc:

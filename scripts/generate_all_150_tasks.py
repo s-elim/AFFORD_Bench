@@ -23,7 +23,7 @@ if str(ROOT) not in sys.path:
 
 import afford_pro
 from afford_pro.datasets.generation import GenerationConfig, generate_task_dataset
-from afford_pro.datasets.validation import ENV_HORIZON, is_complete
+from afford_pro.datasets.validation import is_complete
 
 DOMAIN_MATCH = {
     "industrial": "Industrial",
@@ -44,13 +44,13 @@ def is_task_already_done(hdf5_path: Path, target_demos: int) -> bool:
 
 def generate_task_demos(task_id: str, num_demos: int = 50, perturbation: str = "nominal",
                         output_dir: Path = ROOT / "datasets", base_seed: int = 42, depth: bool = False,
-                        overwrite_invalid: bool = False, max_demo_steps: int = ENV_HORIZON, seed: int = 42,
-                        failures: list[str] | None = None) -> tuple[int, int, float]:
+                        overwrite_invalid: bool = False, max_demo_steps: int | None = None, seed: int = 42,
+                        failures: list[str] | None = None, task_set: str = "bench") -> tuple[int, int, float]:
     """Generate one task's demos starting at episode seed `base_seed`; returns (demos, steps, seconds). Tasks that
     were not written or skipped as valid are appended to `failures`."""
     cfg = GenerationConfig(task_id=task_id, output_dir=Path(output_dir), num_demos=num_demos, perturbation=perturbation,
                            depth=depth, base_seed=base_seed, overwrite_invalid=overwrite_invalid,
-                           max_demo_steps=max_demo_steps, seed=seed)
+                           max_demo_steps=max_demo_steps, seed=seed, task_set=task_set)
     result = generate_task_dataset(cfg, log=lambda msg: print(msg, flush=True))
     if result.status == "skipped_valid":
         print(f"  [SKIP] {task_id}: existing file is {result.validation_status}.", flush=True)
@@ -63,15 +63,16 @@ def generate_task_demos(task_id: str, num_demos: int = 50, perturbation: str = "
               f"inspect it, then rerun with --overwrite-invalid if it should be replaced.", flush=True)
         return 0, 0, 0.0
     print(f"  [{result.status.upper()}] {task_id}: {result.collected} demos in {result.attempts} attempts "
-          f"({len(result.failed_seeds)} oracle failures, {len(result.over_length_seeds)} over {max_demo_steps} steps); "
+          f"({len(result.failed_seeds)} oracle failures, {len(result.over_length_seeds)} over the length limit); "
           f"validation {result.validation_status}", flush=True)
     return result.collected, result.total_steps, result.duration_s
 
 
-def _select_tasks(domain: str, start: int, end: int) -> list[str]:
+def _select_tasks(domain: str, start: int, end: int, task_set: str = "bench") -> list[str]:
     selected = []
-    for tid in afford_pro.list_all_tasks(include_frontier=(domain == "frontier")):
-        entry = afford_pro.get_task_entry(tid)
+    ids = afford_pro.list_tasks("bench") if task_set == "bench" else afford_pro.list_all_tasks(include_frontier=(domain == "frontier"))
+    for tid in ids:
+        entry = afford_pro.get_task_entry(tid, task_set)
         if start <= entry.task_number <= end and (domain == "all" or DOMAIN_MATCH[domain] in entry.domain):
             selected.append(tid)
     return selected
@@ -85,28 +86,30 @@ def main():
     parser.add_argument("--end-task", type=int, default=240, help="Last task number (1-240)")
     parser.add_argument("--perturbation", type=str, default="nominal",
                         choices=["nominal", "p1_object", "p2_spatial", "p3_visual", "p4_physical", "combined_ood"])
-    parser.add_argument("--output-dir", type=str, default="datasets")
+    parser.add_argument("--output-dir", type=str, default=None, help="default: datasets (legacy: datasets_legacy)")
     parser.add_argument("--seed", type=int, default=42, help="Episode seeds start at seed + 1000 * task_number")
     parser.add_argument("--depth", action="store_true",
                         help="Also record float32 metric depth for both cameras (much larger files)")
-    parser.add_argument("--max-demo-steps", type=int, default=ENV_HORIZON,
+    parser.add_argument("--max-demo-steps", type=int, default=None,
                         help="Reject successful demos longer than this (default: the environment's episode limit)")
     parser.add_argument("--overwrite-invalid", action="store_true", help="Replace existing files that fail validation")
+    parser.add_argument("--task-set", choices=afford_pro.registry.TASK_SETS, default="bench",
+                        help="task set (legacy: the deprecated single-body tasks)")
     args = parser.parse_args()
 
-    tasks = _select_tasks(args.domain, args.start_task, args.end_task)
-    out_path = ROOT / args.output_dir
+    tasks = _select_tasks(args.domain, args.start_task, args.end_task, args.task_set)
+    out_path = ROOT / (args.output_dir or ("datasets" if args.task_set == "bench" else "datasets_legacy"))
     print(f"Generating {len(tasks)} tasks x {args.num_demos} demos ({args.perturbation}) into {out_path}", flush=True)
     t0 = time.monotonic()
     demos = steps = 0
     failures: list[str] = []
     for idx, tid in enumerate(tasks, start=1):
-        entry = afford_pro.get_task_entry(tid)
+        entry = afford_pro.get_task_entry(tid, args.task_set)
         print(f"[{idx}/{len(tasks)}] Task #{entry.task_number:03d} '{tid}' [{entry.domain}]", flush=True)
         c, s, _ = generate_task_demos(tid, args.num_demos, args.perturbation, out_path,
                                       base_seed=args.seed + 1000 * entry.task_number, depth=args.depth,
                                       overwrite_invalid=args.overwrite_invalid, max_demo_steps=args.max_demo_steps,
-                                      seed=args.seed, failures=failures)
+                                      seed=args.seed, failures=failures, task_set=args.task_set)
         demos += c
         steps += s
     print(f"Done: {demos} demos, {steps} steps in {time.monotonic() - t0:.1f} s", flush=True)

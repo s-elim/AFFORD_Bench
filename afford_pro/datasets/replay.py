@@ -23,6 +23,7 @@ class ReplayResult:
     first_success_step: int | None
     max_object_dev_m: float
     max_joint_dev_rad: float
+    max_qpos_dev: float = 0.0       # largest deviation of any generalized coordinate (every body and mechanism)
 
     @property
     def consistent(self) -> bool:
@@ -34,8 +35,9 @@ def replay_demo(env: Any, states: np.ndarray, actions: np.ndarray, seed: int | N
     env.reset(seed=seed)            # re-applies the episode's model perturbations (none in the nominal suite)
     env.set_sim_state(states[0])
     first_success = None
-    obj_dev, joint_dev = 0.0, 0.0
+    obj_dev, joint_dev, qpos_dev = 0.0, 0.0, 0.0
     arm_idx = [qpos_offset + a for a in arm_qpos_adr]
+    qpos = slice(qpos_offset, qpos_offset + env.model.nq)
     for t, action in enumerate(actions):
         _, _, terminated, _, _ = env.step(action)
         if terminated and first_success is None:
@@ -43,23 +45,25 @@ def replay_demo(env: Any, states: np.ndarray, actions: np.ndarray, seed: int | N
         if t + 1 < len(states):
             now = env.get_sim_state()
             joint_dev = max(joint_dev, float(np.abs(now[arm_idx] - states[t + 1][arm_idx]).max()))
+            qpos_dev = max(qpos_dev, float(np.abs(now[qpos] - states[t + 1][qpos]).max()))
             if object_qpos_adr is not None:
                 i = qpos_offset + object_qpos_adr
                 obj_dev = max(obj_dev, float(np.linalg.norm(now[i:i + 3] - states[t + 1][i:i + 3])))
-    return ReplayResult(demo, len(actions), bool(env.check_success()), first_success, obj_dev, joint_dev)
+    return ReplayResult(demo, len(actions), bool(env.check_success()), first_success, obj_dev, joint_dev, qpos_dev)
 
 
 def replay_file(path: Path, demos: list[str], qpos_offset: int, object_qpos_adr: int | None,
                 arm_qpos_adr: list[int]) -> list[dict[str, Any]]:
     """Replay the listed demos of one file headlessly; returns one dict per demo."""
     import afford_pro
-    from afford_pro.datasets.validation import parse_dataset_name
+    from afford_pro.datasets.validation import file_task_set, parse_dataset_name
     from afford_pro.envs.headless import headless
 
     task_id, mode = parse_dataset_name(Path(path))
+    task_set = file_task_set(Path(path))
     results = []
     with headless(), h5py.File(path, "r") as f:
-        env = afford_pro.make(task_id, perturbation_mode=mode)
+        env = afford_pro.make(task_id, task_set=task_set, perturbation_mode=mode)
         try:
             for demo in demos:
                 g = f["data"][demo]

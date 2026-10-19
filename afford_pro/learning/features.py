@@ -5,6 +5,8 @@ Modalities:
           contain the object, so under the L1 start scatter it is a blind ablation, not a baseline.
   lowdim  proprioception + pose of the evaluated body (position and w-first quaternion; 29-D), decoded from the
           recorded simulator state. This is privileged object state, as in robomimic's low-dim datasets.
+  objects proprioception + poses of the bodies the task moves, in goal order, in OBJECT_SLOTS zero-padded slots
+          (64-D): the privileged low-dim input for tasks that move up to six bodies (one slot for legacy tasks).
   visual  proprioception + the workcell RGB image subsampled to 3 x 80 x 80.
 """
 from __future__ import annotations
@@ -14,17 +16,19 @@ from typing import Any
 
 import numpy as np
 
-MODALITIES = ("state", "lowdim", "visual")
+MODALITIES = ("state", "lowdim", "objects", "visual")
 PROPRIO_KEYS = ("tcp_pose", "joint_positions", "joint_velocities", "gripper_width")
 PROPRIO_DIM = 22
 OBJECT_POSE_DIM = 7
+OBJECT_SLOTS = 6
 IMAGE_STRIDE = 8
 IMAGE_SIZE = 80
 STD_FLOOR = 1e-3
 
 
 def input_dim(modality: str) -> int:
-    return PROPRIO_DIM + (OBJECT_POSE_DIM if modality == "lowdim" else 0)
+    extra = {"lowdim": OBJECT_POSE_DIM, "objects": OBJECT_POSE_DIM * OBJECT_SLOTS}
+    return PROPRIO_DIM + extra.get(modality, 0)
 
 
 def proprio(obs: dict[str, Any], t: int | slice | None = None) -> np.ndarray:
@@ -36,6 +40,29 @@ def proprio(obs: dict[str, Any], t: int | slice | None = None) -> np.ndarray:
 def object_pose_from_states(states: np.ndarray, qpos_offset: int, object_qpos_adr: int) -> np.ndarray:
     start = qpos_offset + object_qpos_adr
     return np.asarray(states[..., start:start + OBJECT_POSE_DIM], dtype=np.float32)
+
+
+def object_poses_from_states(states: np.ndarray, qpos_offset: int, qpos_adrs: list[int]) -> np.ndarray:
+    """(T, OBJECT_SLOTS * 7) poses of the given free bodies, zero-padded."""
+    states = np.asarray(states)
+    out = np.zeros((*states.shape[:-1], OBJECT_POSE_DIM * OBJECT_SLOTS), dtype=np.float32)
+    for k, adr in enumerate(list(qpos_adrs)[:OBJECT_SLOTS]):
+        out[..., k * OBJECT_POSE_DIM:(k + 1) * OBJECT_POSE_DIM] = object_pose_from_states(states, qpos_offset, adr)
+    return out
+
+
+def moved_body_qpos_adrs(env: Any) -> list[int]:
+    """qpos addresses of the bodies a task moves: every goal body of a task, the evaluated body of a legacy task."""
+    if hasattr(env, "spec") and hasattr(env, "body_qposadr"):
+        return [env.body_qposadr[b] for b in env.task_spec.bodies_moved()]
+    return [] if getattr(env, "target_qposadr", None) is None else [env.target_qposadr]
+
+
+def object_poses_from_env(env: Any) -> np.ndarray:
+    out = np.zeros(OBJECT_POSE_DIM * OBJECT_SLOTS, dtype=np.float32)
+    for k, adr in enumerate(moved_body_qpos_adrs(env)[:OBJECT_SLOTS]):
+        out[k * OBJECT_POSE_DIM:(k + 1) * OBJECT_POSE_DIM] = env.data.qpos[adr:adr + OBJECT_POSE_DIM]
+    return out
 
 
 def object_pose_from_env(env: Any) -> np.ndarray:
@@ -56,6 +83,8 @@ def env_inputs(obs: dict[str, Any], env: Any, modality: str) -> tuple[np.ndarray
     vec = proprio(obs)
     if modality == "lowdim":
         vec = np.concatenate([vec, object_pose_from_env(env)])
+    elif modality == "objects":
+        vec = np.concatenate([vec, object_poses_from_env(env)])
     image = preprocess_image(obs["agentic_rgb"]) if modality == "visual" else None
     return vec, image
 

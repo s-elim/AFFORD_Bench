@@ -62,11 +62,11 @@ def _longest_episode(p: Path) -> int:
 
 def _check_one(path: str, expected_demos: int, frames: Any, replay_n: int, sha: bool) -> dict[str, Any]:
     from afford_pro.datasets.replay import replay_file
-    from afford_pro.datasets.validation import build_task_context, parse_dataset_name, validate_file
+    from afford_pro.datasets.validation import build_task_context, file_task_set, parse_dataset_name, validate_file
     from afford_pro.provenance import sha256_file
 
     p = Path(path)
-    ctx = build_task_context(*parse_dataset_name(p))
+    ctx = build_task_context(*parse_dataset_name(p), file_task_set(p))
     if frames == "all":
         frames = tuple(range(_longest_episode(p)))  # validate_file keeps only frames inside each episode
     report = validate_file(p, expected_demos, frames, ctx)
@@ -78,8 +78,10 @@ def _check_one(path: str, expected_demos: int, frames: Any, replay_n: int, sha: 
         # Files from the current generator (they carry provenance) execute exactly the actions they record, so their
         # replays must be exact; legacy files stored float32 roundings of the executed actions (AUDIT_REPORT A-26).
         strict = "warning:no_provenance" not in out.get("issue_counts", {})
+        whole_state = file_task_set(p) == "bench"  # every coordinate must replay exactly; legacy files keep their body+arm check
         bad = [r["demo"] for r in rows if not r["consistent"]
-               or (strict and (r["max_object_dev_m"] > 0 or r["max_joint_dev_rad"] > 0))]
+               or (strict and (r["max_object_dev_m"] > 0 or r["max_joint_dev_rad"] > 0
+                               or (whole_state and r["max_qpos_dev"] > 0)))]
         if bad and strict:
             out.setdefault("issue_counts", {})["error:replay_mismatch"] = len(bad)
             out["status"] = "INVALID"

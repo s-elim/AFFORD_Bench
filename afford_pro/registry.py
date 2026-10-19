@@ -1,6 +1,7 @@
-"""Task registry: every AFFORD-Bench task is a ParametricFrankaEnv solved by the closed-loop ParametricOracle."""
+"""Task registry: AFFORD-Bench tasks (afford_pro.bench) and the deprecated legacy single-body task set."""
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
 from typing import Callable
 
@@ -134,31 +135,61 @@ if "frontier_overhang_and_grasp_plate" in _TASK_REGISTRY:
     _TASK_REGISTRY["nonprehensile_push_and_grasp"] = _TASK_REGISTRY["frontier_overhang_and_grasp_plate"]
 
 
-def list_tasks() -> list[str]:
-    """Return all 210 core benchmark task IDs in task-number order."""
+# Task sets: "bench" is AFFORD-Bench (afford_pro/bench), whose instructions and success checks agree. "legacy" is
+# the deprecated single-body task set, kept only to load and replay its files. make(), get_oracle() and
+# get_task_entry() take `task_set`.
+TASK_SETS = ("bench", "legacy")
+DEFAULT_TASK_SET = "bench"
+
+
+def _check_task_set(task_set: str) -> str:
+    if task_set not in TASK_SETS:
+        raise ValueError(f"unknown task set {task_set!r}; expected one of {TASK_SETS}")
+    return task_set
+
+
+def list_tasks(task_set: str = DEFAULT_TASK_SET) -> list[str]:
+    """Return the 210 task IDs in task-number order."""
+    if _check_task_set(task_set) == "bench":
+        from afford_pro import bench
+        return bench.list_tasks()
     return [t.task_id for t in ALL_210_TASKS]
 
 
 def list_frontier_tasks() -> list[str]:
-    """Return Domain 8 frontier complex task IDs."""
+    """Return the legacy Domain 8 frontier task IDs (deprecated)."""
     return [t.task_id for t in DOMAIN_8_FRONTIER_TASKS]
 
 
 def list_all_tasks(include_frontier: bool = False) -> list[str]:
-    """Return task IDs, optionally including Domain 8 frontier tasks."""
+    """Return the legacy task IDs, optionally including Domain 8 frontier tasks (deprecated)."""
     if include_frontier:
         return [t.task_id for t in ALL_210_TASKS] + [t.task_id for t in DOMAIN_8_FRONTIER_TASKS]
     return [t.task_id for t in ALL_210_TASKS]
 
 
-def get_task_entry(task_id: str) -> TaskEntry:
+def _bench_entry(task_id: str) -> TaskEntry:
+    from afford_pro import bench
+
+    spec = bench.get_spec(task_id)
+    return TaskEntry(task_id=spec.task_id, domain=spec.domain, task_number=spec.number,
+                     env_factory=lambda **kw: bench.make_env(spec.number, **kw), oracle_factory=bench.make_oracle,
+                     instruction=spec.instruction, description=spec.change or spec.instruction)
+
+
+def get_task_entry(task_id: str, task_set: str = DEFAULT_TASK_SET) -> TaskEntry:
+    if _check_task_set(task_set) == "bench":
+        return _bench_entry(task_id)
     if task_id not in _TASK_REGISTRY:
         raise KeyError(f"Task '{task_id}' not found in the AFFORD-Bench registry ({len(_TASK_REGISTRY)} tasks).")
     return _TASK_REGISTRY[task_id]
 
 
-def make(task_id: str, **kwargs) -> BaseFrankaEnv:
-    """Instantiate an AFFORD-Bench environment by task ID."""
+def make(task_id: str, task_set: str = DEFAULT_TASK_SET, **kwargs) -> BaseFrankaEnv:
+    """Instantiate an AFFORD-Bench environment by task ID (`task_set="legacy"`: the deprecated single-body tasks)."""
+    if _check_task_set(task_set) == "legacy":
+        warnings.warn("the legacy task set is deprecated; it is kept only to load and replay its files",
+                      DeprecationWarning, stacklevel=2)
     kwargs = dict(kwargs)
     # Framework arguments to absorb/ignore (Robomimic, Robosuite, LIBERO, Gymnasium)
     for ignored_key in (
@@ -185,12 +216,17 @@ def make(task_id: str, **kwargs) -> BaseFrankaEnv:
         kwargs.pop("render_offscreen", None)
         kwargs.pop("has_offscreen_renderer", None)
 
-    return get_task_entry(task_id).env_factory(**kwargs)
+    return get_task_entry(task_id, task_set).env_factory(**kwargs)
 
 
 def get_oracle(task_id: str, env: BaseFrankaEnv) -> BaseOracle:
-    """Instantiate the closed-loop oracle for a given task and environment."""
-    return get_task_entry(task_id).oracle_factory(env)
+    """Instantiate the closed-loop oracle for a given task and environment (the environment fixes the task set)."""
+    from afford_pro.bench.env import GoalFrankaEnv
+
+    if isinstance(env, GoalFrankaEnv):
+        from afford_pro import bench
+        return bench.make_oracle(env)
+    return get_task_entry(task_id, "legacy").oracle_factory(env)
 
 
 from pathlib import Path
@@ -212,54 +248,28 @@ def get_initial_states(task_id: str, init_states_dir: Path | str | None = None) 
 
 
 # ----------------------------------------------------------------- Gym & Gymnasium Registration
-# Registers all benchmark environments so robomimic EnvGym and standard RL frameworks can instantiate
-# environments via gym.make(task_id) or gymnasium.make(task_id).
-try:
-    import gymnasium as _gymnasium
-    _gym_reg = getattr(_gymnasium.envs, "registry", {})
-    for _tid in list(_TASK_REGISTRY.keys()):
-        try:
-            _ns_id = f"afford_pro/{_tid}-v0"
-            if _ns_id not in _gym_reg:
-                _gymnasium.register(
-                    id=_ns_id,
-                    entry_point="afford_pro.registry:make",
-                    kwargs={"task_id": _tid},
-                    disable_env_checker=True,
-                )
-            if _tid not in _gym_reg:
-                _gymnasium.register(
-                    id=_tid,
-                    entry_point="afford_pro.registry:make",
-                    kwargs={"task_id": _tid},
-                    disable_env_checker=True,
-                )
-        except Exception:
-            pass
-except Exception:
-    pass
-
-try:
-    import gym as _gym
-    _legacy_reg = getattr(_gym.envs, "registry", {})
-    for _tid in list(_TASK_REGISTRY.keys()):
-        try:
-            _ns_id = f"afford_pro/{_tid}-v0"
-            if _ns_id not in _legacy_reg:
-                _gym.register(
-                    id=_ns_id,
-                    entry_point="afford_pro.registry:make",
-                    kwargs={"task_id": _tid},
-                )
-            if _tid not in _legacy_reg:
-                _gym.register(
-                    id=_tid,
-                    entry_point="afford_pro.registry:make",
-                    kwargs={"task_id": _tid},
-                )
-        except Exception:
-            pass
-except Exception:
-    pass
+# Registers the benchmark tasks so robomimic EnvGym and standard RL frameworks can instantiate them via
+# gym.make(task_id) or gymnasium.make(task_id); ids that only the legacy set has keep task_set="legacy".
+def _gym_entries() -> list[tuple[str, dict]]:
+    bench_ids = list_tasks()
+    entries = [(tid, {"task_id": tid}) for tid in bench_ids]
+    entries += [(tid, {"task_id": tid, "task_set": "legacy"}) for tid in _TASK_REGISTRY if tid not in set(bench_ids)]
+    return entries
 
 
+def _register(module) -> None:
+    registry = getattr(module.envs, "registry", {})
+    for tid, kwargs in _gym_entries():
+        for name in (f"afford_pro/{tid}-v0", tid):
+            if name not in registry:
+                try:
+                    module.register(id=name, entry_point="afford_pro.registry:make", kwargs=kwargs)
+                except Exception:
+                    pass
+
+
+for _module_name in ("gymnasium", "gym"):
+    try:
+        _register(__import__(_module_name))
+    except Exception:
+        pass
