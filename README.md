@@ -7,7 +7,7 @@
 [![Benchmarks](https://img.shields.io/badge/Manifests-Full%20(960)%20%7C%20Lite%20(96)-success.svg)](benchmark/)
 [![Safety](https://img.shields.io/badge/Safety%20Bound-150%20N%20%7C%20Actuator%20Torques-orange.svg)](docs/BENCHMARK_SPEC.md)
 
-**Yeungnam University** &middot; **Towards Physical Superintelligence**
+**Yeungnam University** &middot; **Physical Superintelligence**
 
 **Project Webpage:** [https://physical-agi.github.io/AFFORD_Bench/](https://physical-agi.github.io/AFFORD_Bench/)  
 **Code Repository:** [https://github.com/Physical-AGI/AFFORD_Bench](https://github.com/Physical-AGI/AFFORD_Bench)
@@ -91,7 +91,7 @@ If you use AFFORD-Bench in your research, please cite:
 ```bibtex
 @article{sarowar2026affordbench,
   title       = {AFFORD-Bench: A Benchmark for Physical Affordance, Compliance, and Reactive Contact Robustness in Robot Manipulation},
-  author      = {Sarowar, Selim and Towards Physical Superintelligence Team},
+  author      = {Sarowar, Selim and Physical Superintelligence Research Team},
   institution = {Yeungnam University},
   journal     = {Robotics: Science and Systems (RSS)},
   year        = {2027},
