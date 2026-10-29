@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 36" width="260" height="36" role="img" aria-label="AFFORD-Bench">
+  <defs>
+    <linearGradient id="afford-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a7444e" />
+      <stop offset="100%" stop-color="#d9534f" />
+    </linearGradient>
+  </defs>
+  <!-- Force / Torque Sensor Icon -->
+  <g transform="translate(2, 4)">
+    <circle cx="14" cy="14" r="13" fill="none" stroke="#a7444e" stroke-width="2.5" />
+    <circle cx="14" cy="14" r="4.5" fill="#a7444e" />
+    <path d="M 14 1 L 14 6" stroke="#a7444e" stroke-width="2" stroke-linecap="round" />
+    <path d="M 14 22 L 14 27" stroke="#a7444e" stroke-width="2" stroke-linecap="round" />
+    <path d="M 1 14 L 6 14" stroke="#a7444e" stroke-width="2" stroke-linecap="round" />
+    <path d="M 22 14 L 27 14" stroke="#a7444e" stroke-width="2" stroke-linecap="round" />
+  </g>
+  <!-- Wordmark Text -->
+  <text x="38" y="25" font-family="'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif" font-weight="800" font-size="21" letter-spacing="-0.03em" fill="#17191d">AFFORD</text>
+  <text x="136" y="25" font-family="'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif" font-weight="300" font-size="21" letter-spacing="-0.01em" fill="#62676e">-</text>
+  <text x="148" y="25" font-family="'Iowan Old Style', Georgia, serif" font-style="italic" font-weight="600" font-size="23" letter-spacing="-0.02em" fill="#a7444e">Bench</text>
+</svg>

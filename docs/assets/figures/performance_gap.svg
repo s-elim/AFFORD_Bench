@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 480" width="1000" height="480">
+  <defs>
+    <style>
+      .label { font-family: 'Open Sans', -apple-system, sans-serif; font-size: 13px; font-weight: 600; fill: #62676e; }
+      .model { font-family: 'Iowan Old Style', Georgia, serif; font-size: 16px; font-weight: 600; fill: #202124; }
+      .bar-base { fill: #9ca6b1; rx: 3px; }
+      .bar-dyn { fill: #a7444e; rx: 3px; }
+      .bar-safe { fill: #3e857b; rx: 3px; }
+      .grid { stroke: #e0e5ea; stroke-width: 1px; stroke-dasharray: 4,4; }
+      .val-text { font-family: 'Open Sans', sans-serif; font-size: 11px; font-weight: 700; fill: #202124; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect width="100%" height="100%" fill="#ffffff" rx="10" stroke="#dce1e7" />
+
+  <!-- Title & Legend -->
+  <text x="40" y="45" font-family="'Iowan Old Style', Georgia, serif" font-size="22" font-weight="600" fill="#17191d">Base vs. Dynamic vs. Safe Compliant Success Rates (%)</text>
+  <text x="40" y="70" font-family="'Open Sans', sans-serif" font-size="13" fill="#62676e">Evaluating 960 matched pairs across 240 tasks. Shaded drop highlights the compliance gap.</text>
+
+  <g transform="translate(620, 35)">
+    <rect x="0" y="5" width="16" height="12" fill="#9ca6b1" rx="2" />
+    <text x="24" y="16" class="label">Base Success</text>
+
+    <rect x="130" y="5" width="16" height="12" fill="#a7444e" rx="2" />
+    <text x="154" y="16" class="label">Dynamic (Kinematic)</text>
+
+    <rect x="300" y="5" width="16" height="12" fill="#3e857b" rx="2" />
+    <text x="324" y="16" class="label">Safe Compliant</text>
+  </g>
+
+  <!-- Chart Grid -->
+  <g transform="translate(180, 110)">
+    <!-- Horizontal Grid Lines (0 to 100) -->
+    <line x1="0" y1="0" x2="780" y2="0" class="grid" />
+    <text x="-15" y="5" class="label" text-anchor="end">100%</text>
+
+    <line x1="0" y1="70" x2="780" y2="70" class="grid" />
+    <text x="-15" y="75" class="label" text-anchor="end">75%</text>
+
+    <line x1="0" y1="140" x2="780" y2="140" class="grid" />
+    <text x="-15" y="145" class="label" text-anchor="end">50%</text>
+
+    <line x1="0" y1="210" x2="780" y2="210" class="grid" />
+    <text x="-15" y="215" class="label" text-anchor="end">25%</text>
+
+    <line x1="0" y1="280" x2="780" y2="280" stroke="#9ca6b1" stroke-width="1.5" />
+    <text x="-15" y="285" class="label" text-anchor="end">0%</text>
+
+    <!-- Model 1: Compliant Oracle -->
+    <g transform="translate(40, 0)">
+      <rect x="0" y="14" width="28" height="266" class="bar-base" />
+      <text x="14" y="8" class="val-text">95%</text>
+      
+      <rect x="34" y="25" width="28" height="255" class="bar-dyn" />
+      <text x="48" y="19" class="val-text">91%</text>
+      
+      <rect x="68" y="34" width="28" height="246" class="bar-safe" />
+      <text x="82" y="28" class="val-text">88%</text>
+      <text x="48" y="305" class="model" text-anchor="middle">Compliant Oracle</text>
+    </g>
+
+    <!-- Model 2: Diffusion Policy (Vision) -->
+    <g transform="translate(190, 0)">
+      <rect x="0" y="73" width="28" height="207" class="bar-base" />
+      <text x="14" y="67" class="val-text">74%</text>
+
+      <rect x="34" y="174" width="28" height="106" class="bar-dyn" />
+      <text x="48" y="168" class="val-text">38%</text>
+
+      <rect x="68" y="238" width="28" height="42" class="bar-safe" />
+      <text x="82" y="232" class="val-text">15%</text>
+      <text x="48" y="305" class="model" text-anchor="middle">Diffusion (Vision)</text>
+    </g>
+
+    <!-- Model 3: Diffusion Policy (State) -->
+    <g transform="translate(340, 0)">
+      <rect x="0" y="59" width="28" height="221" class="bar-base" />
+      <text x="14" y="53" class="val-text">79%</text>
+
+      <rect x="34" y="162" width="28" height="118" class="bar-dyn" />
+      <text x="48" y="156" class="val-text">42%</text>
+
+      <rect x="68" y="230" width="28" height="50" class="bar-safe" />
+      <text x="82" y="224" class="val-text">18%</text>
+      <text x="48" y="305" class="model" text-anchor="middle">Diffusion (State)</text>
+    </g>
+
+    <!-- Model 4: BC-RNN (Vision) -->
+    <g transform="translate(490, 0)">
+      <rect x="0" y="106" width="28" height="174" class="bar-base" />
+      <text x="14" y="100" class="val-text">62%</text>
+
+      <rect x="34" y="221" width="28" height="59" class="bar-dyn" />
+      <text x="48" y="215" class="val-text">21%</text>
+
+      <rect x="68" y="258" width="28" height="22" class="bar-safe" />
+      <text x="82" y="252" class="val-text">8%</text>
+      <text x="48" y="305" class="model" text-anchor="middle">BC-RNN (Vision)</text>
+    </g>
+
+    <!-- Model 5: Open-Loop Replay -->
+    <g transform="translate(640, 0)">
+      <rect x="0" y="8" width="28" height="272" class="bar-base" />
+      <text x="14" y="2" class="val-text">97%</text>
+
+      <rect x="34" y="272" width="28" height="8" class="bar-dyn" />
+      <text x="48" y="266" class="val-text">3%</text>
+
+      <rect x="68" y="277" width="28" height="3" class="bar-safe" />
+      <text x="82" y="271" class="val-text">1%</text>
+      <text x="48" y="305" class="model" text-anchor="middle">Open-Loop</text>
+    </g>
+  </g>
+</svg>

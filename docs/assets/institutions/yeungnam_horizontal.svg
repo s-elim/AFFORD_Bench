@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64" width="280" height="64" role="img" aria-label="Yeungnam University">
+  <defs>
+    <style>
+      .yu-title { font-family: 'Open Sans', -apple-system, sans-serif; font-weight: 800; font-size: 19px; fill: #003876; letter-spacing: 0.04em; }
+      .yu-sub { font-family: 'Open Sans', -apple-system, sans-serif; font-weight: 600; font-size: 13px; fill: #4a5568; letter-spacing: 0.16em; }
+    </style>
+  </defs>
+  <!-- Chunma Emblem Graphic Representation -->
+  <g transform="translate(6, 4)">
+    <circle cx="28" cy="28" r="26" fill="#003876" />
+    <circle cx="28" cy="28" r="23" fill="none" stroke="#ffffff" stroke-width="1.5" />
+    <!-- Stylized Pegasus Wing & Torch -->
+    <path d="M 28 13 C 21 16 17 23 17 31 C 17 37 22 43 28 43 C 34 43 39 37 39 31 C 39 23 35 16 28 13 Z" fill="#ffffff" opacity="0.15" />
+    <path d="M 28 16 L 25 24 L 31 24 Z" fill="#ffc72c" />
+    <path d="M 28 24 L 28 39" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+    <path d="M 20 28 C 24 26 28 29 36 22 C 34 27 31 32 25 35 Z" fill="#ffffff" />
+    <!-- 1947 Foundation Year -->
+    <text x="28" y="47" font-family="'Open Sans', sans-serif" font-weight="700" font-size="7" fill="#ffffff" text-anchor="middle" letter-spacing="0.05em">1947</text>
+  </g>
+  <!-- Typography -->
+  <text x="74" y="32" class="yu-title">YEUNGNAM</text>
+  <text x="74" y="49" class="yu-sub">UNIVERSITY</text>
+</svg>

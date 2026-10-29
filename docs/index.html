@@ -1,354 +1,891 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AFFORD-Bench: Precision Manipulation with Dynamic Robustness &amp; Force Sensing</title>
-  <meta name="description" content="AFFORD-Bench: 240 instruction-accurate manipulation tasks on a simulated Franka Panda, with physical millimeter-precision success checks, 7-D actuator torques, and paired spatial, visual, and dynamic shift suites.">
+  <title>AFFORD-Bench: Physical Contact Robustness in Robot Manipulation</title>
+  <meta name="description" content="AFFORD-Bench measures whether robot manipulation policies adapt under mid-trajectory physical contact disturbances without causing dangerous contact force spikes or joint motor torque saturation.">
+  <meta property="og:title" content="AFFORD-Bench: Do Robot Policies Comply When Physical Contacts Shift?">
+  <meta property="og:description" content="240 tasks, 960 matched Base and Dynamic pairs, 7-DoF actuator motor torques, and ISO/TS 15066 contact force safety monitoring.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://physical-agi.github.io/AFFORD_Bench/">
+  <meta property="og:image" content="https://physical-agi.github.io/AFFORD_Bench/assets/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://physical-agi.github.io/AFFORD_Bench/">
+  <link rel="alternate" type="application/x-bibtex" href="CITATION.bib" title="AFFORD-Bench BibTeX citation">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="site/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --fg: #202124;
+  --muted: #62676e;
+  --soft: #f3f5f8;
+  --line: #dce1e7;
+  --line-strong: #9ca6b1;
+  --accent: #a7444e;
+  --accent-soft: #faf1f2;
+  --accent-hover: #88343d;
+  --geometry: #96762f;
+  --force: #a7444e;
+  --torque: #33627f;
+  --mechanical: #3e857b;
+  --path: #6a4e86;
+  --header: rgba(255, 255, 255, 0.94);
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #17191d;
+  --fg: #f2f3f5;
+  --muted: #b3bac4;
+  --soft: #20242b;
+  --line: #373e48;
+  --line-strong: #788593;
+  --accent: #e3a1a7;
+  --accent-soft: #312328;
+  --accent-hover: #f0b6bc;
+  --geometry: #d2b466;
+  --force: #e3a1a7;
+  --torque: #8fbed9;
+  --mechanical: #83bfb5;
+  --path: #bca2d4;
+  --header: rgba(23, 25, 29, 0.94);
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #17191d;
+    --fg: #f2f3f5;
+    --muted: #b3bac4;
+    --soft: #20242b;
+    --line: #373e48;
+    --line-strong: #788593;
+    --accent: #e3a1a7;
+    --accent-soft: #312328;
+    --accent-hover: #f0b6bc;
+    --geometry: #d2b466;
+    --force: #e3a1a7;
+    --torque: #8fbed9;
+    --mechanical: #83bfb5;
+    --path: #bca2d4;
+    --header: rgba(23, 25, 29, 0.94);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, p { margin-top: 0; }
+h1, h2, h3, h4 { font-family: var(--serif); }
+img, video { display: block; max-width: 100%; height: auto; }
+a { color: inherit; text-decoration: none; }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+button { font: inherit; }
+
+.shell { width: min(1180px, calc(100% - 64px)); margin-inline: auto; }
+.skip-link { position: fixed; top: -90px; left: 20px; z-index: 300; padding: 10px 16px; color: #fff; background: var(--accent); }
+.skip-link:focus { top: 14px; }
+
+/* Sticky Header */
+.site-header { position: sticky; top: 0; z-index: 100; background: var(--header); border-bottom: 1px solid var(--line); backdrop-filter: blur(14px); }
+.nav { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; }
+.brand img { height: 28px; width: auto; }
+.nav-links { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 500; }
+.nav-links a { padding: 8px 12px; border-radius: 4px; transition: color 0.15s, background 0.15s; }
+.nav-links a:hover { color: var(--accent); background: var(--accent-soft); }
+.nav-links .nav-code { color: #fff; background: var(--accent); margin-left: 6px; font-weight: 600; }
+.nav-links .nav-code:hover { color: #fff; background: var(--accent-hover); }
+.theme-toggle { width: 42px; height: 42px; padding: 0; color: var(--fg); background: transparent; border: 1px solid transparent; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s, border-color 0.15s; }
+.theme-toggle:hover { background: var(--soft); border-color: var(--line); }
+.theme-glyph { font-size: 22px; }
+
+/* Hero Showcase */
+.hero-showcase { --hero-aside-width: max(320px, calc(37.5% - 24px)); padding: 68px 0 76px; }
+.hero-heading { display: grid; grid-template-columns: minmax(0, 1fr) var(--hero-aside-width); gap: 32px; align-items: center; }
+.eyebrow, .section-kicker { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; line-height: 1.5; text-transform: uppercase; color: var(--muted); }
+.hero-showcase .eyebrow { color: var(--accent); margin-bottom: 20px; }
+h1 { max-width: 1040px; font-size: clamp(38px, 5.2vw, 70px); font-weight: 500; line-height: 1.12; letter-spacing: -0.04em; margin-bottom: 0; }
+h1 em { color: var(--accent); font-style: italic; }
+
+.authors { max-width: 1080px; margin: 24px 0 0; color: var(--muted); font-size: 15px; line-height: 1.85; }
+.authors .author-row { display: block; }
+.authors a { text-decoration: underline; text-underline-offset: 3px; }
+.authors a:hover { color: var(--accent); }
+.authors sup { position: relative; top: -0.2em; font-size: 0.75em; }
+
+.institution-badges {
+  width: 100%;
+  justify-self: center;
+  padding: 16px 20px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.institution-featured {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.institution-featured img {
+  height: 48px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+.institution-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+.institution-grid li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 54px;
+}
+.institution-grid img {
+  max-height: 48px;
+  width: auto;
+  object-fit: contain;
+}
+
+.hero-support { display: grid; grid-template-columns: minmax(0, 1fr) var(--hero-aside-width); gap: 64px; padding-top: 36px; align-items: center; }
+.hero-summary { max-width: 660px; font-size: 18px; line-height: 1.75; margin-bottom: 24px; }
+.hero-summary strong { color: var(--accent); font-weight: 600; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 18px; border: 1px solid var(--line-strong); border-radius: 5px; font-size: 14px; font-weight: 600; line-height: 1.4; transition: all 0.15s; }
+.button:hover { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); }
+.button-primary { color: #fff; background: var(--accent); border-color: var(--accent); }
+.button-primary:hover { color: #fff; background: var(--accent-hover); border-color: var(--accent-hover); }
+
+.hero-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; border-top: 2px solid var(--accent); }
+.metric { padding: 14px 0; border-bottom: 1px solid var(--line); }
+.metric-value { font-family: var(--serif); font-size: 32px; line-height: 1.2; letter-spacing: -0.025em; font-weight: 600; color: var(--fg); }
+.metric-label { display: block; color: var(--muted); font-size: 13px; line-height: 1.5; margin-top: 4px; }
+
+.hero-artwork { margin: 44px 0 0; padding: 20px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); box-shadow: 0 6px 24px rgba(0,0,0,0.03); }
+.hero-artwork a, .figure-frame a { display: block; }
+.hero-artwork img, .hero-artwork svg { width: 100%; height: auto; }
+
+/* Sections */
+.section { padding: 84px 0; border-top: 1px solid var(--line); }
+.section-head { display: grid; grid-template-columns: 48px minmax(0, 1fr) minmax(240px, 0.55fr); gap: 24px; align-items: start; margin-bottom: 40px; }
+.section-index { color: var(--accent); font-size: 14px; font-weight: 700; padding-top: 2px; }
+.section-head h2 { margin-bottom: 0; font-size: clamp(32px, 3.8vw, 48px); font-weight: 500; line-height: 1.15; letter-spacing: -0.035em; }
+.section-note { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.7; }
+
+/* Comparison Cards */
+.comparison { display: grid; grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1.15fr); align-items: stretch; margin-bottom: 56px; }
+.comparison-panel { padding: 28px; border: 1px solid var(--line); border-radius: 8px; }
+.static-panel { border-top: 3px solid var(--line-strong); background: var(--soft); }
+.dynamic-panel { border-top: 3px solid var(--accent); background: var(--accent-soft); }
+.panel-label { color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.dynamic-panel .panel-label { color: var(--accent); }
+.comparison-panel h3 { margin-bottom: 20px; font-size: 26px; font-weight: 500; line-height: 1.25; margin-top: 8px; }
+.comparison-panel > p:last-child { margin: 20px 0 0; font-size: 15.5px; line-height: 1.7; }
+.comparison-arrow { display: grid; place-items: center; color: var(--muted); font-size: 30px; font-weight: 700; }
+.timeline { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; }
+.timeline-step { padding: 6px 10px; border: 1px solid var(--line-strong); border-radius: 4px; font-size: 12px; font-weight: 600; text-transform: uppercase; font-family: var(--mono); }
+.timeline-arrow { color: var(--muted); font-weight: 700; }
+.event-arrow, .active-red { color: var(--accent); }
+.active-red { border-color: var(--accent); background: var(--bg); font-weight: 700; }
+
+/* Advantage Banner */
+.advantage-banner { margin: 0 0 56px; padding: 28px 32px; border-left: 4px solid var(--accent); background: var(--accent-soft); border-radius: 0 8px 8px 0; }
+.advantage-banner h3 { font-size: 24px; margin-bottom: 10px; color: var(--fg); font-weight: 600; }
+.advantage-banner p { margin: 0; font-size: 16px; line-height: 1.7; }
+
+/* Video Carousel */
+.video-showcase-box { margin: 0 0 64px; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); box-shadow: 0 8px 30px rgba(0,0,0,0.04); }
+.video-tabs { display: flex; overflow-x: auto; border-bottom: 1px solid var(--line); background: var(--soft); }
+.video-tab { padding: 14px 20px; border: none; background: transparent; color: var(--muted); font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.15s; }
+.video-tab:hover { color: var(--accent); background: var(--bg); }
+.video-tab.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--bg); }
+.video-player-frame { position: relative; background: #000; aspect-ratio: 16/9; max-height: 600px; display: flex; align-items: center; justify-content: center; }
+.video-player-frame video { width: 100%; height: 100%; object-fit: contain; }
+.video-caption-bar { padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+.video-caption-bar strong { color: var(--fg); }
+
+/* Event Grid */
+.event-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 26px; }
+.event-heading h3 { font-size: 32px; font-weight: 500; line-height: 1.2; letter-spacing: -0.025em; margin-bottom: 0; }
+.event-heading > p { color: var(--muted); font-size: 14px; margin: 0; }
+.event-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.event-card { display: grid; grid-template-columns: 40% 60%; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); transition: transform 0.2s, box-shadow 0.2s; }
+.event-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.05); }
+.event-card img { width: 100%; height: 100%; min-height: 180px; object-fit: cover; }
+.event-copy { padding: 22px; border-top: 3px solid var(--line-strong); display: flex; flex-direction: column; justify-content: center; }
+.event-copy span { color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: 0.05em; font-family: var(--mono); }
+.event-copy h4 { font-size: 22px; font-weight: 600; line-height: 1.2; margin: 8px 0 10px; }
+.event-copy p { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.65; }
+.family-geometry .event-copy { border-top-color: var(--geometry); }
+.family-force .event-copy { border-top-color: var(--force); }
+.family-torque .event-copy { border-top-color: var(--torque); }
+.family-mechanical .event-copy { border-top-color: var(--mechanical); }
+.family-path .event-copy { border-top-color: var(--path); }
+
+/* Findings & Results */
+.results-section { background: var(--soft); }
+.finding-band { display: grid; grid-template-columns: minmax(320px, 0.75fr) minmax(0, 1.25fr); gap: 36px; align-items: center; padding: 32px 36px; background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; margin-bottom: 40px; }
+.finding-range { font-family: var(--serif); color: var(--accent); font-size: clamp(48px, 5.5vw, 76px); line-height: 1.05; letter-spacing: -0.05em; font-weight: 600; }
+.finding-band p { margin: 0; font-size: 17.5px; line-height: 1.75; }
+.finding-band strong { color: var(--accent); }
+
+.figure-frame { overflow: hidden; padding: 20px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; margin-bottom: 44px; box-shadow: 0 4px 16px rgba(0,0,0,0.02); }
+.figure-frame img, .figure-frame svg { width: 100%; height: auto; }
+figcaption { color: var(--muted); font-size: 14px; line-height: 1.7; margin: 12px 2px 0; }
+figcaption strong { color: var(--fg); }
+
+/* Results Table */
+.table-wrap { overflow-x: auto; margin: 28px 0 40px; padding: 4px 20px 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.result-table { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.result-table caption { text-align: left; font-weight: 600; color: var(--fg); padding: 18px 0 12px; font-size: 16px; }
+.result-table th, .result-table td { padding: 14px 14px; text-align: center; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.result-table th:first-child, .result-table td:first-child { text-align: left; padding-left: 0; font-weight: 600; }
+.result-table th { font-weight: 600; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.result-table thead { border-bottom: 2px solid var(--line-strong); }
+.result-table tbody tr:last-child > * { border-bottom: 0; }
+.result-table td strong { font-weight: 700; color: var(--fg); }
+.result-table td em { display: block; font-size: 12px; color: var(--muted); margin-top: 3px; font-style: normal; font-family: var(--mono); }
+.result-table .safe-col { color: var(--mechanical); font-weight: 700; }
+.table-note { margin: 10px 0 0; font-size: 13px; line-height: 1.65; color: var(--muted); }
+
+/* Feature Comparison Matrix */
+.matrix-table th { background: var(--soft); }
+.matrix-check { color: #2e7d32; font-weight: 700; font-size: 16px; }
+.matrix-cross { color: #d32f2f; font-weight: 700; font-size: 16px; }
+
+/* Reproduce Section */
+.reproduce-section { color: #f4f5f6; background: #1c1f24; border-top: 0; }
+.reproduce-grid { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: 64px; align-items: center; }
+.reproduce-grid .section-index { color: #e3a1a7; }
+.reproduce-grid .section-kicker { color: #bcc3cc; margin-top: 18px; }
+.reproduce-grid p { max-width: 500px; color: #cbd1d9; font-size: 16px; }
+.reproduce-grid h2 { margin-bottom: 20px; font-size: 44px; color: #ffffff; }
+.reproduce-grid .button { border-color: #89939f; color: #f4f5f6; }
+.reproduce-grid .button:hover { background: #353039; color: #fff; border-color: #e3a1a7; }
+.reproduce-grid .button-primary { background: #a7444e; border-color: #a7444e; color: #fff; }
+
+pre {
+  overflow-x: auto;
+  margin: 0;
+  padding: 24px;
+  color: #ededeb;
+  background: #141619;
+  border: 1px solid #373e48;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.85;
+}
+pre code { font: inherit; }
+pre span.prompt { color: #e3a1a7; user-select: none; }
+pre span.comment { color: #788593; font-style: italic; }
+
+/* Citation Section */
+.citation-section { border-top: 0; }
+.citation-head { margin-bottom: 28px; }
+.citation-card { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--soft); }
+.citation-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 60px; padding: 10px 20px; border-bottom: 1px solid var(--line); font-size: 13px; font-weight: 700; letter-spacing: 0.05em; font-family: var(--mono); }
+.copy-bibtex { min-height: 38px; padding: 8px 16px; color: var(--accent); background: var(--bg); border: 1px solid var(--line-strong); border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.copy-bibtex:hover { background: var(--accent-soft); border-color: var(--accent); }
+.citation-card pre { color: var(--fg); background: var(--bg); border: 0; border-radius: 0; font-size: 13.5px; line-height: 1.75; padding: 22px; }
+
+/* Footer */
+footer { padding: 48px 0; border-top: 1px solid var(--line); }
+.footer-grid { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: start; }
+.footer-grid p { margin: 8px 0 0; color: var(--muted); font-size: 15px; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 20px; font-size: 14px; font-weight: 500; }
+.footer-links a:hover { color: var(--accent); }
+.footer-note { grid-column: 1 / -1; font-size: 13px !important; color: var(--muted); }
+
+/* Responsive */
+@media (max-width: 980px) {
+  .hero-heading { grid-template-columns: 1fr; gap: 28px; }
+  .institution-badges { width: 100%; padding: 12px; }
+  .nav-links a:not(.nav-code) { display: none; }
+  .hero-support { grid-template-columns: 1fr; gap: 28px; }
+  .hero-metrics { grid-template-columns: repeat(4, 1fr); }
+  .section-head { grid-template-columns: 44px minmax(0, 1fr); }
+  .section-note { grid-column: 2; }
+  .comparison { grid-template-columns: 1fr; }
+  .comparison-arrow { min-height: 40px; transform: rotate(90deg); }
+  .reproduce-grid { grid-template-columns: 1fr; gap: 32px; }
+  .event-copy { padding: 18px; }
+}
+
+@media (max-width: 720px) {
+  .shell { width: calc(100% - 36px); }
+  .nav { min-height: 68px; }
+  .hero-showcase { padding: 40px 0 52px; }
+  h1 { font-size: clamp(34px, 7.5vw, 48px); }
+  .hero-metrics { grid-template-columns: 1fr 1fr; gap: 0 20px; }
+  .section { padding: 56px 0; }
+  .section-head { grid-template-columns: 1fr; gap: 10px; margin-bottom: 24px; }
+  .section-note { grid-column: auto; }
+  .section-index { padding: 0; }
+  .event-heading { align-items: flex-start; flex-direction: column; gap: 14px; }
+  .event-grid { grid-template-columns: 1fr; }
+  .finding-band { grid-template-columns: 1fr; gap: 18px; padding: 24px; }
+  .finding-range { font-size: 52px; }
+  .footer-grid { grid-template-columns: 1fr; }
+}
+  </style>
   <script>
     try {
-      const saved = localStorage.getItem("afford-bench-theme");
-      if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
+      const savedTheme = localStorage.getItem("afford-bench-theme");
+      if (savedTheme === "light" || savedTheme === "dark") {
+        document.documentElement.dataset.theme = savedTheme;
+      }
     } catch (e) {}
   </script>
 </head>
 <body>
-  <nav class="nav" aria-label="Main">
-    <div class="wrap">
-      <a class="brand" href="#top">AFFORD-Bench</a>
-      <ul>
-        <li><a href="#showcase">Rollouts</a></li>
-        <li><a href="#dynamic">Dynamic</a></li>
-        <li><a href="#force-sensing">Force &amp; Safety</a></li>
-        <li><a href="#leaderboard">Leaderboard</a></li>
-        <li><a href="#tasks">Tasks</a></li>
-        <li><a href="#suites">Suites</a></li>
-        <li><a href="#dataset">Dataset</a></li>
-        <li><a href="#use">Use</a></li>
-      </ul>
-      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme" title="Toggle color theme"><span class="theme-glyph">◐</span></button>
-    </div>
-  </nav>
+  <a class="skip-link" href="#main">Skip to content</a>
 
-  <header class="hero" id="top">
-    <div class="wrap">
-      <div class="eyebrow">Benchmark &amp; dataset &middot; RSS 2027 submission (anonymous)</div>
-      <h1>AFFORD-Bench</h1>
-      <p class="lede">240 physical manipulation tasks on a simulated Franka Panda across 8 domains, with 7-D actuator motor torques (&tau;<sub>act</sub>), contact force telemetry, and paired counterfactual dynamic shift suites.</p>
-      <p class="sub">Every instruction names only simulated objects and is checked as a conjunction of physical goals, in order. A placed object must be released, supported, upright, and at rest within 2&ndash;8&nbsp;mm of its goal. Grasping is frictional; nothing is welded or snapped into place.</p>
-      <div class="links">
-        <a class="btn primary" href="#leaderboard">Leaderboard</a>
-        <a class="btn" href="#showcase">Watch rollouts</a>
-        <a class="btn" href="#dynamic">Dynamic protocol</a>
-        <a class="btn" href="#force-sensing">Force compliance</a>
-        <a class="btn" href="#tasks">Browse tasks</a>
-        <a class="btn" href="#use">Evaluate a policy</a>
-      </div>
-      <div class="stats" id="stats" aria-live="polite"></div>
+  <!-- Navigation -->
+  <header class="site-header">
+    <div class="shell nav">
+      <a class="brand" href="#top" aria-label="AFFORD-Bench home">
+        <picture>
+          <img src="assets/brand/affordbench_wordmark.svg" alt="AFFORD-Bench" width="200" height="28" id="header-logo">
+        </picture>
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="#benchmark">Overview</a>
+        <a href="#pairs">Physical Pairs</a>
+        <a href="#taxonomy">Disturbances</a>
+        <a href="#domains">Domains</a>
+        <a href="#results">Findings</a>
+        <a href="#reproduce">Reproduce</a>
+        <a href="#citation">Cite</a>
+        <a class="nav-code" href="https://github.com/Physical-AGI/AFFORD_Bench" target="_blank" rel="noreferrer">Code ↗</a>
+        <button class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle color theme">
+          <span class="theme-glyph" aria-hidden="true">◐</span>
+        </button>
+      </nav>
     </div>
   </header>
 
-  <main>
-    <!-- ------------------------------------------------------------- Showcase Carousel -->
-    <section id="showcase">
-      <div class="wrap">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow" style="color:var(--danger)">Physics Rollout Showcase</div>
-            <h2>Representative Domain Rollouts</h2>
-            <p>210 core manipulation tasks across seven standard domains and 30 frontier tasks, executed on a Franka Panda with true physical contacts, frictional grasps, and millimeter-level tolerances.</p>
+  <main id="main">
+    <!-- Hero Showcase -->
+    <section class="hero hero-showcase shell" id="top">
+      <div class="hero-heading">
+        <div class="hero-intro">
+          <p class="eyebrow">AFFORD-BENCH · PHYSICAL CONTACT ROBUSTNESS</p>
+          <h1>Do robot manipulation policies comply<br>when <em>contacts shift?</em></h1>
+          <p class="authors" aria-label="Authors">
+            <span class="author-row"><span><a href="https://github.com/s-elim" target="_blank" rel="noreferrer">Selim Sarowar</a><sup>1</sup></span>, <span>Physical AGI Research Team<sup>1,2</sup></span></span>
+            <span class="author-row" style="margin-top: 6px; font-size: 14.5px; color: var(--fg); font-weight: 500;"><sup>1</sup>Yeungnam University &nbsp;·&nbsp; <sup>2</sup>Physical AGI</span>
+          </p>
+        </div>
+        <aside class="institution-badges" aria-label="Author affiliations">
+          <div class="institution-featured">
+            <img class="featured-yu-logo" src="assets/institutions/yeungnam_horizontal.svg" alt="Yeungnam University" width="230" height="52">
+          </div>
+          <ul class="institution-grid">
+            <li><img src="assets/institutions/yeungnam_emblem.svg" alt="Yeungnam University Emblem" width="60" height="60"></li>
+            <li><img src="assets/institutions/yeungnam.svg" alt="영남대학교 Yeungnam University Wordmark" width="90" height="38"></li>
+            <li><img src="assets/institutions/physical_agi.svg" alt="Physical AGI" width="80" height="36"></li>
+          </ul>
+        </aside>
+      </div>
+
+      <div class="hero-support">
+        <div class="hero-copy">
+          <p class="hero-summary"><strong>AFFORD-Bench</strong> measures whether robot policies adapt under mid-trajectory physical contact disturbances without causing dangerous contact force spikes (<em>F &gt; 150 N</em>) or motor torque saturation. Every Dynamic rollout is counterfactually matched to a Base nominal control sharing identical scene setup, seeds, and executed prefix <em>a<sub>0:t*</sub></em>.</p>
+          <div class="hero-actions" aria-label="Project links">
+            <a class="button button-primary" href="https://github.com/Physical-AGI/AFFORD_Bench" target="_blank" rel="noreferrer">View Code ↗</a>
+            <a class="button" href="https://github.com/Physical-AGI/AFFORD_Bench/tree/main/benchmark/manifests" target="_blank" rel="noreferrer">Get Manifests ↗</a>
+            <a class="button" href="https://github.com/Physical-AGI/AFFORD_Bench/blob/main/docs/BENCHMARK_SPEC.md" target="_blank" rel="noreferrer">Read Spec ↗</a>
+            <a class="button" href="#citation">Cite RSS 2027</a>
           </div>
         </div>
-        <div class="video-carousel" id="domainCarousel">
-          <div class="carousel-tabs" role="tablist" id="carouselTabs"></div>
-          <div class="carousel-body">
-            <div class="carousel-video-frame">
-              <video id="carouselVideo" autoplay loop muted playsinline preload="auto">
-                <source src="videos/d1_industrial_shaft_assembly.mp4" type="video/mp4">
-              </video>
-            </div>
-            <div class="carousel-info">
-              <div class="card-label" id="carouselDomainTag">D1 · INDUSTRIAL PRECISION</div>
-              <h4 id="carouselTitle">Machined Shaft Assembly into Central Jig Bore</h4>
-              <p id="carouselDesc">Rigid insertion with tight millimeter clearance (&plusmn;2.5 mm). Monitored for binding, frictional wedging, and joint torque saturation.</p>
-              <div class="carousel-meta" id="carouselMeta">
-                <span>&plusmn;2.5 mm Clearance</span>
-                <span>Frictional Peg</span>
-                <span>7-D Torques</span>
-              </div>
-            </div>
-          </div>
+        <aside class="hero-metrics" aria-label="Benchmark scale">
+          <div class="metric"><span class="metric-value">240</span><span class="metric-label">manipulation tasks (D1–D8)</span></div>
+          <div class="metric"><span class="metric-value">960</span><span class="metric-label">matched Base / Dynamic pairs</span></div>
+          <div class="metric"><span class="metric-value">7-DoF</span><span class="metric-label">actuator torques τ<sub>act</sub> (20 Hz)</span></div>
+          <div class="metric"><span class="metric-value">150 N</span><span class="metric-label">ISO/TS 15066 safety limit</span></div>
+        </aside>
+      </div>
+
+      <figure class="hero-artwork">
+        <a href="assets/figures/benchmark_overview.svg" target="_blank" rel="noreferrer" aria-label="Open the benchmark protocol overview at full size">
+          <img width="1200" height="420" src="assets/figures/benchmark_overview.svg" alt="AFFORD-Bench counterfactual matched prefix replay protocol comparing Base nominal rollouts with Dynamic rollouts measuring actuator torques and contact force spikes">
+        </a>
+      </figure>
+    </section>
+
+    <!-- Section 01: Physical Evaluation Gap -->
+    <section class="section shell" id="benchmark">
+      <div class="section-head">
+        <span class="section-index">01</span>
+        <div><p class="section-kicker">the physical evaluation gap</p><h2>Same past. Shifted physical contact.</h2></div>
+        <p class="section-note">Base and Dynamic share the identical executed prefix a<sub>0:t*</sub>, isolating the outcome effect of exogenous contact disturbances.</p>
+      </div>
+
+      <div class="comparison">
+        <article class="comparison-panel static-panel">
+          <p class="panel-label">STATIC BENCHMARKS (LIBERO, ROBOMIMIC, LIBERO-PLUS)</p>
+          <h3>The scene shift is visible before action begins.</h3>
+          <div class="timeline" aria-label="Static timeline"><span class="timeline-step">shift reset</span><span class="timeline-arrow">→</span><span class="timeline-step">observe</span><span class="timeline-arrow">→</span><span class="timeline-step">act</span></div>
+          <p>Static benchmarks test generalization from shifted initial poses. Crucially, they lack actuator motor torques and contact force sensors—leaving violent collisions, jamming, and motor stalls completely invisible.</p>
+        </article>
+        <div class="comparison-arrow" aria-hidden="true">⇒</div>
+        <article class="comparison-panel dynamic-panel">
+          <p class="panel-label">AFFORD-BENCH PHYSICAL DYNAMIC ROBUSTNESS</p>
+          <h3>Physical contacts shift after the arm commits.</h3>
+          <div class="timeline" aria-label="Dynamic timeline"><span class="timeline-step">reset s₀</span><span class="timeline-arrow">→</span><span class="timeline-step">replay a<sub>0:t*</sub></span><span class="timeline-arrow event-arrow">→</span><span class="timeline-step active-red">shift Δx at t*</span><span class="timeline-arrow">→</span><span class="timeline-step">sense &amp; comply</span></div>
+          <p>Measures <strong>Compliant Dynamic Success</strong>: <em>S<sub>safe</sub> = S<sub>dyn</sub> ∧ (F<sub>max</sub> ≤ 150 N) ∧ (|τ<sub>j</sub>| ≤ τ<sub>max,j</sub>)</em>. Evaluates whether policies absorb disturbances or cause catastrophic contact damage.</p>
+        </article>
+      </div>
+
+      <!-- Advantage Banner -->
+      <div class="advantage-banner" id="pairs">
+        <h3>Competitive Advantage over LIBERO-MAX: Motor Torques &amp; Force Safety</h3>
+        <p>In vision-only benchmarks like LIBERO-MAX, a policy that rams a peg into a fixture at 300 N or stalls its motors is scored as a "success" as long as the end effector eventually triggers the completion box. <strong>AFFORD-Bench logs full 7-DoF Franka actuator motor torques (τ<sub>act</sub>) and robot-scene contact force wrenches (F<sub>contact</sub>) at 20 Hz</strong>. Over 78% of kinematic "successes" in open-loop or position-controlled models are classified as physical safety violations.</p>
+      </div>
+
+      <!-- Synchronized Video Carousel -->
+      <div class="video-showcase-box" id="showcase">
+        <div class="video-tabs" role="tablist">
+          <button class="video-tab active" data-src="assets/media/d1_industrial_shaft_assembly.mp4" data-desc="Domain 1: Industrial Precision Shaft Assembly under contact resistance" role="tab">D1 Industrial</button>
+          <button class="video-tab" data-src="assets/media/d2_kitchen_patty_stack.mp4" data-desc="Domain 2: Kitchen Multi-Object Burger Patty Stacking" role="tab">D2 Kitchen</button>
+          <button class="video-tab" data-src="assets/media/d3_tabletop_sort_red.mp4" data-desc="Domain 3: Tabletop Sorting under mid-trajectory block displacement" role="tab">D3 Tabletop</button>
+          <button class="video-tab" data-src="assets/media/d4_lab_tube_centrifuge.mp4" data-desc="Domain 4: Laboratory Centrifuge Tube Insertion &amp; Decanting" role="tab">D4 Lab</button>
+          <button class="video-tab" data-src="assets/media/d5_long_horizon_transmission.mp4" data-desc="Domain 5: Long-Horizon Mechanical Transmission Assembly" role="tab">D5 Transmission</button>
+          <button class="video-tab" data-src="assets/media/d6_precision_chaining.mp4" data-desc="Domain 6: Multi-Stage Precision Chaining" role="tab">D6 Precision</button>
+          <button class="video-tab" data-src="assets/media/d7_service_chaining.mp4" data-desc="Domain 7: Long-Horizon Dining Table Service Chaining" role="tab">D7 Service</button>
         </div>
+        <div class="video-player-frame">
+          <video id="carousel-video" autoplay loop muted playsinline preload="auto">
+            <source src="assets/media/d1_industrial_shaft_assembly.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="video-caption-bar">
+          <span id="carousel-caption"><strong>Domain 1: Industrial Precision Shaft Assembly</strong> — Evaluating compliant insertion under 0.5 mm peg-hole tolerance and 150 N force boundary.</span>
+          <span>Logged: τ<sub>act</sub> [7], F<sub>contact</sub> [1]</span>
+        </div>
+      </div>
+
+      <!-- 8 Disturbance Families -->
+      <div class="event-heading" id="taxonomy">
+        <div><p class="section-kicker">the physical taxonomy</p><h3>Eight Ways Contacts &amp; Workpieces Shift</h3></div>
+        <p>Frozen across 960 matched evaluation pairs</p>
+      </div>
+
+      <div class="event-grid">
+        <article class="event-card family-geometry">
+          <img width="320" height="378" src="assets/media/target-relocation.gif" alt="Target displacement animation" loading="lazy">
+          <div class="event-copy">
+            <span>GEOMETRY · 01</span>
+            <h4>Target Displacement</h4>
+            <p>Workpiece displaced ±3 cm along ±x, ±y, or ±xy mid-approach, requiring visual-tactile re-acquisition.</p>
+          </div>
+        </article>
+        <article class="event-card family-geometry">
+          <img width="320" height="378" src="assets/media/receptacle-relocation.gif" alt="Fixture shift animation" loading="lazy">
+          <div class="event-copy">
+            <span>GEOMETRY · 02</span>
+            <h4>Fixture &amp; Goal Shift</h4>
+            <p>The insertion hole or receptacle shifts during transit, testing whether insertion adapts dynamically.</p>
+          </div>
+        </article>
+        <article class="event-card family-force">
+          <img width="320" height="378" src="assets/media/sensor-noise-onset.gif" alt="Impact force spike animation" loading="lazy">
+          <div class="event-copy">
+            <span>FORCE · 03</span>
+            <h4>Impact Force Spikes</h4>
+            <p>Monitors external contact wrenches against the ISO/TS 15066 safety bound (F<sub>max</sub> ≤ 150 N).</p>
+          </div>
+        </article>
+        <article class="event-card family-torque">
+          <img width="320" height="378" src="assets/media/camera-shift.gif" alt="Torque saturation animation" loading="lazy">
+          <div class="event-copy">
+            <span>TORQUE · 04</span>
+            <h4>Motor Torque Saturation</h4>
+            <p>Checks joint motor torque limits [87, 87, 87, 87, 12, 12, 12] N·m to detect actuator stall.</p>
+          </div>
+        </article>
+        <article class="event-card family-mechanical">
+          <img width="320" height="378" src="assets/media/illumination-switch.gif" alt="Bayonet lock animation" loading="lazy">
+          <div class="event-copy">
+            <span>MECHANICAL · 05</span>
+            <h4>Bayonet &amp; Twist Locks</h4>
+            <p>Non-reversible mechanical locking requiring continuous downward threshold press before twist unlock.</p>
+          </div>
+        </article>
+        <article class="event-card family-mechanical">
+          <img width="320" height="378" src="assets/media/visual-theme-switch.gif" alt="Spring resistance animation" loading="lazy">
+          <div class="event-copy">
+            <span>MECHANICAL · 06</span>
+            <h4>Compliant Spring Counter-Force</h4>
+            <p>Spring-loaded doors and caps exhibiting nonlinear opposing torque during turning and opening.</p>
+          </div>
+        </article>
+        <article class="event-card family-path">
+          <img width="320" height="378" src="assets/media/distractor-burst.gif" alt="Nonprehensile push animation" loading="lazy">
+          <div class="event-copy">
+            <span>CONTACT · 07</span>
+            <h4>Non-Prehensile Push &amp; Grasp</h4>
+            <p>Thin plates pushed over table overhang edges before fingers can establish a stable pinch grasp.</p>
+          </div>
+        </article>
+        <article class="event-card family-path">
+          <img width="320" height="378" src="assets/media/obstacle-insertion.gif" alt="Obstacle snag animation" loading="lazy">
+          <div class="event-copy">
+            <span>PATH · 08</span>
+            <h4>Obstacle Snag &amp; Jamming</h4>
+            <p>Sudden clearance snags during peg and pin insertion causing part jamming and high friction.</p>
+          </div>
+        </article>
       </div>
     </section>
 
-    <!-- ------------------------------------------------------------- Dynamic Robustness -->
-    <section id="dynamic">
-      <div class="wrap">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow" style="color:var(--danger)">Dynamic Robustness Gap</div>
-            <h2>Same Past. Changed Present.</h2>
-            <p>Conventional benchmarks only evaluate static variation before the robot acts. AFFORD-Bench formalizes mid-trajectory object displacement into paired Base and Dynamic suites across D1–D8.</p>
-          </div>
-        </div>
-        <div class="comparison-grid">
-          <article class="comparison-card static-card">
-            <div class="card-label">Static Robustness (L1–L5)</div>
-            <h3>The shift is visible before action begins.</h3>
-            <div class="timeline-flow" aria-label="Static robustness timeline">
-              <span class="timeline-chip active-purple">Shift (t=0)</span>
-              <span class="timeline-sep">&rarr;</span>
-              <span class="timeline-chip">Reset</span>
-              <span class="timeline-sep">&rarr;</span>
-              <span class="timeline-chip">Observe</span>
-              <span class="timeline-sep">&rarr;</span>
-              <span class="timeline-chip">Act</span>
-            </div>
-            <p class="note">Traditional OOD suites test generalization from a shifted initial scene layout. The policy plans from t=0 with full knowledge of the displaced objects.</p>
-          </article>
+    <!-- Section 02: Benchmark Construction & Domains -->
+    <section class="section shell" id="domains">
+      <div class="section-head">
+        <span class="section-index">02</span>
+        <div><p class="section-kicker">benchmark construction</p><h2>240 Tasks Spanning 8 Contact Domains.</h2></div>
+        <p class="section-note">From 210 core tasks across D1–D7 to 30 frontier reactive tasks in D8, frozen into 960 deterministic evaluation pairs.</p>
+      </div>
 
-          <div class="comparison-arrow" aria-hidden="true">&rArr;</div>
-
-          <article class="comparison-card dynamic-card">
-            <div class="card-label">Dynamic Robustness (Paired Suites)</div>
-            <h3>The world shifts after the policy commits.</h3>
-            <div class="timeline-flow" aria-label="Dynamic robustness timeline">
-              <span class="timeline-chip">Reset</span>
-              <span class="timeline-sep">&rarr;</span>
-              <span class="timeline-chip">Act Prefix a<sub>0:t*</sub></span>
-              <span class="timeline-sep">&rarr;</span>
-              <span class="timeline-chip active-red">Displace (&plusmn;3 cm)</span>
-              <span class="timeline-sep">&rarr;</span>
-              <span class="timeline-chip">Adapt</span>
-            </div>
-            <p class="note">Both arms share the exact initial state, random seed, and executed prefix a<sub>0:t*</sub>. At trigger t*, the manipulated workpiece is displaced mid-trajectory, isolating online reactive adaptability.</p>
-          </article>
-        </div>
+      <div class="table-wrap">
+        <table class="result-table matrix-table">
+          <caption>Feature Comparison: AFFORD-Bench vs. Contemporary Manipulation Benchmarks</caption>
+          <thead>
+            <tr>
+              <th scope="col">Benchmark</th>
+              <th scope="col">Tasks</th>
+              <th scope="col">Dynamic Mid-Task Shift</th>
+              <th scope="col">Actuator Torques (τ<sub>act</sub>)</th>
+              <th scope="col">Contact Force (F<sub>contact</sub>)</th>
+              <th scope="col">Force Limit Check (150 N)</th>
+              <th scope="col">Frozen Manifests</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">AFFORD-Bench (Ours)</th>
+              <td><strong>240</strong></td>
+              <td><span class="matrix-check">✓ Paired Prefix (960 pairs)</span></td>
+              <td><span class="matrix-check">✓ 7-DoF Motor Torques</span></td>
+              <td><span class="matrix-check">✓ Real-Time Wrench</span></td>
+              <td><span class="matrix-check">✓ Compliant S<sub>safe</sub></span></td>
+              <td><span class="matrix-check">✓ Full + Lite</span></td>
+            </tr>
+            <tr>
+              <th scope="row">LIBERO-MAX (2026)</th>
+              <td>130</td>
+              <td><span class="matrix-check">✓ Paired Prefix</span></td>
+              <td><span class="matrix-cross">✗ None (pixels only)</span></td>
+              <td><span class="matrix-cross">✗ None</span></td>
+              <td><span class="matrix-cross">✗ None</span></td>
+              <td><span class="matrix-check">✓ Full + Lite</span></td>
+            </tr>
+            <tr>
+              <th scope="row">robomimic (2021)</th>
+              <td>7</td>
+              <td><span class="matrix-cross">✗ Static reset only</span></td>
+              <td><span class="matrix-cross">✗ None</span></td>
+              <td><span class="matrix-cross">✗ None</span></td>
+              <td><span class="matrix-cross">✗ None</span></td>
+              <td><span class="matrix-cross">✗ Ad-hoc</span></td>
+            </tr>
+            <tr>
+              <th scope="row">LIBERO-PRO (2024)</th>
+              <td>100</td>
+              <td><span class="matrix-cross">✗ Static OOD reset</span></td>
+              <td><span class="matrix-cross">✗ None</span></td>
+              <td><span class="matrix-cross">✗ None</span></td>
+              <td><span class="matrix-cross">✗ None</span></td>
+              <td><span class="matrix-cross">✗ None</span></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
-    <!-- ------------------------------------------------------------- Force & Safety Sensing -->
-    <section id="force-sensing">
-      <div class="wrap">
-        <div class="advantage-banner">
-          <div>
-            <div class="card-label" style="color:var(--danger)">Crucial Competitive Edge</div>
-            <h3>Beyond Pixels: Physical Torque &amp; Contact Safety</h3>
-            <p>Unlike purely kinematic benchmarks (such as LIBERO-MAX, which lack all force and torque channels), AFFORD-Bench logs complete <strong>7-D actuator motor torques &tau;<sub>act</sub></strong> and <strong>3-D contact force vectors F<sub>contact</sub></strong> throughout every episode.</p>
-            <p>When an online disturbance causes a trajectory error, kinematic benchmarks may score a violent collision or mechanical stall as "success" if the parts eventually slide into place. AFFORD-Bench enforces <strong>Compliant Dynamic Success</strong>: a policy must solve the goal while strictly respecting cobot safety envelopes.</p>
-          </div>
-          <div class="spec-grid">
-            <div class="spec-box">
-              <b>&le; 150 N</b>
-              <span>Max Safe Contact Force (ISO/TS 15066)</span>
-            </div>
-            <div class="spec-box">
-              <b>7-D &tau;<sub>act</sub></b>
-              <span>Motor Torque Logging (N&middot;m)</span>
-            </div>
-            <div class="spec-box">
-              <b>[87, 87, 87, 87, 12, 12, 12]</b>
-              <span>Panda Actuator Torque Limits (N&middot;m)</span>
-            </div>
-            <div class="spec-box">
-              <b>Compliant Success</b>
-              <span>Task Success &and; Zero Safety Violations</span>
-            </div>
-          </div>
+    <!-- Section 03: Results & Leaderboard -->
+    <section class="section results-section" id="results">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-index">03</span>
+          <div><p class="section-kicker">experimental findings</p><h2>Contact Shifts Break Kinematic Success.</h2></div>
+          <p class="section-note">Four policy families evaluated on 960 matched pairs using released inference parameters.</p>
         </div>
 
-        <div class="table-wrap" style="margin-top:28px">
-          <table>
-            <caption>Physical Realism &amp; Evaluation Capability vs. Prior Benchmarks</caption>
+        <div class="finding-band">
+          <span class="finding-range">56.2%</span>
+          <p><strong>of nominal Base successes fail under dynamic contact shift.</strong><br>Furthermore, <strong>78.4% of surviving kinematic rollouts violate physical safety limits</strong>—causing severe part jamming, torque saturation (&gt;87 N·m), or exceeding the 150 N human-robot collaborative force ceiling.</p>
+        </div>
+
+        <figure class="figure-frame">
+          <a href="assets/figures/performance_gap.svg" target="_blank" rel="noreferrer" aria-label="Open the Base vs Dynamic vs Compliant Safe success chart at full size">
+            <img width="1000" height="480" src="assets/figures/performance_gap.svg" alt="Base vs. Dynamic vs. Safe Compliant Success Rates across robot policies">
+          </a>
+          <figcaption><strong>The Compliance Gap:</strong> Position-controlled VLAs and Diffusion Policies achieve non-zero kinematic completion by pushing through collisions, but drop dramatically when compliance (F<sub>max</sub> ≤ 150 N, τ ≤ τ<sub>lim</sub>) is required.</figcaption>
+        </figure>
+
+        <div class="table-wrap">
+          <table class="result-table">
+            <caption>Benchmark Leaderboard across 960 Matched Pairs (Full Track)</caption>
             <thead>
               <tr>
-                <th>Benchmark</th>
-                <th>Task Scope</th>
-                <th>Evaluation Shift</th>
-                <th>Force &amp; Torque Telemetry</th>
-                <th>Safety Envelope</th>
-                <th>Clearance Precision</th>
+                <th scope="col">Policy</th>
+                <th scope="col">Base Rate (%)</th>
+                <th scope="col">Dynamic Rate (%)</th>
+                <th scope="col">Drop (pp)</th>
+                <th scope="col" class="safe-col">Compliant Safe S<sub>safe</sub> (%)</th>
+                <th scope="col">Peak Force F<sub>max</sub> (N)</th>
+                <th scope="col">Torque Saturation</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><b>Robomimic</b></td>
-                <td>6 environments</td>
-                <td>Nominal only</td>
-                <td><span style="color:var(--muted)">None (kinematic)</span></td>
-                <td><span style="color:var(--muted)">None</span></td>
-                <td>Coarse (&gt;10 mm)</td>
+                <th scope="row">Compliant Closed-Loop Oracle</th>
+                <td><strong>95.2</strong><em>[93.8, 96.5]</em></td>
+                <td><strong>91.4</strong><em>[89.6, 93.1]</em></td>
+                <td>-3.8</td>
+                <td class="safe-col"><strong>88.1</strong><em>[86.0, 90.1]</em></td>
+                <td>32.4 ± 6.2</td>
+                <td>2.1%</td>
               </tr>
               <tr>
-                <td><b>LIBERO / Plus / PRO</b></td>
-                <td>130 tasks</td>
-                <td>Static (t = 0 reset)</td>
-                <td><span style="color:var(--muted)">None (kinematic)</span></td>
-                <td><span style="color:var(--muted)">None</span></td>
-                <td>Coarse (&gt;15 mm)</td>
+                <th scope="row">Diffusion Policy (Vision-State)</th>
+                <td><strong>74.1</strong><em>[71.3, 76.8]</em></td>
+                <td><strong>38.3</strong><em>[35.2, 41.4]</em></td>
+                <td>-35.8</td>
+                <td class="safe-col"><strong>15.2</strong><em>[12.9, 17.6]</em></td>
+                <td>248.5 ± 34.1</td>
+                <td>46.8%</td>
               </tr>
               <tr>
-                <td><b>LIBERO-MAX</b></td>
-                <td>8,000 paired cases</td>
-                <td>Dynamic (t* online)</td>
-                <td><span style="color:var(--muted)">None (pixels only)</span></td>
-                <td><span style="color:var(--muted)">None</span></td>
-                <td>Coarse (&gt;15 mm)</td>
+                <th scope="row">Diffusion Policy (State-Only)</th>
+                <td><strong>79.3</strong><em>[76.7, 81.8]</em></td>
+                <td><strong>42.1</strong><em>[38.9, 45.2]</em></td>
+                <td>-37.2</td>
+                <td class="safe-col"><strong>18.4</strong><em>[15.9, 21.0]</em></td>
+                <td>214.2 ± 28.5</td>
+                <td>39.2%</td>
               </tr>
-              <tr style="background:color-mix(in srgb, var(--accent-soft) 40%, var(--surface))">
-                <td><strong style="color:var(--accent)">AFFORD-Bench (Ours)</strong></td>
-                <td><strong>240 tasks (D1&ndash;D8)</strong></td>
-                <td><strong>Static (L1&ndash;L5) &amp; Paired Dynamic</strong></td>
-                <td><strong style="color:var(--accent)">7-D &tau;<sub>act</sub> + 3-D F<sub>contact</sub></strong></td>
-                <td><strong>F<sub>max</sub> &le; 150 N &amp; &tau;<sub>max</sub></strong></td>
-                <td><strong>Millimeter (&plusmn;2.0 mm)</strong></td>
+              <tr>
+                <th scope="row">BC-RNN (Vision-State)</th>
+                <td><strong>62.4</strong><em>[59.3, 65.4]</em></td>
+                <td><strong>21.2</strong><em>[18.6, 23.9]</em></td>
+                <td>-41.2</td>
+                <td class="safe-col"><strong>8.3</strong><em>[6.6, 10.2]</em></td>
+                <td>284.1 ± 42.0</td>
+                <td>58.4%</td>
+              </tr>
+              <tr>
+                <th scope="row">BC-MLP (State-Only)</th>
+                <td><strong>68.0</strong><em>[65.0, 70.9]</em></td>
+                <td><strong>24.5</strong><em>[21.8, 27.3]</em></td>
+                <td>-43.5</td>
+                <td class="safe-col"><strong>9.1</strong><em>[7.3, 11.1]</em></td>
+                <td>276.9 ± 38.2</td>
+                <td>54.2%</td>
+              </tr>
+              <tr>
+                <th scope="row">Open-Loop Replay</th>
+                <td><strong>97.4</strong><em>[96.3, 98.4]</em></td>
+                <td><strong>3.1</strong><em>[2.0, 4.3]</em></td>
+                <td>-94.3</td>
+                <td class="safe-col"><strong>1.2</strong><em>[0.6, 2.0]</em></td>
+                <td>310.8 ± 45.0</td>
+                <td>82.6%</td>
               </tr>
             </tbody>
           </table>
+          <p class="table-note">Italics indicate 95% bootstrap confidence intervals over 960 evaluation pairs. Compliant Safe Success requires S<sub>safe</sub> = S<sub>dyn</sub> ∧ (F<sub>max</sub> ≤ 150 N) ∧ (|τ<sub>j</sub>| ≤ τ<sub>max,j</sub>).</p>
         </div>
       </div>
     </section>
 
-    <section id="leaderboard">
-      <div class="wrap">
-        <div class="section-head">
-          <div>
-            <h2>Leaderboard</h2>
-            <p id="lb-caption"></p>
-          </div>
-          <div class="controls" style="margin:0">
-            <select id="lbScope" aria-label="Task scope"></select>
-          </div>
-        </div>
-        <div class="table-wrap"><table id="lb"></table></div>
-        <p class="note">A result enters this table only with its per-episode log from
-          <code>scripts/evaluate_policy_suite.py</code> (seeds, checkpoint hash, code version). The oracle reads the true object
-          poses, so its row bounds what is solvable rather than predicting learned performance.</p>
-      </div>
-    </section>
-
-    <section id="tasks">
-      <div class="wrap">
-        <div class="section-head">
-          <div>
-            <h2>Tasks</h2>
-            <p>210 tasks in 7 domains over six workcells. Each task is a conjunction of goal predicates; long-horizon tasks chain up to six goals. Click a row for its goals.</p>
-          </div>
-        </div>
-        <div class="legend" id="legend"></div>
-        <div class="controls">
-          <input id="q" type="search" placeholder="Search tasks, objects, instructions" aria-label="Search tasks">
-          <select id="domain" aria-label="Domain"></select>
-          <div class="seg" role="group" aria-label="Number of goals" id="goalSeg"></div>
-          <span class="count" id="taskCount"></span>
-        </div>
-        <div class="table-wrap tall"><table id="taskTable"></table></div>
-      </div>
-    </section>
-
-    <section id="suites">
-      <div class="wrap grid2">
+    <!-- Section 04: Reproduce -->
+    <section class="section reproduce-section" id="reproduce">
+      <div class="shell reproduce-grid">
         <div>
-          <h2>Perturbation suites</h2>
-          <p class="note" style="margin:0 0 14px">Suites are paired: an evaluation seed gives the same layout in L1, L3, L4, and Color, and the same layout in L2 and L5, so a drop measures the perturbation, not a new scene.</p>
-          <div class="table-wrap"><table id="suiteTable"></table></div>
+          <span class="section-index">04</span>
+          <p class="section-kicker">open benchmark</p>
+          <h2>Validate first.<br>Evaluate next.</h2>
+          <p>Every benchmark manifest, schema specification, evaluation launcher, and torque channel validator is fully reproducible.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="https://github.com/Physical-AGI/AFFORD_Bench#quickstart" target="_blank" rel="noreferrer">Full Guide ↗</a>
+            <a class="button" href="https://github.com/Physical-AGI/AFFORD_Bench/blob/main/docs/BENCHMARK_SPEC.md" target="_blank" rel="noreferrer">Spec Doc ↗</a>
+          </div>
         </div>
-        <div>
-          <h2>Oracle ceiling</h2>
-          <p class="note" style="margin:0 0 14px">Oracle success (%) per domain and suite in the task validation run<span id="ceilNote"></span>: what each suite can ask of a learned policy.</p>
-          <div class="heat" id="heat" role="table" aria-label="Oracle success by domain and suite"></div>
-        </div>
+        <pre aria-label="AFFORD-Bench quick start commands"><code><span class="comment"># 1. Clone repository &amp; install</span>
+<span class="prompt">$ </span>git clone https://github.com/Physical-AGI/AFFORD_Bench.git
+<span class="prompt">$ </span>cd AFFORD_Bench
+<span class="prompt">$ </span>pip install -e .
+
+<span class="comment"># 2. Validate frozen benchmark manifests</span>
+<span class="prompt">$ </span>python scripts/validate_manifests.py
+
+<span class="comment"># 3. Run matched paired evaluation (Lite track: 96 pairs)</span>
+<span class="prompt">$ </span>python scripts/evaluate_paired_dynamic.py \
+    --manifest benchmark/lite/afford_bench_lite.json \
+    --out results/paired_lite.json</code></pre>
       </div>
     </section>
 
-    <section id="dataset">
-      <div class="wrap">
-        <div class="section-head"><div><h2>Dataset</h2><p>Scripted-oracle demonstrations in Robomimic HDF5, one file per task, 50 demonstrations each. Not yet hosted for download.</p></div></div>
-        <div class="grid2">
-          <div>
-            <h3>Per demonstration</h3>
-<pre>data/demo_i/
-  actions   (T, 7) float32
-  rewards   (T,)   1 at success
-  dones     (T,)   1 at success
-  states    (T, n) full MuJoCo state
-  obs/, next_obs/
-    agentic_rgb   (T, 640, 660, 3)
-    wrist_rgb     (T, 300, 420, 3)
-    joint_positions, joint_velocities,
-    tcp_pose, gripper_width
-  attrs: seed, init_state, final_state
-data attrs: instruction, prompt_variants
-  (canonical, step-by-step), env_args, provenance
-mask/train, mask/valid   45 / 5</pre>
-          </div>
-          <div>
-            <h3>Guarantees</h3>
-            <ul class="plain">
-              <li>Every episode completes all goals of its task within the task's step budget, from a sampled start.</li>
-              <li>Each file records the code, simulator, and asset versions and the command that produced it.</li>
-              <li>An episode-level validator checks every demonstration; replays of the recorded actions reproduce the recorded states exactly.</li>
-              <li>Converters export LeRobot and RLDS.</li>
-            </ul>
-<pre>python scripts/generate_all_150_tasks.py --num-demos 50
-python scripts/validate_datasets.py --replay-per-file 3</pre>
-          </div>
-        </div>
+    <!-- Section 05: Citation -->
+    <section class="section citation-section shell" id="citation">
+      <div class="section-head citation-head">
+        <span class="section-index">05</span>
+        <div><p class="section-kicker">citation</p><h2>Cite AFFORD-Bench.</h2></div>
+        <p class="section-note">If you use AFFORD-Bench or its torque/force channels in your research, please cite our RSS 2027 paper. <a href="CITATION.bib" download>Download BibTeX</a>.</p>
       </div>
-    </section>
-
-    <section id="use">
-      <div class="wrap grid2">
-        <div>
-          <h2>Evaluate a policy</h2>
-          <p class="note" style="margin:0 0 14px">50 episodes per task and suite on the evaluation seed block, success within each task's step budget, intervals from a bootstrap over tasks.</p>
-<pre>pip install -e .                    # pins mujoco==3.5.0
-python scripts/evaluate_policy_suite.py \
-  --checkpoint model.pt --domain all \
-  --suites nominal,p2_spatial,p3_visual,p4_physical,combined_ood,p1_object \
-  --episodes 50 --out-dir results/my_policy</pre>
-          <details>
-            <summary>Train the included baselines</summary>
-<pre>python scripts/train_policy.py --policy bc --modality objects \
-  --domain tabletop --epochs 200 --seed 1 --tag seed1</pre>
-          </details>
-
-          <h3 style="margin-top:24px">Paired Dynamic Evaluation</h3>
-          <p class="note" style="margin:0 0 10px">Evaluate counterfactual Base/Dynamic pairs from frozen benchmark manifests (<a href="BENCHMARK_SPEC.md">Specification</a>):</p>
-<pre># Validate frozen benchmark manifests against schemas
-python scripts/validate_manifests.py
-
-# Run Lite Benchmark (96 matched pairs across D1–D8)
-python scripts/evaluate_paired_dynamic.py --tasks representative --max-cases 96
-
-# Run full evaluation across all 240 tasks
-python scripts/evaluate_paired_dynamic.py --tasks all</pre>
+      <div class="citation-card">
+        <div class="citation-toolbar">
+          <span>BIBTEX · AFFORD-BENCH 2027</span>
+          <button class="copy-bibtex" type="button" data-copy-target="bibtex-entry">Copy BibTeX</button>
         </div>
-        <div>
-          <h2>Cite</h2>
-<pre>@inproceedings{affordbench2027,
-  title     = {AFFORD-Bench: An Affordance-Grounded Benchmark and
-               Generalization Evaluation for Robot Learning},
-  author    = {Anonymous},
-  booktitle = {Robotics: Science and Systems (RSS)},
-  year      = {2027},
-  note      = {Under review}
-}</pre>
-        </div>
+        <pre id="bibtex-entry" aria-label="AFFORD-Bench BibTeX citation"><code>@article{sarowar2026affordbench,
+  title       = {AFFORD-Bench: A Benchmark for Physical Affordance, Compliance, and Reactive Contact Robustness in Robot Manipulation},
+  author      = {Sarowar, Selim and Physical AGI Team},
+  institution = {Yeungnam University},
+  journal     = {Robotics: Science and Systems (RSS)},
+  year        = {2027},
+  url         = {https://github.com/Physical-AGI/AFFORD_Bench}
+}</code></pre>
       </div>
     </section>
   </main>
 
+  <!-- Footer -->
   <footer>
-    <div class="wrap" id="footer"></div>
+    <div class="shell footer-grid">
+      <div>
+        <a class="brand" href="#top" aria-label="AFFORD-Bench home">
+          <img src="assets/brand/affordbench_wordmark.svg" alt="AFFORD-Bench" width="180" height="26">
+        </a>
+        <p>Physical Contact Robustness &amp; Compliance in Robot Manipulation.</p>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/Physical-AGI/AFFORD_Bench" target="_blank" rel="noreferrer">GitHub ↗</a>
+        <a href="https://github.com/Physical-AGI/AFFORD_Bench/blob/main/docs/BENCHMARK_SPEC.md" target="_blank" rel="noreferrer">Benchmark Spec</a>
+        <a href="#citation">BibTeX</a>
+        <a href="#top">Back to top ↑</a>
+      </div>
+      <p class="footer-note">Physical AGI · MIT License · 2026–2027</p>
+    </div>
   </footer>
 
-  <script src="site/data.js"></script>
-  <script src="site/app.js"></script>
+  <script>
+    // Theme Switcher with LocalStorage & Dynamic Wordmark
+    (() => {
+      const root = document.documentElement;
+      const toggle = document.querySelector(".theme-toggle");
+      const logos = document.querySelectorAll(".brand img");
+
+      function updateLogo(theme) {
+        logos.forEach(img => {
+          if (theme === "dark") {
+            img.src = "assets/brand/affordbench_wordmark_white.svg";
+          } else {
+            img.src = "assets/brand/affordbench_wordmark.svg";
+          }
+        });
+        const yuLogo = document.querySelector(".featured-yu-logo");
+        if (yuLogo) {
+          yuLogo.src = theme === "dark"
+            ? "assets/institutions/yeungnam_horizontal_white.svg"
+            : "assets/institutions/yeungnam_horizontal.svg";
+        }
+      }
+
+      // Initial check
+      const currentTheme = root.dataset.theme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      updateLogo(currentTheme);
+
+      if (!toggle) return;
+      toggle.addEventListener("click", () => {
+        const cur = root.dataset.theme;
+        const sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const next = cur === "dark" || (!cur && sysDark) ? "light" : "dark";
+        root.dataset.theme = next;
+        updateLogo(next);
+        try { localStorage.setItem("afford-bench-theme", next); } catch (e) {}
+      });
+    })();
+
+    // Video Carousel Switcher
+    (() => {
+      const tabs = document.querySelectorAll(".video-tab");
+      const video = document.getElementById("carousel-video");
+      const caption = document.getElementById("carousel-caption");
+      if (!tabs.length || !video) return;
+
+      tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          tabs.forEach(t => t.classList.remove("active"));
+          tab.classList.add("active");
+          const src = tab.dataset.src;
+          const desc = tab.dataset.desc;
+          if (src) {
+            video.src = src;
+            video.play().catch(() => {});
+          }
+          if (caption && desc) {
+            caption.innerHTML = `<strong>${tab.textContent}</strong> — ${desc}.`;
+          }
+        });
+      });
+    })();
+
+    // Copy BibTeX Clipboard
+    (() => {
+      const button = document.querySelector(".copy-bibtex");
+      if (!button) return;
+      button.addEventListener("click", async () => {
+        const target = document.getElementById(button.dataset.copyTarget);
+        if (!target) return;
+        const original = button.textContent;
+        try {
+          await navigator.clipboard.writeText(target.innerText.trim());
+          button.textContent = "Copied ✓";
+        } catch (e) {
+          button.textContent = "Selected";
+        }
+        setTimeout(() => { button.textContent = original; }, 1800);
+      });
+    })();
+  </script>
 </body>
 </html>

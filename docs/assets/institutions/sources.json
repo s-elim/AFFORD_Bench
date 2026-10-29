@@ -1,0 +1,10 @@
+{
+  "stanford.png": "https://identity.stanford.edu/wp-content/uploads/sites/3/2020/07/block-s-right.png",
+  "uiuc.svg": "https://cdn.brand.illinois.edu/logos/block-i/orange-and-blue.svg",
+  "mit.svg": "https://www.mit.edu/ (footer logo; MIT red from official brand palette)",
+  "tulane.png": "https://medicine.tulane.edu/sites/default/files/2024-12/tushield-2024_0.png",
+  "ut-austin.png": "https://umac.utexas.edu/wp-content/uploads/2025/06/UTSeal.png",
+  "cmu-red.svg": "https://www.cmu.edu/ (stacked university wordmark; CMU red variant as shown at https://brand.cmu.edu/resources/downloads)",
+  "ntu-crest.svg": "https://upload.wikimedia.org/wikipedia/en/f/f8/Nanyang_Technological_University_coat_of_arms_vector.svg (standalone vector shield; verified against NTU's official master logo: https://www.ntu.edu.sg/ResourcePackages/NTU/assets/images/NTU_Logo.png)",
+  "nyu.svg": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Nyu_short_color.svg (New York University logo; original source: https://www.nyu.edu/employees/resources-and-services/media-and-communications/styleguide/downloads.html)"
+}
