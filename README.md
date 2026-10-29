@@ -9,8 +9,8 @@
 
 **Yeungnam University** &middot; **Physical Superintelligence**
 
-**Project Webpage:** [https://physical-agi.github.io/AFFORD_Bench/](https://physical-agi.github.io/AFFORD_Bench/)  
-**Code Repository:** [https://github.com/Physical-AGI/AFFORD_Bench](https://github.com/Physical-AGI/AFFORD_Bench)
+**Project Webpage:** [https://physical-super-intelligence.github.io/AFFORD_Bench/](https://physical-super-intelligence.github.io/AFFORD_Bench/)  
+**Code Repository:** [https://github.com/Physical-Super-Intelligence/AFFORD_Bench](https://github.com/Physical-Super-Intelligence/AFFORD_Bench)
 
 ---
 
@@ -55,7 +55,7 @@ Every **Dynamic** rollout is counterfactually matched to a **Base** nominal cont
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Physical-AGI/AFFORD_Bench.git
+git clone https://github.com/Physical-Super-Intelligence/AFFORD_Bench.git
 cd AFFORD_Bench
 
 # 2. Install dependencies in virtual environment
@@ -95,7 +95,7 @@ If you use AFFORD-Bench in your research, please cite:
   institution = {Yeungnam University},
   journal     = {Robotics: Science and Systems (RSS)},
   year        = {2027},
-  url         = {https://github.com/Physical-AGI/AFFORD_Bench}
+  url         = {https://github.com/Physical-Super-Intelligence/AFFORD_Bench}
 }
 ```
 
