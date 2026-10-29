@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 48" width="160" height="48" role="img" aria-label="Physical AGI">
-  <rect width="160" height="48" rx="6" fill="#17191d" />
-  <circle cx="24" cy="24" r="10" fill="none" stroke="#e3a1a7" stroke-width="2.5" />
-  <circle cx="24" cy="24" r="4" fill="#e3a1a7" />
-  <text x="42" y="29" font-family="'Open Sans', sans-serif" font-weight="700" font-size="14" fill="#ffffff" letter-spacing="-0.02em">PHYSICAL</text>
-  <text x="114" y="29" font-family="'Open Sans', sans-serif" font-weight="800" font-size="14" fill="#e3a1a7" letter-spacing="0.05em">AGI</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 216 48" width="216" height="48" role="img" aria-label="Towards Physical Superintelligence">
+  <rect width="216" height="48" rx="6" fill="#17191d" />
+  <circle cx="22" cy="24" r="11" fill="none" stroke="#e3a1a7" stroke-width="2.2" />
+  <circle cx="22" cy="24" r="4.5" fill="#e3a1a7" />
+  <text x="42" y="20" font-family="'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif" font-weight="700" font-size="9.5" fill="#a0a5b5" letter-spacing="0.12em">TOWARDS</text>
+  <text x="42" y="35" font-family="'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif" font-weight="800" font-size="11.5" fill="#ffffff" letter-spacing="-0.02em">PHYSICAL SUPERINTELLIGENCE</text>
 </svg>
