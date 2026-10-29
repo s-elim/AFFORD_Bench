@@ -39,49 +39,57 @@ def test_suite_generation():
 
 def test_env_apply_object_displacement():
     """Verify apply_object_displacement moves the target object and zeroes velocity."""
-    env = afford_pro.make("tabletop_sort_red", task_set="legacy")
-    obs, _ = env.reset(seed=42)
+    with headless():
+        env = afford_pro.make("tabletop_sort_red", task_set="legacy")
+        try:
+            obs, _ = env.reset(seed=42)
 
-    target_qposadr = env.target_qposadr
-    assert target_qposadr is not None
+            target_qposadr = env.target_qposadr
+            assert target_qposadr is not None
 
-    initial_pos = env.data.qpos[target_qposadr : target_qposadr + 3].copy()
-    offset = np.array([0.03, -0.02, 0.0])
+            initial_pos = env.data.qpos[target_qposadr : target_qposadr + 3].copy()
+            offset = np.array([0.03, -0.02, 0.0])
 
-    applied = env.apply_object_displacement(offset)
-    assert applied is True
-    assert env.dynamic_perturbed_applied is True
+            applied = env.apply_object_displacement(offset)
+            assert applied is True
+            assert env.dynamic_perturbed_applied is True
 
-    new_pos = env.data.qpos[target_qposadr : target_qposadr + 3]
-    np.testing.assert_allclose(new_pos, initial_pos + offset, atol=1e-5)
+            new_pos = env.data.qpos[target_qposadr : target_qposadr + 3]
+            np.testing.assert_allclose(new_pos, initial_pos + offset, atol=1e-5)
 
-    dof = env.free_qpos_to_dof[target_qposadr]
-    np.testing.assert_allclose(env.data.qvel[dof : dof + 6], 0.0, atol=1e-5)
+            dof = env.free_qpos_to_dof[target_qposadr]
+            np.testing.assert_allclose(env.data.qvel[dof : dof + 6], 0.0, atol=1e-5)
+        finally:
+            env.close()
 
 
 def test_force_and_torque_safety_tracking():
     """Verify peak force tracking and torque saturation bounds in BaseFrankaEnv."""
-    env = afford_pro.make("industrial_shaft_assembly", task_set="legacy")
-    obs, _ = env.reset(seed=42)
+    with headless():
+        env = afford_pro.make("industrial_shaft_assembly", task_set="legacy")
+        try:
+            obs, _ = env.reset(seed=42)
 
-    assert hasattr(env, "peak_contact_force")
-    assert hasattr(env, "force_limit_exceeded")
-    assert hasattr(env, "torque_limit_exceeded")
-    assert hasattr(env, "safety_violation")
-    assert env.peak_contact_force == 0.0
-    assert not env.safety_violation
+            assert hasattr(env, "peak_contact_force")
+            assert hasattr(env, "force_limit_exceeded")
+            assert hasattr(env, "torque_limit_exceeded")
+            assert hasattr(env, "safety_violation")
+            assert env.peak_contact_force == 0.0
+            assert not env.safety_violation
 
-    # Run a step
-    obs, rew, term, trunc, info = env.step(np.zeros(7))
-    assert "peak_contact_force" in info
-    assert "force_limit_exceeded" in info
-    assert "torque_limit_exceeded" in info
-    assert "safety_violation" in info
-    assert "dynamic_perturbed" in info
+            # Run a step
+            obs, rew, term, trunc, info = env.step(np.zeros(7))
+            assert "peak_contact_force" in info
+            assert "force_limit_exceeded" in info
+            assert "torque_limit_exceeded" in info
+            assert "safety_violation" in info
+            assert "dynamic_perturbed" in info
 
-    # Verify Panda torque limit array
-    np.testing.assert_allclose(env.panda_torque_limits, PANDA_TORQUE_LIMITS)
-    assert env.max_safe_contact_force == MAX_SAFE_CONTACT_FORCE
+            # Verify Panda torque limit array
+            np.testing.assert_allclose(env.panda_torque_limits, PANDA_TORQUE_LIMITS)
+            assert env.max_safe_contact_force == MAX_SAFE_CONTACT_FORCE
+        finally:
+            env.close()
 
 
 def test_paired_run_execution():
@@ -111,19 +119,22 @@ def test_open_loop_fails_under_displacement():
     """Verify that open-loop replay of nominal actions fails when the object is displaced."""
     with headless():
         env = afford_pro.make("tabletop_sort_red", task_set="legacy")
-        obs, _ = env.reset(seed=101)
+        try:
+            obs, _ = env.reset(seed=101)
 
-        # 1. Collect nominal actions from privileged oracle
-        oracle = afford_pro.get_oracle("tabletop_sort_red", env)
-        actions, _, _, _ = oracle.generate_episode(seed=101)
-        assert env.check_success(), "Oracle must solve unperturbed task"
+            # 1. Collect nominal actions from privileged oracle
+            oracle = afford_pro.get_oracle("tabletop_sort_red", env)
+            actions, _, _, _ = oracle.generate_episode(seed=101)
+            assert env.check_success(), "Oracle must solve unperturbed task"
 
-        # 2. Replay open-loop with mid-trajectory displacement at step 20
-        env.reset(seed=101)
-        for step_i, a in enumerate(actions):
-            if step_i == 20:
-                env.apply_object_displacement(np.array([0.04, 0.0, 0.0]))
-            env.step(a)
+            # 2. Replay open-loop with mid-trajectory displacement at step 20
+            env.reset(seed=101)
+            for step_i, a in enumerate(actions):
+                if step_i == 20:
+                    env.apply_object_displacement(np.array([0.04, 0.0, 0.0]))
+                env.step(a)
 
-        # Open-loop replay must fail because the arm reaches for where the object used to be
-        assert not env.check_success(), "Open-loop replay must fail under mid-trajectory displacement"
+            # Open-loop replay must fail because the arm reaches for where the object used to be
+            assert not env.check_success(), "Open-loop replay must fail under mid-trajectory displacement"
+        finally:
+            env.close()

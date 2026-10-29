@@ -17,7 +17,7 @@ from afford_pro.envs.headless import headless
 
 def test_env_torque_properties():
     """Verify that BaseFrankaEnv provides actuator_torques, external_joint_torques, and gripper_force."""
-    with afford_pro.make("tabletop_sort_red") as env:
+    with headless(), afford_pro.make("tabletop_sort_red") as env:
         obs, _ = env.reset(seed=42)
         # Check properties
         tau_act = env.actuator_torques
@@ -44,7 +44,7 @@ def test_env_torque_properties():
 
 def test_env_observation_torque_keys():
     """Verify that get_observation() includes torque and scene force channels and aliases."""
-    with afford_pro.make("tabletop_sort_red") as env:
+    with headless(), afford_pro.make("tabletop_sort_red") as env:
         obs, _ = env.reset(seed=42)
         assert "joint_torques" in obs
         assert "actuator_torques" in obs
@@ -81,7 +81,7 @@ def test_hdf5_writer_and_validation():
     """Verify that RobomimicHDF5Writer records torque channels and passes file validation."""
     with tempfile.TemporaryDirectory() as tmpdir:
         fpath = Path(tmpdir) / "tabletop_sort_red_nominal.hdf5"
-        with afford_pro.make("tabletop_sort_red") as env:
+        with headless(), afford_pro.make("tabletop_sort_red") as env:
             oracle = afford_pro.get_oracle("tabletop_sort_red", env)
             actions, obs, rews, dones = oracle.generate_episode(seed=42)
 
@@ -125,7 +125,7 @@ def test_lerobot_conversion_with_torques():
         h5_path = tmp_path / "tabletop_sort_red_nominal.hdf5"
         lerobot_dir = tmp_path / "lerobot_out"
 
-        with afford_pro.make("tabletop_sort_red") as env:
+        with headless(), afford_pro.make("tabletop_sort_red") as env:
             oracle = afford_pro.get_oracle("tabletop_sort_red", env)
             actions, obs, rews, dones = oracle.generate_episode(seed=42)
 

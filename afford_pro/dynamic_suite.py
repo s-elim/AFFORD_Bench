@@ -188,166 +188,169 @@ def _execute_paired_case(
 ) -> PairedOutcome:
     """Execute a matched pair (Base control vs. Dynamic intervention) for one case."""
     env = afford_pro.make(case.task_id, task_set="legacy")
-    # For frontier reactive tasks (Domain 8), disable perturbation during Base arm
-    if hasattr(env, "perturbation_step"):
-        env.perturbation_step = None
+    try:
+        # For frontier reactive tasks (Domain 8), disable perturbation during Base arm
+        if hasattr(env, "perturbation_step"):
+            env.perturbation_step = None
 
-    # -------------------------------------------------------------------------
-    # Arm 1: Base (Control) - Nominal execution
-    # -------------------------------------------------------------------------
-    max_steps = getattr(env, "max_episode_steps", 400)
+        # -------------------------------------------------------------------------
+        # Arm 1: Base (Control) - Nominal execution
+        # -------------------------------------------------------------------------
+        max_steps = getattr(env, "max_episode_steps", 400)
 
-    if policy_fn is None:
-        # Scripted oracle baseline
-        oracle = afford_pro.get_oracle(case.task_id, env)
-        actions, _, _, _ = oracle.generate_episode(seed=case.seed)
-        base_actions = [a.copy() for a in actions]
-        base_success = env.check_success()
-        base_step = len(base_actions)
-        trigger_step_detected = case.trigger_step or max(1, min(25, base_step // 2))
-    else:
-        # User / Learned policy rollout
-        obs, _ = env.reset(seed=case.seed)
-        base_actions = []
-        base_success = False
-        base_step = 0
-        trigger_step_detected = None
+        if policy_fn is None:
+            # Scripted oracle baseline
+            oracle = afford_pro.get_oracle(case.task_id, env)
+            actions, _, _, _ = oracle.generate_episode(seed=case.seed)
+            base_actions = [a.copy() for a in actions]
+            base_success = env.check_success()
+            base_step = len(base_actions)
+            trigger_step_detected = case.trigger_step or max(1, min(25, base_step // 2))
+        else:
+            # User / Learned policy rollout
+            obs, _ = env.reset(seed=case.seed)
+            base_actions = []
+            base_success = False
+            base_step = 0
+            trigger_step_detected = None
 
-        for step_i in range(max_steps):
-            action = policy_fn(obs)
-            base_actions.append(action.copy())
-
-            # Check if proximity trigger condition is met in Base
-            if trigger_step_detected is None:
-                if case.trigger_type == "pre_grasp_proximity":
-                    target_id = getattr(env, "target_id", -1)
-                    if target_id != -1:
-                        target_pos = env.data.xpos[target_id]
-                        dist_to_obj = float(np.linalg.norm(env.tcp_position[:2] - target_pos[:2]))
-                        if dist_to_obj <= case.proximity_threshold and env.tcp_position[2] < 0.20:
-                            trigger_step_detected = step_i
-                elif case.trigger_type == "mid_approach_step" and step_i == (case.trigger_step or 25):
-                    trigger_step_detected = step_i
-
-            obs, _, term, trunc, info = env.step(action)
-            base_step = step_i + 1
-            if term:
-                base_success = True
-                break
-            if trunc:
-                break
-
-        if trigger_step_detected is None:
-            trigger_step_detected = min(case.trigger_step or 25, max(1, base_step // 2))
-
-    base_peak_force = float(env.peak_contact_force)
-    base_force_violation = bool(env.force_limit_exceeded)
-    base_torque_saturation = bool(env.torque_limit_exceeded)
-    base_safety_violation = bool(env.safety_violation)
-
-    # -------------------------------------------------------------------------
-    # Arm 2: Dynamic (Intervention) - Matched prefix replay + mid-task displacement
-    # -------------------------------------------------------------------------
-    obs, _ = env.reset(seed=case.seed)
-    offset = np.array(case.displacement_offset, dtype=np.float64)
-    env.dynamic_perturbation_offset = offset
-    env.dynamic_perturbation_step = trigger_step_detected
-    env.dynamic_perturbation_trigger = "step"
-
-    # For Domain 8 frontier tasks, set native frontier perturbation parameters
-    if hasattr(env, "perturbation_step"):
-        env.perturbation_step = trigger_step_detected
-    if hasattr(env, "perturbation_offset"):
-        env.perturbation_offset = offset
-
-    if policy_fn is None:
-        # Closed-loop oracle on perturbed environment
-        oracle = afford_pro.get_oracle(case.task_id, env)
-        dyn_actions, _, _, _ = oracle.generate_episode(seed=case.seed, reset=False)
-        dynamic_success = env.check_success()
-        dynamic_step = len(dyn_actions)
-        event_applied = env.dynamic_perturbed_applied or getattr(env, "perturbed_applied", False)
-    else:
-        dynamic_success = False
-        dynamic_step = 0
-        event_applied = False
-        term, trunc = False, False
-
-        # 1. Replay exact Base action prefix up to trigger_step_detected
-        for step_i in range(trigger_step_detected):
-            if step_i < len(base_actions):
-                action = base_actions[step_i]
-                obs, _, term, trunc, _ = env.step(action)
-                dynamic_step = step_i + 1
-                if term or trunc:
-                    break
-
-        # 2. Inject frozen physical object displacement at t* if not already triggered
-        if not term and not trunc:
-            if not env.dynamic_perturbed_applied:
-                event_applied = env.apply_object_displacement(offset)
-            else:
-                event_applied = True
-
-            # 3. Policy continues acting post-perturbation
-            remaining_budget = max_steps - dynamic_step
-            for _ in range(remaining_budget):
+            for step_i in range(max_steps):
                 action = policy_fn(obs)
+                base_actions.append(action.copy())
+
+                # Check if proximity trigger condition is met in Base
+                if trigger_step_detected is None:
+                    if case.trigger_type == "pre_grasp_proximity":
+                        target_id = getattr(env, "target_id", -1)
+                        if target_id != -1:
+                            target_pos = env.data.xpos[target_id]
+                            dist_to_obj = float(np.linalg.norm(env.tcp_position[:2] - target_pos[:2]))
+                            if dist_to_obj <= case.proximity_threshold and env.tcp_position[2] < 0.20:
+                                trigger_step_detected = step_i
+                    elif case.trigger_type == "mid_approach_step" and step_i == (case.trigger_step or 25):
+                        trigger_step_detected = step_i
+
                 obs, _, term, trunc, info = env.step(action)
-                dynamic_step += 1
+                base_step = step_i + 1
                 if term:
-                    dynamic_success = True
+                    base_success = True
                     break
                 if trunc:
                     break
 
-    dynamic_peak_force = float(env.peak_contact_force)
-    dynamic_force_violation = bool(env.force_limit_exceeded)
-    dynamic_torque_saturation = bool(env.torque_limit_exceeded)
-    dynamic_safety_violation = bool(env.safety_violation)
+            if trigger_step_detected is None:
+                trigger_step_detected = min(case.trigger_step or 25, max(1, base_step // 2))
 
-    # -------------------------------------------------------------------------
-    # Classification & Metrics
-    # -------------------------------------------------------------------------
-    if base_success and dynamic_success:
-        category = "preserved_success"
-    elif base_success and not dynamic_success:
-        category = "event_regression"
-    elif not base_success and dynamic_success:
-        category = "recovery"
-    else:
-        category = "persistent_failure"
+        base_peak_force = float(env.peak_contact_force)
+        base_force_violation = bool(env.force_limit_exceeded)
+        base_torque_saturation = bool(env.torque_limit_exceeded)
+        base_safety_violation = bool(env.safety_violation)
 
-    compliant_success = dynamic_success and not dynamic_safety_violation
-    force_ratio = dynamic_peak_force / max(base_peak_force, 1e-3)
+        # -------------------------------------------------------------------------
+        # Arm 2: Dynamic (Intervention) - Matched prefix replay + mid-task displacement
+        # -------------------------------------------------------------------------
+        obs, _ = env.reset(seed=case.seed)
+        offset = np.array(case.displacement_offset, dtype=np.float64)
+        env.dynamic_perturbation_offset = offset
+        env.dynamic_perturbation_step = trigger_step_detected
+        env.dynamic_perturbation_trigger = "step"
 
-    return PairedOutcome(
-        case_id=case.case_id,
-        task_id=case.task_id,
-        domain=case.domain,
-        seed=case.seed,
-        displacement_direction=case.displacement_direction,
-        displacement_offset=case.displacement_offset,
-        trigger_type=case.trigger_type,
-        trigger_step=trigger_step_detected,
-        base_success=base_success,
-        base_steps=base_step,
-        base_peak_force=base_peak_force,
-        base_force_violation=base_force_violation,
-        base_torque_saturation=base_torque_saturation,
-        base_safety_violation=base_safety_violation,
-        dynamic_success=dynamic_success,
-        dynamic_steps=dynamic_step,
-        dynamic_peak_force=dynamic_peak_force,
-        dynamic_force_violation=dynamic_force_violation,
-        dynamic_torque_saturation=dynamic_torque_saturation,
-        dynamic_safety_violation=dynamic_safety_violation,
-        event_triggered=event_applied,
-        category=category,
-        compliant_dynamic_success=compliant_success,
-        force_spike_ratio=force_ratio,
-    )
+        # For Domain 8 frontier tasks, set native frontier perturbation parameters
+        if hasattr(env, "perturbation_step"):
+            env.perturbation_step = trigger_step_detected
+        if hasattr(env, "perturbation_offset"):
+            env.perturbation_offset = offset
 
+        if policy_fn is None:
+            # Closed-loop oracle on perturbed environment
+            oracle = afford_pro.get_oracle(case.task_id, env)
+            dyn_actions, _, _, _ = oracle.generate_episode(seed=case.seed, reset=False)
+            dynamic_success = env.check_success()
+            dynamic_step = len(dyn_actions)
+            event_applied = env.dynamic_perturbed_applied or getattr(env, "perturbed_applied", False)
+        else:
+            dynamic_success = False
+            dynamic_step = 0
+            event_applied = False
+            term, trunc = False, False
+
+            # 1. Replay exact Base action prefix up to trigger_step_detected
+            for step_i in range(trigger_step_detected):
+                if step_i < len(base_actions):
+                    action = base_actions[step_i]
+                    obs, _, term, trunc, _ = env.step(action)
+                    dynamic_step = step_i + 1
+                    if term or trunc:
+                        break
+
+            # 2. Inject frozen physical object displacement at t* if not already triggered
+            if not term and not trunc:
+                if not env.dynamic_perturbed_applied:
+                    event_applied = env.apply_object_displacement(offset)
+                else:
+                    event_applied = True
+
+                # 3. Policy continues acting post-perturbation
+                remaining_budget = max_steps - dynamic_step
+                for _ in range(remaining_budget):
+                    action = policy_fn(obs)
+                    obs, _, term, trunc, info = env.step(action)
+                    dynamic_step += 1
+                    if term:
+                        dynamic_success = True
+                        break
+                    if trunc:
+                        break
+
+        dynamic_peak_force = float(env.peak_contact_force)
+        dynamic_force_violation = bool(env.force_limit_exceeded)
+        dynamic_torque_saturation = bool(env.torque_limit_exceeded)
+        dynamic_safety_violation = bool(env.safety_violation)
+
+        # -------------------------------------------------------------------------
+        # Classification & Metrics
+        # -------------------------------------------------------------------------
+        if base_success and dynamic_success:
+            category = "preserved_success"
+        elif base_success and not dynamic_success:
+            category = "event_regression"
+        elif not base_success and dynamic_success:
+            category = "recovery"
+        else:
+            category = "persistent_failure"
+
+        compliant_success = dynamic_success and not dynamic_safety_violation
+        force_ratio = dynamic_peak_force / max(base_peak_force, 1e-3)
+
+        return PairedOutcome(
+            case_id=case.case_id,
+            task_id=case.task_id,
+            domain=case.domain,
+            seed=case.seed,
+            displacement_direction=case.displacement_direction,
+            displacement_offset=case.displacement_offset,
+            trigger_type=case.trigger_type,
+            trigger_step=trigger_step_detected,
+            base_success=base_success,
+            base_steps=base_step,
+            base_peak_force=base_peak_force,
+            base_force_violation=base_force_violation,
+            base_torque_saturation=base_torque_saturation,
+            base_safety_violation=base_safety_violation,
+            dynamic_success=dynamic_success,
+            dynamic_steps=dynamic_step,
+            dynamic_peak_force=dynamic_peak_force,
+            dynamic_force_violation=dynamic_force_violation,
+            dynamic_torque_saturation=dynamic_torque_saturation,
+            dynamic_safety_violation=dynamic_safety_violation,
+            event_triggered=event_applied,
+            category=category,
+            compliant_dynamic_success=compliant_success,
+            force_spike_ratio=force_ratio,
+        )
+
+    finally:
+        env.close()
 
 def run_paired_case(
     case: PairedCase,
