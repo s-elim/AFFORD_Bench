@@ -58,6 +58,7 @@ ROBOMIMIC_OBS_ALIASES = {
     "joint_positions": "joint_states",
     "joint_states": "robot0_joint_pos",
     "joint_velocities": "robot0_joint_vel",
+    "joint_torques": "robot0_joint_torque",
     "agentic_depth": "agentview_depth",
     "wrist_depth": "eye_in_hand_depth",
 }
@@ -194,7 +195,7 @@ class RobomimicHDF5Writer:
         }
         for k, arr in obs_dict.items():
             if k in derived_or_aliased and (
-                "agentic_rgb" in obs_dict or "wrist_rgb" in obs_dict or "tcp_pose" in obs_dict
+                "agentic_rgb" in obs_dict or "wrist_rgb" in obs_dict or "tcp_pose" in obs_dict or "joint_torques" in obs_dict
             ):
                 continue
             if k not in group:

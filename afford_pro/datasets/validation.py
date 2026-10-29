@@ -326,6 +326,16 @@ def _check_obs(g: h5py.Group, s: np.ndarray | None, T: int, demo: str, ctx: Task
             report.add("error", "next_obs_not_shifted", f"{demo} next_obs[t] != obs[t+1]", demo)
         if np.array_equal(nq[-1], q[-1]):
             report.add("warning", "terminal_next_obs_copy", f"{demo} next_obs[T-1] repeats obs[T-1]; the success state is not stored", demo)
+    if "joint_torques" in obs:
+        tau = obs["joint_torques"][()]
+        if tau.shape != (T, 7):
+            report.add("error", "bad_torque_shape", f"{demo} obs/joint_torques shape {tau.shape}, expected ({T}, 7)", demo)
+        elif not np.isfinite(tau).all():
+            report.add("error", "nonfinite_torque", f"{demo} obs/joint_torques not finite", demo)
+        if "joint_torques" in nxt:
+            ntau = nxt["joint_torques"][()]
+            if T > 1 and not np.array_equal(ntau[:-1], tau[1:]):
+                report.add("error", "next_obs_not_shifted", f"{demo} next_obs/joint_torques[t] != obs/joint_torques[t+1]", demo)
 
 
 def _image_ok(frame: np.ndarray) -> str | None:

@@ -77,6 +77,8 @@ ROBOMIMIC_ALIASES_MAP = {
     "joint_states": "joint_positions",
     "robot0_joint_pos": "joint_positions",
     "robot0_joint_vel": "joint_velocities",
+    "robot0_joint_torque": "joint_torques",
+    "actuator_torques": "joint_torques",
     "agentview_depth": "agentic_depth",
     "eye_in_hand_depth": "wrist_depth",
     "ee_states": "tcp_pose",

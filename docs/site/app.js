@@ -26,8 +26,8 @@
   $("#stats").append(
     ...[
       [`${D.tasks.length}`, `tasks in ${domains.length} domains`],
-      [`${goals}`, `goal predicates &middot; ${multi} multi-goal tasks`],
-      [`${D.suites.length}`, "paired evaluation suites"],
+      [`7-D &tau;`, `motor torques &amp; F<sub>contact</sub>`],
+      [`&le; 150 N`, `safety contact force bound`],
       [nominal ? `${pct(nominal[0] / nominal[1])}%` : "–", "oracle success, nominal validation"],
     ].map(([b, s]) => el("div", { className: "stat" }, `<b>${b}</b><span>${s}</span>`))
   );
@@ -146,4 +146,123 @@
   // ---------------------------------------------------------------- footer
   $("#footer").innerHTML = `Numbers generated ${esc(D.generated.slice(0, 10))} from commit <code>${esc((D.commit || "").slice(0, 7))}</code>${D.dirty ? " (uncommitted changes)" : ""}, MuJoCo ${esc(D.mujoco)}. `
     + `Evidence: <code>docs/roadmap/evidence/</code>. Code and data: MIT; robot meshes: Apache-2.0 (MuJoCo Menagerie).`;
+
+  // ---------------------------------------------------------------- theme toggle
+  const toggleBtn = $("#themeToggle");
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", () => {
+      const root = document.documentElement;
+      const current = root.dataset.theme;
+      const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const next = current === "dark" || (!current && systemDark) ? "light" : "dark";
+      root.dataset.theme = next;
+      try { localStorage.setItem("afford-bench-theme", next); } catch (e) {}
+    });
+  }
+
+  // ---------------------------------------------------------------- video carousel
+  const VIDEO_DOMAINS = [
+    {
+      domain: "D1",
+      name: "Industrial Precision",
+      video: "videos/d1_industrial_shaft_assembly.mp4",
+      tag: "D1 · INDUSTRIAL PRECISION",
+      title: "Machined Shaft Assembly into Central Jig Bore",
+      desc: "Rigid insertion with tight millimeter clearance (±2.5 mm). Monitored for binding, frictional wedging, and joint torque saturation.",
+      tags: ["±2.5 mm Clearance", "Frictional Peg", "7-D Torques"]
+    },
+    {
+      domain: "D2",
+      name: "Culinary Operations",
+      video: "videos/d2_kitchen_patty_stack.mp4",
+      tag: "D2 · CULINARY OPERATIONS",
+      title: "Multi-Tier Burger Patty Stacking",
+      desc: "Sequential compliant placement requiring steady surface contact, upright orientation balance, and zero slip without magnetic snapping.",
+      tags: ["Compliant Contact", "Frictional Grasp", "Multi-Object"]
+    },
+    {
+      domain: "D3",
+      name: "Domestic Tabletop",
+      video: "videos/d3_tabletop_sort_red.mp4",
+      tag: "D3 · DOMESTIC TABLETOP",
+      title: "Cluttered Workspace Block Sorting",
+      desc: "Sorting geometric target blocks among distractor objects under mid-trajectory spatial displacements and surface friction shifts.",
+      tags: ["Clutter Rejection", "Mid-Task Shift", "Reactive"]
+    },
+    {
+      domain: "D4",
+      name: "Laboratory Sciences",
+      video: "videos/d4_lab_tube_centrifuge.mp4",
+      tag: "D4 · LABORATORY SCIENCES",
+      title: "Centrifuge Micro-Tube Docking",
+      desc: "High-precision cylindrical tube insertion into rotor wells (±2.0 mm). Checks contact forces to prevent test tube shattering (F < 150 N).",
+      tags: ["±2.0 mm Clearance", "Safety Envelope", "Low Force"]
+    },
+    {
+      domain: "D5",
+      name: "Long Horizon",
+      video: "videos/d5_long_horizon_transmission.mp4",
+      tag: "D5 · LONG HORIZON SEQUENCES",
+      title: "Multi-Stage Transmission Assembly",
+      desc: "Chaining up to 6 sequential physical goals: pin placement, gear mesh, shaft insertion, and clamp locking without state resets.",
+      tags: ["6 Goals", "No Reset", "Stage-Locked"]
+    },
+    {
+      domain: "D6",
+      name: "Precision Chaining",
+      video: "videos/d6_precision_chaining.mp4",
+      tag: "D6 · PRECISION CHAINING",
+      title: "Shaft -> Bearing -> Clamp Alignment",
+      desc: "Compound tight-tolerance chaining where each completed insertion forms the physical kinematic base for the subsequent stage.",
+      tags: ["Compound Tolerance", "Multi-Body IK", "Force Guided"]
+    },
+    {
+      domain: "D7",
+      name: "Service & Assembly",
+      video: "videos/d7_service_chaining.mp4",
+      tag: "D7 · SERVICE & ASSEMBLY",
+      title: "Sequential Food Service & Tray Clearing",
+      desc: "Coordinated manipulation involving container placement, surface wiping, and fragile object rearrangement.",
+      tags: ["Complex Articulation", "Contact Dynamics", "Multi-Phase"]
+    },
+    {
+      domain: "D8",
+      name: "Frontier Complex",
+      video: "videos/d1_industrial_shaft_assembly.mp4",
+      tag: "D8 · FRONTIER COMPLEX MANIPULATION",
+      title: "Reactive Perturbation & Articulated Detents",
+      desc: "Mid-trajectory object displacement and impulse recovery under strict 150 N contact force limits and Franka joint torque bounds.",
+      tags: ["Reactive Nudge", "Compliant Detent", "Impulse Recovery", "Torque Saturation"]
+    }
+  ];
+
+  const tabsContainer = $("#carouselTabs");
+  const videoEl = $("#carouselVideo");
+  const tagEl = $("#carouselDomainTag");
+  const titleEl = $("#carouselTitle");
+  const descEl = $("#carouselDesc");
+  const metaEl = $("#carouselMeta");
+
+  if (tabsContainer && videoEl) {
+    VIDEO_DOMAINS.forEach((item, idx) => {
+      const btn = el("button", {
+        className: "carousel-tab",
+        type: "button",
+        role: "tab",
+        innerText: `${item.domain}: ${item.name}`,
+        ariaSelected: idx === 0 ? "true" : "false"
+      });
+      btn.addEventListener("click", () => {
+        tabsContainer.querySelectorAll(".carousel-tab").forEach(b => b.setAttribute("aria-selected", "false"));
+        btn.setAttribute("aria-selected", "true");
+        videoEl.src = item.video;
+        videoEl.play().catch(() => {});
+        tagEl.innerText = item.tag;
+        titleEl.innerText = item.title;
+        descEl.innerText = item.desc;
+        metaEl.innerHTML = item.tags.map(t => `<span>${esc(t)}</span>`).join("");
+      });
+      tabsContainer.appendChild(btn);
+    });
+  }
 })();

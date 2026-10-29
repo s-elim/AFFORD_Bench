@@ -25,6 +25,10 @@ def _lowdim_observation(self: base_env.BaseFrankaEnv) -> dict[str, Any]:
         "joint_positions": self.joint_positions,
         "joint_velocities": self.joint_velocities,
         "gripper_width": base_env.np.array([self.gripper_width], dtype=base_env.np.float64),
+        "joint_torques": self.actuator_torques,
+        "actuator_torques": self.actuator_torques,
+        "robot0_joint_torque": self.actuator_torques,
+        "robot_scene_force": base_env.np.array([self.robot_scene_force({getattr(self, "target_id", -1)})], dtype=base_env.np.float64),
     }
 
 

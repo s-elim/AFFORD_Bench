@@ -390,6 +390,7 @@ class ParametricFrankaEnv(BaseFrankaEnv):
 
     # ----------------------------------------------------------------- Step & success
     def _after_step(self) -> None:
+        super()._after_step()
         if self.target_qposadr is not None:
             self.peak_z = max(self.peak_z, float(self.data.xpos[self.target_id][2]))
         elif self.task_type == "press_button":

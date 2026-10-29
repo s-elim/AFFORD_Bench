@@ -1,0 +1,3194 @@
+{
+  "benchmark_id": "AFFORD-Bench",
+  "benchmark_version": "1.0.0",
+  "track": "lite",
+  "protocol": {
+    "arms": [
+      "control",
+      "intervention"
+    ],
+    "scoring_track": "compliant_dynamic_completion",
+    "safety_constraints": {
+      "max_contact_force_n": 150.0,
+      "joint_torque_limits_nm": [
+        87.0,
+        87.0,
+        87.0,
+        87.0,
+        12.0,
+        12.0,
+        12.0
+      ]
+    }
+  },
+  "cases": [
+    {
+      "case_id": "afford_d1_001_p0_+x",
+      "domain_id": "D1",
+      "domain_name": "Industrial Precision & Manufacturing",
+      "task_id": "industrial_shaft_assembly",
+      "task_number": 1,
+      "policy_seed": 1010,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_001_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_001_p1_-x",
+      "domain_id": "D1",
+      "domain_name": "Industrial Precision & Manufacturing",
+      "task_id": "industrial_shaft_assembly",
+      "task_number": 1,
+      "policy_seed": 1011,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_001_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_001_p2_+y",
+      "domain_id": "D1",
+      "domain_name": "Industrial Precision & Manufacturing",
+      "task_id": "industrial_shaft_assembly",
+      "task_number": 1,
+      "policy_seed": 1012,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_001_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_001_p3_-y",
+      "domain_id": "D1",
+      "domain_name": "Industrial Precision & Manufacturing",
+      "task_id": "industrial_shaft_assembly",
+      "task_number": 1,
+      "policy_seed": 1013,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_001_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_002_p0_+x",
+      "domain_id": "D1",
+      "domain_name": "Industrial Precision & Manufacturing",
+      "task_id": "industrial_gear_mesh",
+      "task_number": 2,
+      "policy_seed": 1020,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_002_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_002_p1_-x",
+      "domain_id": "D1",
+      "domain_name": "Industrial Precision & Manufacturing",
+      "task_id": "industrial_gear_mesh",
+      "task_number": 2,
+      "policy_seed": 1021,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_002_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_002_p2_+y",
+      "domain_id": "D1",
+      "domain_name": "Industrial Precision & Manufacturing",
+      "task_id": "industrial_gear_mesh",
+      "task_number": 2,
+      "policy_seed": 1022,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_002_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_002_p3_-y",
+      "domain_id": "D1",
+      "domain_name": "Industrial Precision & Manufacturing",
+      "task_id": "industrial_gear_mesh",
+      "task_number": 2,
+      "policy_seed": 1023,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_002_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_003_p0_+x",
+      "domain_id": "D1",
+      "domain_name": "Industrial Precision & Manufacturing",
+      "task_id": "industrial_pin_insertion",
+      "task_number": 3,
+      "policy_seed": 1030,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_003_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_003_p1_-x",
+      "domain_id": "D1",
+      "domain_name": "Industrial Precision & Manufacturing",
+      "task_id": "industrial_pin_insertion",
+      "task_number": 3,
+      "policy_seed": 1031,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_003_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_003_p2_+y",
+      "domain_id": "D1",
+      "domain_name": "Industrial Precision & Manufacturing",
+      "task_id": "industrial_pin_insertion",
+      "task_number": 3,
+      "policy_seed": 1032,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_003_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_003_p3_-y",
+      "domain_id": "D1",
+      "domain_name": "Industrial Precision & Manufacturing",
+      "task_id": "industrial_pin_insertion",
+      "task_number": 3,
+      "policy_seed": 1033,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_003_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_031_p0_+x",
+      "domain_id": "D1",
+      "domain_name": "Culinary & Kitchen Operations",
+      "task_id": "kitchen_patty_on_bun",
+      "task_number": 31,
+      "policy_seed": 1310,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_031_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_031_p1_-x",
+      "domain_id": "D1",
+      "domain_name": "Culinary & Kitchen Operations",
+      "task_id": "kitchen_patty_on_bun",
+      "task_number": 31,
+      "policy_seed": 1311,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_031_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_031_p2_+y",
+      "domain_id": "D1",
+      "domain_name": "Culinary & Kitchen Operations",
+      "task_id": "kitchen_patty_on_bun",
+      "task_number": 31,
+      "policy_seed": 1312,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_031_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_031_p3_-y",
+      "domain_id": "D1",
+      "domain_name": "Culinary & Kitchen Operations",
+      "task_id": "kitchen_patty_on_bun",
+      "task_number": 31,
+      "policy_seed": 1313,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_031_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_032_p0_+x",
+      "domain_id": "D1",
+      "domain_name": "Culinary & Kitchen Operations",
+      "task_id": "kitchen_cheese_on_patty",
+      "task_number": 32,
+      "policy_seed": 1320,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_032_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_032_p1_-x",
+      "domain_id": "D1",
+      "domain_name": "Culinary & Kitchen Operations",
+      "task_id": "kitchen_cheese_on_patty",
+      "task_number": 32,
+      "policy_seed": 1321,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_032_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_032_p2_+y",
+      "domain_id": "D1",
+      "domain_name": "Culinary & Kitchen Operations",
+      "task_id": "kitchen_cheese_on_patty",
+      "task_number": 32,
+      "policy_seed": 1322,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_032_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_032_p3_-y",
+      "domain_id": "D1",
+      "domain_name": "Culinary & Kitchen Operations",
+      "task_id": "kitchen_cheese_on_patty",
+      "task_number": 32,
+      "policy_seed": 1323,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_032_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_034_p0_+x",
+      "domain_id": "D1",
+      "domain_name": "Culinary & Kitchen Operations",
+      "task_id": "kitchen_top_bun_crown",
+      "task_number": 34,
+      "policy_seed": 1340,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_034_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_034_p1_-x",
+      "domain_id": "D1",
+      "domain_name": "Culinary & Kitchen Operations",
+      "task_id": "kitchen_top_bun_crown",
+      "task_number": 34,
+      "policy_seed": 1341,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_034_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_034_p2_+y",
+      "domain_id": "D1",
+      "domain_name": "Culinary & Kitchen Operations",
+      "task_id": "kitchen_top_bun_crown",
+      "task_number": 34,
+      "policy_seed": 1342,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_034_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_034_p3_-y",
+      "domain_id": "D1",
+      "domain_name": "Culinary & Kitchen Operations",
+      "task_id": "kitchen_top_bun_crown",
+      "task_number": 34,
+      "policy_seed": 1343,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_034_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d3_061_p0_+x",
+      "domain_id": "D3",
+      "domain_name": "Domestic & Tabletop Objects",
+      "task_id": "tabletop_sort_red",
+      "task_number": 61,
+      "policy_seed": 1610,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d3_061_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d3_061_p1_-x",
+      "domain_id": "D3",
+      "domain_name": "Domestic & Tabletop Objects",
+      "task_id": "tabletop_sort_red",
+      "task_number": 61,
+      "policy_seed": 1611,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d3_061_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d3_061_p2_+y",
+      "domain_id": "D3",
+      "domain_name": "Domestic & Tabletop Objects",
+      "task_id": "tabletop_sort_red",
+      "task_number": 61,
+      "policy_seed": 1612,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d3_061_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d3_061_p3_-y",
+      "domain_id": "D3",
+      "domain_name": "Domestic & Tabletop Objects",
+      "task_id": "tabletop_sort_red",
+      "task_number": 61,
+      "policy_seed": 1613,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d3_061_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d3_062_p0_+x",
+      "domain_id": "D3",
+      "domain_name": "Domestic & Tabletop Objects",
+      "task_id": "tabletop_sort_green",
+      "task_number": 62,
+      "policy_seed": 1620,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d3_062_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d3_062_p1_-x",
+      "domain_id": "D3",
+      "domain_name": "Domestic & Tabletop Objects",
+      "task_id": "tabletop_sort_green",
+      "task_number": 62,
+      "policy_seed": 1621,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d3_062_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d3_062_p2_+y",
+      "domain_id": "D3",
+      "domain_name": "Domestic & Tabletop Objects",
+      "task_id": "tabletop_sort_green",
+      "task_number": 62,
+      "policy_seed": 1622,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d3_062_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d3_062_p3_-y",
+      "domain_id": "D3",
+      "domain_name": "Domestic & Tabletop Objects",
+      "task_id": "tabletop_sort_green",
+      "task_number": 62,
+      "policy_seed": 1623,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d3_062_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d3_063_p0_+x",
+      "domain_id": "D3",
+      "domain_name": "Domestic & Tabletop Objects",
+      "task_id": "tabletop_sort_blue",
+      "task_number": 63,
+      "policy_seed": 1630,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d3_063_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d3_063_p1_-x",
+      "domain_id": "D3",
+      "domain_name": "Domestic & Tabletop Objects",
+      "task_id": "tabletop_sort_blue",
+      "task_number": 63,
+      "policy_seed": 1631,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d3_063_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d3_063_p2_+y",
+      "domain_id": "D3",
+      "domain_name": "Domestic & Tabletop Objects",
+      "task_id": "tabletop_sort_blue",
+      "task_number": 63,
+      "policy_seed": 1632,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d3_063_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d3_063_p3_-y",
+      "domain_id": "D3",
+      "domain_name": "Domestic & Tabletop Objects",
+      "task_id": "tabletop_sort_blue",
+      "task_number": 63,
+      "policy_seed": 1633,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d3_063_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_091_p0_+x",
+      "domain_id": "D1",
+      "domain_name": "Laboratory & Life Sciences",
+      "task_id": "lab_conical_to_orange_rack",
+      "task_number": 91,
+      "policy_seed": 1910,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_091_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_091_p1_-x",
+      "domain_id": "D1",
+      "domain_name": "Laboratory & Life Sciences",
+      "task_id": "lab_conical_to_orange_rack",
+      "task_number": 91,
+      "policy_seed": 1911,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_091_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_091_p2_+y",
+      "domain_id": "D1",
+      "domain_name": "Laboratory & Life Sciences",
+      "task_id": "lab_conical_to_orange_rack",
+      "task_number": 91,
+      "policy_seed": 1912,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_091_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_091_p3_-y",
+      "domain_id": "D1",
+      "domain_name": "Laboratory & Life Sciences",
+      "task_id": "lab_conical_to_orange_rack",
+      "task_number": 91,
+      "policy_seed": 1913,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_091_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_092_p0_+x",
+      "domain_id": "D1",
+      "domain_name": "Laboratory & Life Sciences",
+      "task_id": "lab_micro_to_centrifuge",
+      "task_number": 92,
+      "policy_seed": 1920,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_092_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_092_p1_-x",
+      "domain_id": "D1",
+      "domain_name": "Laboratory & Life Sciences",
+      "task_id": "lab_micro_to_centrifuge",
+      "task_number": 92,
+      "policy_seed": 1921,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_092_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_092_p2_+y",
+      "domain_id": "D1",
+      "domain_name": "Laboratory & Life Sciences",
+      "task_id": "lab_micro_to_centrifuge",
+      "task_number": 92,
+      "policy_seed": 1922,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_092_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_092_p3_-y",
+      "domain_id": "D1",
+      "domain_name": "Laboratory & Life Sciences",
+      "task_id": "lab_micro_to_centrifuge",
+      "task_number": 92,
+      "policy_seed": 1923,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_092_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_096_p0_+x",
+      "domain_id": "D1",
+      "domain_name": "Laboratory & Life Sciences",
+      "task_id": "lab_conical_to_blue_rack",
+      "task_number": 96,
+      "policy_seed": 1960,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_096_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_096_p1_-x",
+      "domain_id": "D1",
+      "domain_name": "Laboratory & Life Sciences",
+      "task_id": "lab_conical_to_blue_rack",
+      "task_number": 96,
+      "policy_seed": 1961,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_096_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_096_p2_+y",
+      "domain_id": "D1",
+      "domain_name": "Laboratory & Life Sciences",
+      "task_id": "lab_conical_to_blue_rack",
+      "task_number": 96,
+      "policy_seed": 1962,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_096_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_096_p3_-y",
+      "domain_id": "D1",
+      "domain_name": "Laboratory & Life Sciences",
+      "task_id": "lab_conical_to_blue_rack",
+      "task_number": 96,
+      "policy_seed": 1963,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_096_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_121_p0_+x",
+      "domain_id": "D1",
+      "domain_name": "Long-Horizon Multi-Stage",
+      "task_id": "long_horizon_transmission_assembly",
+      "task_number": 121,
+      "policy_seed": 2210,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_121_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_121_p1_-x",
+      "domain_id": "D1",
+      "domain_name": "Long-Horizon Multi-Stage",
+      "task_id": "long_horizon_transmission_assembly",
+      "task_number": 121,
+      "policy_seed": 2211,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_121_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_121_p2_+y",
+      "domain_id": "D1",
+      "domain_name": "Long-Horizon Multi-Stage",
+      "task_id": "long_horizon_transmission_assembly",
+      "task_number": 121,
+      "policy_seed": 2212,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_121_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_121_p3_-y",
+      "domain_id": "D1",
+      "domain_name": "Long-Horizon Multi-Stage",
+      "task_id": "long_horizon_transmission_assembly",
+      "task_number": 121,
+      "policy_seed": 2213,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_121_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_125_p0_+x",
+      "domain_id": "D1",
+      "domain_name": "Long-Horizon Multi-Stage",
+      "task_id": "long_horizon_classic_burger",
+      "task_number": 125,
+      "policy_seed": 2250,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_125_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_125_p1_-x",
+      "domain_id": "D1",
+      "domain_name": "Long-Horizon Multi-Stage",
+      "task_id": "long_horizon_classic_burger",
+      "task_number": 125,
+      "policy_seed": 2251,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_125_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_125_p2_+y",
+      "domain_id": "D1",
+      "domain_name": "Long-Horizon Multi-Stage",
+      "task_id": "long_horizon_classic_burger",
+      "task_number": 125,
+      "policy_seed": 2252,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_125_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_125_p3_-y",
+      "domain_id": "D1",
+      "domain_name": "Long-Horizon Multi-Stage",
+      "task_id": "long_horizon_classic_burger",
+      "task_number": 125,
+      "policy_seed": 2253,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_125_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_129_p0_+x",
+      "domain_id": "D1",
+      "domain_name": "Long-Horizon Multi-Stage",
+      "task_id": "long_horizon_sort_all_blocks",
+      "task_number": 129,
+      "policy_seed": 2290,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_129_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_129_p1_-x",
+      "domain_id": "D1",
+      "domain_name": "Long-Horizon Multi-Stage",
+      "task_id": "long_horizon_sort_all_blocks",
+      "task_number": 129,
+      "policy_seed": 2291,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_129_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_129_p2_+y",
+      "domain_id": "D1",
+      "domain_name": "Long-Horizon Multi-Stage",
+      "task_id": "long_horizon_sort_all_blocks",
+      "task_number": 129,
+      "policy_seed": 2292,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_129_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_129_p3_-y",
+      "domain_id": "D1",
+      "domain_name": "Long-Horizon Multi-Stage",
+      "task_id": "long_horizon_sort_all_blocks",
+      "task_number": 129,
+      "policy_seed": 2293,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_129_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d6_151_p0_+x",
+      "domain_id": "D6",
+      "domain_name": "Precision Multi-Body Chaining",
+      "task_id": "chain_shaft_bearing_clamp",
+      "task_number": 151,
+      "policy_seed": 2510,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d6_151_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d6_151_p1_-x",
+      "domain_id": "D6",
+      "domain_name": "Precision Multi-Body Chaining",
+      "task_id": "chain_shaft_bearing_clamp",
+      "task_number": 151,
+      "policy_seed": 2511,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d6_151_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d6_151_p2_+y",
+      "domain_id": "D6",
+      "domain_name": "Precision Multi-Body Chaining",
+      "task_id": "chain_shaft_bearing_clamp",
+      "task_number": 151,
+      "policy_seed": 2512,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d6_151_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d6_151_p3_-y",
+      "domain_id": "D6",
+      "domain_name": "Precision Multi-Body Chaining",
+      "task_id": "chain_shaft_bearing_clamp",
+      "task_number": 151,
+      "policy_seed": 2513,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d6_151_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d6_152_p0_+x",
+      "domain_id": "D6",
+      "domain_name": "Precision Multi-Body Chaining",
+      "task_id": "chain_bearing_then_gear",
+      "task_number": 152,
+      "policy_seed": 2520,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d6_152_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d6_152_p1_-x",
+      "domain_id": "D6",
+      "domain_name": "Precision Multi-Body Chaining",
+      "task_id": "chain_bearing_then_gear",
+      "task_number": 152,
+      "policy_seed": 2521,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d6_152_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d6_152_p2_+y",
+      "domain_id": "D6",
+      "domain_name": "Precision Multi-Body Chaining",
+      "task_id": "chain_bearing_then_gear",
+      "task_number": 152,
+      "policy_seed": 2522,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d6_152_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d6_152_p3_-y",
+      "domain_id": "D6",
+      "domain_name": "Precision Multi-Body Chaining",
+      "task_id": "chain_bearing_then_gear",
+      "task_number": 152,
+      "policy_seed": 2523,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d6_152_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d6_154_p0_+x",
+      "domain_id": "D6",
+      "domain_name": "Precision Multi-Body Chaining",
+      "task_id": "chain_bolt_and_nut",
+      "task_number": 154,
+      "policy_seed": 2540,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d6_154_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d6_154_p1_-x",
+      "domain_id": "D6",
+      "domain_name": "Precision Multi-Body Chaining",
+      "task_id": "chain_bolt_and_nut",
+      "task_number": 154,
+      "policy_seed": 2541,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d6_154_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d6_154_p2_+y",
+      "domain_id": "D6",
+      "domain_name": "Precision Multi-Body Chaining",
+      "task_id": "chain_bolt_and_nut",
+      "task_number": 154,
+      "policy_seed": 2542,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d6_154_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d6_154_p3_-y",
+      "domain_id": "D6",
+      "domain_name": "Precision Multi-Body Chaining",
+      "task_id": "chain_bolt_and_nut",
+      "task_number": 154,
+      "policy_seed": 2543,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d6_154_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_181_p0_+x",
+      "domain_id": "D1",
+      "domain_name": "Sequential Service & Culinary Assembly",
+      "task_id": "service_cheese_and_crown",
+      "task_number": 181,
+      "policy_seed": 2810,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_181_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_181_p1_-x",
+      "domain_id": "D1",
+      "domain_name": "Sequential Service & Culinary Assembly",
+      "task_id": "service_cheese_and_crown",
+      "task_number": 181,
+      "policy_seed": 2811,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_181_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_181_p2_+y",
+      "domain_id": "D1",
+      "domain_name": "Sequential Service & Culinary Assembly",
+      "task_id": "service_cheese_and_crown",
+      "task_number": 181,
+      "policy_seed": 2812,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_181_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_181_p3_-y",
+      "domain_id": "D1",
+      "domain_name": "Sequential Service & Culinary Assembly",
+      "task_id": "service_cheese_and_crown",
+      "task_number": 181,
+      "policy_seed": 2813,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_181_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_190_p0_+x",
+      "domain_id": "D1",
+      "domain_name": "Sequential Service & Culinary Assembly",
+      "task_id": "service_patty_cheese_plate",
+      "task_number": 190,
+      "policy_seed": 2900,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_190_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_190_p1_-x",
+      "domain_id": "D1",
+      "domain_name": "Sequential Service & Culinary Assembly",
+      "task_id": "service_patty_cheese_plate",
+      "task_number": 190,
+      "policy_seed": 2901,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_190_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_190_p2_+y",
+      "domain_id": "D1",
+      "domain_name": "Sequential Service & Culinary Assembly",
+      "task_id": "service_patty_cheese_plate",
+      "task_number": 190,
+      "policy_seed": 2902,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_190_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_190_p3_-y",
+      "domain_id": "D1",
+      "domain_name": "Sequential Service & Culinary Assembly",
+      "task_id": "service_patty_cheese_plate",
+      "task_number": 190,
+      "policy_seed": 2903,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_190_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_196_p0_+x",
+      "domain_id": "D1",
+      "domain_name": "Sequential Service & Culinary Assembly",
+      "task_id": "service_coffee_set",
+      "task_number": 196,
+      "policy_seed": 2960,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_196_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_196_p1_-x",
+      "domain_id": "D1",
+      "domain_name": "Sequential Service & Culinary Assembly",
+      "task_id": "service_coffee_set",
+      "task_number": 196,
+      "policy_seed": 2961,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_196_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_196_p2_+y",
+      "domain_id": "D1",
+      "domain_name": "Sequential Service & Culinary Assembly",
+      "task_id": "service_coffee_set",
+      "task_number": 196,
+      "policy_seed": 2962,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_196_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d1_196_p3_-y",
+      "domain_id": "D1",
+      "domain_name": "Sequential Service & Culinary Assembly",
+      "task_id": "service_coffee_set",
+      "task_number": 196,
+      "policy_seed": 2963,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d1_196_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d8_234_p0_+x",
+      "domain_id": "D8",
+      "domain_name": "Frontier Reactive & Articulated Manipulation",
+      "task_id": "frontier_reactive_sort_red",
+      "task_number": 234,
+      "policy_seed": 3340,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d8_234_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d8_234_p1_-x",
+      "domain_id": "D8",
+      "domain_name": "Frontier Reactive & Articulated Manipulation",
+      "task_id": "frontier_reactive_sort_red",
+      "task_number": 234,
+      "policy_seed": 3341,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d8_234_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d8_234_p2_+y",
+      "domain_id": "D8",
+      "domain_name": "Frontier Reactive & Articulated Manipulation",
+      "task_id": "frontier_reactive_sort_red",
+      "task_number": 234,
+      "policy_seed": 3342,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d8_234_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d8_234_p3_-y",
+      "domain_id": "D8",
+      "domain_name": "Frontier Reactive & Articulated Manipulation",
+      "task_id": "frontier_reactive_sort_red",
+      "task_number": 234,
+      "policy_seed": 3343,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d8_234_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d8_235_p0_+x",
+      "domain_id": "D8",
+      "domain_name": "Frontier Reactive & Articulated Manipulation",
+      "task_id": "frontier_reactive_shaft_seat",
+      "task_number": 235,
+      "policy_seed": 3350,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d8_235_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d8_235_p1_-x",
+      "domain_id": "D8",
+      "domain_name": "Frontier Reactive & Articulated Manipulation",
+      "task_id": "frontier_reactive_shaft_seat",
+      "task_number": 235,
+      "policy_seed": 3351,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d8_235_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d8_235_p2_+y",
+      "domain_id": "D8",
+      "domain_name": "Frontier Reactive & Articulated Manipulation",
+      "task_id": "frontier_reactive_shaft_seat",
+      "task_number": 235,
+      "policy_seed": 3352,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d8_235_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d8_235_p3_-y",
+      "domain_id": "D8",
+      "domain_name": "Frontier Reactive & Articulated Manipulation",
+      "task_id": "frontier_reactive_shaft_seat",
+      "task_number": 235,
+      "policy_seed": 3353,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d8_235_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d8_240_p0_+x",
+      "domain_id": "D8",
+      "domain_name": "Frontier Reactive & Articulated Manipulation",
+      "task_id": "frontier_reactive_double_displacement",
+      "task_number": 240,
+      "policy_seed": 3400,
+      "timing_bucket": "early",
+      "scenario": {
+        "scenario_id": "scen_afford_d8_240_p0_+x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 15,
+          "proximity_threshold_m": 0.1,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+x",
+          "offset_m": [
+            0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d8_240_p1_-x",
+      "domain_id": "D8",
+      "domain_name": "Frontier Reactive & Articulated Manipulation",
+      "task_id": "frontier_reactive_double_displacement",
+      "task_number": 240,
+      "policy_seed": 3401,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d8_240_p1_-x",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-x",
+          "offset_m": [
+            -0.03,
+            0.0,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d8_240_p2_+y",
+      "domain_id": "D8",
+      "domain_name": "Frontier Reactive & Articulated Manipulation",
+      "task_id": "frontier_reactive_double_displacement",
+      "task_number": 240,
+      "policy_seed": 3402,
+      "timing_bucket": "late",
+      "scenario": {
+        "scenario_id": "scen_afford_d8_240_p2_+y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 35,
+          "proximity_threshold_m": 0.05,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "+y",
+          "offset_m": [
+            0.0,
+            0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    },
+    {
+      "case_id": "afford_d8_240_p3_-y",
+      "domain_id": "D8",
+      "domain_name": "Frontier Reactive & Articulated Manipulation",
+      "task_id": "frontier_reactive_double_displacement",
+      "task_number": 240,
+      "policy_seed": 3403,
+      "timing_bucket": "middle",
+      "scenario": {
+        "scenario_id": "scen_afford_d8_240_p3_-y",
+        "change_family": "SPATIAL_DISPLACEMENT",
+        "change_type": "object_displacement",
+        "trigger": {
+          "trigger_type": "pre_grasp_proximity",
+          "step": 25,
+          "proximity_threshold_m": 0.08,
+          "force_threshold_n": null
+        },
+        "intervention": {
+          "direction": "-y",
+          "offset_m": [
+            0.0,
+            -0.03,
+            0.0
+          ],
+          "impulse_velocity_mps": null
+        },
+        "safety_thresholds": {
+          "max_safe_force_n": 150.0,
+          "enforce_torque_limits": true
+        }
+      }
+    }
+  ]
+}

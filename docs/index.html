@@ -3,21 +3,34 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AFFORD-Bench</title>
-  <meta name="description" content="AFFORD-Bench: 210 instruction-accurate manipulation tasks on a simulated Franka Panda, with physical millimeter-precision success checks and paired spatial, visual, and physical shift suites.">
+  <title>AFFORD-Bench: Precision Manipulation with Dynamic Robustness &amp; Force Sensing</title>
+  <meta name="description" content="AFFORD-Bench: 240 instruction-accurate manipulation tasks on a simulated Franka Panda, with physical millimeter-precision success checks, 7-D actuator torques, and paired spatial, visual, and dynamic shift suites.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="site/style.css">
+  <script>
+    try {
+      const saved = localStorage.getItem("afford-bench-theme");
+      if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
+    } catch (e) {}
+  </script>
 </head>
 <body>
   <nav class="nav" aria-label="Main">
     <div class="wrap">
       <a class="brand" href="#top">AFFORD-Bench</a>
       <ul>
+        <li><a href="#showcase">Rollouts</a></li>
+        <li><a href="#dynamic">Dynamic</a></li>
+        <li><a href="#force-sensing">Force &amp; Safety</a></li>
         <li><a href="#leaderboard">Leaderboard</a></li>
         <li><a href="#tasks">Tasks</a></li>
         <li><a href="#suites">Suites</a></li>
         <li><a href="#dataset">Dataset</a></li>
         <li><a href="#use">Use</a></li>
       </ul>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme" title="Toggle color theme"><span class="theme-glyph">◐</span></button>
     </div>
   </nav>
 
@@ -25,12 +38,14 @@
     <div class="wrap">
       <div class="eyebrow">Benchmark &amp; dataset &middot; RSS 2027 submission (anonymous)</div>
       <h1>AFFORD-Bench</h1>
-      <p class="lede">210 manipulation tasks on a simulated Franka Panda, from shaft seating to burger assembly and centrifuge loading, evaluated under spatial, visual, and physical shift.</p>
+      <p class="lede">240 physical manipulation tasks on a simulated Franka Panda across 8 domains, with 7-D actuator motor torques (&tau;<sub>act</sub>), contact force telemetry, and paired counterfactual dynamic shift suites.</p>
       <p class="sub">Every instruction names only simulated objects and is checked as a conjunction of physical goals, in order. A placed object must be released, supported, upright, and at rest within 2&ndash;8&nbsp;mm of its goal. Grasping is frictional; nothing is welded or snapped into place.</p>
       <div class="links">
         <a class="btn primary" href="#leaderboard">Leaderboard</a>
+        <a class="btn" href="#showcase">Watch rollouts</a>
+        <a class="btn" href="#dynamic">Dynamic protocol</a>
+        <a class="btn" href="#force-sensing">Force compliance</a>
         <a class="btn" href="#tasks">Browse tasks</a>
-        <a class="btn" href="#dataset">Dataset</a>
         <a class="btn" href="#use">Evaluate a policy</a>
       </div>
       <div class="stats" id="stats" aria-live="polite"></div>
@@ -38,6 +53,167 @@
   </header>
 
   <main>
+    <!-- ------------------------------------------------------------- Showcase Carousel -->
+    <section id="showcase">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow" style="color:var(--danger)">Physics Rollout Showcase</div>
+            <h2>Representative Domain Rollouts</h2>
+            <p>210 core manipulation tasks across seven standard domains and 30 frontier tasks, executed on a Franka Panda with true physical contacts, frictional grasps, and millimeter-level tolerances.</p>
+          </div>
+        </div>
+        <div class="video-carousel" id="domainCarousel">
+          <div class="carousel-tabs" role="tablist" id="carouselTabs"></div>
+          <div class="carousel-body">
+            <div class="carousel-video-frame">
+              <video id="carouselVideo" autoplay loop muted playsinline preload="auto">
+                <source src="videos/d1_industrial_shaft_assembly.mp4" type="video/mp4">
+              </video>
+            </div>
+            <div class="carousel-info">
+              <div class="card-label" id="carouselDomainTag">D1 · INDUSTRIAL PRECISION</div>
+              <h4 id="carouselTitle">Machined Shaft Assembly into Central Jig Bore</h4>
+              <p id="carouselDesc">Rigid insertion with tight millimeter clearance (&plusmn;2.5 mm). Monitored for binding, frictional wedging, and joint torque saturation.</p>
+              <div class="carousel-meta" id="carouselMeta">
+                <span>&plusmn;2.5 mm Clearance</span>
+                <span>Frictional Peg</span>
+                <span>7-D Torques</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------------------- Dynamic Robustness -->
+    <section id="dynamic">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow" style="color:var(--danger)">Dynamic Robustness Gap</div>
+            <h2>Same Past. Changed Present.</h2>
+            <p>Conventional benchmarks only evaluate static variation before the robot acts. AFFORD-Bench formalizes mid-trajectory object displacement into paired Base and Dynamic suites across D1–D8.</p>
+          </div>
+        </div>
+        <div class="comparison-grid">
+          <article class="comparison-card static-card">
+            <div class="card-label">Static Robustness (L1–L5)</div>
+            <h3>The shift is visible before action begins.</h3>
+            <div class="timeline-flow" aria-label="Static robustness timeline">
+              <span class="timeline-chip active-purple">Shift (t=0)</span>
+              <span class="timeline-sep">&rarr;</span>
+              <span class="timeline-chip">Reset</span>
+              <span class="timeline-sep">&rarr;</span>
+              <span class="timeline-chip">Observe</span>
+              <span class="timeline-sep">&rarr;</span>
+              <span class="timeline-chip">Act</span>
+            </div>
+            <p class="note">Traditional OOD suites test generalization from a shifted initial scene layout. The policy plans from t=0 with full knowledge of the displaced objects.</p>
+          </article>
+
+          <div class="comparison-arrow" aria-hidden="true">&rArr;</div>
+
+          <article class="comparison-card dynamic-card">
+            <div class="card-label">Dynamic Robustness (Paired Suites)</div>
+            <h3>The world shifts after the policy commits.</h3>
+            <div class="timeline-flow" aria-label="Dynamic robustness timeline">
+              <span class="timeline-chip">Reset</span>
+              <span class="timeline-sep">&rarr;</span>
+              <span class="timeline-chip">Act Prefix a<sub>0:t*</sub></span>
+              <span class="timeline-sep">&rarr;</span>
+              <span class="timeline-chip active-red">Displace (&plusmn;3 cm)</span>
+              <span class="timeline-sep">&rarr;</span>
+              <span class="timeline-chip">Adapt</span>
+            </div>
+            <p class="note">Both arms share the exact initial state, random seed, and executed prefix a<sub>0:t*</sub>. At trigger t*, the manipulated workpiece is displaced mid-trajectory, isolating online reactive adaptability.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------------------- Force & Safety Sensing -->
+    <section id="force-sensing">
+      <div class="wrap">
+        <div class="advantage-banner">
+          <div>
+            <div class="card-label" style="color:var(--danger)">Crucial Competitive Edge</div>
+            <h3>Beyond Pixels: Physical Torque &amp; Contact Safety</h3>
+            <p>Unlike purely kinematic benchmarks (such as LIBERO-MAX, which lack all force and torque channels), AFFORD-Bench logs complete <strong>7-D actuator motor torques &tau;<sub>act</sub></strong> and <strong>3-D contact force vectors F<sub>contact</sub></strong> throughout every episode.</p>
+            <p>When an online disturbance causes a trajectory error, kinematic benchmarks may score a violent collision or mechanical stall as "success" if the parts eventually slide into place. AFFORD-Bench enforces <strong>Compliant Dynamic Success</strong>: a policy must solve the goal while strictly respecting cobot safety envelopes.</p>
+          </div>
+          <div class="spec-grid">
+            <div class="spec-box">
+              <b>&le; 150 N</b>
+              <span>Max Safe Contact Force (ISO/TS 15066)</span>
+            </div>
+            <div class="spec-box">
+              <b>7-D &tau;<sub>act</sub></b>
+              <span>Motor Torque Logging (N&middot;m)</span>
+            </div>
+            <div class="spec-box">
+              <b>[87, 87, 87, 87, 12, 12, 12]</b>
+              <span>Panda Actuator Torque Limits (N&middot;m)</span>
+            </div>
+            <div class="spec-box">
+              <b>Compliant Success</b>
+              <span>Task Success &and; Zero Safety Violations</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrap" style="margin-top:28px">
+          <table>
+            <caption>Physical Realism &amp; Evaluation Capability vs. Prior Benchmarks</caption>
+            <thead>
+              <tr>
+                <th>Benchmark</th>
+                <th>Task Scope</th>
+                <th>Evaluation Shift</th>
+                <th>Force &amp; Torque Telemetry</th>
+                <th>Safety Envelope</th>
+                <th>Clearance Precision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><b>Robomimic</b></td>
+                <td>6 environments</td>
+                <td>Nominal only</td>
+                <td><span style="color:var(--muted)">None (kinematic)</span></td>
+                <td><span style="color:var(--muted)">None</span></td>
+                <td>Coarse (&gt;10 mm)</td>
+              </tr>
+              <tr>
+                <td><b>LIBERO / Plus / PRO</b></td>
+                <td>130 tasks</td>
+                <td>Static (t = 0 reset)</td>
+                <td><span style="color:var(--muted)">None (kinematic)</span></td>
+                <td><span style="color:var(--muted)">None</span></td>
+                <td>Coarse (&gt;15 mm)</td>
+              </tr>
+              <tr>
+                <td><b>LIBERO-MAX</b></td>
+                <td>8,000 paired cases</td>
+                <td>Dynamic (t* online)</td>
+                <td><span style="color:var(--muted)">None (pixels only)</span></td>
+                <td><span style="color:var(--muted)">None</span></td>
+                <td>Coarse (&gt;15 mm)</td>
+              </tr>
+              <tr style="background:color-mix(in srgb, var(--accent-soft) 40%, var(--surface))">
+                <td><strong style="color:var(--accent)">AFFORD-Bench (Ours)</strong></td>
+                <td><strong>240 tasks (D1&ndash;D8)</strong></td>
+                <td><strong>Static (L1&ndash;L5) &amp; Paired Dynamic</strong></td>
+                <td><strong style="color:var(--accent)">7-D &tau;<sub>act</sub> + 3-D F<sub>contact</sub></strong></td>
+                <td><strong>F<sub>max</sub> &le; 150 N &amp; &tau;<sub>max</sub></strong></td>
+                <td><strong>Millimeter (&plusmn;2.0 mm)</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
     <section id="leaderboard">
       <div class="wrap">
         <div class="section-head">
@@ -141,6 +317,17 @@ python scripts/evaluate_policy_suite.py \
 <pre>python scripts/train_policy.py --policy bc --modality objects \
   --domain tabletop --epochs 200 --seed 1 --tag seed1</pre>
           </details>
+
+          <h3 style="margin-top:24px">Paired Dynamic Evaluation</h3>
+          <p class="note" style="margin:0 0 10px">Evaluate counterfactual Base/Dynamic pairs from frozen benchmark manifests (<a href="BENCHMARK_SPEC.md">Specification</a>):</p>
+<pre># Validate frozen benchmark manifests against schemas
+python scripts/validate_manifests.py
+
+# Run Lite Benchmark (96 matched pairs across D1–D8)
+python scripts/evaluate_paired_dynamic.py --tasks representative --max-cases 96
+
+# Run full evaluation across all 240 tasks
+python scripts/evaluate_paired_dynamic.py --tasks all</pre>
         </div>
         <div>
           <h2>Cite</h2>

@@ -59,3 +59,7 @@ scratch/
 
 # Paper source and drafts (kept local, not published)
 AFFORD-Bench_RSS'27/
+
+# Evaluation outputs
+results/
+

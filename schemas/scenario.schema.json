@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://afford-bench.org/schemas/scenario.schema.json",
+  "title": "AFFORD-Bench Dynamic Scenario Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "scenario_id",
+    "change_family",
+    "change_type",
+    "trigger",
+    "intervention",
+    "safety_thresholds"
+  ],
+  "properties": {
+    "scenario_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "change_family": {
+      "enum": [
+        "SPATIAL_DISPLACEMENT",
+        "FORCE_IMPULSE",
+        "FIXTURE_SHIFT",
+        "OBSTACLE_DROP",
+        "COMPLIANCE_DETENT"
+      ]
+    },
+    "change_type": {
+      "enum": [
+        "object_displacement",
+        "double_displacement",
+        "impulse_wrench",
+        "goal_fixture_shift",
+        "obstacle_insertion",
+        "twist_lock_detent"
+      ]
+    },
+    "trigger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["trigger_type"],
+      "properties": {
+        "trigger_type": {
+          "enum": [
+            "pre_grasp_proximity",
+            "mid_approach_step",
+            "fixed_step",
+            "after_grasp",
+            "on_force_threshold"
+          ]
+        },
+        "step": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "proximity_threshold_m": {
+          "type": ["number", "null"],
+          "minimum": 0
+        },
+        "force_threshold_n": {
+          "type": ["number", "null"],
+          "minimum": 0
+        }
+      }
+    },
+    "intervention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["direction", "offset_m"],
+      "properties": {
+        "direction": {
+          "type": "string"
+        },
+        "offset_m": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "impulse_velocity_mps": {
+          "type": ["array", "null"],
+          "items": { "type": "number" },
+          "minItems": 3,
+          "maxItems": 3
+        }
+      }
+    },
+    "safety_thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_safe_force_n", "enforce_torque_limits"],
+      "properties": {
+        "max_safe_force_n": {
+          "type": "number",
+          "const": 150.0
+        },
+        "enforce_torque_limits": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    }
+  }
+}

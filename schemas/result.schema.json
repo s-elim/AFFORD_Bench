@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://afford-bench.org/schemas/result.schema.json",
+  "title": "AFFORD-Bench Evaluation Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "case_id",
+    "task_id",
+    "domain_id",
+    "policy_name",
+    "base_arm",
+    "dynamic_arm",
+    "paired_category",
+    "compliant_dynamic_success"
+  ],
+  "properties": {
+    "case_id": { "type": "string", "minLength": 1 },
+    "task_id": { "type": "string", "minLength": 1 },
+    "domain_id": { "type": "string", "pattern": "^D[1-8]$" },
+    "policy_name": { "type": "string", "minLength": 1 },
+    "base_arm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["success", "steps", "peak_contact_force_n", "safety_violation"],
+      "properties": {
+        "success": { "type": "boolean" },
+        "steps": { "type": "integer", "minimum": 0 },
+        "peak_contact_force_n": { "type": "number", "minimum": 0 },
+        "safety_violation": { "type": "boolean" }
+      }
+    },
+    "dynamic_arm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["success", "steps", "peak_contact_force_n", "safety_violation", "event_triggered"],
+      "properties": {
+        "success": { "type": "boolean" },
+        "steps": { "type": "integer", "minimum": 0 },
+        "peak_contact_force_n": { "type": "number", "minimum": 0 },
+        "safety_violation": { "type": "boolean" },
+        "event_triggered": { "type": "boolean" }
+      }
+    },
+    "paired_category": {
+      "enum": ["preserved_success", "event_regression", "recovery", "persistent_failure"]
+    },
+    "compliant_dynamic_success": { "type": "boolean" },
+    "force_spike_ratio": { "type": "number", "minimum": 0 }
+  }
+}

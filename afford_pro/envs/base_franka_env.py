@@ -392,6 +392,9 @@ class BaseFrankaEnv(gym.Env):
             "joint_velocities": spaces.Box(low=-10.0, high=10.0, shape=(7,), dtype=np.float64),
             "tcp_pose": spaces.Box(low=-5.0, high=5.0, shape=(7,), dtype=np.float64),
             "gripper_width": spaces.Box(low=0.0, high=0.1, shape=(1,), dtype=np.float64),
+            "joint_torques": spaces.Box(low=-100.0, high=100.0, shape=(7,), dtype=np.float64),
+            "actuator_torques": spaces.Box(low=-100.0, high=100.0, shape=(7,), dtype=np.float64),
+            "robot_scene_force": spaces.Box(low=0.0, high=1000.0, shape=(1,), dtype=np.float64),
             # Robomimic & LIBERO aliases
             "agentview_image": spaces.Box(low=0, high=255, shape=(*agentic_cam_size, 3), dtype=np.uint8),
             "agentview_rgb": spaces.Box(low=0, high=255, shape=(*agentic_cam_size, 3), dtype=np.uint8),
@@ -400,6 +403,7 @@ class BaseFrankaEnv(gym.Env):
             "joint_states": spaces.Box(low=-np.pi, high=np.pi, shape=(7,), dtype=np.float64),
             "robot0_joint_pos": spaces.Box(low=-np.pi, high=np.pi, shape=(7,), dtype=np.float64),
             "robot0_joint_vel": spaces.Box(low=-10.0, high=10.0, shape=(7,), dtype=np.float64),
+            "robot0_joint_torque": spaces.Box(low=-100.0, high=100.0, shape=(7,), dtype=np.float64),
             "robot0_eef_pos": spaces.Box(low=-5.0, high=5.0, shape=(3,), dtype=np.float64),
             "ee_pos": spaces.Box(low=-5.0, high=5.0, shape=(3,), dtype=np.float64),
             "gripper_states": spaces.Box(low=0.0, high=0.1, shape=(2,), dtype=np.float64),
@@ -415,6 +419,23 @@ class BaseFrankaEnv(gym.Env):
             obs_dict["agentview_depth"] = spaces.Box(low=0.0, high=10.0, shape=agentic_cam_size, dtype=np.float32)
             obs_dict["eye_in_hand_depth"] = spaces.Box(low=0.0, high=10.0, shape=wrist_cam_size, dtype=np.float32)
         self.observation_space = spaces.Dict(obs_dict)
+
+        # Franka Emika Panda actuator torque limits (Nm) and safety contact force limit (N)
+        self.panda_torque_limits = np.array([87.0, 87.0, 87.0, 87.0, 12.0, 12.0, 12.0], dtype=np.float64)
+        self.max_safe_contact_force = 150.0  # N (ISO/TS 15066 safety threshold)
+        self.peak_contact_force = 0.0
+        self.peak_joint_torques = np.zeros(7, dtype=np.float64)
+        self.force_limit_exceeded = False
+        self.torque_limit_exceeded = False
+        self.safety_violation = False
+
+        # Mid-trajectory dynamic perturbation support
+        self.dynamic_perturbation_step: int | None = None
+        self.dynamic_perturbation_offset: np.ndarray | None = None
+        self.dynamic_perturbation_trigger: str = "step"  # "step" | "pre_grasp" | "proximity"
+        self.dynamic_proximity_threshold: float = 0.08    # meters
+        self.dynamic_perturbed_applied: bool = False
+
         self._setup_task()
         self.reset()
 
@@ -505,6 +526,26 @@ class BaseFrankaEnv(gym.Env):
     def gripper_width(self) -> float:
         """Measured opening of one finger (m), 0.0 closed .. 0.04 open."""
         return float(np.mean([self.data.qpos[a] for a in self.finger_qpos_adr]))
+
+    @property
+    def actuator_torques(self) -> np.ndarray:
+        """Actuator motor torques (N*m) on the 7 arm joints (tau_act)."""
+        return np.array([self.data.actuator_force[a] for a in self.arm_actuator_ids], dtype=np.float64)
+
+    @property
+    def joint_torques(self) -> np.ndarray:
+        """Alias for actuator_torques (tau_act in N*m)."""
+        return self.actuator_torques
+
+    @property
+    def external_joint_torques(self) -> np.ndarray:
+        """Constraint/contact torques (N*m) projected onto the 7 arm joints (tau_ext)."""
+        return np.array(self.data.qfrc_constraint[self.arm_dof_adr], dtype=np.float64)
+
+    @property
+    def gripper_actuator_force(self) -> float:
+        """Actuator tendon force (N) on the gripper."""
+        return float(self.data.actuator_force[self.gripper_actuator_id])
 
     def solve_ik(self, target_pos: np.ndarray, target_yaw: float, q_init: np.ndarray, max_iter: int = 60,
                  tol: float = 1e-4) -> np.ndarray:
@@ -690,8 +731,11 @@ class BaseFrankaEnv(gym.Env):
             "wrist_rgb": wrist_rgb,
             "joint_positions": self.joint_positions,
             "joint_velocities": self.joint_velocities,
+            "joint_torques": self.actuator_torques,
+            "actuator_torques": self.actuator_torques,
             "tcp_pose": self.tcp_pose,
             "gripper_width": np.array([self.gripper_width], dtype=np.float64),
+            "robot_scene_force": np.array([self.robot_scene_force({getattr(self, "target_id", -1)})], dtype=np.float64),
         }
 
         # Standard Robomimic & LIBERO aliases:
@@ -702,6 +746,7 @@ class BaseFrankaEnv(gym.Env):
         obs["joint_states"] = self.joint_positions
         obs["robot0_joint_pos"] = self.joint_positions
         obs["robot0_joint_vel"] = self.joint_velocities
+        obs["robot0_joint_torque"] = self.actuator_torques
         obs["robot0_eef_pos"] = self.tcp_position
         obs["ee_pos"] = self.tcp_position
         obs["gripper_states"] = np.array([self.gripper_width, self.gripper_width], dtype=np.float64)
@@ -776,18 +821,79 @@ class BaseFrankaEnv(gym.Env):
         reward = self.compute_reward()
         terminated = self.check_success()
         truncated = self.current_step >= self.max_episode_steps
-        info = {"success": terminated, "step": self.current_step,
-                "robot_scene_force": self.robot_scene_force({getattr(self, "target_id", -1)})}
+        info = {
+            "success": terminated,
+            "step": self.current_step,
+            "robot_scene_force": self.robot_scene_force({getattr(self, "target_id", -1)}),
+            "peak_contact_force": self.peak_contact_force,
+            "force_limit_exceeded": self.force_limit_exceeded,
+            "torque_limit_exceeded": self.torque_limit_exceeded,
+            "safety_violation": self.safety_violation,
+            "dynamic_perturbed": self.dynamic_perturbed_applied,
+        }
 
         return CompatStepResult(obs, reward, terminated, truncated, info)
 
+    def apply_object_displacement(self, offset: list[float] | np.ndarray) -> bool:
+        """Displace the active manipulated target object mid-trajectory and zero its velocities."""
+        target_qposadr = getattr(self, "target_qposadr", None)
+        if target_qposadr is None:
+            return False
+        curr_pos = self.data.qpos[target_qposadr : target_qposadr + 3].copy()
+        offset_arr = np.asarray(offset, dtype=np.float64)
+        if offset_arr.shape != (3,):
+            raise ValueError(f"Displacement offset must have shape (3,), got {offset_arr.shape}")
+        self.data.qpos[target_qposadr : target_qposadr + 3] = curr_pos + offset_arr
+        if target_qposadr in self.free_qpos_to_dof:
+            dof = self.free_qpos_to_dof[target_qposadr]
+            self.data.qvel[dof : dof + 6] = 0.0
+        mujoco.mj_forward(self.model, self.data)
+        self.dynamic_perturbed_applied = True
+        return True
+
     def _after_step(self) -> None:
-        """Hook for per-step bookkeeping after physics integration."""
-        pass
+        """Hook for per-step bookkeeping, force/torque safety monitoring, and dynamic perturbations."""
+        # 1. Update peak contact force and check safety limits
+        force = float(np.linalg.norm(self.robot_scene_force({getattr(self, "target_id", -1)})))
+        if force > self.peak_contact_force:
+            self.peak_contact_force = force
+        if force > self.max_safe_contact_force:
+            self.force_limit_exceeded = True
+
+        # 2. Update peak actuator joint torques and check saturation limits
+        torques = np.abs(self.actuator_torques)
+        self.peak_joint_torques = np.maximum(self.peak_joint_torques, torques)
+        if np.any(torques > self.panda_torque_limits):
+            self.torque_limit_exceeded = True
+
+        if self.force_limit_exceeded or self.torque_limit_exceeded:
+            self.safety_violation = True
+
+        # 3. Handle mid-trajectory dynamic perturbation if configured
+        if not self.dynamic_perturbed_applied and self.dynamic_perturbation_offset is not None:
+            should_trigger = False
+            if self.dynamic_perturbation_trigger == "step" and self.dynamic_perturbation_step is not None:
+                should_trigger = self.current_step >= self.dynamic_perturbation_step
+            elif self.dynamic_perturbation_trigger in ("proximity", "pre_grasp"):
+                target_id = getattr(self, "target_id", -1)
+                if target_id != -1:
+                    target_pos = self.data.xpos[target_id]
+                    dist_to_obj = float(np.linalg.norm(self.tcp_position[:2] - target_pos[:2]))
+                    if dist_to_obj <= self.dynamic_proximity_threshold:
+                        should_trigger = True
+            
+            if should_trigger:
+                self.apply_object_displacement(self.dynamic_perturbation_offset)
 
     def reset(self, *, seed: int | None = None, options: dict[str, Any] | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
         super().reset(seed=seed)
         self.current_step = 0
+        self.dynamic_perturbed_applied = False
+        self.peak_contact_force = 0.0
+        self.peak_joint_torques = np.zeros(7, dtype=np.float64)
+        self.force_limit_exceeded = False
+        self.torque_limit_exceeded = False
+        self.safety_violation = False
 
         mujoco.mj_resetData(self.model, self.data)
         engine = getattr(self, "perturbation_engine", None)
